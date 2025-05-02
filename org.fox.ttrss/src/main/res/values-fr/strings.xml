@@ -293,4 +293,8 @@
     <string name="check_for_updates">Vérifier les mises à jour</string>
     <string name="dont_open_anything">Rien</string>
     <string name="open_on_startup">Ouvrir au démarrage</string>
+    <string name="catchup_dialog_title_search">Marquer les résultats de la recherche dans %1$s comme lus ?</string>
+    <string name="force_phone_layout">Forcer l’affichage mobile</string>
+    <string name="catchup_dialog_title">Marquer %1$s comme lu ?</string>
+    <string name="headlines_display_mode">Changer l’affichage</string>
 </resources>
