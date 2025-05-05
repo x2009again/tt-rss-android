@@ -331,44 +331,43 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
             return true;
         }
 
-        switch (item.getItemId()) {
-        case R.id.headlines_toggle_sort_order:
+        if (item.getItemId() == R.id.headlines_toggle_sort_order) {
             LinkedHashMap<String, String> sortModes = getSortModes();
 
-			CharSequence[] sortTitles = sortModes.values().toArray(new CharSequence[0]);
-			final CharSequence[] sortNames = sortModes.keySet().toArray(new CharSequence[0]);
+            CharSequence[] sortTitles = sortModes.values().toArray(new CharSequence[0]);
+            final CharSequence[] sortNames = sortModes.keySet().toArray(new CharSequence[0]);
 
-			String currentMode = getSortMode();
+            String currentMode = getSortMode();
 
-			int i = 0;
-			int selectedIndex = 0;
+            int i = 0;
+            int selectedIndex = 0;
 
-			for (CharSequence tmp : sortNames) {
-				if (tmp.equals(currentMode)) {
-					selectedIndex = i;
-					break;
-				}
+            for (CharSequence tmp : sortNames) {
+                if (tmp.equals(currentMode)) {
+                    selectedIndex = i;
+                    break;
+                }
 
-				++i;
-			}
+                ++i;
+            }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.headlines_sort_articles_title))
                     .setSingleChoiceItems(
-							sortTitles,
+                            sortTitles,
                             selectedIndex, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog,
                                                     int which) {
 
-                                	try {
+                                    try {
 //										Log.d(TAG, "sort selected index:" + which + ": " + sortNames[which]);
 
-										setSortMode((String)sortNames[which]);
+                                        setSortMode((String) sortNames[which]);
 
-									} catch (IndexOutOfBoundsException e) {
-                                		e.printStackTrace();
-									}
+                                    } catch (IndexOutOfBoundsException e) {
+                                        e.printStackTrace();
+                                    }
 
                                     dialog.cancel();
 
@@ -380,11 +379,10 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
             dialog.show();
 
             return true;
-		default:
-			Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
-			return super.onOptionsItemSelected(item);
-		}
-	}
+        }
+        Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onBackPressed() {

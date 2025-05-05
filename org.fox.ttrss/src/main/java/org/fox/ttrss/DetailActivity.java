@@ -172,15 +172,13 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-		case android.R.id.home:
+        if (item.getItemId() == android.R.id.home) {
             onBackPressed();
-			return true;
-		default:
-			Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
-			return super.onOptionsItemSelected(item);
-		}
-	}
+            return true;
+        }
+        Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
+        return super.onOptionsItemSelected(item);
+    }
 	
 	@Override
 	public void onResume() {

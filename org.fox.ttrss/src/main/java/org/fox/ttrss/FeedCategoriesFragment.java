@@ -216,50 +216,48 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-		
-		switch (item.getItemId()) {
-		case R.id.browse_headlines:
-			if (true) {
-				FeedCategory cat = getCategoryAtPosition(info.position);
-				if (cat != null) {
-					m_activity.onCatSelected(cat, true);
-					//setSelectedCategory(cat);
-				}
-			}
-			return true;
-		case R.id.browse_feeds:
-			if (true) {
-				FeedCategory cat = getCategoryAtPosition(info.position);
-				if (cat != null) {
-					m_activity.onCatSelected(cat, false);
-					//cf.setSelectedCategory(cat);
-				}
-			}
-			return true;
-		case R.id.create_shortcut:
-			if (true) {
-				FeedCategory cat = getCategoryAtPosition(info.position);
-				if (cat != null) {
-					m_activity.createCategoryShortcut(cat);
-					//cf.setSelectedCategory(cat);
-				}
-			}
-			return true;
-		case R.id.catchup_category:
-			if (true) {
-				final FeedCategory cat = getCategoryAtPosition(info.position);
 
-				if (cat != null) {
-					m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
-				}
-			}
-			return true;
-		
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+        int itemId = item.getItemId();
+        if (itemId == R.id.browse_headlines) {
+            if (true) {
+                FeedCategory cat = getCategoryAtPosition(info.position);
+                if (cat != null) {
+                    m_activity.onCatSelected(cat, true);
+                    //setSelectedCategory(cat);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.browse_feeds) {
+            if (true) {
+                FeedCategory cat = getCategoryAtPosition(info.position);
+                if (cat != null) {
+                    m_activity.onCatSelected(cat, false);
+                    //cf.setSelectedCategory(cat);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.create_shortcut) {
+            if (true) {
+                FeedCategory cat = getCategoryAtPosition(info.position);
+                if (cat != null) {
+                    m_activity.createCategoryShortcut(cat);
+                    //cf.setSelectedCategory(cat);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.catchup_category) {
+            if (true) {
+                final FeedCategory cat = getCategoryAtPosition(info.position);
+
+                if (cat != null) {
+                    m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
+                }
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,

@@ -237,75 +237,73 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-		switch (item.getItemId()) {
-		case R.id.browse_headlines:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
-				if (feed != null) {
-					m_activity.onFeedSelected(feed);
-				}
-			}
-			return true;
-		case R.id.browse_feeds:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
-				if (feed != null) {
-					m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
-				}
-			}
-			return true;
-		case R.id.unsubscribe_feed:
-			if (true) {
-				final Feed feed = getFeedAtPosition(info.position);
+        int itemId = item.getItemId();
+        if (itemId == R.id.browse_headlines) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+                if (feed != null) {
+                    m_activity.onFeedSelected(feed);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.browse_feeds) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+                if (feed != null) {
+                    m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.unsubscribe_feed) {
+            if (true) {
+                final Feed feed = getFeedAtPosition(info.position);
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						m_activity)
-						.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
-						.setPositiveButton(R.string.unsubscribe,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int which) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(
+                        m_activity)
+                        .setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
+                        .setPositiveButton(R.string.unsubscribe,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-										m_activity.unsubscribeFeed(feed);											
-										
-									}
-								})
-						.setNegativeButton(R.string.dialog_cancel,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int which) {
+                                        m_activity.unsubscribeFeed(feed);
 
-									}
-								});
+                                    }
+                                })
+                        .setNegativeButton(R.string.dialog_cancel,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-				AlertDialog dlg = builder.create();
-				dlg.show();	
-			}			
-			
-			return true;
-		case R.id.create_shortcut:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
-				if (feed != null) {
-					m_activity.createFeedShortcut(feed);
-				}
-			}
-			return true;
-		case R.id.catchup_feed:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
+                                    }
+                                });
 
-				if (feed != null) {
-					m_activity.catchupDialog(feed);
-				}
-			}
-			return true;
-		
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+                AlertDialog dlg = builder.create();
+                dlg.show();
+            }
+
+            return true;
+        } else if (itemId == R.id.create_shortcut) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+                if (feed != null) {
+                    m_activity.createFeedShortcut(feed);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.catchup_feed) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+
+                if (feed != null) {
+                    m_activity.catchupDialog(feed);
+                }
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,

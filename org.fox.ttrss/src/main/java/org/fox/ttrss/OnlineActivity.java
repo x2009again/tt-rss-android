@@ -439,53 +439,52 @@ public class OnlineActivity extends CommonActivity {
 				.getMenuInfo(); */
 		
 		final ArticlePager ap = (ArticlePager)getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-		
-		switch (item.getItemId()) {
-		case R.id.article_img_open:
-			if (getLastContentImageHitTestUrl() != null) {
-				try {
-					openUri(Uri.parse(getLastContentImageHitTestUrl()));
-				} catch (Exception e) {
-					e.printStackTrace();
-					toast(R.string.error_other_error);
-				}
-			}			
-			return true;
-		case R.id.article_img_copy:
-			if (getLastContentImageHitTestUrl() != null) {
-				copyToClipboard(getLastContentImageHitTestUrl());
-			}			
-			return true;
-		case R.id.article_img_share:
-			if (getLastContentImageHitTestUrl() != null) {
-				shareImageFromUri(getLastContentImageHitTestUrl());
-			}
-			return true;
-		case R.id.article_img_share_url:
-			if (getLastContentImageHitTestUrl() != null) {
-				shareText(getLastContentImageHitTestUrl());
-			}
-			return true;
-		case R.id.article_img_view_caption:
-			if (getLastContentImageHitTestUrl() != null) {
-				displayImageCaption(getLastContentImageHitTestUrl(), ap.getSelectedArticle().content);
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.article_img_open) {
+            if (getLastContentImageHitTestUrl() != null) {
+                try {
+                    openUri(Uri.parse(getLastContentImageHitTestUrl()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    toast(R.string.error_other_error);
+                }
             }
             return true;
-		case R.id.article_link_share:
-			if (ap != null && ap.getSelectedArticle() != null) {
-				shareArticle(ap.getSelectedArticle());
-			}
-			return true;
-		case R.id.article_link_copy:
-			if (ap != null && ap.getSelectedArticle() != null) {
-				copyToClipboard(ap.getSelectedArticle().link);
-			}
-			return true;
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+        } else if (itemId == R.id.article_img_copy) {
+            if (getLastContentImageHitTestUrl() != null) {
+                copyToClipboard(getLastContentImageHitTestUrl());
+            }
+            return true;
+        } else if (itemId == R.id.article_img_share) {
+            if (getLastContentImageHitTestUrl() != null) {
+                shareImageFromUri(getLastContentImageHitTestUrl());
+            }
+            return true;
+        } else if (itemId == R.id.article_img_share_url) {
+            if (getLastContentImageHitTestUrl() != null) {
+                shareText(getLastContentImageHitTestUrl());
+            }
+            return true;
+        } else if (itemId == R.id.article_img_view_caption) {
+            if (getLastContentImageHitTestUrl() != null) {
+                displayImageCaption(getLastContentImageHitTestUrl(), ap.getSelectedArticle().content);
+            }
+            return true;
+        } else if (itemId == R.id.article_link_share) {
+            if (ap != null && ap.getSelectedArticle() != null) {
+                shareArticle(ap.getSelectedArticle());
+            }
+            return true;
+        } else if (itemId == R.id.article_link_copy) {
+            if (ap != null && ap.getSelectedArticle() != null) {
+                copyToClipboard(ap.getSelectedArticle().link);
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 
 	public void displayAttachments(Article article) {
 		if (article != null && article.attachments != null && article.attachments.size() > 0) {
@@ -543,11 +542,11 @@ public class OnlineActivity extends CommonActivity {
 		final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 		final ArticlePager ap = (ArticlePager)getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
-		switch (item.getItemId()) {
-		case R.id.subscribe_to_feed:
-			Intent subscribe = new Intent(OnlineActivity.this, SubscribeActivity.class);
-			startActivityForResult(subscribe, 0);
-			return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.subscribe_to_feed) {
+            Intent subscribe = new Intent(OnlineActivity.this, SubscribeActivity.class);
+            startActivityForResult(subscribe, 0);
+            return true;
 		/*case R.id.toggle_attachments:
 			if (true) {
 				Article article = ap.getSelectedArticle();
@@ -560,230 +559,230 @@ public class OnlineActivity extends CommonActivity {
 		/*case R.id.logout:
 			logout();
 			return true;*/
-		case R.id.login:
-			login();
-			return true;
+        } else if (itemId == R.id.login) {
+            login();
+            return true;
 		/*case R.id.go_offline:
 			switchOffline();
 			return true;*/
-		case R.id.article_set_note:
-			if (ap != null && ap.getSelectedArticle() != null) {
-				editArticleNote(ap.getSelectedArticle());				
-			}
-			return true;
-		case R.id.preferences:
-			Intent intent = new Intent(OnlineActivity.this,
-					PreferencesActivity.class);
-			startActivityForResult(intent, 0);
-			return true;
-		case R.id.search:			
-			if (hf != null) {
-				Dialog dialog = new Dialog(this);
+        } else if (itemId == R.id.article_set_note) {
+            if (ap != null && ap.getSelectedArticle() != null) {
+                editArticleNote(ap.getSelectedArticle());
+            }
+            return true;
+        } else if (itemId == R.id.preferences) {
+            Intent intent = new Intent(OnlineActivity.this,
+                    PreferencesActivity.class);
+            startActivityForResult(intent, 0);
+            return true;
+        } else if (itemId == R.id.search) {
+            if (hf != null) {
+                Dialog dialog = new Dialog(this);
 
-				final EditText edit = new EditText(this);
+                final EditText edit = new EditText(this);
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(this)
-						.setTitle(R.string.search)
-						.setPositiveButton(getString(R.string.search),
-								new OnClickListener() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.search)
+                        .setPositiveButton(getString(R.string.search),
+                                new OnClickListener() {
 
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										
-										String query = edit.getText().toString().trim();
-										
-										hf.setSearchQuery(query);
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-									}
-								})
-						.setNegativeButton(getString(R.string.cancel),
-								new OnClickListener() {
+                                        String query = edit.getText().toString().trim();
 
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										
-										//
+                                        hf.setSearchQuery(query);
 
-									}
-								}).setView(edit);
-				
-				dialog = builder.create();
-				dialog.show();
-			}
-			return true;
-		case R.id.headlines_mark_as_read:
-			if (hf != null) {
+                                    }
+                                })
+                        .setNegativeButton(getString(R.string.cancel),
+                                new OnClickListener() {
 
-				Feed feed = hf.getFeed();
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-				if (feed != null) {
-					catchupDialog(hf.getFeed());
-				}
-			}
-			return true;
-		case R.id.headlines_display_mode:
-			if (hf != null) {
-				Dialog dialog = new Dialog(this);
+                                        //
 
-				String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
-				String[] headlineModeNames = getResources().getStringArray(R.array.headline_mode_names);
-				final String[] headlineModeValues = getResources().getStringArray(R.array.headline_mode_values);
+                                    }
+                                }).setView(edit);
 
-				int selectedIndex = Arrays.asList(headlineModeValues).indexOf(headlineMode);
+                dialog = builder.create();
+                dialog.show();
+            }
+            return true;
+        } else if (itemId == R.id.headlines_mark_as_read) {
+            if (hf != null) {
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(this)
-						.setTitle(R.string.headlines_set_view_mode)
-						.setSingleChoiceItems(headlineModeNames,
-								selectedIndex, new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-														int which) {
-										dialog.cancel();
+                Feed feed = hf.getFeed();
 
-										SharedPreferences.Editor editor = m_prefs.edit();
-										editor.putString("headline_mode", headlineModeValues[which]);
-										editor.apply();
+                if (feed != null) {
+                    catchupDialog(hf.getFeed());
+                }
+            }
+            return true;
+        } else if (itemId == R.id.headlines_display_mode) {
+            if (hf != null) {
+                Dialog dialog = new Dialog(this);
 
-										Intent intent = getIntent();
+                String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
+                String[] headlineModeNames = getResources().getStringArray(R.array.headline_mode_names);
+                final String[] headlineModeValues = getResources().getStringArray(R.array.headline_mode_values);
 
-										Feed feed = hf.getFeed();
+                int selectedIndex = Arrays.asList(headlineModeValues).indexOf(headlineMode);
 
-										if (feed != null) {
-											intent.putExtra("feed_id", feed.id);
-											intent.putExtra("feed_is_cat", feed.is_cat);
-											intent.putExtra("feed_title", feed.title);
-										}
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.headlines_set_view_mode)
+                        .setSingleChoiceItems(headlineModeNames,
+                                selectedIndex, new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        dialog.cancel();
 
-										finish();
+                                        SharedPreferences.Editor editor = m_prefs.edit();
+                                        editor.putString("headline_mode", headlineModeValues[which]);
+                                        editor.apply();
 
-										startActivity(intent);
-										overridePendingTransition(0, 0);
-									}
-								});
+                                        Intent intent = getIntent();
 
-				dialog = builder.create();
-				dialog.show();
+                                        Feed feed = hf.getFeed();
 
-			}
-			return true;
-		case R.id.headlines_view_mode:
-			if (hf != null) {
-				Dialog dialog = new Dialog(this);
-				
-				String viewMode = getViewMode();
-				
-				//Log.d(TAG, "viewMode:" + getViewMode());
+                                        if (feed != null) {
+                                            intent.putExtra("feed_id", feed.id);
+                                            intent.putExtra("feed_is_cat", feed.is_cat);
+                                            intent.putExtra("feed_title", feed.title);
+                                        }
 
-				int selectedIndex = 0;
-				
-				if (viewMode.equals("all_articles")) {
-					selectedIndex = 1;
-				} else if (viewMode.equals("marked")) {
-					selectedIndex = 2;
-				} else if (viewMode.equals("published")) {
-					selectedIndex = 3;
-				} else if (viewMode.equals("unread")) {
-					selectedIndex = 4;
-				}
-				
-				AlertDialog.Builder builder = new AlertDialog.Builder(this)
-						.setTitle(R.string.headlines_set_view_mode)
-						.setSingleChoiceItems(
-								new String[] {
-										getString(R.string.headlines_adaptive),
-										getString(R.string.headlines_all_articles),
-										getString(R.string.headlines_starred),
-										getString(R.string.headlines_published),
-										getString(R.string.headlines_unread) },
-								selectedIndex, new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										switch (which) {
-										case 0:
-											setViewMode("adaptive");
-											break;
-										case 1:
-											setViewMode("all_articles");
-											break;
-										case 2:
-											setViewMode("marked");
-											break;
-										case 3:
-											setViewMode("published");
-											break;
-										case 4:
-											setViewMode("unread");
-											break;
-										}
-										dialog.cancel();
+                                        finish();
 
-										refresh();
-									}
-								});
+                                        startActivity(intent);
+                                        overridePendingTransition(0, 0);
+                                    }
+                                });
 
-				dialog = builder.create();
-				dialog.show();
+                dialog = builder.create();
+                dialog.show();
 
-			}
-			return true;
-		case R.id.headlines_select:
-			if (hf != null) {
-				Dialog dialog = new Dialog(this);
-				AlertDialog.Builder builder = new AlertDialog.Builder(this)
-						.setTitle(R.string.headlines_select_dialog)
-						.setSingleChoiceItems(
-								new String[] {
-										getString(R.string.headlines_select_all),
-										getString(R.string.headlines_select_unread),
-										getString(R.string.headlines_select_none) },
-								0, new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										switch (which) {
-										case 0:
-											hf.setSelection(HeadlinesFragment.ArticlesSelection.ALL);
-											break;
-										case 1:
-											hf.setSelection(HeadlinesFragment.ArticlesSelection.UNREAD);
-											break;
-										case 2:
-											hf.setSelection(HeadlinesFragment.ArticlesSelection.NONE);
-											break;
-										}
-										dialog.cancel();
-										invalidateOptionsMenu();
-									}
-								});
+            }
+            return true;
+        } else if (itemId == R.id.headlines_view_mode) {
+            if (hf != null) {
+                Dialog dialog = new Dialog(this);
 
-				dialog = builder.create();
-				dialog.show();
-			}
-			return true;
+                String viewMode = getViewMode();
+
+                //Log.d(TAG, "viewMode:" + getViewMode());
+
+                int selectedIndex = 0;
+
+                if (viewMode.equals("all_articles")) {
+                    selectedIndex = 1;
+                } else if (viewMode.equals("marked")) {
+                    selectedIndex = 2;
+                } else if (viewMode.equals("published")) {
+                    selectedIndex = 3;
+                } else if (viewMode.equals("unread")) {
+                    selectedIndex = 4;
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.headlines_set_view_mode)
+                        .setSingleChoiceItems(
+                                new String[]{
+                                        getString(R.string.headlines_adaptive),
+                                        getString(R.string.headlines_all_articles),
+                                        getString(R.string.headlines_starred),
+                                        getString(R.string.headlines_published),
+                                        getString(R.string.headlines_unread)},
+                                selectedIndex, new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        switch (which) {
+                                            case 0:
+                                                setViewMode("adaptive");
+                                                break;
+                                            case 1:
+                                                setViewMode("all_articles");
+                                                break;
+                                            case 2:
+                                                setViewMode("marked");
+                                                break;
+                                            case 3:
+                                                setViewMode("published");
+                                                break;
+                                            case 4:
+                                                setViewMode("unread");
+                                                break;
+                                        }
+                                        dialog.cancel();
+
+                                        refresh();
+                                    }
+                                });
+
+                dialog = builder.create();
+                dialog.show();
+
+            }
+            return true;
+        } else if (itemId == R.id.headlines_select) {
+            if (hf != null) {
+                Dialog dialog = new Dialog(this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.headlines_select_dialog)
+                        .setSingleChoiceItems(
+                                new String[]{
+                                        getString(R.string.headlines_select_all),
+                                        getString(R.string.headlines_select_unread),
+                                        getString(R.string.headlines_select_none)},
+                                0, new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        switch (which) {
+                                            case 0:
+                                                hf.setSelection(HeadlinesFragment.ArticlesSelection.ALL);
+                                                break;
+                                            case 1:
+                                                hf.setSelection(HeadlinesFragment.ArticlesSelection.UNREAD);
+                                                break;
+                                            case 2:
+                                                hf.setSelection(HeadlinesFragment.ArticlesSelection.NONE);
+                                                break;
+                                        }
+                                        dialog.cancel();
+                                        invalidateOptionsMenu();
+                                    }
+                                });
+
+                dialog = builder.create();
+                dialog.show();
+            }
+            return true;
 		/* case R.id.share_article:
 			if (ap != null) {
 				shareArticle(ap.getSelectedArticle());
 			}
 			return true; */
-		case R.id.toggle_marked:
-			if (ap != null && ap.getSelectedArticle() != null) {
-				Article a = ap.getSelectedArticle();
-				a.marked = !a.marked;
-				saveArticleMarked(a);
-				if (hf != null) hf.notifyUpdated();
-			}
-			return true;
-			case R.id.toggle_unread:
-				if (ap != null && ap.getSelectedArticle() != null) {
-					Article a = ap.getSelectedArticle();
-					a.unread = !a.unread;
-					saveArticleUnread(a);
-					if (hf != null) hf.notifyUpdated();
-				}
-				return true;
+        } else if (itemId == R.id.toggle_marked) {
+            if (ap != null && ap.getSelectedArticle() != null) {
+                Article a = ap.getSelectedArticle();
+                a.marked = !a.marked;
+                saveArticleMarked(a);
+                if (hf != null) hf.notifyUpdated();
+            }
+            return true;
+        } else if (itemId == R.id.toggle_unread) {
+            if (ap != null && ap.getSelectedArticle() != null) {
+                Article a = ap.getSelectedArticle();
+                a.unread = !a.unread;
+                saveArticleUnread(a);
+                if (hf != null) hf.notifyUpdated();
+            }
+            return true;
 		/* case R.id.selection_select_none:
 			if (hf != null) {
 				ArticleList selected = hf.getSelectedArticles();
@@ -794,105 +793,104 @@ public class OnlineActivity extends CommonActivity {
 				}
 			}
 			return true; */
-		case R.id.selection_toggle_unread:
-			if (hf != null) {
-				ArticleList selected = hf.getSelectedArticles();
+        } else if (itemId == R.id.selection_toggle_unread) {
+            if (hf != null) {
+                ArticleList selected = hf.getSelectedArticles();
 
-				if (selected.size() > 0) {
-					for (Article a : selected)
-						a.unread = !a.unread;
+                if (selected.size() > 0) {
+                    for (Article a : selected)
+                        a.unread = !a.unread;
 
-					toggleArticlesUnread(selected);
-					hf.notifyUpdated();
-					invalidateOptionsMenu();
-				}
-			}
-			return true;
-		case R.id.selection_toggle_marked:
-			if (hf != null) {
-				ArticleList selected = hf.getSelectedArticles();
+                    toggleArticlesUnread(selected);
+                    hf.notifyUpdated();
+                    invalidateOptionsMenu();
+                }
+            }
+            return true;
+        } else if (itemId == R.id.selection_toggle_marked) {
+            if (hf != null) {
+                ArticleList selected = hf.getSelectedArticles();
 
-				if (selected.size() > 0) {
-					for (Article a : selected)
-						a.marked = !a.marked;
+                if (selected.size() > 0) {
+                    for (Article a : selected)
+                        a.marked = !a.marked;
 
-					toggleArticlesMarked(selected);
-					hf.notifyUpdated();
-					invalidateOptionsMenu();
-				}
-			}
-			return true;
-		case R.id.selection_toggle_published:
-			if (hf != null) {
-				ArticleList selected = hf.getSelectedArticles();
+                    toggleArticlesMarked(selected);
+                    hf.notifyUpdated();
+                    invalidateOptionsMenu();
+                }
+            }
+            return true;
+        } else if (itemId == R.id.selection_toggle_published) {
+            if (hf != null) {
+                ArticleList selected = hf.getSelectedArticles();
 
-				if (selected.size() > 0) {
-					for (Article a : selected)
-						a.published = !a.published;
+                if (selected.size() > 0) {
+                    for (Article a : selected)
+                        a.published = !a.published;
 
-					toggleArticlesPublished(selected);
-					hf.notifyUpdated();
-					invalidateOptionsMenu();
-				}
-			}
-			return true;
-		case R.id.toggle_published:
-			if (ap != null && ap.getSelectedArticle() != null) {
-				Article a = ap.getSelectedArticle();
-				a.published = !a.published;
-				saveArticlePublished(a);
-				if (hf != null) hf.notifyUpdated();
-			}
-			return true;
-		case R.id.catchup_above:
-			if (hf != null) {
+                    toggleArticlesPublished(selected);
+                    hf.notifyUpdated();
+                    invalidateOptionsMenu();
+                }
+            }
+            return true;
+        } else if (itemId == R.id.toggle_published) {
+            if (ap != null && ap.getSelectedArticle() != null) {
+                Article a = ap.getSelectedArticle();
+                a.published = !a.published;
+                saveArticlePublished(a);
+                if (hf != null) hf.notifyUpdated();
+            }
+            return true;
+        } else if (itemId == R.id.catchup_above) {
+            if (hf != null) {
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						OnlineActivity.this)
-						.setMessage(R.string.confirm_catchup_above)
-						.setPositiveButton(R.string.dialog_ok,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-														int which) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(
+                        OnlineActivity.this)
+                        .setMessage(R.string.confirm_catchup_above)
+                        .setPositiveButton(R.string.dialog_ok,
+                                new OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-										catchupAbove(hf, ap);
+                                        catchupAbove(hf, ap);
 
-									}
-								})
-						.setNegativeButton(R.string.dialog_cancel,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-														int which) {
+                                    }
+                                })
+                        .setNegativeButton(R.string.dialog_cancel,
+                                new OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-									}
-								});
+                                    }
+                                });
 
-				AlertDialog dialog = builder.create();
-				dialog.show();
+                AlertDialog dialog = builder.create();
+                dialog.show();
 
-			}
-			return true;
-		case R.id.set_labels:
-			if (ap != null && ap.getSelectedArticle() != null) {
-				if (getApiLevel() != 7) {
-					editArticleLabels(ap.getSelectedArticle());					
-				} else {
-					toast(R.string.server_function_not_available);
-				}				
-								
-			}
-			return true;
+            }
+            return true;
+        } else if (itemId == R.id.set_labels) {
+            if (ap != null && ap.getSelectedArticle() != null) {
+                if (getApiLevel() != 7) {
+                    editArticleLabels(ap.getSelectedArticle());
+                } else {
+                    toast(R.string.server_function_not_available);
+                }
+
+            }
+            return true;
 		/*case R.id.update_headlines:
 			if (hf != null) {
 				//m_pullToRefreshAttacher.setRefreshing(true);
 				hf.refresh(false, true);
 			}
 			return true;*/
-		default:
-			Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
-			return super.onOptionsItemSelected(item);
-		}
-	}
+        }
+        Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
+        return super.onOptionsItemSelected(item);
+    }
 
 	private void catchupAbove(HeadlinesFragment hf, ArticlePager ap) {
 		if (ap != null && ap.getSelectedArticle() != null) {

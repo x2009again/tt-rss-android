@@ -94,18 +94,16 @@ public abstract class CommonShareActivity extends CommonActivity {
 	}	
 	
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.preferences:
-			Intent intent = new Intent(CommonShareActivity.this,
-					PreferencesActivity.class);
-			startActivityForResult(intent, 0);
-			return true;
-		default:
-			Log.d(TAG,
-					"onOptionsItemSelected, unhandled id=" + item.getItemId());
-			return super.onOptionsItemSelected(item);
-		}
-	}
+        if (item.getItemId() == R.id.preferences) {
+            Intent intent = new Intent(CommonShareActivity.this,
+                    PreferencesActivity.class);
+            startActivityForResult(intent, 0);
+            return true;
+        }
+        Log.d(TAG,
+                "onOptionsItemSelected, unhandled id=" + item.getItemId());
+        return super.onOptionsItemSelected(item);
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

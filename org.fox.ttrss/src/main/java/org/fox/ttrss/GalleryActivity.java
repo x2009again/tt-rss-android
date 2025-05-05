@@ -361,44 +361,43 @@ public class GalleryActivity extends CommonActivity {
     public boolean onImageMenuItemSelected(MenuItem item, GalleryEntry entry) {
         String url = entry.url;
 
-        switch (item.getItemId()) {
-            case R.id.article_img_open:
-                if (url != null) {
-                    try {
-                        openUri(Uri.parse(url));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        toast(R.string.error_other_error);
-                    }
+        int itemId = item.getItemId();
+        if (itemId == R.id.article_img_open) {
+            if (url != null) {
+                try {
+                    openUri(Uri.parse(url));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    toast(R.string.error_other_error);
                 }
-                return true;
-            case R.id.article_img_copy:
-                if (url != null) {
-                    copyToClipboard(url);
-                }
-                return true;
-            case R.id.article_img_share:
-                if (url != null) {
-                    if (entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE) {
-                        Log.d(TAG, "image sharing image from URL=" + url);
+            }
+            return true;
+        } else if (itemId == R.id.article_img_copy) {
+            if (url != null) {
+                copyToClipboard(url);
+            }
+            return true;
+        } else if (itemId == R.id.article_img_share) {
+            if (url != null) {
+                if (entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE) {
+                    Log.d(TAG, "image sharing image from URL=" + url);
 
-                        shareImageFromUri(url);
-                    }
+                    shareImageFromUri(url);
                 }
-                return true;
-            case R.id.article_img_share_url:
-                if (url != null) {
-                    shareText(url);
-                }
-                return true;
-            case R.id.article_img_view_caption:
-                if (url != null) {
-                    displayImageCaption(url, m_content);
-                }
-                return true;
-            default:
-                Log.d(TAG, "onImageMenuItemSelected, unhandled id=" + item.getItemId());
-                return false;
+            }
+            return true;
+        } else if (itemId == R.id.article_img_share_url) {
+            if (url != null) {
+                shareText(url);
+            }
+            return true;
+        } else if (itemId == R.id.article_img_view_caption) {
+            if (url != null) {
+                displayImageCaption(url, m_content);
+            }
+            return true;
         }
+        Log.d(TAG, "onImageMenuItemSelected, unhandled id=" + item.getItemId());
+        return false;
     }
 }
