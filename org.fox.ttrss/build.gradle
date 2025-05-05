@@ -51,6 +51,9 @@ android {
         }
     }
     namespace 'org.fox.ttrss'
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
