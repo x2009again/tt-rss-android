@@ -1,8 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -21,12 +19,12 @@ android {
     }
 
     signingConfigs {
-        fdroid {
-            if (project.hasProperty("FDROID_STORE_FILE")) {
-                storeFile file(FDROID_STORE_FILE)
-                storePassword FDROID_STORE_PASSWORD
-                keyAlias FDROID_KEY_ALIAS
-                keyPassword FDROID_KEY_PASSWORD
+        signed {
+            if (project.hasProperty("SIGNING_STORE_FILE")) {
+                storeFile file(SIGNING_STORE_FILE)
+                storePassword SIGNING_STORE_PASSWORD
+                keyAlias SIGNING_KEY_ALIAS
+                keyPassword SIGNING_KEY_PASSWORD
             }
         }
     }
@@ -43,12 +41,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
 
-        fdroid {
+        signed {
             minifyEnabled  false
-            versionNameSuffix "-fdroid"
+            versionNameSuffix "-signed"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             buildConfigField "boolean", "ENABLE_UPDATER", "true"
-            signingConfig signingConfigs.fdroid
+            signingConfig signingConfigs.signed
             matchingFallbacks = ['release']
         }
     }
