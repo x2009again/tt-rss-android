@@ -56,26 +56,25 @@ public class OfflineFeedsFragment extends BaseFeedlistFragment implements OnItem
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-		switch (item.getItemId()) {
-		case R.id.browse_headlines:
-			if (true) {
-				int feedId = getFeedIdAtPosition(info.position);
-				if (feedId != -10000) {
-					m_activity.onFeedSelected(feedId);
-				}
-			}
-			return true;
-		case R.id.catchup_feed:
-			int feedId = getFeedIdAtPosition(info.position);
-			if (feedId != -10000) {
-				m_activity.catchupFeed(feedId, false);
-			}
-			return true;
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+        int itemId = item.getItemId();
+        if (itemId == R.id.browse_headlines) {
+            if (true) {
+                int feedId = getFeedIdAtPosition(info.position);
+                if (feedId != -10000) {
+                    m_activity.onFeedSelected(feedId);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.catchup_feed) {
+            int feedId = getFeedIdAtPosition(info.position);
+            if (feedId != -10000) {
+                m_activity.catchupFeed(feedId, false);
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,

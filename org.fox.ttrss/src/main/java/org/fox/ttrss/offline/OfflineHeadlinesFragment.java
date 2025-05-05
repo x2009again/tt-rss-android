@@ -158,79 +158,78 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 	}
 
 	private boolean onArticleMenuItemSelected(MenuItem item, final int articleId) {
-		switch (item.getItemId()) {
-			case R.id.headlines_article_unread:
-				if (true) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.headlines_article_unread) {
+            if (true) {
 
-					SQLiteStatement stmt = m_activity.getDatabase().compileStatement(
-							"UPDATE articles SET modified = 1, unread = not unread " + "WHERE " + BaseColumns._ID
-									+ " = ?");
+                SQLiteStatement stmt = m_activity.getDatabase().compileStatement(
+                        "UPDATE articles SET modified = 1, unread = not unread " + "WHERE " + BaseColumns._ID
+                                + " = ?");
 
-					stmt.bindLong(1, articleId);
-					stmt.execute();
-					stmt.close();
+                stmt.bindLong(1, articleId);
+                stmt.execute();
+                stmt.close();
 
-					refresh();
-				}
-				return true;
-			case R.id.headlines_article_link_copy:
-				if (true) {
-					Cursor article = m_activity.getArticleById(articleId);
+                refresh();
+            }
+            return true;
+        } else if (itemId == R.id.headlines_article_link_copy) {
+            if (true) {
+                Cursor article = m_activity.getArticleById(articleId);
 
-					if (article != null) {
-						m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
-						article.close();
-					}
-				}
-				return true;
-			case R.id.headlines_article_link_open:
-				if (true) {
-					Cursor article = m_activity.getArticleById(articleId);
+                if (article != null) {
+                    m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
+                    article.close();
+                }
+            }
+            return true;
+        } else if (itemId == R.id.headlines_article_link_open) {
+            if (true) {
+                Cursor article = m_activity.getArticleById(articleId);
 
-					if (article != null) {
-						m_activity.openUri(Uri.parse(article.getString(article.getColumnIndex("link"))));
+                if (article != null) {
+                    m_activity.openUri(Uri.parse(article.getString(article.getColumnIndex("link"))));
 
-						// TODO: mark article as read, set modified = 1, refresh
+                    // TODO: mark article as read, set modified = 1, refresh
 
-						article.close();
-					}
-				}
-				return true;
-			case R.id.headlines_share_article:
-				m_activity.shareArticle(articleId);
-				return true;
-			case R.id.catchup_above:
-				if (true) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(
-							m_activity)
-							.setMessage(R.string.confirm_catchup_above)
-							.setPositiveButton(R.string.dialog_ok,
-									new Dialog.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-															int which) {
+                    article.close();
+                }
+            }
+            return true;
+        } else if (itemId == R.id.headlines_share_article) {
+            m_activity.shareArticle(articleId);
+            return true;
+        } else if (itemId == R.id.catchup_above) {
+            if (true) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(
+                        m_activity)
+                        .setMessage(R.string.confirm_catchup_above)
+                        .setPositiveButton(R.string.dialog_ok,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-											catchupAbove(articleId);
+                                        catchupAbove(articleId);
 
-										}
-									})
-							.setNegativeButton(R.string.dialog_cancel,
-									new Dialog.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-															int which) {
+                                    }
+                                })
+                        .setNegativeButton(R.string.dialog_cancel,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-										}
-									});
+                                    }
+                                });
 
-					AlertDialog dialog = builder.create();
-					dialog.show();
-				}
-				return true;
-			default:
-				Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
-				return false;
-		}
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+            return true;
+        }
+        Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
+        return false;
 
-	}
+    }
 
 	private void catchupAbove(int articleId) {
 		SQLiteStatement stmt = null;

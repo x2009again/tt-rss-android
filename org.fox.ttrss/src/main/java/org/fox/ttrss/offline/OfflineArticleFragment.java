@@ -127,26 +127,25 @@ public class OfflineArticleFragment extends Fragment {
 	public boolean onContextItemSelected(MenuItem item) {
 		/* AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo(); */
-		
-		switch (item.getItemId()) {
-		case R.id.article_link_share:
-			m_activity.shareArticle(m_articleId);
-			return true;
-		case R.id.article_link_copy:
-			if (true) {
-				Cursor article = m_activity.getArticleById(m_articleId);
-				
-				if (article != null) {				
-					m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
-					article.close();
-				}
-			}
-			return true;
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.article_link_share) {
+            m_activity.shareArticle(m_articleId);
+            return true;
+        } else if (itemId == R.id.article_link_copy) {
+            if (true) {
+                Cursor article = m_activity.getArticleById(m_articleId);
+
+                if (article != null) {
+                    m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
+                    article.close();
+                }
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,

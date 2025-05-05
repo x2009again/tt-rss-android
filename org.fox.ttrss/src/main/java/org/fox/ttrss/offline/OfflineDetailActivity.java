@@ -169,15 +169,13 @@ public class OfflineDetailActivity extends OfflineActivity implements OfflineHea
             return true;
         }
 
-        switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			return true;
-		default:
-			Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
-			return super.onOptionsItemSelected(item);
-		}
-	}
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
+        return super.onOptionsItemSelected(item);
+    }
 	
 	@Override
 	public void onArticleSelected(int articleId, boolean open) {

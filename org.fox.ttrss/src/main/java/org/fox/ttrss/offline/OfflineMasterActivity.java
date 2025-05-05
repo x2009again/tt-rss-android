@@ -141,9 +141,7 @@ public class OfflineMasterActivity extends OfflineActivity implements OfflineHea
             return true;
         }
 
-    	switch (item.getItemId()) {
-        case R.id.headlines_toggle_sort_order:
-            /* SharedPreferences.Editor editor = m_prefs.edit();
+        if (item.getItemId() == R.id.headlines_toggle_sort_order) {/* SharedPreferences.Editor editor = m_prefs.edit();
             editor.putBoolean("offline_oldest_first", !m_prefs.getBoolean("offline_oldest_first", false));
             editor.commit();
             refresh(); */
@@ -155,7 +153,7 @@ public class OfflineMasterActivity extends OfflineActivity implements OfflineHea
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.headlines_sort_articles_title))
                     .setSingleChoiceItems(
-                            new String[] {
+                            new String[]{
                                     getString(R.string.headlines_sort_default),
                                     getString(R.string.headlines_sort_oldest_first)
                             },
@@ -175,7 +173,7 @@ public class OfflineMasterActivity extends OfflineActivity implements OfflineHea
                                             if (true) {
                                                 SharedPreferences.Editor editor = m_prefs.edit();
                                                 editor.putBoolean("offline_oldest_first", true);
-												editor.apply();
+                                                editor.apply();
                                             }
                                             break;
                                     }
@@ -194,11 +192,10 @@ public class OfflineMasterActivity extends OfflineActivity implements OfflineHea
 			invalidateOptionsMenu();
 			refresh();
 			return true; */
-		default:
-			Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
-			return super.onOptionsItemSelected(item);
-		}
-	}
+        }
+        Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
+        return super.onOptionsItemSelected(item);
+    }
 	
 	@Override
 	public void onSaveInstanceState(Bundle out) {
