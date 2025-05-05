@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import icepick.State;
+import com.evernote.android.state.State;
 
 public class LogcatActivity extends CommonActivity {
     private static final int MAX_LOG_ENTRIES = 500;

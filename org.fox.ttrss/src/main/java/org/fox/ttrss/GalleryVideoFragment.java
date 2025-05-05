@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
-import icepick.State;
+import com.evernote.android.state.State;
 
 public class GalleryVideoFragment extends GalleryBaseFragment {
     private final String TAG = this.getClass().getSimpleName();

@@ -34,6 +34,8 @@ import android.widget.TextView;
 
 import androidx.core.text.HtmlCompat;
 
+import com.evernote.android.state.State;
+
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Attachment;
 
@@ -43,13 +45,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import icepick.State;
-
 public class ArticleFragment extends StateSavedFragment  {
 	private final String TAG = this.getClass().getSimpleName();
 
 	private SharedPreferences m_prefs;
-	@State protected Article m_article;
+	@State
+    protected Article m_article;
 	private DetailActivity m_activity;
     private WebView m_web;
     protected View m_customView;

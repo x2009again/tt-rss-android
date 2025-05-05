@@ -69,6 +69,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
+import com.evernote.android.state.State;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 
@@ -91,7 +92,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import icepick.State;
+import com.evernote.android.state.State;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class HeadlinesFragment extends StateSavedFragment {
@@ -105,7 +106,8 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 	private final String TAG = this.getClass().getSimpleName();
 
-	@State Feed m_feed;
+	@State
+	Feed m_feed;
 	@State Article m_activeArticle;
 	@State String m_searchQuery = "";
 	private boolean m_refreshInProgress = false;

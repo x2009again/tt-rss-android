@@ -47,6 +47,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.evernote.android.state.State;
 import com.google.android.material.snackbar.Snackbar;
 import com.livefront.bridge.Bridge;
 
@@ -62,8 +63,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import icepick.State;
 
 public class CommonActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private final String TAG = this.getClass().getSimpleName();
@@ -91,7 +90,8 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	//private SQLiteDatabase m_writableDb;
 
 	private boolean m_smallScreenMode = true;
-	@State protected String m_theme;
+	@State
+	protected String m_theme;
 	private boolean m_needRestart;
 
 	private static String s_customTabPackageName;

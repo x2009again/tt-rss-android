@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.evernote.android.state.State;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.fox.ttrss.types.Article;
@@ -21,11 +22,11 @@ import org.fox.ttrss.types.Feed;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
-import icepick.State;
 
 public class DetailActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();
-	@State protected ArticleList m_articles = new ArticleList();
+	@State
+	protected ArticleList m_articles = new ArticleList();
 
 	protected SharedPreferences m_prefs;
     private Article m_activeArticle;

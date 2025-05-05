@@ -19,7 +19,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 
-import icepick.State;
+import com.evernote.android.state.State;
 
 public class GalleryImageFragment extends GalleryBaseFragment {
     private final String TAG = this.getClass().getSimpleName();

@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import icepick.State;
+import com.evernote.android.state.State;
 
 public class MasterActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();

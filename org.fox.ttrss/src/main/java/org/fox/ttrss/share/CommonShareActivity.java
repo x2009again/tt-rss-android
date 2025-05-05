@@ -16,7 +16,7 @@ import org.fox.ttrss.PreferencesActivity;
 import org.fox.ttrss.R;
 import org.fox.ttrss.util.SimpleLoginManager;
 
-import icepick.State;
+import com.evernote.android.state.State;
 
 
 public abstract class CommonShareActivity extends CommonActivity {

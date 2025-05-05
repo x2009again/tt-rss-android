@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import icepick.State;
+import com.evernote.android.state.State;
 import me.relex.circleindicator.CircleIndicator;
 
 public class GalleryActivity extends CommonActivity {

@@ -48,7 +48,7 @@ import java.util.List;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import icepick.State;
+import com.evernote.android.state.State;
 
 public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickListener, OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {

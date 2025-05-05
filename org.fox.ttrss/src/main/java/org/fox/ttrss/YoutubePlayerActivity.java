@@ -15,7 +15,7 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import icepick.State;
+import com.evernote.android.state.State;
 
 
 public class YoutubePlayerActivity extends CommonActivity implements YouTubePlayer.OnInitializedListener {

@@ -28,7 +28,7 @@ import org.fox.ttrss.util.HeadlinesRequest;
 
 import java.util.HashMap;
 
-import icepick.State;
+import com.evernote.android.state.State;
 
 public class ArticlePager extends StateSavedFragment {
 

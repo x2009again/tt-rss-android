@@ -2,6 +2,7 @@ package org.fox.ttrss;
 
 import android.os.Bundle;
 
+import com.evernote.android.state.StateSaver;
 import com.livefront.bridge.Bridge;
 import com.livefront.bridge.SavedStateHandler;
 
@@ -12,8 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.LinkedHashMap;
-
-import icepick.Icepick;
 
 public class Application extends android.app.Application {
 	private static Application m_singleton;
@@ -37,12 +36,12 @@ public class Application extends android.app.Application {
 		Bridge.initialize(getApplicationContext(), new SavedStateHandler() {
 			@Override
 			public void saveInstanceState(@NonNull Object target, @NonNull Bundle state) {
-				Icepick.saveInstanceState(target, state);
+				StateSaver.saveInstanceState(target, state);
 			}
 
 			@Override
 			public void restoreInstanceState(@NonNull Object target, @Nullable Bundle state) {
-				Icepick.restoreInstanceState(target, state);
+				StateSaver.restoreInstanceState(target, state);
 			}
 		});
 
