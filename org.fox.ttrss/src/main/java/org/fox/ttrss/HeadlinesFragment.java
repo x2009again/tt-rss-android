@@ -824,7 +824,6 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 		boolean flavorImageEnabled;
 		private int m_minimumHeightToEmbed;
-		boolean m_youtubeInstalled;
 		private int m_screenHeight;
 		private int m_lastAddedPosition;
 
@@ -866,14 +865,6 @@ public class HeadlinesFragment extends StateSavedFragment {
 			TypedValue tv = new TypedValue();
 			theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tv, true);
 			titleHighScoreUnreadColor = tv.data;
-
-			List<ApplicationInfo> packages = m_activity.getPackageManager().getInstalledApplications(0);
-			for (ApplicationInfo pi : packages) {
-				if (pi.packageName.equals("com.google.android.youtube")) {
-					m_youtubeInstalled = true;
-					break;
-				}
-			}
 		}
 
 		@Override
@@ -1609,20 +1600,7 @@ public class HeadlinesFragment extends StateSavedFragment {
 			//Log.d(TAG, "openGalleryForType: " + article + " " + holder + " " + transitionView);
 
 			if ("iframe".equals(article.flavorImage.tagName().toLowerCase())) {
-
-				if (m_youtubeInstalled) {
-					Intent intent = new Intent(m_activity, YoutubePlayerActivity.class);
-					intent.putExtra("streamUri", article.flavorStreamUri);
-					intent.putExtra("vid", article.youtubeVid);
-					intent.putExtra("title", article.title);
-
-					startActivity(intent);
-					m_activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-
-				} else {
-					m_activity.openUri(Uri.parse(article.flavorStreamUri));
-				}
-
+				m_activity.openUri(Uri.parse(article.flavorStreamUri));
 			} else {
 
 				Intent intent = new Intent(m_activity, GalleryActivity.class);

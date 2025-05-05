@@ -250,12 +250,6 @@
             android:label="Article Images" >
         </activity>
 
-        <activity
-            android:name=".YoutubePlayerActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/title_activity_video_player" >
-        </activity>
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="org.fox.ttrss.SharedFileProvider"

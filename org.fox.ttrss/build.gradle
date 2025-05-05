@@ -54,7 +54,6 @@ android {
 }
 
 dependencies {
-    implementation files('libs/dashclock-api-r1.1.jar')
     implementation 'com.squareup.okhttp3:okhttp:3.12.5'
     implementation('com.github.bumptech.glide:okhttp3-integration:1.5.0') {
         exclude group: 'glide-parent'
@@ -79,6 +78,5 @@ dependencies {
     compileOnly 'com.evernote:android-state:1.4.1'
     annotationProcessor 'com.evernote:android-state:1.4.1'
     implementation 'com.github.livefront:bridge:v1.1.1'
-    implementation files('libs/YouTubeAndroidPlayerApi.jar')
     implementation 'com.github.javiersantos:AppUpdater:2.7'
 }
