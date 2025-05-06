@@ -1,66 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/feeds_row"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
-    android:background="?colorSurfaceDim"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:baselineAligned="true"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    app:cardElevation="0dp"
+    android:backgroundTint="?colorSurfaceDim"
+    android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/icon"
-        android:tint="?colorAccent"
-        android:layout_gravity="center_vertical"
-        android:layout_width="21dp"
-        android:layout_height="21dp"
-        android:layout_weight="0"
-        android:scaleType="fitXY"
-        android:src="?ic_rss_box" />
-
-    <TextView
-        android:id="@+id/title"
-        android:fontFamily="sans-serif-medium"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/feeds_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:baselineAligned="true"
         android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:ellipsize="middle"
-        android:paddingStart="35dp"
-        android:paddingEnd="16dp"
-        android:singleLine="true"
-        tools:text="Feed title"
-        android:textAlignment="viewStart"
-        android:paddingBottom="2dp"
-        android:textColor="?feedlistSelectedTextColor"
-        android:textSize="14sp" />
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/unread_counter"
-        android:fontFamily="sans-serif-medium"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:textAlignment="viewEnd"
-        android:singleLine="true"
-        tools:text="3200"
-        android:textColor="?colorOnPrimaryContainer"
-        android:textSize="14sp" />
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_gravity="center_vertical"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_weight="0"
+            android:scaleType="fitXY"
+            android:src="?ic_rss_box" />
 
-    <!-- <ImageButton
-        android:id="@+id/feed_menu_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:background="@null"
-        android:paddingLeft="8dp"
-        android:visibility="gone"
-        android:src="?ic_dots_vertical" /> -->
+        <TextView
+            android:id="@+id/title"
+            android:fontFamily="sans-serif-medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:singleLine="true"
+            tools:text="Feed title"
+            android:textColor="?feedlistSelectedTextColor"
+            android:textSize="14sp" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/unread_counter"
+            android:fontFamily="sans-serif-medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:textAlignment="viewEnd"
+            android:singleLine="true"
+            tools:text="3200"
+            android:textColor="?colorAccent"
+            android:textSize="14sp" />
+
+        <!-- <ImageButton
+            android:id="@+id/feed_menu_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:background="@null"
+            android:paddingLeft="8dp"
+            android:visibility="gone"
+            android:src="?ic_dots_vertical" /> -->
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

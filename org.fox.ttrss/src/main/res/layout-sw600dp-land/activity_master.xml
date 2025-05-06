@@ -1,19 +1,16 @@
 <RelativeLayout
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:fitsSystemWindows="true"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <include layout="@layout/toolbar" android:id="@+id/toolbar" />
 
     <LinearLayout
         android:id="@+id/fragment_container"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:baselineAligned="false"
-        android:orientation="horizontal"
-        android:layout_below="@+id/toolbar">
+        android:orientation="horizontal">
 
         <FrameLayout
             android:id="@+id/sw600dp_anchor"
@@ -22,19 +19,30 @@
             android:visibility="gone" >
         </FrameLayout>
 
-        <FrameLayout
-            android:id="@+id/feeds_fragment"
-            android:layout_width="0dp"
+        <com.google.android.material.navigation.NavigationView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/navigationView"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
-            android:background="?colorSurfaceContainer">
-        </FrameLayout>
+            android:layout_gravity="start"
+            app:elevation="8dp">
+
+            <FrameLayout
+                android:id="@+id/feeds_fragment"
+                android:layout_width="match_parent"
+                android:background="?colorSurfaceContainer"
+                android:layout_height="match_parent" >
+            </FrameLayout>
+
+        </com.google.android.material.navigation.NavigationView>
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="0dp"
             android:layout_weight="0.75"
             android:elevation="4dp"
             android:layout_height="match_parent">
+
+            <include layout="@layout/toolbar" android:id="@+id/toolbar" />
 
             <FrameLayout
                 android:layout_width="match_parent"

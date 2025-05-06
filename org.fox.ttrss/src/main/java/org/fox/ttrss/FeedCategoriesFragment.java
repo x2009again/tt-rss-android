@@ -300,7 +300,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {  
 
-		View view = inflater.inflate(R.layout.fragment_cats, container, false);
+		View view = inflater.inflate(R.layout.fragment_feeds, container, false);
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
