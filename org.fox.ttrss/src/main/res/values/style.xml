@@ -44,6 +44,8 @@
         <item name="colorPrimaryDark">#216d96</item>
         <item name="colorAccent">#F4511E</item>
 
+        <item name="actionModeStyle">@style/action_mode_style</item>
+
         <item name="ic_rss_box">@drawable/ic_rss_box_dark</item>
         <item name="ic_checkbox_marked">@drawable/ic_checkbox_marked_dark</item>
         <item name="ic_star">@drawable/ic_star_dark</item>
@@ -71,5 +73,13 @@
     </style>
 
     <style name="DarkDialogTheme" parent="android:Theme"></style>
+
+    <style name="action_mode_style" parent="@style/Widget.Material3.ActionMode">
+        <item name="background">?colorPrimaryDark</item>
+        <!-- selected articles count (number) color -->
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Title</item>
+        <!-- idk -->
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle</item>
+    </style>
 
 </resources>
