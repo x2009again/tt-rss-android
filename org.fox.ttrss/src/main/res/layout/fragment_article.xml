@@ -24,12 +24,14 @@
 
             <LinearLayout
                 app:layout_scrollFlags="scroll|enterAlways"
-                android:padding="16dp"
+                android:paddingTop="0dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="8dp"
                 android:id="@+id/article_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="6dp">
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:orientation="horizontal"

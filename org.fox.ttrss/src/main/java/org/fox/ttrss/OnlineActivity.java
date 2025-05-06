@@ -1409,8 +1409,8 @@ public class OnlineActivity extends CommonActivity {
 						m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.baseline_check_box_24 :
 								R.drawable.baseline_rss_feed_24);
 
-						m_menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_email_24 :
-								R.drawable.baseline_mark_as_unread_24);
+						m_menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_mark_as_unread_24 :
+								R.drawable.baseline_email_24);
 					}
 				}
 
