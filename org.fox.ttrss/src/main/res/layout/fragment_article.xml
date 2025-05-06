@@ -129,7 +129,7 @@
                         android:textAlignment="viewEnd"
                         android:fontFamily="sans-serif-light"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textColor="?colorPrimary"
+                        android:textColor="?colorSecondary"
                         android:textSize="12sp" />
 
                 </LinearLayout>

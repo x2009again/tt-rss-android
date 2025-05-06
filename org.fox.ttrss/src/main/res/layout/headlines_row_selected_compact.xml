@@ -107,7 +107,7 @@
             android:ellipsize="none"
             android:layout_weight="1"
             tools:text="Jan 01"
-            android:textColor="?colorPrimary"
+            android:textColor="?colorSecondary"
             android:textSize="12sp"
             />
 

@@ -94,6 +94,7 @@
                             android:paddingBottom="8dp"
                             android:singleLine="false"
                             android:textSize="18sp"
+                            android:textColor="?colorOnSurface"
                             android:textStyle="bold"
                             tools:text="Sample entry title" />
 
@@ -129,7 +130,7 @@
                                 android:textAlignment="viewEnd"
                                 android:singleLine="true"
                                 tools:text="Jan 01, 12:00, 1970"
-                                android:textColor="?colorPrimary"
+                                android:textColor="?colorSecondary"
                                 android:textSize="12sp" />
 
                         </LinearLayout>
@@ -188,6 +189,7 @@
                 android:maxLines="5"
                 android:padding="16dp"
                 tools:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                android:textColor="?colorOnSurface"
                 android:textSize="13sp" />
         </TableRow>
 

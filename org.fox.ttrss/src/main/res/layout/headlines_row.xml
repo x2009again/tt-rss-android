@@ -128,7 +128,7 @@
                                 android:textAlignment="viewEnd"
                                 android:singleLine="true"
                                 tools:text="Jan 01, 12:00, 1970"
-                                android:textColor="?colorPrimary"
+                                android:textColor="?colorSecondary"
                                 android:textSize="12sp" />
 
                         </LinearLayout>
