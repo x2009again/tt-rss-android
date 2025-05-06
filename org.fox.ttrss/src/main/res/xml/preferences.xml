@@ -22,12 +22,6 @@
             android:title="@string/ttrss_url" >
         </EditTextPreference>
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
-            android:defaultValue="true"
-            android:key="check_for_updates"
-            android:summary="@string/check_for_updates_summary"
-            android:title="@string/check_for_updates" />
-
         <Preference
             android:key="network_settings"
             android:title="@string/prefs_network_settings" />

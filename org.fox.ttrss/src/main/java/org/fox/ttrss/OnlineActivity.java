@@ -31,8 +31,6 @@ import android.widget.TextView;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 
-import com.github.javiersantos.appupdater.AppUpdater;
-import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -271,18 +269,7 @@ public class OnlineActivity extends CommonActivity {
 		if (isOffline) {
 			switchOfflineSuccess();			
 		} else {
-			checkUpdates();
-
 			m_headlinesActionModeCallback = new HeadlinesActionModeCallback();
-		}
-	}
-
-	protected void checkUpdates() {
-		if (m_prefs.getBoolean("check_for_updates", true) && (BuildConfig.DEBUG || BuildConfig.ENABLE_UPDATER)) {
-			new AppUpdater(this)
-					.setUpdateFrom(UpdateFrom.JSON)
-					.setUpdateJSON(String.format("https://srv.tt-rss.org/fdroid/updates/%1$s.json", this.getPackageName()))
-					.start();
 		}
 	}
 

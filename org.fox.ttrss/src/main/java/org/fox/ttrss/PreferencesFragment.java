@@ -23,8 +23,6 @@ public class PreferencesFragment extends PreferenceFragment {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 
-        findPreference("check_for_updates").setEnabled(BuildConfig.DEBUG || BuildConfig.ENABLE_UPDATER);
-
         findPreference("ttrss_url").setSummary(prefs.getString("ttrss_url", getString(R.string.ttrss_url_summary)));
         findPreference("login").setSummary(prefs.getString("login", getString(R.string.login_summary)));
 
