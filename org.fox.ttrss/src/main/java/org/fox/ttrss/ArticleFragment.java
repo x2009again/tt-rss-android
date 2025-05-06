@@ -405,8 +405,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         m_web = view.findViewById(R.id.article_content);
 
-        m_web.setBackgroundColor(Color.TRANSPARENT);
-
         m_web.setWebViewClient(new WebViewClient() {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -495,17 +493,15 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         String articleContent = m_article.content != null ? m_article.content : "";
 
-        ws.setJavaScriptEnabled(true);
+        ws.setJavaScriptEnabled(false);
 
         m_chromeClient = new FSVideoChromeClient(getView());
         m_web.setWebChromeClient(m_chromeClient);
+        m_web.setBackgroundColor(Color.TRANSPARENT);
 
         ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         ws.setMediaPlaybackRequiresUserGesture(true);
 
-        if (m_activity.isUiNightMode()) {
-            m_web.setBackgroundColor(Color.BLACK);
-        }
 
         if (m_prefs.getBoolean("justify_article_text", true)) {
             cssOverride += "body { text-align : justify; } ";

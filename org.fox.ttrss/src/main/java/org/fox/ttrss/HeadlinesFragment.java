@@ -287,10 +287,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_firstId = savedInstanceState.getInt("m_firstId");
 			m_lazyLoadDisabled = savedInstanceState.getBoolean("m_lazyLoadDisabled");
 
-			ArrayList<Article> list = savedInstanceState.getParcelableArrayList("m_articles");
+			/*ArrayList<Article> list = savedInstanceState.getParcelableArrayList("m_articles");
 
 			m_articles.clear(); // ?
-			m_articles.addAll(list);
+			m_articles.addAll(list);*/
+
+			ArticleList tmp = Application.getInstance().tmpArticleList;
+
+			if (tmp != null) {
+				m_articles.clear();
+				m_articles.addAll(Application.getInstance().tmpArticleList);
+			}
 
 			savedInstanceState.getBoolean("m_compactLayoutMode", m_compactLayoutMode);
 		}
@@ -309,8 +316,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		out.putString("m_searchQuery", m_searchQuery);
 		out.putInt("m_firstId", m_firstId);
 		out.putBoolean("m_lazyLoadDisabled", m_lazyLoadDisabled);
-		out.putParcelable("m_articles", m_articles);
+		//out.putParcelable("m_articles", m_articles);
 		out.putBoolean("m_compactLayoutMode", m_compactLayoutMode);
+
+		Application.getInstance().tmpArticleList = m_articles;
 	}
 
 	@Override

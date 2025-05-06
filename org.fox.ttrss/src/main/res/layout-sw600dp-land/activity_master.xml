@@ -27,14 +27,13 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.25"
-            android:background="?feedlistBackground" >
+            android:background="?colorSurfaceContainer">
         </FrameLayout>
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="0dp"
             android:layout_weight="0.75"
             android:elevation="4dp"
-            android:background="?headlinesBackground"
             android:layout_height="match_parent">
 
             <FrameLayout

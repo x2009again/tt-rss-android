@@ -505,7 +505,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 		public ImageView flavorVideoKindView;
 		public View flavorImageOverflow;
 		public View headlineHeader;
-		public ImageView attachmentsView;
+		public MaterialButton attachmentsView;
 		public MaterialButton scoreView;
 
 		public ArticleViewHolder(View v) {

@@ -110,12 +110,22 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	}
 
 	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putParcelable("m_article", m_article);
+		//out.putParcelable("m_articles", m_articles);
+		out.putParcelable("m_feed", m_feed);
+		out.putInt("m_firstId", m_firstId);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		if (savedInstanceState != null) {
 			m_article = savedInstanceState.getParcelable("m_article");
-			m_articles = savedInstanceState.getParcelable("m_articles");
+			//m_articles = savedInstanceState.getParcelable("m_articles");
 			m_feed = savedInstanceState.getParcelable("m_feed");
 			m_firstId = savedInstanceState.getInt("m_firstId");
 		}
@@ -360,16 +370,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		m_prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle out) {
-		super.onSaveInstanceState(out);
-
-		out.putParcelable("m_article", m_article);
-		out.putParcelable("m_articles", m_articles);
-		out.putParcelable("m_feed", m_feed);
-		out.putInt("m_firstId", m_firstId);
-	}
-	
 	@SuppressLint("NewApi")
 	@Override
 	public void onResume() {

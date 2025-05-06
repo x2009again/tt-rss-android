@@ -32,8 +32,7 @@
                 android:id="@+id/headlines_fragment"
                 app:layout_behavior=".util.FabAwareScrollingViewBehavior"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?headlinesBackground" />
+                android:layout_height="wrap_content"/>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -45,7 +44,6 @@
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@android:color/white"
         android:elevation="10dp"
         android:fitsSystemWindows="true"
         app:insetForeground="#4000">
@@ -53,7 +51,7 @@
         <FrameLayout
             android:id="@+id/feeds_fragment"
             android:layout_width="match_parent"
-            android:background="?feedlistBackground"
+            android:background="?colorSurfaceContainer"
             android:layout_height="match_parent" >
         </FrameLayout>
 

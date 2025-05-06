@@ -11,14 +11,8 @@
 
         <!-- <item name="statusBarHintColor">?colorPrimary</item> -->
         <item name="ttrssHorizontalDivider">@android:drawable/divider_horizontal_bright</item>
-        <item name="feedlistBackground">#e0e0e0</item>
         <item name="unreadCounterColor">#909090</item>
-        <item name="headlinesBackground">#f0f0f0</item>
-        <item name="articleBackground">@android:color/white</item>
-        <item name="headlineSelectedBackground">#dddddd</item>
         <item name="headlineHeaderBackground">#ccffffff</item>
-        <item name="headlineUnreadBackground">@android:color/white</item>
-        <item name="feedsSelectedBackground">#dddddd</item>
         <item name="feedlistTextColor">@android:color/black</item>
         <item name="feedlistSelectedTextColor">@android:color/black</item>
         <item name="headlineUnreadTextColor">@android:color/black</item>

@@ -276,10 +276,6 @@ public class OfflineArticleFragment extends Fragment {
 			
 			if (m_web != null) {
 
-				if (m_activity.isUiNightMode()) {
-					m_web.setBackgroundColor(Color.BLACK);
-				}
-
 				m_web.setWebViewClient(new WebViewClient() {
 					@Override
 					public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -312,19 +308,16 @@ public class OfflineArticleFragment extends Fragment {
                 });
 
                 String content;
-                String cssOverride = "";
 
                 WebSettings ws = m_web.getSettings();
                 ws.setSupportZoom(false);
+				ws.setJavaScriptEnabled(false);
 
-				if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-					ws.setJavaScriptEnabled(true);
+				m_chromeClient = new FSVideoChromeClient(getView());
+				m_web.setWebChromeClient(m_chromeClient);
+				m_web.setBackgroundColor(Color.TRANSPARENT);
 
-					m_chromeClient = new FSVideoChromeClient(getView());
-					m_web.setWebChromeClient(m_chromeClient);
-
-					ws.setMediaPlaybackRequiresUserGesture(true);
-				}
+				ws.setMediaPlaybackRequiresUserGesture(true);
 
 				// we need to show "insecure" file:// urls
 				if (m_prefs.getBoolean("offline_image_cache_enabled", false) &&
@@ -333,19 +326,12 @@ public class OfflineArticleFragment extends Fragment {
 					ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 				}
 
-                TypedValue tvBackground = new TypedValue();
-                getActivity().getTheme().resolveAttribute(R.attr.articleBackground, tvBackground, true);
-
-                String backgroundHexColor = String.format("#%06X", (0xFFFFFF & tvBackground.data));
-
-                cssOverride = "body { background : "+ backgroundHexColor+"; }";
-
                 TypedValue tvTextColor = new TypedValue();
                 getActivity().getTheme().resolveAttribute(R.attr.articleTextColor, tvTextColor, true);
 
                 String textColor = String.format("#%06X", (0xFFFFFF & tvTextColor.data));
 
-                cssOverride += "body { color : "+textColor+"; }";
+                String cssOverride = "body { color : "+textColor+"; }";
 
                 TypedValue tvLinkColor = new TypedValue();
                 getActivity().getTheme().resolveAttribute(R.attr.linkColor, tvLinkColor, true);

@@ -114,6 +114,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
                 ArticleList tmp = Application.getInstance().tmpArticleList;
 
                 if (tmp != null) {
+					m_articles.clear();
                     m_articles.addAll(tmp);
                 }
 
