@@ -3,19 +3,21 @@
     <item
         android:id="@+id/selection_toggle_unread"
         app:showAsAction="always"
-
+        app:iconTint="?attr/colorControlNormal"
         android:icon="@drawable/baseline_mark_as_unread_24"
         android:title="@string/selection_toggle_unread"/>
 
     <item
         android:id="@+id/selection_toggle_marked"
         android:icon="@drawable/baseline_star_outline_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="always"
         android:title="@string/selection_toggle_marked"/>
 
     <item
         android:id="@+id/selection_toggle_published"
         android:icon="@drawable/baseline_rss_feed_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="always"
         android:title="@string/selection_toggle_published"/>
 

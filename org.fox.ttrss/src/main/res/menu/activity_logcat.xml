@@ -3,12 +3,14 @@
     <item
         android:id="@+id/logcat_refresh"
         android:icon="@drawable/baseline_refresh_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="ifRoom"
         android:title="@string/logcat_refresh"/>
 
     <item
         android:id="@+id/logcat_copy"
         android:icon="@drawable/baseline_content_copy_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="ifRoom"
         android:title="@string/logcat_copy"/>
 

@@ -8,4 +8,5 @@
     app:titleTextAppearance="?attr/textAppearanceTitleMedium"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:background="?colorSurfaceContainerLow"
     android:minHeight="?attr/actionBarSize"/>
