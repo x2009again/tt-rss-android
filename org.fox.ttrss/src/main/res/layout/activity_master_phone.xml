@@ -17,6 +17,8 @@
                 android:layout_gravity="end|bottom"
                 android:visibility="gone"
                 android:src="@drawable/ic_refresh"
+                app:tint="@android:color/white"
+                app:backgroundTint="?colorAccent"
                 android:layout_margin="16dp" />
 
             <com.google.android.material.appbar.AppBarLayout
