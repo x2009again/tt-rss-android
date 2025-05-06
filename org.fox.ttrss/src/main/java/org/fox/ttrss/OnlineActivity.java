@@ -1403,14 +1403,14 @@ public class OnlineActivity extends CommonActivity {
 					Article article = ap.getSelectedArticle();
 
 					if (article != null) {
-						m_menu.findItem(R.id.toggle_marked).setIcon(article.marked ? R.drawable.ic_star :
-								R.drawable.ic_star_outline);
+						m_menu.findItem(R.id.toggle_marked).setIcon(article.marked ? R.drawable.baseline_star_24 :
+								R.drawable.baseline_star_outline_24);
 
-						m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.ic_checkbox_marked :
-								R.drawable.ic_rss_box);
+						m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.baseline_check_box_24 :
+								R.drawable.baseline_rss_feed_24);
 
-						m_menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.ic_email :
-								R.drawable.ic_email_open);
+						m_menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_email_24 :
+								R.drawable.baseline_mark_as_unread_24);
 					}
 				}
 

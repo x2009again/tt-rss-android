@@ -3,6 +3,29 @@
     <style name="AppTheme.Base" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+        <item name="ic_rss_box">@drawable/baseline_rss_feed_24</item>
+        <item name="ic_checkbox_marked">@drawable/baseline_check_box_24</item>
+        <item name="ic_star">@drawable/baseline_star_24</item>
+        <item name="ic_star_outline">@drawable/baseline_star_outline_24</item>
+        <item name="ic_share">@drawable/baseline_share_24</item>
+        <item name="ic_inbox">@drawable/baseline_inbox_24</item>
+        <item name="ic_go_back">@drawable/baseline_arrow_back_24</item>
+        <item name="ic_settings">@drawable/baseline_settings_24</item>
+        <item name="ic_filter_variant">@drawable/baseline_filter_alt_24</item>
+        <item name="ic_cloud_download">@drawable/baseline_cloud_download_24</item>
+        <item name="ic_cloud_upload">@drawable/baseline_cloud_upload_24</item>
+        <item name="ic_archive">@drawable/baseline_archive_24</item>
+        <item name="ic_fresh">@drawable/baseline_local_fire_department_24</item>
+        <item name="ic_restore">@drawable/baseline_restore_24</item>
+        <item name="ic_folder_outline">@drawable/baseline_folder_open_24</item>
+        <item name="ic_dots_vertical">@drawable/baseline_more_vert_24</item>
+        <item name="ic_dots_vertical_circle">@drawable/outline_more_24</item>
+        <item name="ic_attachment">@drawable/baseline_attachment_24</item>
+        <item name="ic_attachment_vert">@drawable/baseline_attach_file_24</item>
+        <item name="ic_action_trending_up">@drawable/baseline_trending_up_24</item>
+        <item name="ic_action_trending_flat">@drawable/baseline_trending_flat_24</item>
+        <item name="ic_action_trending_down">@drawable/baseline_trending_down_24</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
@@ -20,35 +43,9 @@
         <item name="articleHeader">@android:color/transparent</item>
         <item name="articleTextColor">@android:color/black</item>
         <!-- <item name="floatingActionButtonStyle">@style/FabTheme</item> -->
-        <item name="headlineFooterColor">?colorPrimary</item>
         <item name="articleHeaderSeparator">#cccccc</item>
 
         <item name="colorAccent">#F4511E</item>
-
-        <item name="ic_rss_box">@drawable/ic_rss_box_dark</item>
-        <item name="ic_checkbox_marked">@drawable/ic_checkbox_marked_dark</item>
-        <item name="ic_star">@drawable/ic_star_dark</item>
-        <item name="ic_star_outline">@drawable/ic_star_outline_dark</item>
-        <item name="ic_share">@drawable/ic_share_dark</item>
-        <item name="ic_inbox">@drawable/ic_inbox_dark</item>
-        <item name="ic_go_back">@drawable/ic_go_back_dark</item>
-        <item name="ic_settings">@drawable/ic_settings_dark</item>
-        <item name="ic_filter_variant">@drawable/ic_filter_variant_dark</item>
-        <item name="ic_cloud_download">@drawable/ic_cloud_download_dark</item>
-        <item name="ic_cloud_upload">@drawable/ic_cloud_upload_dark</item>
-        <item name="ic_archive">@drawable/ic_archive_dark</item>
-        <item name="ic_fresh">@drawable/ic_fresh_dark</item>
-        <item name="ic_restore">@drawable/ic_restore_dark</item>
-        <item name="ic_folder_outline">@drawable/ic_folder_outline_dark</item>
-        <item name="ic_dots_vertical">@drawable/ic_dots_vertical_dark</item>
-        <item name="ic_dots_vertical_circle">@drawable/ic_dots_vertical_circle_dark</item>
-        <item name="ic_attachment">@drawable/ic_attachment_dark</item>
-        <item name="ic_attachment_vert">@drawable/ic_attachment_vert_dark</item>
-        <item name="ic_action_trending_up">@drawable/ic_action_trending_up_dark</item>
-        <item name="ic_action_trending_flat">@drawable/ic_action_trending_flat_dark</item>
-        <item name="ic_action_trending_down">@drawable/ic_action_trending_down_dark</item>
-
-        <item name="drawer_header">@drawable/drawer_header</item>
     </style>
 
     <style name="DarkDialogTheme" parent="android:Theme"></style>

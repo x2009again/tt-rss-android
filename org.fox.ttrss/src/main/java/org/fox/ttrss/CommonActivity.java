@@ -468,7 +468,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 			PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
 					CommonActivity.PENDING_INTENT_CHROME_SHARE, shareIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-			builder.setActionButton(BitmapFactory.decodeResource(getResources(), R.drawable.ic_share),
+			builder.setActionButton(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_share_24),
 					getString(R.string.share_article), pendingIntent);
 
 			CustomTabsIntent intent = builder.build();

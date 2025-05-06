@@ -1679,13 +1679,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		private void adjustVideoKindView(ArticleViewHolder holder, Article article) {
 			if (article.flavorImage != null) {
 				if (article.flavor_kind == Article.FLAVOR_KIND_YOUTUBE || "iframe".equals(article.flavorImage.tagName().toLowerCase())) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_youtube_play);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_outline_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else if (article.flavor_kind == Article.FLAVOR_KIND_VIDEO || "video".equals(article.flavorImage.tagName().toLowerCase())) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_play_circle);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else if (article.flavor_kind == Article.FLAVOR_KIND_ALBUM ||article.mediaList.size() > 1) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_image_album);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_photo_album_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else {
 					holder.flavorVideoKindView.setVisibility(View.INVISIBLE);

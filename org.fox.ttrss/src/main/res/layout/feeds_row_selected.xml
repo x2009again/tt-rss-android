@@ -28,6 +28,7 @@
             android:layout_height="21dp"
             android:layout_weight="0"
             android:scaleType="fitXY"
+            app:tint="?colorOnPrimaryContainer"
             android:src="?ic_rss_box" />
 
         <TextView

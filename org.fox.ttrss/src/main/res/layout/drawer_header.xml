@@ -16,7 +16,7 @@
             style="?attr/materialIconButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_settings"
+            app:icon="@drawable/baseline_settings_24"
             android:id="@+id/drawer_settings_btn"
             android:layout_gravity="center_vertical|end"
             android:layout_marginEnd="8dp"

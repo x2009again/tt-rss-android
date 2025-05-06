@@ -68,7 +68,7 @@ public class OfflineUploadService extends IntentService {
                 .setContentTitle(getString(R.string.notify_uploading_title))
                 .setContentIntent(contentIntent)
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.ic_cloud_upload)
+                .setSmallIcon(R.drawable.baseline_cloud_upload_24)
                 .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),
                         R.drawable.ic_launcher))
                 .setOngoing(!isError)
@@ -79,7 +79,7 @@ public class OfflineUploadService extends IntentService {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder.setCategory(Notification.CATEGORY_PROGRESS)
-                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setColor(0x88b0f0)
                     .setGroup("org.fox.ttrss")
 					.addAction(R.drawable.ic_launcher, getString(R.string.offline_sync_try_again), contentIntent);

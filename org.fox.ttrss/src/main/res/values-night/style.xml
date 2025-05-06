@@ -14,34 +14,8 @@
         <item name="feedlistSelectedTextColor">@android:color/white</item>
         <item name="articleHeader">@android:color/transparent</item>
         <item name="articleTextColor">#e0e0e0</item>
-        <item name="headlineFooterColor">?colorPrimary</item>
         <item name="articleHeaderSeparator">#303030</item>
 
         <item name="colorAccent">#D84315</item>
-
-        <item name="ic_rss_box">@drawable/ic_rss_box</item>
-        <item name="ic_checkbox_marked">@drawable/ic_checkbox_marked</item>
-        <item name="ic_star">@drawable/ic_star</item>
-        <item name="ic_star_outline">@drawable/ic_star_outline</item>
-        <item name="ic_share">@drawable/ic_share</item>
-        <item name="ic_inbox">@drawable/ic_inbox</item>
-        <item name="ic_go_back">@drawable/ic_go_back</item>
-        <item name="ic_settings">@drawable/ic_settings</item>
-        <item name="ic_filter_variant">@drawable/ic_filter_variant</item>
-        <item name="ic_cloud_download">@drawable/ic_cloud_download</item>
-        <item name="ic_cloud_upload">@drawable/ic_cloud_upload</item>
-        <item name="ic_archive">@drawable/ic_archive</item>
-        <item name="ic_fresh">@drawable/ic_fresh</item>
-        <item name="ic_restore">@drawable/ic_restore</item>
-        <item name="ic_folder_outline">@drawable/ic_folder_outline</item>
-        <item name="ic_dots_vertical">@drawable/ic_dots_vertical</item>
-        <item name="ic_dots_vertical_circle">@drawable/ic_dots_vertical_circle</item>
-        <item name="ic_attachment">@drawable/ic_attachment</item>
-        <item name="ic_attachment_vert">@drawable/ic_attachment_vert</item>
-        <item name="ic_action_trending_up">@drawable/ic_action_trending_up</item>
-        <item name="ic_action_trending_flat">@drawable/ic_action_trending_flat</item>
-        <item name="ic_action_trending_down">@drawable/ic_action_trending_down</item>
-
-        <item name="drawer_header">@drawable/drawer_header_dark</item>
     </style>
 </resources>

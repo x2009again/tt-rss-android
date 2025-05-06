@@ -15,6 +15,7 @@ android {
         compileSdk 35
         versionCode 558
         versionName getVersion()
+        vectorDrawables.useSupportLibrary = true
     }
 
     signingConfigs {
@@ -121,6 +122,7 @@ dependencies {
     implementation 'me.relex:circleindicator:1.2.2@aar'
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation 'com.github.amulyakhare:TextDrawable:558677ea31'
+
 }
 java {
     toolchain {

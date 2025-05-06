@@ -8,11 +8,9 @@
     <attr name="linkColor" format="reference|color" />
     <attr name="articleNoteBackground" format="reference|color" />
     <attr name="articleNoteTextColor" format="reference|color" />
-    <!-- <attr name="statusBarHintColor" format="reference|color" /> -->
     <attr name="parentBtnBackground" format="reference|color" />
     <attr name="articleHeader" format="reference|color" />
     <attr name="articleTextColor" format="reference|color" />
-    <attr name="headlineFooterColor" format="reference|color" />
     <attr name="articleHeaderSeparator" format="reference|color" />
     <attr name="ic_rss_box" format="reference"/>
     <attr name="ic_checkbox_marked" format="reference" />

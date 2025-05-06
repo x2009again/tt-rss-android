@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     android:id="@+id/article_images"
     android:layout_width="fill_parent"
@@ -19,11 +20,11 @@
         android:layout_height="26dp"
         android:layout_weight="0"
         android:background="@drawable/ripple"
-        android:src="@drawable/ic_dots_vertical_circle"
+        android:src="?ic_dots_vertical_circle"
         android:layout_alignParentRight="true"
-        android:tint="?colorAccent"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="@dimen/activity_vertical_margin" />
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        app:tint="?colorAccent" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"

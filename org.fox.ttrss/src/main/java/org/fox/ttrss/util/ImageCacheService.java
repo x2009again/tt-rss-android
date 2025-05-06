@@ -204,7 +204,7 @@ public class ImageCacheService extends IntentService {
 				.setContentTitle(getString(R.string.notify_downloading_title))
 				.setContentIntent(contentIntent)
 				.setWhen(System.currentTimeMillis())
-				.setSmallIcon(R.drawable.ic_cloud_download)
+				.setSmallIcon(R.drawable.baseline_cloud_download_24)
 				.setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),
 						R.drawable.ic_launcher))
 				.setOngoing(true)

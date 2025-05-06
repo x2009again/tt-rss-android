@@ -15,7 +15,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|bottom"
                 android:visibility="gone"
-                android:src="@drawable/ic_refresh"
+                android:src="@drawable/baseline_refresh_24"
                 app:tint="@android:color/white"
                 app:backgroundTint="?colorAccent"
                 android:layout_margin="16dp" />

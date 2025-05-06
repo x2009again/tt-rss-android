@@ -1085,10 +1085,10 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 		private void adjustVideoKindView(ArticleViewHolder holder, ArticleFlavorInfo afi) {
 			if (afi.flavorImageUri != null) {
 				if (afi.flavorStreamUri != null) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_play_circle);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else if (afi.mediaList.size() > 1) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_image_album);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_photo_album_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else {
 					holder.flavorVideoKindView.setVisibility(View.INVISIBLE);
