@@ -43,6 +43,8 @@ import java.util.Date;
 
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
+
 public class OfflineArticleFragment extends Fragment {
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -234,19 +236,19 @@ public class OfflineArticleFragment extends Fragment {
 
 			}
 
-			ImageView score = view.findViewById(R.id.score);
+			MaterialButton score = view.findViewById(R.id.score);
 
 			if (score != null) {
 				score.setVisibility(View.GONE);
 			}
 
-			ImageView attachments = view.findViewById(R.id.attachments);
+			MaterialButton attachments = view.findViewById(R.id.attachments);
 
 			if (attachments != null) {
 				attachments.setVisibility(View.GONE);
 			}
 
-			ImageView share = view.findViewById(R.id.share);
+			MaterialButton share = view.findViewById(R.id.share);
 
 			if (share != null) {
 				share.setOnClickListener(new OnClickListener() {

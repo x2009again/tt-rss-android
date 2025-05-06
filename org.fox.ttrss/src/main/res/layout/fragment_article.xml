@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/article_fragment"
     android:layout_width="fill_parent"
-    android:layout_height="match_parent"
-    android:background="?articleBackground">
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/article_fullscreen_video"
@@ -17,7 +16,6 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:background="?articleHeader"
             android:elevation="0dp"
             app:elevation="0dp"
             android:layout_width="match_parent"
@@ -51,7 +49,8 @@
                         android:layout_marginRight="8dp"
                         android:gravity="start" />
 
-                    <ImageView
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialIconButtonStyle"
                         android:id="@+id/score"
                         android:layout_width="wrap_content"
                         android:layout_height="24dp"
@@ -59,10 +58,11 @@
                         android:background="@drawable/ripple"
                         android:clickable="true"
                         android:layout_marginLeft="8dp"
-                        android:src="?ic_action_trending_flat"
+                        app:icon="?ic_action_trending_flat"
                         android:layout_gravity="center_vertical|end" />
 
-                    <ImageView
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialIconButtonStyle"
                         android:id="@+id/attachments"
                         android:background="@drawable/ripple"
                         android:layout_width="wrap_content"
@@ -70,17 +70,18 @@
                         android:layout_weight="0"
                         android:layout_marginLeft="8dp"
                         android:clickable="true"
-                        android:src="?ic_attachment_vert"
+                        app:icon="?ic_attachment_vert"
                         android:layout_gravity="center_vertical|end" />
 
-                    <ImageView
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialIconButtonStyle"
                         android:id="@+id/share"
                         android:background="@drawable/ripple"
                         android:layout_width="wrap_content"
                         android:layout_height="24dp"
                         android:layout_weight="0"
                         android:clickable="true"
-                        android:src="?ic_share"
+                        app:icon="?ic_share"
                         android:layout_gravity="center_vertical|end" />
                 </LinearLayout>
 

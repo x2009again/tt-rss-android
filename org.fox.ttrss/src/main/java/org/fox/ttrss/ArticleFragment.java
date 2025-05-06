@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
@@ -35,6 +36,7 @@ import android.widget.TextView;
 import androidx.core.text.HtmlCompat;
 
 import com.evernote.android.state.State;
+import com.google.android.material.button.MaterialButton;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Attachment;
@@ -218,20 +220,10 @@ public class ArticleFragment extends StateSavedFragment  {
 
         }
 
-        final ImageView scoreView = view.findViewById(R.id.score);
+        final MaterialButton scoreView = view.findViewById(R.id.score);
 
         if (scoreView != null) {
             setScoreImage(scoreView, m_article.score);
-
-            Resources.Theme theme = m_activity.getTheme();
-            TypedValue tv = new TypedValue();
-            theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tv, true);
-            int titleHighScoreUnreadColor = tv.data;
-
-            if (m_article.score > Article.SCORE_HIGH)
-                scoreView.setColorFilter(titleHighScoreUnreadColor);
-            else
-                scoreView.setColorFilter(null);
 
             if (m_activity.getApiLevel() >= 16) {
                 scoreView.setOnClickListener(new OnClickListener() {
@@ -282,7 +274,7 @@ public class ArticleFragment extends StateSavedFragment  {
             }
         }
 
-        ImageView attachments = view.findViewById(R.id.attachments);
+        MaterialButton attachments = view.findViewById(R.id.attachments);
 
         if (attachments != null) {
             if (m_article.attachments != null && m_article.attachments.size() > 0) {
@@ -298,7 +290,7 @@ public class ArticleFragment extends StateSavedFragment  {
             }
         }
 
-        ImageView share = view.findViewById(R.id.share);
+        MaterialButton share = view.findViewById(R.id.share);
 
         if (share != null) {
             share.setOnClickListener(new OnClickListener() {
@@ -409,6 +401,8 @@ public class ArticleFragment extends StateSavedFragment  {
 
         m_web = view.findViewById(R.id.article_content);
 
+        m_web.setBackgroundColor(Color.TRANSPARENT);
+
         m_web.setWebViewClient(new WebViewClient() {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -447,7 +441,7 @@ public class ArticleFragment extends StateSavedFragment  {
         return view;
 	}
 
-    private void setScoreImage(ImageView scoreView, int score) {
+    private void setScoreImage(MaterialButton scoreView, int score) {
         TypedValue tv = new TypedValue();
         int scoreAttr = R.attr.ic_action_trending_flat;
 
@@ -458,7 +452,20 @@ public class ArticleFragment extends StateSavedFragment  {
 
         m_activity.getTheme().resolveAttribute(scoreAttr, tv, true);
 
-        scoreView.setImageResource(tv.resourceId);
+        scoreView.setIconResource(tv.resourceId);
+
+        Resources.Theme theme = m_activity.getTheme();
+        TypedValue tvColorHighScore = new TypedValue();
+        theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tvColorHighScore, true);
+
+        TypedValue tvPrimary = new TypedValue();
+        m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
+
+        if (m_article.score > Article.SCORE_HIGH)
+            scoreView.setIconTint(ColorStateList.valueOf(tvColorHighScore.data));
+        else
+            scoreView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
+
     }
 
     protected void renderContent(Bundle savedInstanceState) {
@@ -469,21 +476,12 @@ public class ArticleFragment extends StateSavedFragment  {
         WebSettings ws = m_web.getSettings();
         ws.setSupportZoom(false);
 
-        TypedValue tvBackground = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.articleBackground, tvBackground, true);
-
-        String backgroundHexColor = String.format("#%06X", (0xFFFFFF & tvBackground.data));
-
-        String cssOverride = "";
-
-        cssOverride = "body { background : "+ backgroundHexColor+"; }";
-
         TypedValue tvTextColor = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.articleTextColor, tvTextColor, true);
 
         String textColor = String.format("#%06X", (0xFFFFFF & tvTextColor.data));
 
-        cssOverride += "body { color : "+textColor+"; }";
+        String cssOverride = "body { color : "+textColor+"; }";
 
         TypedValue tvLinkColor = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.linkColor, tvLinkColor, true);

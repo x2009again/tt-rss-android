@@ -31,8 +31,7 @@
             android:id="@+id/article_fragment"
             app:layout_behavior=".util.DetailActivityScrollingViewBehavior"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?articleBackground">
+            android:layout_height="wrap_content">
         </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
