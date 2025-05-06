@@ -3,8 +3,6 @@
     <style name="AppTheme" parent="AppTheme.Base">
         <item name="windowActionModeOverlay">true</item>
 
-        <!-- <item name="statusBarHintColor">?colorPrimary</item> -->
-        <item name="unreadCounterColor">#909090</item>
         <item name="feedlistTextColor">@android:color/white</item>
         <item name="headlineUnreadTextColor">@android:color/white</item>
         <item name="headlineSelectedTextColor">@android:color/white</item>

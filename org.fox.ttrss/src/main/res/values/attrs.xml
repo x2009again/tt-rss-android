@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="ttrssHorizontalDivider" format="reference|color" />
-    <attr name="unreadCounterColor" format="reference|color" />
     <attr name="feedlistTextColor" format="reference|color" />
     <attr name="feedlistSelectedTextColor" format="reference|color" />
     <attr name="headlineHeaderBackground" format="reference|color" />

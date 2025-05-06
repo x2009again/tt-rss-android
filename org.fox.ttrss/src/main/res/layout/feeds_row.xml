@@ -48,7 +48,7 @@
         android:textAlignment="viewEnd"
         android:singleLine="true"
         tools:text="3200"
-        android:textColor="?unreadCounterColor"
+        android:textColor="?colorOnPrimaryContainer"
         android:textSize="14sp" />
 
     <!-- <ImageButton
