@@ -34,16 +34,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.evernote.android.state.State;
 import me.relex.circleindicator.CircleIndicator;
 
 public class GalleryActivity extends CommonActivity {
     private final String TAG = this.getClass().getSimpleName();
 
-    @State protected ArrayList<GalleryEntry> m_items = new ArrayList<>();
-    @State protected String m_title;
+    protected ArrayList<GalleryEntry> m_items = new ArrayList<>();
+    protected String m_title;
     private ArticleImagesPagerAdapter m_adapter;
-    @State public String m_content;
+    public String m_content;
     private ViewPager m_pager;
     private ProgressBar m_checkProgress;
 
@@ -234,6 +233,14 @@ public class GalleryActivity extends CommonActivity {
         return firstFound;
     }
 
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putParcelableArrayList("m_items", m_items);
+        out.putString("m_title", m_title);
+        out.putString("m_content", m_content);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         ActivityCompat.postponeEnterTransition(this);
@@ -241,7 +248,6 @@ public class GalleryActivity extends CommonActivity {
         // we use that before parent onCreate so let's init locally
         m_prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
-
 
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         setTheme(R.style.AppTheme);
@@ -273,6 +279,14 @@ public class GalleryActivity extends CommonActivity {
             if (!collectGalleryContents(imgSrcFirst, doc, uncheckedItems))
                 if (!collectGalleryContents("", doc, uncheckedItems))
                     m_items.add(new GalleryEntry(imgSrcFirst, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
+        } else {
+            ArrayList<GalleryEntry> list = savedInstanceState.getParcelableArrayList("m_items");
+
+            m_items.clear();
+            m_items.addAll(list);
+
+            m_title = savedInstanceState.getString("m_title");
+            m_content = savedInstanceState.getString("m_content");
         }
 
         findViewById(R.id.gallery_overflow).setOnClickListener(new View.OnClickListener() {

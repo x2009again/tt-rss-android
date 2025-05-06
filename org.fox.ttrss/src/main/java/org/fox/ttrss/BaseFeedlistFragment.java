@@ -11,14 +11,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.SwitchCompat;
+
 import org.fox.ttrss.offline.OfflineActivity;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import androidx.appcompat.widget.SwitchCompat;
-
-public abstract class BaseFeedlistFragment extends StateSavedFragment {
+public abstract class BaseFeedlistFragment extends androidx.fragment.app.Fragment {
     abstract public void refresh();
 
     public void initDrawerHeader(LayoutInflater inflater, View view, ListView list, final CommonActivity activity, final SharedPreferences prefs, boolean isRoot) {

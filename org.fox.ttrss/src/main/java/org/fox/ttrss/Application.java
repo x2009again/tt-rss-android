@@ -2,15 +2,8 @@ package org.fox.ttrss;
 
 import android.os.Bundle;
 
-import com.evernote.android.state.StateSaver;
-import com.livefront.bridge.Bridge;
-import com.livefront.bridge.SavedStateHandler;
-
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.LinkedHashMap;
 
@@ -32,18 +25,6 @@ public class Application extends android.app.Application {
 	@Override
 	public final void onCreate() {
 		super.onCreate();
-
-		Bridge.initialize(getApplicationContext(), new SavedStateHandler() {
-			@Override
-			public void saveInstanceState(@NonNull Object target, @NonNull Bundle state) {
-				StateSaver.saveInstanceState(target, state);
-			}
-
-			@Override
-			public void restoreInstanceState(@NonNull Object target, @Nullable Bundle state) {
-				StateSaver.restoreInstanceState(target, state);
-			}
-		});
 
 		m_singleton = this;
 	}

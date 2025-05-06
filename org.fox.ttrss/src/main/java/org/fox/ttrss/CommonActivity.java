@@ -47,9 +47,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.evernote.android.state.State;
 import com.google.android.material.snackbar.Snackbar;
-import com.livefront.bridge.Bridge;
 
 import org.fox.ttrss.util.DatabaseHelper;
 import org.fox.ttrss.widget.SmallWidgetProvider;
@@ -90,7 +88,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	//private SQLiteDatabase m_writableDb;
 
 	private boolean m_smallScreenMode = true;
-	@State
 	protected String m_theme;
 	private boolean m_needRestart;
 
@@ -263,10 +260,10 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 		setupWidgetUpdates(this);
 
-		Bridge.restoreInstanceState(this, savedInstanceState);
-
         if (savedInstanceState == null) {
 			m_theme = m_prefs.getString("theme", CommonActivity.THEME_DEFAULT);
+		} else {
+			m_theme = savedInstanceState.getString("m_theme");
 		}
 
 		String customTabPackageName = getCustomTabPackageName(this);
@@ -282,7 +279,8 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	@Override
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
-		Bridge.saveInstanceState(this, out);
+
+		out.putString("m_theme", m_theme);
 	}
 	
 	public boolean isSmallScreen() {

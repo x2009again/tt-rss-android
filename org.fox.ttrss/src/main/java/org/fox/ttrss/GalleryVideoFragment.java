@@ -15,19 +15,35 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.MediaController;
 
-import java.io.IOException;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
-import com.evernote.android.state.State;
+
+import java.io.IOException;
 
 public class GalleryVideoFragment extends GalleryBaseFragment {
     private final String TAG = this.getClass().getSimpleName();
 
-    @State String m_url;
-    @State String m_coverUrl;
+    String m_url;
+    String m_coverUrl;
     MediaPlayer m_mediaPlayer;
     private boolean m_userVisibleHint = false;
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            m_url = savedInstanceState.getString("m_url");
+            m_coverUrl = savedInstanceState.getString("m_coverUrl");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putString("m_url", m_url);
+        out.putString("m_coverUrl", m_coverUrl);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

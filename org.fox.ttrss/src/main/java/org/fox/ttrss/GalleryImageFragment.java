@@ -19,12 +19,19 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 
-import com.evernote.android.state.State;
-
 public class GalleryImageFragment extends GalleryBaseFragment {
     private final String TAG = this.getClass().getSimpleName();
 
-    @State String m_url;
+    String m_url;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            m_url = savedInstanceState.getParcelable("m_url");
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,6 +89,13 @@ public class GalleryImageFragment extends GalleryBaseFragment {
 
     public void initialize(String url) {
         m_url = url;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putString("m_url", m_url);
     }
 
     /*@Override

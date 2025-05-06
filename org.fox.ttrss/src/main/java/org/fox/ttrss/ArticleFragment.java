@@ -10,10 +10,8 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -30,12 +28,10 @@ import android.webkit.WebView.HitTestResult;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.text.HtmlCompat;
 
-import com.evernote.android.state.State;
 import com.google.android.material.button.MaterialButton;
 
 import org.fox.ttrss.types.Article;
@@ -47,11 +43,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ArticleFragment extends StateSavedFragment  {
+public class ArticleFragment extends androidx.fragment.app.Fragment  {
 	private final String TAG = this.getClass().getSimpleName();
 
 	private SharedPreferences m_prefs;
-	@State
     protected Article m_article;
 	private DetailActivity m_activity;
     private WebView m_web;
@@ -157,6 +152,15 @@ public class ArticleFragment extends StateSavedFragment  {
 		super.onCreateContextMenu(menu, v, menuInfo);
 
 	}
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            m_article = savedInstanceState.getParcelable("m_article");
+        }
+    }
 
 	@SuppressLint("NewApi")
 	@Override
@@ -627,4 +631,11 @@ public class ArticleFragment extends StateSavedFragment  {
 		m_activity = (DetailActivity)activity;
 
 	}
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putParcelable("m_article", m_article);
+    }
 }

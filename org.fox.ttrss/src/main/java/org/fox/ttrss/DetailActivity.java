@@ -13,19 +13,17 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.evernote.android.state.State;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentTransaction;
-
 public class DetailActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();
-	@State
 	protected ArticleList m_articles = new ArticleList();
 
 	protected SharedPreferences m_prefs;
@@ -40,6 +38,10 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		setAppTheme(m_prefs);
 
         super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			m_articles = savedInstanceState.getParcelable("m_articles");
+		}
 
 		if (m_prefs.getBoolean("force_phone_layout", false)) {
 			setContentView(R.layout.activity_detail_phone);
@@ -166,6 +168,8 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
+
+		out.putParcelable("m_articles", m_articles);
 
 		Application.getInstance().save(out);
 	}

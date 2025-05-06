@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Resources.Theme;
 import android.graphics.Paint;
@@ -43,7 +42,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -71,7 +69,6 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
-import com.evernote.android.state.State;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
@@ -91,14 +88,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
-import com.evernote.android.state.State;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
-public class HeadlinesFragment extends StateSavedFragment {
+public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	public enum ArticlesSelection { ALL, NONE, UNREAD }
 
@@ -109,24 +103,23 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 	private final String TAG = this.getClass().getSimpleName();
 
-	@State
 	Feed m_feed;
-	@State Article m_activeArticle;
-	@State String m_searchQuery = "";
+	Article m_activeArticle;
+	String m_searchQuery = "";
 	private boolean m_refreshInProgress = false;
-	@State int m_firstId = 0;
-	@State boolean m_lazyLoadDisabled = false;
+	int m_firstId = 0;
+	boolean m_lazyLoadDisabled = false;
 
 	private SharedPreferences m_prefs;
 
 	private HeaderViewRecyclerAdapter m_adapter;
-	@State ArticleList m_articles = new ArticleList();
+	ArticleList m_articles = new ArticleList();
 	private ArticleList m_readArticles = new ArticleList();
 	private HeadlinesEventListener m_listener;
 	private OnlineActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
 	private int m_maxImageSize = 0;
-	@State boolean m_compactLayoutMode = false;
+	boolean m_compactLayoutMode = false;
     private RecyclerView m_list;
 	private LinearLayoutManager m_layoutManager;
 
@@ -287,9 +280,37 @@ public class HeadlinesFragment extends StateSavedFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		if (savedInstanceState != null) {
+			m_feed = savedInstanceState.getParcelable("m_feed");
+			m_activeArticle = savedInstanceState.getParcelable("m_activeArticle");
+			m_searchQuery = savedInstanceState.getString("m_searchQuery");
+			m_firstId = savedInstanceState.getInt("m_firstId");
+			m_lazyLoadDisabled = savedInstanceState.getBoolean("m_lazyLoadDisabled");
+
+			ArrayList<Article> list = savedInstanceState.getParcelableArrayList("m_articles");
+
+			m_articles.clear(); // ?
+			m_articles.addAll(list);
+
+			savedInstanceState.getBoolean("m_compactLayoutMode", m_compactLayoutMode);
+		}
+
 		setRetainInstance(true);
 
 		Glide.get(getContext()).clearMemory();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putParcelable("m_feed", m_feed);
+		out.putParcelable("m_activeArticle", m_activeArticle);
+		out.putString("m_searchQuery", m_searchQuery);
+		out.putInt("m_firstId", m_firstId);
+		out.putBoolean("m_lazyLoadDisabled", m_lazyLoadDisabled);
+		out.putParcelable("m_articles", m_articles);
+		out.putBoolean("m_compactLayoutMode", m_compactLayoutMode);
 	}
 
 	@Override

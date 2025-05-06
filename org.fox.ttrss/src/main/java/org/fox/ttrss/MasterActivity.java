@@ -34,8 +34,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import com.evernote.android.state.State;
-
 public class MasterActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();
 	
@@ -45,8 +43,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	protected long m_lastRefresh = 0;
 	protected long m_lastWidgetRefresh = 0;
 	
-	@State protected boolean m_feedIsSelected = false;
-    @State protected boolean m_userFeedSelected = false;
+	protected boolean m_feedIsSelected = false;
+    protected boolean m_userFeedSelected = false;
 
     private ActionBarDrawerToggle m_drawerToggle;
     private DrawerLayout m_drawerLayout;
@@ -195,6 +193,9 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
             m_feedIsSelected = true;
 
 		} else { // savedInstanceState != null
+
+			m_feedIsSelected = savedInstanceState.getBoolean("m_feedIsSelected");
+			m_userFeedSelected = savedInstanceState.getBoolean("m_userFeedSelected");
 
 			if (m_drawerLayout != null && !m_feedIsSelected) {
 				m_drawerLayout.openDrawer(GravityCompat.START);
@@ -410,6 +411,9 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);	
+
+		out.putBoolean("m_feedIsSelected", m_feedIsSelected);
+		out.putBoolean("m_userFeedSelected", m_userFeedSelected);
 
 		Application.getInstance().save(out);
 	}

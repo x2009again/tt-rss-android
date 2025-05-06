@@ -121,10 +121,6 @@ dependencies {
     implementation 'me.relex:circleindicator:1.2.2@aar'
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation 'com.github.amulyakhare:TextDrawable:558677ea31'
-    implementation 'com.evernote:android-state:1.4.1'
-    compileOnly 'com.evernote:android-state:1.4.1'
-    annotationProcessor 'com.evernote:android-state:1.4.1'
-    implementation 'com.github.livefront:bridge:v1.1.1'
 }
 java {
     toolchain {

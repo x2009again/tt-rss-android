@@ -28,20 +28,18 @@ import org.fox.ttrss.util.HeadlinesRequest;
 
 import java.util.HashMap;
 
-import com.evernote.android.state.State;
-
-public class ArticlePager extends StateSavedFragment {
+public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	private final String TAG = "ArticlePager";
 	private PagerAdapter m_adapter;
 	private HeadlinesEventListener m_listener;
-	@State protected Article m_article;
-	@State protected ArticleList m_articles = new ArticleList(); //m_articles = Application.getInstance().m_loadedArticles;
+	protected Article m_article;
+	protected ArticleList m_articles = new ArticleList(); //m_articles = Application.getInstance().m_loadedArticles;
 	private OnlineActivity m_activity;
 	private String m_searchQuery = "";
-	@State protected Feed m_feed;
+	protected Feed m_feed;
 	private SharedPreferences m_prefs;
-	@State protected int m_firstId = 0;
+	protected int m_firstId = 0;
 	private boolean m_refreshInProgress;
 	private boolean m_lazyLoadDisabled;
 
@@ -114,6 +112,13 @@ public class ArticlePager extends StateSavedFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			m_article = savedInstanceState.getParcelable("m_article");
+			m_articles = savedInstanceState.getParcelable("m_articles");
+			m_feed = savedInstanceState.getParcelable("m_feed");
+			m_firstId = savedInstanceState.getInt("m_firstId");
+		}
 
 		setRetainInstance(true);
 	}
@@ -353,6 +358,16 @@ public class ArticlePager extends StateSavedFragment {
 		m_activity = (OnlineActivity)activity;
 		
 		m_prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putParcelable("m_article", m_article);
+		out.putParcelable("m_articles", m_articles);
+		out.putParcelable("m_feed", m_feed);
+		out.putInt("m_firstId", m_firstId);
 	}
 	
 	@SuppressLint("NewApi")

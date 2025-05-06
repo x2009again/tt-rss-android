@@ -16,13 +16,11 @@ import org.fox.ttrss.PreferencesActivity;
 import org.fox.ttrss.R;
 import org.fox.ttrss.util.SimpleLoginManager;
 
-import com.evernote.android.state.State;
-
 
 public abstract class CommonShareActivity extends CommonActivity {
 	protected SharedPreferences m_prefs;
-	@State protected String m_sessionId;
-	@State protected int m_apiLevel = 0;
+	protected String m_sessionId;
+	protected int m_apiLevel = 0;
 
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -31,7 +29,20 @@ public abstract class CommonShareActivity extends CommonActivity {
 		m_prefs = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 
+		if (savedInstanceState != null) {
+			m_sessionId = savedInstanceState.getString("m_sessionId");
+			m_apiLevel = savedInstanceState.getInt("m_apiLevel");
+		}
+
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putString("m_sessionId", m_sessionId);
+		out.putInt("m_apiLevel", m_apiLevel);
 	}
 
 	protected abstract void onLoggedIn(int requestId);

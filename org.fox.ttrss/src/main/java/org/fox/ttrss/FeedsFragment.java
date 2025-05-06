@@ -29,6 +29,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -45,11 +49,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import com.evernote.android.state.State;
-
 public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickListener, OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
@@ -57,10 +56,10 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	private FeedListAdapter m_adapter;
 	private FeedList m_feeds = new FeedList();
 	private MasterActivity m_activity;
-	@State Feed m_selectedFeed;
-	@State FeedCategory m_activeCategory;
+	Feed m_selectedFeed;
+	FeedCategory m_activeCategory;
 	private SwipeRefreshLayout m_swipeLayout;
-    @State boolean m_enableParentBtn = false;
+    boolean m_enableParentBtn = false;
     private ListView m_list;
 
     public void initialize(FeedCategory cat, boolean enableParentBtn) {
@@ -331,6 +330,32 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 		super.onCreateContextMenu(menu, v, menuInfo);		
 		
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			ArrayList<Feed> list = savedInstanceState.getParcelableArrayList("m_feeds");
+
+			m_feeds.clear();
+			m_feeds.addAll(list);
+
+			m_selectedFeed = savedInstanceState.getParcelable("m_selectedFeed");
+			m_activeCategory = savedInstanceState.getParcelable("m_activeCategory");
+			m_enableParentBtn = savedInstanceState.getBoolean("m_enableParentBtn");
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putParcelableArrayList("m_feeds", m_feeds);
+		out.putParcelable("m_selectedFeed", m_selectedFeed);
+		out.putParcelable("m_activeCategory", m_activeCategory);
+		out.putBoolean("m_enableParentBtn", m_enableParentBtn);
 	}
 	
 	@Override

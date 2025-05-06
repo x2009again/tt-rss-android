@@ -24,6 +24,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -40,17 +44,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import com.evernote.android.state.State;
-
 public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnItemClickListener, OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
 	private FeedCategoryListAdapter m_adapter;
 	private FeedCategoryList m_cats = new FeedCategoryList();
-	@State FeedCategory m_selectedCat;
+	FeedCategory m_selectedCat;
 	private MasterActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
     private ListView m_list;
@@ -288,7 +287,16 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
             return null;
         }
 	}
-	
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			m_selectedCat = savedInstanceState.getParcelable("m_selectedCat");
+		}
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {  
 
@@ -472,5 +480,10 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		}
 	}
 
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
 
+		out.putParcelable("m_selectedCat", m_selectedCat);
+	}
 }
