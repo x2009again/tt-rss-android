@@ -7,7 +7,6 @@
         <item name="headlineTitleHighScoreUnreadTextColor">#00FF00</item>
         <item name="headlineHeaderBackground">#99000000</item>
         <item name="linkColor">#2d92c8</item>
-        <item name="loadingBackground">@android:color/black</item>
         <item name="articleNoteTextColor">#bebebe</item>
         <item name="articleNoteBackground">#303030</item>
         <item name="parentBtnBackground">#101010</item>

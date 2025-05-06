@@ -14,7 +14,6 @@
         <item name="feedlistSelectedTextColor">@android:color/black</item>
         <item name="headlineTitleHighScoreUnreadTextColor">#008000</item>
         <item name="linkColor">?colorPrimary</item>
-        <item name="loadingBackground">@android:color/white</item>
         <item name="articleNoteTextColor">#9a8c59</item>
         <item name="articleNoteBackground">#fff7d5</item>
         <item name="parentBtnBackground">#dddddd</item>
