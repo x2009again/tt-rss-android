@@ -45,42 +45,33 @@
                         android:textAlignment="viewStart"
                         tools:text="Unreasonably long article title blah blah blah blah blah blah"
                         android:textColor="?articleHeaderTextColor"
-                        android:textSize="18sp"
-                        android:layout_marginRight="8dp"
+                        android:textSize="16sp"
                         android:gravity="start" />
 
                     <com.google.android.material.button.MaterialButton
                         style="?attr/materialIconButtonStyle"
                         android:id="@+id/score"
                         android:layout_width="wrap_content"
-                        android:layout_height="24dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="0"
-                        android:background="@drawable/ripple"
-                        android:clickable="true"
-                        android:layout_marginLeft="8dp"
                         app:icon="?ic_action_trending_flat"
                         android:layout_gravity="center_vertical|end" />
 
                     <com.google.android.material.button.MaterialButton
                         style="?attr/materialIconButtonStyle"
                         android:id="@+id/attachments"
-                        android:background="@drawable/ripple"
                         android:layout_width="wrap_content"
-                        android:layout_height="24dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="0"
-                        android:layout_marginLeft="8dp"
-                        android:clickable="true"
                         app:icon="?ic_attachment_vert"
                         android:layout_gravity="center_vertical|end" />
 
                     <com.google.android.material.button.MaterialButton
                         style="?attr/materialIconButtonStyle"
                         android:id="@+id/share"
-                        android:background="@drawable/ripple"
                         android:layout_width="wrap_content"
-                        android:layout_height="24dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="0"
-                        android:clickable="true"
                         app:icon="?ic_share"
                         android:layout_gravity="center_vertical|end" />
                 </LinearLayout>
