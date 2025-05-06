@@ -92,19 +92,17 @@ public class LogcatActivity extends CommonActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        switch (id) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.logcat_copy:
-                shareLogcat();
-                return true;
-            case R.id.logcat_refresh:
-                refresh();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (id == R.id.logcat_copy) {
+            shareLogcat();
+            return true;
+        } else if (id == R.id.logcat_refresh) {
+            refresh();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     private void shareLogcat() {
