@@ -13,7 +13,7 @@ android {
         minSdkVersion 24
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 31
-        compileSdkVersion 35
+        compileSdk 35
         versionCode 558
         versionName getVersion()
     }
