@@ -5,6 +5,7 @@
     android:id="@+id/toolbar"
     android:elevation="4dp"
     app:layout_scrollFlags="scroll|enterAlways"
+    app:titleTextAppearance="?attr/textAppearanceTitleMedium"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:minHeight="?attr/actionBarSize"/>
