@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.res.ColorStateList;
 import android.content.res.Resources.Theme;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -42,6 +43,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -70,6 +72,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.evernote.android.state.State;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 
@@ -702,16 +705,16 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 		public TextView titleView;
 		public TextView feedTitleView;
-		public ImageView markedView;
-		public ImageView scoreView;
-		public ImageView publishedView;
+		public MaterialButton markedView;
+		public MaterialButton scoreView;
+		public MaterialButton publishedView;
 		public TextView excerptView;
 		public ImageView flavorImageView;
 		public ImageView flavorVideoKindView;
 		public TextView authorView;
 		public TextView dateView;
 		public CheckBox selectionBoxView;
-		public ImageView menuButtonView;
+		public MaterialButton menuButtonView;
 		public ViewGroup flavorImageHolder;
 		public ProgressBar flavorImageLoadingBar;
         public View headlineFooter;
@@ -720,7 +723,7 @@ public class HeadlinesFragment extends StateSavedFragment {
 		public View headlineHeader;
 		public View flavorImageOverflow;
 		public TextureView flavorVideoView;
-		public ImageView attachmentsView;
+		public MaterialButton attachmentsView;
 		//public int position;
 		public boolean flavorImageEmbedded;
 		public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
@@ -1002,16 +1005,20 @@ public class HeadlinesFragment extends StateSavedFragment {
 			TypedValue tvAccent = new TypedValue();
 			m_activity.getTheme().resolveAttribute(R.attr.colorAccent, tvAccent, true);
 
+			TypedValue tvPrimary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
+
 			if (holder.markedView != null) {
 				TypedValue tv = new TypedValue();
 				m_activity.getTheme().resolveAttribute(article.marked ? R.attr.ic_star : R.attr.ic_star_outline, tv, true);
 
-				holder.markedView.setImageResource(tv.resourceId);
+				holder.markedView.setIconResource(tv.resourceId);
+
 
 				if (article.marked)
-					holder.markedView.setColorFilter(tvAccent.data);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
 				else
-					holder.markedView.setColorFilter(null);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.markedView.setOnClickListener(new OnClickListener() {
 
@@ -1037,12 +1044,12 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 				m_activity.getTheme().resolveAttribute(scoreAttr, tv, true);
 
-				holder.scoreView.setImageResource(tv.resourceId);
+				holder.scoreView.setIconResource(tv.resourceId);
 
 				if (article.score > Article.SCORE_HIGH)
-					holder.scoreView.setColorFilter(titleHighScoreUnreadColor);
+					holder.scoreView.setIconTint(ColorStateList.valueOf(tvAccent.data));
 				else
-					holder.scoreView.setColorFilter(null);
+					holder.scoreView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				if (m_activity.getApiLevel() >= 16) {
 					holder.scoreView.setOnClickListener(new OnClickListener() {
@@ -1095,14 +1102,14 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 			if (holder.publishedView != null) {
 				TypedValue tv = new TypedValue();
-				m_activity.getTheme().resolveAttribute(article.published ? R.attr.ic_checkbox_marked : R.attr.ic_rss_box, tv, true);
+				m_activity.getTheme().resolveAttribute(R.attr.ic_rss_box, tv, true);
 
-				holder.publishedView.setImageResource(tv.resourceId);
+				holder.publishedView.setIconResource(tv.resourceId);
 
 				if (article.published)
-					holder.publishedView.setColorFilter(tvAccent.data);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
 				else
-					holder.publishedView.setColorFilter(null);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.publishedView.setOnClickListener(new OnClickListener() {
 

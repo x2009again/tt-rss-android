@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/headlines_row"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -226,7 +227,8 @@
                     android:textSize="12sp"
                     android:textStyle="italic" />
 
-                <ImageView
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialIconButtonStyle"
                     android:id="@+id/score"
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
@@ -235,9 +237,10 @@
                     android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:src="?ic_action_trending_flat" />
+                    app:icon="?ic_action_trending_flat" />
 
-                <ImageView
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialIconButtonStyle"
                     android:id="@+id/attachments"
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
@@ -246,9 +249,10 @@
                     android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:src="?ic_attachment" />
+                    app:icon="?ic_attachment" />
 
-                <ImageView
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialIconButtonStyle"
                     android:id="@+id/marked"
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
@@ -257,9 +261,10 @@
                     android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:src="?ic_star_outline" />
+                    app:icon="?ic_star_outline" />
 
-                <ImageView
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialIconButtonStyle"
                     android:id="@+id/published"
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
@@ -268,9 +273,10 @@
                     android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:src="?ic_rss_box" />
+                    app:icon="?ic_rss_box" />
 
-                <ImageView
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialIconButtonStyle"
                     android:id="@+id/article_menu_button"
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
@@ -278,7 +284,7 @@
                     android:background="@drawable/ripple"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:src="?ic_dots_vertical" />
+                    app:icon="?ic_dots_vertical" />
             </LinearLayout>
         </TableRow>
     </TableLayout>

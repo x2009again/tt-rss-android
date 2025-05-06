@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
@@ -50,6 +51,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.button.MaterialButton;
 
 import org.fox.ttrss.Application;
 import org.fox.ttrss.CommonActivity;
@@ -487,14 +489,14 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
         public TextView titleView;
         public TextView feedTitleView;
-        public ImageView markedView;
-        public ImageView publishedView;
+        public MaterialButton markedView;
+        public MaterialButton publishedView;
         public TextView excerptView;
         public ImageView flavorImageView;
         public TextView authorView;
         public TextView dateView;
         public CheckBox selectionBoxView;
-        public ImageView menuButtonView;
+        public MaterialButton menuButtonView;
         public ViewGroup flavorImageHolder;
         public ProgressBar flavorImageLoadingBar;
         public View headlineFooter;
@@ -504,7 +506,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 		public View flavorImageOverflow;
 		public View headlineHeader;
 		public ImageView attachmentsView;
-		public ImageView scoreView;
+		public MaterialButton scoreView;
 
 		public ArticleViewHolder(View v) {
 
@@ -791,6 +793,9 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 			TypedValue tvAccent = new TypedValue();
 			m_activity.getTheme().resolveAttribute(R.attr.colorAccent, tvAccent, true);
 
+			TypedValue tvPrimary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
+
 			if (holder.attachmentsView != null) {
 				holder.attachmentsView.setVisibility(View.GONE);
 			}
@@ -806,12 +811,12 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 				m_activity.getTheme().resolveAttribute(marked ? R.attr.ic_star : R.attr.ic_star_outline, tv, true);
 
-				holder.markedView.setImageResource(tv.resourceId);
+				holder.markedView.setIconResource(tv.resourceId);
 
 				if (marked)
-					holder.markedView.setColorFilter(tvAccent.data);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
 				else
-					holder.markedView.setColorFilter(null);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 				
 				holder.markedView.setOnClickListener(new OnClickListener() {
 
@@ -837,12 +842,12 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 				m_activity.getTheme().resolveAttribute(published ? R.attr.ic_checkbox_marked : R.attr.ic_rss_box, tv, true);
 
-				holder.publishedView.setImageResource(tv.resourceId);
+				holder.publishedView.setIconResource(tv.resourceId);
 
 				if (published)
-					holder.publishedView.setColorFilter(tvAccent.data);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
 				else
-					holder.publishedView.setColorFilter(null);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.publishedView.setOnClickListener(new OnClickListener() {
 

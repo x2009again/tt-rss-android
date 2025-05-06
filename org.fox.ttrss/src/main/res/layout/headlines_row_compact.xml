@@ -2,6 +2,7 @@
 <LinearLayout
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/headlines_row"
     android:padding="@dimen/activity_horizontal_margin"
     android:layout_width="fill_parent"
@@ -110,15 +111,16 @@
             />
 
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/marked"
+            style="?attr/materialIconButtonStyle"
             android:background="@drawable/ripple"
-            android:layout_width="24dp"
+            android:layout_width="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_height="24dp"
             android:layout_weight="0"
             android:clickable="true"
-            android:src="?ic_star_outline" />
+            app:icon="?ic_star_outline" />
 
 
 
