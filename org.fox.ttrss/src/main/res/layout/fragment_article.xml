@@ -37,14 +37,12 @@
 
                     <TextView
                         android:id="@+id/title"
-                        android:background="@drawable/ripple"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
                         android:textAlignment="viewStart"
                         tools:text="Unreasonably long article title blah blah blah blah blah blah"
-                        android:textColor="?articleHeaderTextColor"
                         android:textSize="16sp"
                         android:gravity="start" />
 
@@ -86,7 +84,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-light"
                     android:paddingTop="8dp"
-                    android:textColor="?headlineSecondaryTextColor"
+                    android:textColor="?colorSecondary"
                     android:textSize="12sp" />
 
                 <TextView
@@ -99,7 +97,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-light"
                     android:paddingTop="8dp"
-                    android:textColor="?headlineSecondaryTextColor"
+                    android:textColor="?colorSecondary"
                     android:textSize="12sp"
                     android:visibility="gone"/>
 
@@ -119,7 +117,7 @@
                         android:textAlignment="viewStart"
                         android:singleLine="true"
                         android:fontFamily="sans-serif-light"
-                        android:textColor="?headlineSecondaryTextColor"
+                        android:textColor="?colorSecondary"
                         android:textSize="12sp" />
 
                     <TextView
@@ -128,11 +126,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.3"
-                        android:gravity=""
                         android:textAlignment="viewEnd"
                         android:fontFamily="sans-serif-light"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textColor="?headlineSecondaryTextColor"
+                        android:textColor="?colorPrimary"
                         android:textSize="12sp" />
 
                 </LinearLayout>

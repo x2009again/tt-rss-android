@@ -50,7 +50,6 @@
             android:maxLines="2"
             android:ellipsize="end"
             tools:text="Sample entry title"
-            android:textColor="?headlineUnreadTextColor"
             android:textStyle="bold"
             android:textSize="18sp"
             android:layout_span="2" />
@@ -63,7 +62,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-            android:textColor="?headlineExcerptTextColor"
             android:textSize="13sp"
             android:layout_span="2"
             android:paddingTop="4dp" />
@@ -83,7 +81,6 @@
                 android:singleLine="true"
                 tools:text="Example Feed AAA AAA AAAAAA AAAA AAAAA AA A A AA AA"
                 android:textAlignment="viewStart"
-                android:textColor="?headlineSecondaryTextColor"
                 android:textSize="12sp"
                 android:layout_weight="0.5"
                 android:paddingTop="4dp" />
@@ -104,11 +101,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
+            android:textColor="?colorPrimary"
             android:singleLine="true"
             android:ellipsize="none"
             android:layout_weight="1"
             tools:text="Jan 01"
-            android:textColor="?headlineSecondaryTextColor"
             android:textSize="12sp"
             />
 
@@ -119,7 +116,7 @@
             android:background="@drawable/ripple"
             android:layout_width="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_height="24dp"
+            android:layout_height="wrap_content"
             android:layout_weight="0"
             android:clickable="true"
             app:icon="?ic_star_outline" />

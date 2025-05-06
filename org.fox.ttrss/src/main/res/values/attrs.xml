@@ -4,12 +4,6 @@
     <attr name="feedlistTextColor" format="reference|color" />
     <attr name="feedlistSelectedTextColor" format="reference|color" />
     <attr name="headlineHeaderBackground" format="reference|color" />
-    <attr name="headlineUnreadTextColor" format="reference|color" />
-    <attr name="headlineSelectedTextColor" format="reference|color" />    
-    <attr name="headlineExcerptTextColor" format="reference|color" />
-    <attr name="headlineSecondaryTextColor" format="reference|color" />
-    <attr name="headlineSelectedSecondaryTextColor" format="reference|color" />
-    <attr name="headlineSelectedExcerptTextColor" format="reference|color" />
     <attr name="headlineTitleHighScoreUnreadTextColor" format="reference|color" />
     <attr name="linkColor" format="reference|color" />
     <attr name="loadingBackground" format="reference|color" />
@@ -18,7 +12,6 @@
     <!-- <attr name="statusBarHintColor" format="reference|color" /> -->
     <attr name="parentBtnBackground" format="reference|color" />
     <attr name="articleHeader" format="reference|color" />
-    <attr name="articleHeaderTextColor" format="reference|color" />
     <attr name="articleTextColor" format="reference|color" />
     <attr name="headlineFooterColor" format="reference|color" />
     <attr name="articleHeaderSeparator" format="reference|color" />

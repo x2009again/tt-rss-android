@@ -13,12 +13,6 @@
         <item name="headlineHeaderBackground">#ccffffff</item>
         <item name="feedlistTextColor">@android:color/black</item>
         <item name="feedlistSelectedTextColor">@android:color/black</item>
-        <item name="headlineUnreadTextColor">@android:color/black</item>
-        <item name="headlineSelectedTextColor">@android:color/black</item>
-        <item name="headlineExcerptTextColor">#323232</item>
-        <item name="headlineSecondaryTextColor">#909090</item>
-        <item name="headlineSelectedSecondaryTextColor">?headlineSelectedExcerptTextColor</item>
-        <item name="headlineSelectedExcerptTextColor">#323232</item>
         <item name="headlineTitleHighScoreUnreadTextColor">#008000</item>
         <item name="linkColor">?colorPrimary</item>
         <item name="loadingBackground">@android:color/white</item>
@@ -26,7 +20,6 @@
         <item name="articleNoteBackground">#fff7d5</item>
         <item name="parentBtnBackground">#dddddd</item>
         <item name="articleHeader">@android:color/transparent</item>
-        <item name="articleHeaderTextColor">@android:color/black</item>
         <item name="articleTextColor">@android:color/black</item>
         <!-- <item name="floatingActionButtonStyle">@style/FabTheme</item> -->
         <item name="headlineFooterColor">?colorPrimary</item>

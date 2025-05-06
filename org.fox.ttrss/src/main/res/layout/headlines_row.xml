@@ -92,7 +92,6 @@
                             android:maxLines="3"
                             android:paddingBottom="8dp"
                             android:singleLine="false"
-                            android:textColor="?headlineExcerptTextColor"
                             android:textSize="18sp"
                             android:textStyle="normal"
                             tools:text="Sample entry title" />
@@ -115,7 +114,7 @@
                                 android:textAlignment="viewStart"
                                 android:singleLine="true"
                                 tools:text="Example Feed AAA AAA AAAAAA AAAA AAAAA AA A A AA AA"
-                                android:textColor="?headlineSecondaryTextColor"
+                                android:textColor="?colorSecondary"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -129,7 +128,7 @@
                                 android:textAlignment="viewEnd"
                                 android:singleLine="true"
                                 tools:text="Jan 01, 12:00, 1970"
-                                android:textColor="?headlineSecondaryTextColor"
+                                android:textColor="?colorPrimary"
                                 android:textSize="12sp" />
 
                         </LinearLayout>
@@ -150,7 +149,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
                     android:elevation="4dp"
-                    android:tint="?colorAccent"
+                    app:tint="?colorAccent"
                     android:layout_marginBottom="8dp"
                     android:layout_marginStart="8dp" />
 
@@ -166,7 +165,7 @@
                     android:src="@drawable/ic_dots_vertical_circle"
                     android:layout_gravity="bottom|end"
                     android:elevation="4dp"
-                    android:tint="?colorAccent"
+                    app:tint="?colorAccent"
                     android:layout_marginBottom="10dp"
                     tools:targetApi="lollipop" />
 
@@ -188,7 +187,6 @@
                 android:maxLines="5"
                 android:padding="16dp"
                 tools:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                android:textColor="?headlineExcerptTextColor"
                 android:textSize="13sp" />
         </TableRow>
 
@@ -205,7 +203,7 @@
                 android:paddingBottom="8dp"
                 android:paddingLeft="8dp">
 
-                <CheckBox
+                <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/selected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -223,7 +221,7 @@
                     android:singleLine="true"
                     tools:text="by Author"
                     android:textAlignment="viewStart"
-                    android:textColor="?headlineSecondaryTextColor"
+                    android:textColor="?colorSecondary"
                     android:textSize="12sp"
                     android:textStyle="italic" />
 
@@ -231,10 +229,8 @@
                     style="?attr/materialIconButtonStyle"
                     android:id="@+id/score"
                     android:layout_width="wrap_content"
-                    android:layout_height="24dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:background="@drawable/ripple"
-                    android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     app:icon="?ic_action_trending_flat" />
@@ -243,10 +239,8 @@
                     style="?attr/materialIconButtonStyle"
                     android:id="@+id/attachments"
                     android:layout_width="wrap_content"
-                    android:layout_height="24dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:background="@drawable/ripple"
-                    android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     app:icon="?ic_attachment" />
@@ -255,10 +249,8 @@
                     style="?attr/materialIconButtonStyle"
                     android:id="@+id/marked"
                     android:layout_width="wrap_content"
-                    android:layout_height="24dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:background="@drawable/ripple"
-                    android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     app:icon="?ic_star_outline" />
@@ -267,10 +259,8 @@
                     style="?attr/materialIconButtonStyle"
                     android:id="@+id/published"
                     android:layout_width="wrap_content"
-                    android:layout_height="24dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:background="@drawable/ripple"
-                    android:clickable="true"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     app:icon="?ic_rss_box" />
@@ -279,9 +269,8 @@
                     style="?attr/materialIconButtonStyle"
                     android:id="@+id/article_menu_button"
                     android:layout_width="wrap_content"
-                    android:layout_height="24dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:background="@drawable/ripple"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     app:icon="?ic_dots_vertical" />
