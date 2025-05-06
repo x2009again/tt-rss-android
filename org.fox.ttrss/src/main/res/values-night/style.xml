@@ -17,8 +17,6 @@
         <item name="headlineFooterColor">?colorPrimary</item>
         <item name="articleHeaderSeparator">#303030</item>
 
-        <item name="colorPrimary">#1e6286</item>
-        <item name="colorPrimaryDark">#18506e</item>
         <item name="colorAccent">#D84315</item>
 
         <item name="ic_rss_box">@drawable/ic_rss_box</item>
