@@ -26,7 +26,7 @@
                 app:layout_scrollFlags="scroll|enterAlways"
                 android:paddingTop="0dp"
                 android:paddingStart="16dp"
-                android:paddingEnd="0dp"
+                android:paddingEnd="8dp"
                 android:paddingBottom="8dp"
                 android:id="@+id/article_header"
                 android:layout_width="match_parent"

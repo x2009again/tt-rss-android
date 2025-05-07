@@ -485,10 +485,10 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         String cssOverride = "body { color : "+textColor+"; }";
 
-        TypedValue tvLinkColor = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.linkColor, tvLinkColor, true);
+        TypedValue tvColorPrimary = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, tvColorPrimary, true);
 
-        String linkHexColor = String.format("#%06X", (0xFFFFFF & tvLinkColor.data));
+        String linkHexColor = String.format("#%06X", (0xFFFFFF & tvColorPrimary.data));
         cssOverride += " a:link {color: "+linkHexColor+";} a:visited { color: "+linkHexColor+";}";
 
         String articleContent = m_article.content != null ? m_article.content : "";
