@@ -3,10 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
-    android:elevation="4dp"
     app:layout_scrollFlags="scroll|enterAlways"
     app:titleTextAppearance="?attr/textAppearanceTitleMedium"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:background="?colorSurfaceContainerLow"
     android:minHeight="?attr/actionBarSize"/>

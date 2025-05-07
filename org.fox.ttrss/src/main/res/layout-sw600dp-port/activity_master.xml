@@ -1,57 +1,8 @@
-<!-- we don't hide actionbar on tablets even in portrait so this is a bit different from activity_master_phone.xml -->
-
-<androidx.drawerlayout.widget.DrawerLayout
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/headlines_drawer"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <include layout="@layout/toolbar" android:id="@+id/toolbar" />
-
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_below="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/master_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:visibility="gone"
-                android:src="@drawable/baseline_refresh_24"
-                android:layout_margin="16dp" />
-
-            <FrameLayout
-                android:id="@+id/headlines_fragment"
-                app:layout_behavior=".util.FabAwareScrollingViewBehavior"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    </RelativeLayout>
-
-    <com.google.android.material.navigation.NavigationView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/navigationView"
-        android:layout_width="300dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:elevation="8dp">
-
-        <FrameLayout
-            android:id="@+id/feeds_fragment"
-            android:layout_width="match_parent"
-            android:background="?colorSurfaceContainer"
-            android:layout_height="match_parent" >
-        </FrameLayout>
-
-    </com.google.android.material.navigation.NavigationView>
-
-</androidx.drawerlayout.widget.DrawerLayout>
+    <include layout="@layout/master_drawer_layout" />
+</FrameLayout>

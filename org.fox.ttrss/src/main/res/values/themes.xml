@@ -1,8 +1,5 @@
 <resources>
     <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
-        <item name="android:statusBarColor">?colorSurfaceContainerLow</item>
-        <item name="android:windowLightStatusBar">true</item>
-
         <item name="ic_rss_box">@drawable/baseline_rss_feed_24</item>
         <item name="ic_checkbox_marked">@drawable/baseline_check_box_24</item>
         <item name="ic_star">@drawable/baseline_star_24</item>

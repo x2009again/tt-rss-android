@@ -33,6 +33,7 @@ import android.view.Display;
 import android.view.View;
 import android.widget.CheckBox;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsCallback;
@@ -231,6 +232,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		EdgeToEdge.enable(this);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			NotificationManager nmgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
