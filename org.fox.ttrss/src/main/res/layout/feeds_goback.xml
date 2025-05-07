@@ -21,7 +21,7 @@
         android:layout_weight="0"
         android:scaleType="fitXY"
         android:src="?ic_go_back"
-        app:tint="?colorAccent" />
+        app:tint="?colorTertiary" />
 
     <TextView
         android:fontFamily="sans-serif-medium"

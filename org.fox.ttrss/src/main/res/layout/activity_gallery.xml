@@ -20,11 +20,11 @@
         android:layout_height="26dp"
         android:layout_weight="0"
         android:background="@drawable/ripple"
-        android:src="?ic_dots_vertical_circle"
+        android:src="?ic_dots_vertical"
         android:layout_alignParentRight="true"
         android:layout_marginRight="8dp"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        app:tint="?colorAccent" />
+        app:tint="?colorTertiary" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"

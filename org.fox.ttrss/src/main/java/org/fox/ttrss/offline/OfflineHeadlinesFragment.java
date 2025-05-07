@@ -790,8 +790,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				holder.feedTitleView.setVisibility(View.GONE);
 			}
 
-			TypedValue tvAccent = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorAccent, tvAccent, true);
+			TypedValue tvTertiary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
 
 			TypedValue tvPrimary = new TypedValue();
 			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
@@ -814,7 +814,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				holder.markedView.setIconResource(tv.resourceId);
 
 				if (marked)
-					holder.markedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
 					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 				
@@ -845,7 +845,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				holder.publishedView.setIconResource(tv.resourceId);
 
 				if (published)
-					holder.publishedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
 					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 

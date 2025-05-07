@@ -98,7 +98,7 @@
             android:excludeFromRecents="true"
             android:label="@string/app_name"
             android:exported="true"
-            android:theme="@style/DarkDialogTheme" >
+            android:theme="@style/MaterialAlertDialog.Material3" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -112,7 +112,7 @@
             android:excludeFromRecents="true"
             android:label="@string/subscribe_name"
             android:exported="true"
-            android:theme="@style/DarkDialogTheme" >
+            android:theme="@style/MaterialAlertDialog.Material3" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 

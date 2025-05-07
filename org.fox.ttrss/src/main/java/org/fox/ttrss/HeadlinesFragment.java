@@ -1032,8 +1032,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			}
 
-			TypedValue tvAccent = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorAccent, tvAccent, true);
+			TypedValue tvTertiary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
 
 			TypedValue tvPrimary = new TypedValue();
 			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
@@ -1046,7 +1046,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 
 				if (article.marked)
-					holder.markedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
 					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
@@ -1077,7 +1077,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.scoreView.setIconResource(tv.resourceId);
 
 				if (article.score > Article.SCORE_HIGH)
-					holder.scoreView.setIconTint(ColorStateList.valueOf(tvAccent.data));
+					holder.scoreView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
 					holder.scoreView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
@@ -1137,7 +1137,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.publishedView.setIconResource(tv.resourceId);
 
 				if (article.published)
-					holder.publishedView.setIconTint(ColorStateList.valueOf(tvAccent.data));
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
 					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
