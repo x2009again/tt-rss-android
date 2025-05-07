@@ -28,8 +28,6 @@
 
         <item name="feedlistTextColor">@android:color/white</item>
         <item name="headlineTitleHighScoreUnreadTextColor">#00FF00</item>
-        <item name="articleNoteTextColor">#bebebe</item>
-        <item name="articleNoteBackground">#303030</item>
         <item name="parentBtnBackground">#101010</item>
         <item name="ttrssHorizontalDivider">@android:drawable/divider_horizontal_dark</item>
         <item name="feedlistSelectedTextColor">@android:color/white</item>
