@@ -15,8 +15,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:visibility="gone"
-            app:tint="@android:color/white"
-            app:backgroundTint="?colorAccent"
             android:src="@drawable/baseline_open_in_browser_24"
             android:layout_margin="16dp" />
 
