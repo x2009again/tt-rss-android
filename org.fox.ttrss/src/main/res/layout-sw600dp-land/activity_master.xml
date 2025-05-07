@@ -42,13 +42,19 @@
             android:elevation="4dp"
             android:layout_height="match_parent">
 
-            <include layout="@layout/toolbar" android:id="@+id/toolbar" />
+            <com.google.android.material.appbar.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include layout="@layout/toolbar" android:id="@+id/toolbar" />
+
+            </com.google.android.material.appbar.AppBarLayout>
 
             <FrameLayout
-                android:layout_width="match_parent"
                 android:id="@+id/headlines_fragment"
-                app:layout_behavior=".util.FabAwareScrollingViewBehavior"
-                android:layout_height="match_parent"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_behavior=".util.FabAwareScrollingViewBehavior" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/master_fab"
