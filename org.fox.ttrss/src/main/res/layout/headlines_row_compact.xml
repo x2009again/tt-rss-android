@@ -49,7 +49,7 @@
             android:maxLines="2"
             android:ellipsize="end"
             tools:text="Sample entry title"
-            android:textColor="?colorSecondary"
+            android:textColor="?colorPrimary"
             android:textSize="18sp"
             android:layout_span="2" />
 
