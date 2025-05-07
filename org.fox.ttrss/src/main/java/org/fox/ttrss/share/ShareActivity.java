@@ -22,12 +22,10 @@ public class ShareActivity extends CommonShareActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		//setTheme(R.style.DarkTheme);
-
 		super.onCreate(savedInstanceState);
-		
-		requestWindowFeature(Window.FEATURE_LEFT_ICON);
 
+		requestWindowFeature(Window.FEATURE_LEFT_ICON);
+		
 		Intent intent = getIntent();
 
 		String urlValue = intent.getStringExtra(Intent.EXTRA_TEXT);
@@ -41,9 +39,7 @@ public class ShareActivity extends CommonShareActivity {
 		}
 
 		setContentView(R.layout.activity_share);
-		
-		getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.ic_launcher);
-		
+
 		setSmallScreen(false); 
 		
 		EditText url = (EditText) findViewById(R.id.url);

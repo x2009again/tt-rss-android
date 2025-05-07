@@ -90,9 +90,7 @@ public class SubscribeActivity extends CommonShareActivity {
 
 		setContentView(R.layout.activity_subscribe);
 		
-		getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.ic_launcher);
-		
-		setSmallScreen(false); 
+		setSmallScreen(false);
 
 		m_progressBar = (ProgressBar) findViewById(R.id.subscribe_progress);
 		Spinner catList = (Spinner) findViewById(R.id.category_spinner);
