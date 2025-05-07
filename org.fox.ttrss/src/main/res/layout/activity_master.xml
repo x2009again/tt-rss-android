@@ -5,5 +5,5 @@
     android:fitsSystemWindows="true"
     android:layout_height="match_parent">
 
-    <include layout="@layout/master_drawer_layout" />
+    <include layout="@layout/layout_master_phone" />
 </FrameLayout>
