@@ -453,15 +453,11 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	private void openUriWithCustomTab(Uri uri) {
 		if (m_customTabClient != null) {
-			TypedValue tvBackground = new TypedValue();
-			getTheme().resolveAttribute(R.attr.colorPrimary, tvBackground, true);
-
 			CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(getCustomTabSession());
 
 			builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
 			builder.setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right);
 
-			builder.setToolbarColor(tvBackground.data);
 			builder.setShowTitle(true);
 
 			Intent shareIntent = getShareIntent(uri.toString(), null);
