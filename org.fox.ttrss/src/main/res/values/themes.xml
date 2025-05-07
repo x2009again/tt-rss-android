@@ -24,7 +24,6 @@
         <item name="ic_action_trending_down">@drawable/baseline_trending_down_24</item>
 
         <item name="ttrssHorizontalDivider">@android:drawable/divider_horizontal_bright</item>
-        <item name="headlineHeaderBackground">#ccffffff</item>
         <item name="feedlistTextColor">@android:color/black</item>
         <item name="feedlistSelectedTextColor">@android:color/black</item>
         <item name="headlineTitleHighScoreUnreadTextColor">#008000</item>

@@ -3,7 +3,6 @@
     <attr name="ttrssHorizontalDivider" format="reference|color" />
     <attr name="feedlistTextColor" format="reference|color" />
     <attr name="feedlistSelectedTextColor" format="reference|color" />
-    <attr name="headlineHeaderBackground" format="reference|color" />
     <attr name="headlineTitleHighScoreUnreadTextColor" format="reference|color" />
     <attr name="articleNoteBackground" format="reference|color" />
     <attr name="articleNoteTextColor" format="reference|color" />

@@ -44,6 +44,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -359,7 +360,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_layoutManager = new LinearLayoutManager(m_activity.getApplicationContext());
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
-		m_list.addItemDecoration(new DividerItemDecoration(m_list.getContext(), m_layoutManager.getOrientation()));
 
 		ArticleListAdapter adapter = new ArticleListAdapter(getActivity(), R.layout.headlines_row, m_articles);
 
@@ -1211,7 +1211,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.flavorVideoKindView.setVisibility(View.GONE);
 				holder.flavorImageOverflow.setVisibility(View.GONE);
 				holder.flavorVideoView.setVisibility(View.GONE);
-				holder.headlineHeader.setBackgroundDrawable(null);
 
 				Glide.clear(holder.flavorImageView);
 
@@ -1291,24 +1290,15 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					//Log.d(TAG, "TAG:" + holder.flavorImageOverflow.getTag());
 
 					holder.flavorImageView.setVisibility(View.VISIBLE);
+					holder.flavorImageView.setMaxHeight((int)(m_screenHeight * 0.6f));
 
-					holder.flavorImageView.setMaxHeight((int)(m_screenHeight * 0.8f));
-					holder.flavorProgressTarget.setModel(article.flavorImageUri);
-
+					// prevent lower listiew entries from jumping around if this row is modified
 					if (article.flavorViewHeight > 0) {
-						RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
+						FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
 						lp.height = article.flavorViewHeight;
-						holder.flavorImageView.setLayoutParams(lp);
 					}
 
-
-					/*	TODO: maybe an option? force height for all images to reduce list jumping around
-
-						RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-						lp.height = (int)(m_screenHeight * 0.5f);
-						lp.addRule(RelativeLayout.BELOW, R.id.headline_header);
-						holder.flavorImageView.setLayoutParams(lp);
-					*/
+					holder.flavorProgressTarget.setModel(article.flavorImageUri);
 
 					try {
 
@@ -1334,16 +1324,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 										if (resource.getIntrinsicWidth() > FLAVOR_IMG_MIN_SIZE && resource.getIntrinsicHeight() > FLAVOR_IMG_MIN_SIZE) {
 
-											//holder.flavorImageView.setVisibility(View.VISIBLE);
+											holder.flavorImageView.setVisibility(View.VISIBLE);
 											holder.flavorImageOverflow.setVisibility(View.VISIBLE);
 
-											boolean forceDown = !m_activity.isSmallScreen() || article.flavorImage != null && "video".equals(article.flavorImage.tagName().toLowerCase());
-
-											RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-											lp.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-											holder.flavorImageView.setLayoutParams(lp);
-
-											maybeRepositionFlavorImage(holder.flavorImageView, resource, holder, forceDown);
 											adjustVideoKindView(holder, article);
 
 											return false;
@@ -1684,9 +1667,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				} else if (article.flavor_kind == Article.FLAVOR_KIND_VIDEO || "video".equals(article.flavorImage.tagName().toLowerCase())) {
 					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
-				} else if (article.flavor_kind == Article.FLAVOR_KIND_ALBUM ||article.mediaList.size() > 1) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_photo_album_24);
-					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else {
 					holder.flavorVideoKindView.setVisibility(View.INVISIBLE);
 				}
@@ -1705,36 +1685,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
 			int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
 			return px;
-		}
-
-		private void maybeRepositionFlavorImage(View view, GlideDrawable resource, ArticleViewHolder holder, boolean forceDown) {
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
-
-			int w = resource.getIntrinsicWidth();
-			int h = resource.getIntrinsicHeight();
-			float r = h != 0 ? (float)w/h : 0;
-
-			//Log.d(TAG, "XYR: " + pxToDp(w) + " " + pxToDp(h) + " " + r);
-
-			if (forceDown || h < m_minimumHeightToEmbed || r >= 1) {
-
-				lp.addRule(RelativeLayout.BELOW, R.id.headline_header);
-
-				holder.headlineHeader.setBackgroundDrawable(null);
-				holder.flavorImageEmbedded = false;
-
-			} else {
-				lp.addRule(RelativeLayout.BELOW, 0);
-
-				TypedValue tv = new TypedValue();
-				if (m_activity.getTheme().resolveAttribute(R.attr.headlineHeaderBackground, tv, true)) {
-					holder.headlineHeader.setBackgroundColor(tv.data);
-				}
-
-				holder.flavorImageEmbedded = true;
-			}
-
-			view.setLayoutParams(lp);
 		}
 
 		private void adjustTitleTextView(int score, TextView tv, int position) {
