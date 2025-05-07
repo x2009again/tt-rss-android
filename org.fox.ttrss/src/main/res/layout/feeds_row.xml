@@ -37,7 +37,6 @@
             android:paddingEnd="16dp"
             android:singleLine="true"
             tools:text="Feed title"
-            android:textColor="?feedlistTextColor"
             android:textSize="14sp" />
 
         <TextView

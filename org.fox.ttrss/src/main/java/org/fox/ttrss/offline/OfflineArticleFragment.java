@@ -327,7 +327,7 @@ public class OfflineArticleFragment extends Fragment {
 				}
 
                 TypedValue tvTextColor = new TypedValue();
-                getActivity().getTheme().resolveAttribute(R.attr.articleTextColor, tvTextColor, true);
+                getActivity().getTheme().resolveAttribute(R.attr.colorOnSurface, tvTextColor, true);
 
                 String textColor = String.format("#%06X", (0xFFFFFF & tvTextColor.data));
 

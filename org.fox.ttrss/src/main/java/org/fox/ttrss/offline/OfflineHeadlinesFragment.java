@@ -566,7 +566,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 		public static final int VIEW_COUNT = VIEW_LOADMORE+1;
 		
 		private final Integer[] origTitleColors = new Integer[VIEW_COUNT];
-		private final int titleHighScoreUnreadColor;
 
         private ColorGenerator m_colorGenerator = ColorGenerator.DEFAULT;
         private TextDrawable.IBuilder m_drawableBuilder = TextDrawable.builder().round();
@@ -578,11 +577,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				String[] from, int[] to, int flags) {
 			super(context, layout, c, from, to, flags);
 			
-			Theme theme = context.getTheme();
-			TypedValue tv = new TypedValue();
-			theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tv, true);
-			titleHighScoreUnreadColor = tv.data;
-
 			String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 			showFlavorImage = "HL_DEFAULT".equals(headlineMode) || "HL_COMPACT".equals(headlineMode);
 
@@ -1194,9 +1188,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 			if (score < -500) {
 				tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-			} else if (score > 500) {
-				tv.setTextColor(titleHighScoreUnreadColor);
-				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 			} else {
 				tv.setTextColor(origTitleColors[viewType].intValue());
 				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);

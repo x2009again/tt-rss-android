@@ -35,8 +35,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:singleLine="true"
-        tools:text="Unread only"
-        android:textColor="?feedlistTextColor"
+        tools:text="@string/unread_only"
         android:textSize="14sp" />
 
     <com.google.android.material.materialswitch.MaterialSwitch

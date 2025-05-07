@@ -16,8 +16,6 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:elevation="0dp"
-            app:elevation="0dp"
             android:backgroundTint="?colorSurfaceContainerLow"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -138,11 +136,9 @@
 
             </LinearLayout>
 
-            <View
-                android:layout_gravity="top|center_horizontal"
+            <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?articleHeaderSeparator"/>
+                android:layout_height="wrap_content"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 

@@ -26,15 +26,6 @@
         <item name="ic_action_trending_flat">@drawable/baseline_trending_flat_24</item>
         <item name="ic_action_trending_down">@drawable/baseline_trending_down_24</item>
 
-        <item name="feedlistTextColor">@android:color/white</item>
-        <item name="headlineTitleHighScoreUnreadTextColor">#00FF00</item>
-        <item name="parentBtnBackground">#101010</item>
-        <item name="ttrssHorizontalDivider">@android:drawable/divider_horizontal_dark</item>
-        <item name="feedlistSelectedTextColor">@android:color/white</item>
-        <item name="articleHeader">@android:color/transparent</item>
-        <item name="articleTextColor">#e0e0e0</item>
-        <item name="articleHeaderSeparator">#303030</item>
-
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>

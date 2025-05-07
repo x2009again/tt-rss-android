@@ -857,7 +857,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public static final int VIEW_COUNT = VIEW_AMR_FOOTER + 1;
 
 		private final Integer[] origTitleColors = new Integer[VIEW_COUNT];
-		private final int titleHighScoreUnreadColor;
 
         private ColorGenerator m_colorGenerator = ColorGenerator.DEFAULT;
         private TextDrawable.IBuilder m_drawableBuilder = TextDrawable.builder().round();
@@ -900,11 +899,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			flavorImageEnabled = "HL_DEFAULT".equals(headlineMode) || "HL_COMPACT".equals(headlineMode);
 
 			m_cmgr = (ConnectivityManager) m_activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-			Theme theme = context.getTheme();
-			TypedValue tv = new TypedValue();
-			theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tv, true);
-			titleHighScoreUnreadColor = tv.data;
 		}
 
 		@Override
@@ -1691,9 +1685,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			if (score < Article.SCORE_LOW) {
 				tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-			} else if (score > Article.SCORE_HIGH) {
-				tv.setTextColor(titleHighScoreUnreadColor);
-				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 			} else {
 				tv.setTextColor(origTitleColors[viewType].intValue());
 				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);

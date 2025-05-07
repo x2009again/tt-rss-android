@@ -33,7 +33,6 @@
         android:paddingStart="16dp"
         android:singleLine="true"
         android:text=".."
-        android:textColor="?feedlistTextColor"
         android:textSize="14sp" />
 
 </LinearLayout>

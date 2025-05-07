@@ -4,11 +4,9 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <View
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="10dp"
+    <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?colorOutlineVariant"/>
+        android:layout_marginTop="8dp"
+        android:layout_height="wrap_content"/>
 
 </FrameLayout>

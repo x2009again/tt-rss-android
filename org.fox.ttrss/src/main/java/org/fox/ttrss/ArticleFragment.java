@@ -457,18 +457,8 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         scoreView.setIconResource(tv.resourceId);
 
-        Resources.Theme theme = m_activity.getTheme();
-        TypedValue tvColorHighScore = new TypedValue();
-        theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tvColorHighScore, true);
-
         TypedValue tvPrimary = new TypedValue();
         m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
-
-        if (m_article.score > Article.SCORE_HIGH)
-            scoreView.setIconTint(ColorStateList.valueOf(tvColorHighScore.data));
-        else
-            scoreView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
-
     }
 
     protected void renderContent(Bundle savedInstanceState) {
@@ -480,7 +470,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         ws.setSupportZoom(false);
 
         TypedValue tvTextColor = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.articleTextColor, tvTextColor, true);
+        getActivity().getTheme().resolveAttribute(R.attr.colorOnSurface, tvTextColor, true);
 
         String textColor = String.format("#%06X", (0xFFFFFF & tvTextColor.data));
 
