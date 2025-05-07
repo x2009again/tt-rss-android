@@ -37,6 +37,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -939,8 +940,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				holder.flavorVideoKindView.setVisibility(View.GONE);
 				holder.flavorImageOverflow.setVisibility(View.GONE);
 
-				holder.headlineHeader.setBackgroundDrawable(null);
-
 				// this is needed if our flavor image goes behind base listview element
 				holder.headlineHeader.setOnClickListener(new OnClickListener() {
 					@Override
@@ -971,9 +970,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 						//Log.d(TAG, articleId + " IMG: " + afi.flavorImageUri + " STREAM: " + afi.flavorStreamUri + " H:" + flavorViewHeight);
 
 						if (flavorViewHeight > 0) {
-							RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
+							FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
 							lp.height = flavorViewHeight;
-							holder.flavorImageView.setLayoutParams(lp);
 						}
 
 						final String articleContent = article.getString(article.getColumnIndex("content"));
@@ -1015,23 +1013,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 												holder.flavorImageView.setVisibility(View.VISIBLE);
 
-
-												//TODO: not implemented
-												//holder.flavorImageOverflow.setVisibility(View.VISIBLE);
-
-												/*boolean forceDown = article.flavorImage != null && "video".equals(article.flavorImage.tagName().toLowerCase());
-
-												maybeRepositionFlavorImage(holder.flavorImageView, resource, holder, forceDown);*/
 												adjustVideoKindView(holder, afi);
-
-												/* we don't support image embedding in offline */
-
-												RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-												lp.addRule(RelativeLayout.BELOW, R.id.headline_header);
-												lp.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-												holder.flavorImageView.setLayoutParams(lp);
-
-												holder.headlineHeader.setBackgroundDrawable(null);
 
 												return false;
 											} else {
