@@ -33,6 +33,7 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -257,8 +258,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
             if (true) {
                 final Feed feed = getFeedAtPosition(info.position);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        m_activity)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                         .setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
                         .setPositiveButton(R.string.unsubscribe,
                                 new Dialog.OnClickListener() {
@@ -277,7 +277,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
                                     }
                                 });
 
-                AlertDialog dlg = builder.create();
+                Dialog dlg = builder.create();
                 dlg.show();
             }
 

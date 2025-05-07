@@ -33,6 +33,7 @@ import android.widget.TextView;
 import androidx.core.text.HtmlCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Attachment;
@@ -236,7 +237,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                         final EditText edit = new EditText(getActivity());
                         edit.setText(String.valueOf(m_article.score));
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                                 .setTitle(R.string.score_for_this_article)
                                 .setPositiveButton(R.string.set_score,
                                         new DialogInterface.OnClickListener() {

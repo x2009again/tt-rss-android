@@ -25,6 +25,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.HashMap;
 
 public class OfflineMasterActivity extends OfflineActivity implements OfflineHeadlinesEventListener {
@@ -150,7 +152,7 @@ public class OfflineMasterActivity extends OfflineActivity implements OfflineHea
 
             int selectedIndex = m_prefs.getBoolean("offline_oldest_first", false) ? 1 : 0;
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.headlines_sort_articles_title))
                     .setSingleChoiceItems(
                             new String[]{

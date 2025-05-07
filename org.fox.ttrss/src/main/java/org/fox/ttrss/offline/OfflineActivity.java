@@ -24,6 +24,8 @@ import android.widget.EditText;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.fox.ttrss.CommonActivity;
 import org.fox.ttrss.OnlineActivity;
 import org.fox.ttrss.PreferencesActivity;
@@ -264,7 +266,7 @@ public class OfflineActivity extends CommonActivity {
 
                 final EditText edit = new EditText(this);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.search)
                         .setPositiveButton(getString(R.string.search),
                                 new OnClickListener() {
@@ -320,7 +322,7 @@ public class OfflineActivity extends CommonActivity {
                     selectedIndex = 3;
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.headlines_set_view_mode)
                         .setSingleChoiceItems(
                                 new String[]{
@@ -363,11 +365,10 @@ public class OfflineActivity extends CommonActivity {
             return true;
         } else if (itemId == R.id.headlines_select) {
             if (ohf != null) {
-                Dialog dialog = new Dialog(this);
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.headlines_select_dialog);
 
-                builder.setSingleChoiceItems(new String[]{
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.headlines_select_dialog)
+                    .setSingleChoiceItems(new String[]{
                                 getString(R.string.headlines_select_all),
                                 getString(R.string.headlines_select_unread),
                                 getString(R.string.headlines_select_none)}, 0,
@@ -384,7 +385,7 @@ public class OfflineActivity extends CommonActivity {
                             }
                         });
 
-                dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
             }
             return true;
@@ -396,8 +397,7 @@ public class OfflineActivity extends CommonActivity {
                 int count = getUnreadArticleCount(feedId, isCat);
 
                 if (count > 0) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(
-                            OfflineActivity.this)
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                             .setMessage(getResources().getQuantityString(R.plurals.mark_num_headlines_as_read, count, count))
                             .setPositiveButton(R.string.catchup,
                                     new OnClickListener() {
@@ -416,7 +416,7 @@ public class OfflineActivity extends CommonActivity {
                                         }
                                     });
 
-                    AlertDialog dlg = builder.create();
+                    Dialog dlg = builder.create();
                     dlg.show();
                 }
             }
@@ -508,8 +508,7 @@ public class OfflineActivity extends CommonActivity {
             return true;
         } else if (itemId == R.id.catchup_above) {
             if (oap != null) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        OfflineActivity.this)
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setMessage(R.string.confirm_catchup_above)
                         .setPositiveButton(R.string.dialog_ok,
                                 new OnClickListener() {
@@ -528,7 +527,7 @@ public class OfflineActivity extends CommonActivity {
                                     }
                                 });
 
-                AlertDialog dlg = builder.create();
+                Dialog dlg = builder.create();
                 dlg.show();
             }
             return true;

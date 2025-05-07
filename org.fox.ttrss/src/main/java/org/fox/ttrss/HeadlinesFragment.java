@@ -70,6 +70,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 
@@ -190,8 +191,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
                 final Article fa = article;
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        m_activity)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                         .setMessage(R.string.confirm_catchup_above)
                         .setPositiveButton(R.string.dialog_ok,
                                 new Dialog.OnClickListener() {
@@ -210,7 +210,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                                     }
                                 });
 
-                AlertDialog dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
             }
             return true;
@@ -1088,7 +1088,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							final EditText edit = new EditText(getActivity());
 							edit.setText(String.valueOf(article.score));
 
-							AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+							MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
 									.setTitle(R.string.score_for_this_article)
 									.setPositiveButton(R.string.set_score,
 											new DialogInterface.OnClickListener() {

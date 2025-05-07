@@ -22,6 +22,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonElement;
 
@@ -352,7 +353,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
                 ++i;
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.headlines_sort_articles_title))
                     .setSingleChoiceItems(
                             sortTitles,

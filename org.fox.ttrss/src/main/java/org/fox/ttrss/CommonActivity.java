@@ -47,6 +47,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.fox.ttrss.util.DatabaseHelper;
@@ -506,8 +507,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 				View dialogView = View.inflate(this, R.layout.dialog_open_link_askcb, null);
 				final CheckBox askEveryTimeCB = dialogView.findViewById(R.id.open_link_ask_checkbox);
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						CommonActivity.this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 						.setView(dialogView)
 						.setMessage(uri.toString())
 						.setPositiveButton(R.string.quick_preview,
@@ -562,7 +562,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 								}
 							});*/
 
-				AlertDialog dlg = builder.create();
+				Dialog dlg = builder.create();
 				dlg.show();
 
 			} else {
@@ -614,7 +614,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 		if (es.size() > 0) {
 			if (es.get(0).hasAttr("title")) {
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setCancelable(true)
 					.setMessage(es.get(0).attr("title"))
 					.setPositiveButton(R.string.dialog_close, new DialogInterface.OnClickListener() {
@@ -625,7 +625,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 							}
 					);
 
-				AlertDialog dialog = builder.create();
+				Dialog dialog = builder.create();
 				dialog.show();
 
 			} else {

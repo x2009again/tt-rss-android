@@ -52,6 +52,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.fox.ttrss.Application;
 import org.fox.ttrss.CommonActivity;
@@ -203,8 +204,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
             return true;
         } else if (itemId == R.id.catchup_above) {
             if (true) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        m_activity)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                         .setMessage(R.string.confirm_catchup_above)
                         .setPositiveButton(R.string.dialog_ok,
                                 new Dialog.OnClickListener() {
@@ -223,7 +223,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
                                     }
                                 });
 
-                AlertDialog dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
             }
             return true;

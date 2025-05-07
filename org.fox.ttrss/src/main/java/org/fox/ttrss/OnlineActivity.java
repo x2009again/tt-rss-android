@@ -31,6 +31,7 @@ import android.widget.TextView;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -89,7 +90,7 @@ public class OnlineActivity extends CommonActivity {
 
 			int titleStringId = searchQuery.length() > 0 ? R.string.catchup_dialog_title_search : R.string.catchup_dialog_title;
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(this)
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setTitle(getString(titleStringId, feed.title))
 					.setSingleChoiceItems(
 							new String[] {
@@ -133,8 +134,7 @@ public class OnlineActivity extends CommonActivity {
 			dialog.show();
 
 		} else {
-			AlertDialog.Builder builder = new AlertDialog.Builder(
-					this)
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setMessage(getString(R.string.catchup_dialog_title, feed.title))
 					.setPositiveButton(R.string.catchup,
 							new Dialog.OnClickListener() {
@@ -153,7 +153,7 @@ public class OnlineActivity extends CommonActivity {
 								}
 							});
 
-			AlertDialog dialog = builder.create();
+			Dialog dialog = builder.create();
 			dialog.show();
 		}
 	}
@@ -274,7 +274,7 @@ public class OnlineActivity extends CommonActivity {
 	}
 
 	protected void switchOffline() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 				.setMessage(R.string.dialog_offline_switch_prompt)
 				.setPositiveButton(R.string.dialog_offline_go,
 						new Dialog.OnClickListener() {
@@ -301,7 +301,7 @@ public class OnlineActivity extends CommonActivity {
 							}
 						});
 
-		AlertDialog dlg = builder.create();
+		Dialog dlg = builder.create();
 		dlg.show();
 	}
 	
@@ -367,8 +367,8 @@ public class OnlineActivity extends CommonActivity {
 
 			setLoadingStatus(R.string.login_need_configure);
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.dialog_need_configure_prompt)
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+					.setMessage(R.string.dialog_need_configure_prompt)
 			       .setCancelable(false)
 			       .setPositiveButton(R.string.dialog_open_preferences, new DialogInterface.OnClickListener() {
 			           public void onClick(DialogInterface dialog, int id) {
@@ -384,7 +384,8 @@ public class OnlineActivity extends CommonActivity {
 			                dialog.cancel();
 			           }
 			       });
-			AlertDialog alert = builder.create();
+
+			Dialog alert = builder.create();
 			alert.show();
 			
 		} else {
@@ -485,8 +486,7 @@ public class OnlineActivity extends CommonActivity {
 				itemUrls[i] = article.attachments.get(i).content_url;
 			}
 
-			Dialog dialog = new Dialog(OnlineActivity.this);
-			AlertDialog.Builder builder = new AlertDialog.Builder(OnlineActivity.this)
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setTitle(R.string.attachments_prompt)
 					.setCancelable(true)
 					.setSingleChoiceItems(items, 0, new OnClickListener() {
@@ -519,7 +519,7 @@ public class OnlineActivity extends CommonActivity {
 						}
 					});
 
-			dialog = builder.create();
+			Dialog dialog = builder.create();
 			dialog.show();
 		}
 	}
@@ -568,7 +568,7 @@ public class OnlineActivity extends CommonActivity {
 
                 final EditText edit = new EditText(this);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.search)
                         .setPositiveButton(getString(R.string.search),
                                 new OnClickListener() {
@@ -619,7 +619,7 @@ public class OnlineActivity extends CommonActivity {
 
                 int selectedIndex = Arrays.asList(headlineModeValues).indexOf(headlineMode);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.headlines_set_view_mode)
                         .setSingleChoiceItems(headlineModeNames,
                                 selectedIndex, new OnClickListener() {
@@ -674,7 +674,7 @@ public class OnlineActivity extends CommonActivity {
                     selectedIndex = 4;
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.headlines_set_view_mode)
                         .setSingleChoiceItems(
                                 new String[]{
@@ -717,8 +717,7 @@ public class OnlineActivity extends CommonActivity {
             return true;
         } else if (itemId == R.id.headlines_select) {
             if (hf != null) {
-                Dialog dialog = new Dialog(this);
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.headlines_select_dialog)
                         .setSingleChoiceItems(
                                 new String[]{
@@ -745,7 +744,7 @@ public class OnlineActivity extends CommonActivity {
                                     }
                                 });
 
-                dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
             }
             return true;
@@ -833,8 +832,7 @@ public class OnlineActivity extends CommonActivity {
         } else if (itemId == R.id.catchup_above) {
             if (hf != null) {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        OnlineActivity.this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setMessage(R.string.confirm_catchup_above)
                         .setPositiveButton(R.string.dialog_ok,
                                 new OnClickListener() {
@@ -853,7 +851,7 @@ public class OnlineActivity extends CommonActivity {
                                     }
                                 });
 
-                AlertDialog dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
 
             }
@@ -937,9 +935,10 @@ public class OnlineActivity extends CommonActivity {
 
 	public void editArticleNote(final Article article) {
 		String note = "";
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);  
-		builder.setTitle(article.title);
+
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+			.setTitle(article.title);
+
 		final EditText topicEdit = new EditText(this);
 		topicEdit.setText(note);
 		builder.setView(topicEdit);
@@ -965,7 +964,7 @@ public class OnlineActivity extends CommonActivity {
 	        }
 	    });
 		
-		AlertDialog dialog = builder.create();
+		Dialog dialog = builder.create();
 		dialog.show();
 	}
 	
@@ -988,9 +987,8 @@ public class OnlineActivity extends CommonActivity {
 						itemIds[i] = labels.get(i).id;
 						checkedItems[i] = labels.get(i).checked;
 					}
-					
-					Dialog dialog = new Dialog(OnlineActivity.this);
-					AlertDialog.Builder builder = new AlertDialog.Builder(OnlineActivity.this)
+
+					MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(OnlineActivity.this)
 							.setTitle(R.string.article_set_labels)
 							.setMultiChoiceItems(items, checkedItems, new OnMultiChoiceClickListener() {
 								
@@ -1018,7 +1016,7 @@ public class OnlineActivity extends CommonActivity {
 								}
 							});
 
-					dialog = builder.create();
+					Dialog dialog = builder.create();
 					dialog.show();
 
 				}
@@ -1060,8 +1058,7 @@ public class OnlineActivity extends CommonActivity {
 		
 		if (getDatabaseHelper().hasOfflineData()) {
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(
-					OnlineActivity.this)
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setMessage(R.string.dialog_offline_prompt)
 					.setPositiveButton(R.string.dialog_offline_go,
 							new Dialog.OnClickListener() {
@@ -1078,7 +1075,7 @@ public class OnlineActivity extends CommonActivity {
 								}
 							});
 
-			AlertDialog dlg = builder.create();
+			Dialog dlg = builder.create();
 			dlg.show();
 		}
 	}

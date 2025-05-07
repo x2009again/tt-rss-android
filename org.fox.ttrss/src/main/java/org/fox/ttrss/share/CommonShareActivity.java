@@ -1,6 +1,7 @@
 package org.fox.ttrss.share;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.fox.ttrss.ApiRequest;
 import org.fox.ttrss.PreferencesActivity;
@@ -53,10 +56,10 @@ public abstract class CommonShareActivity extends CommonActivity {
 
 		if (m_prefs.getString("ttrss_url", "").trim().length() == 0) {
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.dialog_need_configure_prompt)
-			       .setCancelable(false)
-			       .setPositiveButton(R.string.dialog_open_preferences, new DialogInterface.OnClickListener() {
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+				.setMessage(R.string.dialog_need_configure_prompt)
+			    .setCancelable(false)
+			    .setPositiveButton(R.string.dialog_open_preferences, new DialogInterface.OnClickListener() {
 			           public void onClick(DialogInterface dialog, int id) {
 			   			// launch preferences
 			   			
@@ -65,12 +68,12 @@ public abstract class CommonShareActivity extends CommonActivity {
 			        	   startActivityForResult(intent, 0);
 			           }
 			       })
-			       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			           public void onClick(DialogInterface dialog, int id) {
 			                dialog.cancel();
 			           }
 			       });
-			AlertDialog alert = builder.create();
+			Dialog alert = builder.create();
 			alert.show();
 			
 		} else {
