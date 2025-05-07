@@ -135,7 +135,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
-		View view = inflater.inflate(R.layout.article_pager, container, false);
+		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 	
 		if (savedInstanceState != null) {
 			if (m_activity instanceof DetailActivity) {

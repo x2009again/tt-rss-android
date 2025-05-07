@@ -179,7 +179,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             view.findViewById(R.id.article_scrollview).setVisibility(View.INVISIBLE);
         } */
 
-        m_contentView = view.findViewById(R.id.article_scrollview);
         m_customViewContainer = view.findViewById(R.id.article_fullscreen_video);
 
         /* if (m_article.id == HeadlinesFragment.ARTICLE_SPECIAL_TOP_CHANGED) {
@@ -346,8 +345,12 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                     host.setText(outhost.replaceFirst("^www\\.", ""));
                     host.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
                     host.setVisibility(View.VISIBLE);
+                } else {
+                    host.setVisibility(View.GONE);
                 }
-            } catch (MalformedURLException ignored) {}
+            } catch (MalformedURLException ignored) {
+                host.setVisibility(View.GONE);
+            }
         }
 
         TextView note = view.findViewById(R.id.note);

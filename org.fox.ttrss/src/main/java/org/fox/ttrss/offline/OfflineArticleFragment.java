@@ -199,7 +199,6 @@ public class OfflineArticleFragment extends Fragment {
 		m_cursor.moveToFirst();
 		
 		if (m_cursor.isFirst()) {
-			m_contentView = view.findViewById(R.id.article_scrollview);
 			m_customViewContainer = view.findViewById(R.id.article_fullscreen_video);
 
             final String link = m_cursor.getString(m_cursor.getColumnIndex("link"));
@@ -265,7 +264,13 @@ public class OfflineArticleFragment extends Fragment {
 			if (comments != null) {
 				comments.setVisibility(View.GONE);
 			}
-			
+
+			View host = view.findViewById(R.id.host);
+
+			if (host != null) {
+				host.setVisibility(View.GONE);
+			}
+
 			TextView note = view.findViewById(R.id.note);
 			
 			if (note != null) {
