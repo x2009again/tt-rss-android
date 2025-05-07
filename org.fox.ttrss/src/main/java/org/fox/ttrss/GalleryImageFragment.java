@@ -29,7 +29,7 @@ public class GalleryImageFragment extends GalleryBaseFragment {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            m_url = savedInstanceState.getParcelable("m_url");
+            m_url = savedInstanceState.getString("m_url");
         }
     }
 
