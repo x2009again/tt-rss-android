@@ -72,6 +72,7 @@ import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 
@@ -360,6 +361,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_layoutManager = new LinearLayoutManager(m_activity.getApplicationContext());
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
+
+		if (m_compactLayoutMode) {
+			MaterialDividerItemDecoration materialDivider = new MaterialDividerItemDecoration(m_list.getContext(), m_layoutManager.getOrientation());
+			materialDivider.setDividerInsetStart(dpToPx(80));
+
+			m_list.addItemDecoration(materialDivider);
+		}
 
 		ArticleListAdapter adapter = new ArticleListAdapter(getActivity(), R.layout.headlines_row, m_articles);
 
@@ -1675,18 +1683,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		public int pxToDp(int px) {
-			DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-			int dp = Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-			return dp;
-		}
-
-		public int dpToPx(int dp) {
-			DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-			int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-			return px;
-		}
-
 		private void adjustTitleTextView(int score, TextView tv, int position) {
 			int viewType = getItemViewType(position);
 			if (origTitleColors[viewType] == null)
@@ -1839,7 +1835,19 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         m_adapter.notifyDataSetChanged();
     }
 
-    @Override
+	public int pxToDp(int px) {
+		DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+		int dp = Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+		return dp;
+	}
+
+	public int dpToPx(int dp) {
+		DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+		return px;
+	}
+
+	@Override
 	public void onPause() {
 		super.onPause();
 

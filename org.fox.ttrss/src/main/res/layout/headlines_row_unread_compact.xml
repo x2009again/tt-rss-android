@@ -106,32 +106,17 @@
             android:ellipsize="none"
             android:layout_weight="1"
             tools:text="Jan 01"
-            android:textSize="12sp"
-            />
-
+            android:textSize="12sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/marked"
             style="?attr/materialIconButtonStyle"
-            android:background="@drawable/ripple"
             android:layout_width="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:clickable="true"
             app:icon="?ic_star_outline" />
 
     </LinearLayout>
-
-    <!-- <ImageView
-        android:id="@+id/article_menu_button"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="16dp"
-        android:layout_weight="0"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:src="@drawable/ic_action_overflow" /> -->
-
 
 </LinearLayout>

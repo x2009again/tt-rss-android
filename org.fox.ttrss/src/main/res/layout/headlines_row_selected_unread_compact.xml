@@ -107,9 +107,7 @@
             android:layout_weight="1"
             tools:text="Jan 01"
             android:textColor="?colorSecondary"
-            android:textSize="12sp"
-            />
-
+            android:textSize="12sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/marked"
@@ -118,10 +116,7 @@
             android:layout_gravity="bottom|end"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:clickable="true"
             app:icon="?ic_star_outline" />
-
-
 
     </LinearLayout>
 
