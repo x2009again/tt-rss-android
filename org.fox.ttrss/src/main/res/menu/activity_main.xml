@@ -64,18 +64,17 @@
                 android:id="@+id/toggle_unread"
                 android:icon="@drawable/baseline_email_24"
                 app:iconTint="?attr/colorControlNormal"
-                app:showAsAction="ifRoom"
                 android:title="@string/article_toggle_unread"/>
-            <!-- <item
+            <item
                 android:id="@+id/toggle_attachments"
-                android:icon="@drawable/ic_attachment"
+                android:icon="@drawable/baseline_attach_file_24"
                 app:showAsAction=""
-                android:title="@string/attachments_prompt"/> -->
-            <!-- <item
+                android:title="@string/attachments_prompt"/>
+            <item
                 android:id="@+id/share_article"
-                android:icon="@drawable/ic_share"
+                android:icon="@drawable/baseline_share_24"
                 app:showAsAction="ifRoom"
-                android:title="@string/share_article"/> -->
+                android:title="@string/share_article"/>
             <item
                 android:id="@+id/set_labels"
                 app:showAsAction=""
@@ -84,6 +83,10 @@
                 android:id="@+id/article_set_note"
                 app:showAsAction=""
                 android:title="@string/article_set_note"/>
+            <item
+                android:id="@+id/article_set_score"
+                app:showAsAction=""
+                android:title="@string/set_score"/>
 
             <item
                 android:id="@+id/catchup_above"

@@ -531,18 +531,16 @@ public class OnlineActivity extends CommonActivity {
 
         int itemId = item.getItemId();
         if (itemId == R.id.subscribe_to_feed) {
-            Intent subscribe = new Intent(OnlineActivity.this, SubscribeActivity.class);
-            startActivityForResult(subscribe, 0);
-            return true;
-		/*case R.id.toggle_attachments:
-			if (true) {
-				Article article = ap.getSelectedArticle();
+			Intent subscribe = new Intent(OnlineActivity.this, SubscribeActivity.class);
+			startActivityForResult(subscribe, 0);
+			return true;
+		} else if (itemId ==  R.id.toggle_attachments) {
+			Article article = ap.getSelectedArticle();
 
-				if (article != null) {
-					displayAttachments(article);
-				}
+			if (article != null) {
+				displayAttachments(article);
 			}
-			return true; */
+			return true;
 		/*case R.id.logout:
 			logout();
 			return true;*/
@@ -748,11 +746,16 @@ public class OnlineActivity extends CommonActivity {
                 dialog.show();
             }
             return true;
-		/* case R.id.share_article:
+		} else if (itemId == R.id.share_article) {
 			if (ap != null) {
 				shareArticle(ap.getSelectedArticle());
 			}
-			return true; */
+			return true;
+		} else if (itemId == R.id.article_set_score) {
+			if (ap != null) {
+				setArticleScore(ap.getSelectedArticle());
+			}
+			return true;
         } else if (itemId == R.id.toggle_marked) {
             if (ap != null && ap.getSelectedArticle() != null) {
                 Article a = ap.getSelectedArticle();
@@ -1229,6 +1232,45 @@ public class OnlineActivity extends CommonActivity {
 		if (article != null) {
 			shareText(article.link, article.title);
 		}
+	}
+
+	public void setArticleScore(Article article) {
+		final EditText edit = new EditText(this);
+		edit.setText(String.valueOf(article.score));
+
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+				.setTitle(R.string.score_for_this_article)
+				.setPositiveButton(R.string.set_score,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+												int which) {
+
+								try {
+                                    article.score = Integer.parseInt(edit.getText().toString());
+
+									saveArticleScore(article);
+								} catch (NumberFormatException e) {
+									toast(R.string.score_invalid);
+									e.printStackTrace();
+								}
+							}
+						})
+				.setNegativeButton(getString(R.string.cancel),
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+												int which) {
+
+								//
+
+							}
+						}).setView(edit);
+
+		Dialog dialog = builder.create();
+		dialog.show();
 	}
 
 	@Override

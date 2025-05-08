@@ -235,7 +235,7 @@ public class OfflineArticleFragment extends Fragment {
 
 			}
 
-			MaterialButton score = view.findViewById(R.id.score);
+			/* MaterialButton score = view.findViewById(R.id.score);
 
 			if (score != null) {
 				score.setVisibility(View.GONE);
@@ -256,8 +256,7 @@ public class OfflineArticleFragment extends Fragment {
 						m_activity.shareArticle(m_articleId);
 					}
 				});
-			}
-
+			} */
 
 			TextView comments = view.findViewById(R.id.comments);
 			

@@ -43,35 +43,9 @@
                         android:textAlignment="viewStart"
                         android:textColor="?colorPrimary"
                         tools:text="Unreasonably long article title blah blah blah blah blah blah"
-                        android:textSize="16sp"
+                        android:textSize="18sp"
                         android:gravity="start" />
 
-                    <com.google.android.material.button.MaterialButton
-                        style="?attr/materialIconButtonStyle"
-                        android:id="@+id/score"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        app:icon="?ic_action_trending_flat"
-                        android:layout_gravity="center_vertical|end" />
-
-                    <com.google.android.material.button.MaterialButton
-                        style="?attr/materialIconButtonStyle"
-                        android:id="@+id/attachments"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        app:icon="?ic_attachment_vert"
-                        android:layout_gravity="center_vertical|end" />
-
-                    <com.google.android.material.button.MaterialButton
-                        style="?attr/materialIconButtonStyle"
-                        android:id="@+id/share"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        app:icon="?ic_share"
-                        android:layout_gravity="center_vertical|end" />
                 </LinearLayout>
 
                 <TextView
