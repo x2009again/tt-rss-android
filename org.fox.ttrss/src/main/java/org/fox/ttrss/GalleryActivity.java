@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 
@@ -17,6 +18,9 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -255,6 +259,15 @@ public class GalleryActivity extends CommonActivity {
         setTheme(R.style.AppTheme);
 
         super.onCreate(savedInstanceState);
+
+        Window window = getWindow();
+        WindowInsetsControllerCompat windowInsetsController =
+                WindowCompat.getInsetsController(window, window.getDecorView());
+        if (windowInsetsController == null) {
+            return;
+        }
+        // Hide the system bars.
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
         setContentView(R.layout.activity_gallery);
 
