@@ -18,6 +18,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -260,21 +262,10 @@ public class GalleryActivity extends CommonActivity {
 
         super.onCreate(savedInstanceState);
 
-        Window window = getWindow();
-        WindowInsetsControllerCompat windowInsetsController =
-                WindowCompat.getInsetsController(window, window.getDecorView());
-        if (windowInsetsController == null) {
-            return;
-        }
-        // Hide the system bars.
-        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
-
         setContentView(R.layout.activity_gallery);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        //m_progress = (ProgressBar) findViewById(R.id.gallery_check_progress);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().hide();

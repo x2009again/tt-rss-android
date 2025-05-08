@@ -19,7 +19,7 @@
         android:layout_weight="0"
         app:icon="?ic_dots_vertical"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="48dp"
         app:iconTint="?colorTertiary" />
 
     <ProgressBar
@@ -41,7 +41,8 @@
     <me.relex.circleindicator.CircleIndicator
         android:id="@+id/gallery_pager_indicator"
         android:layout_width="fill_parent"
-        android:layout_height="40dp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="55dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
