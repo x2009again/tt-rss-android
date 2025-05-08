@@ -497,7 +497,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         ws.setMediaPlaybackRequiresUserGesture(true);
 
-
         if (m_prefs.getBoolean("justify_article_text", true)) {
             cssOverride += "body { text-align : justify; } ";
         }
@@ -506,12 +505,14 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         ws.setDefaultFontSize(m_articleFontSize);
 
+        int margin8dp = CommonActivity.dpToPx(getContext(), 8);
+
         StringBuilder content = new StringBuilder("<html>" +
                 "<head>" +
                 "<meta content=\"text/html; charset=utf-8\" http-equiv=\"content-type\">" +
                 "<meta name=\"viewport\" content=\"width=device-width, user-scalable=no\" />" +
                 "<style type=\"text/css\">" +
-                "body { padding : 0px; margin : 0px; line-height : 1.3; word-wrap: break-word; }" +
+                "body { padding : 0px; margin : "+margin8dp+"px; line-height : 1.3; word-wrap: break-word; }" +
                 "h1, h2, h3, h4, h5, h6 { line-height: 1; text-align: initial; }" +
                 "img, video, iframe { max-width : 100%; width : auto; height : auto; }" +
                 " table { width : 100%; }" +

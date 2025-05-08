@@ -190,7 +190,6 @@
 
         <com.telefonica.nestedscrollwebview.NestedScrollWebView
             android:id="@+id/article_content"
-            android:layout_marginTop="8dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
