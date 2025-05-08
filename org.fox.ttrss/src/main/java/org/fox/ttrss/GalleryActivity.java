@@ -257,7 +257,7 @@ public class GalleryActivity extends CommonActivity {
         m_prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-        setTheme(R.style.AppTheme);
+        setAppTheme(m_prefs);
 
         super.onCreate(savedInstanceState);
 
