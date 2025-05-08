@@ -147,18 +147,42 @@
                     android:layout_height="wrap_content"
                     android:background="?colorSurfaceContainer">
 
-                    <TextView
-                        android:id="@+id/note"
-                        tools:text="Article note (if any...)"
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/note_container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?colorSecondaryContainer"
+                        app:cardBackgroundColor="?colorTertiaryContainer"
                         android:layout_marginTop="8dp"
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
-                        android:padding="8dp"
-                        android:textColor="?colorOnSecondaryContainer"
-                        android:textSize="12sp"/>
+                        app:strokeWidth="0dp"
+                        android:layout_height="match_parent">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_margin="8dp"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/note"
+                                tools:text="Article note (if any...)"
+                                android:layout_gravity="center_vertical"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:textColor="?colorOnTertiaryContainer"
+                                android:layout_weight="1"
+                                android:textSize="12sp"/>
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                app:tint="?colorOnTertiaryContainer"
+                                android:src="@drawable/baseline_note_24"/>
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
                 </LinearLayout>
             </LinearLayout>
 
@@ -167,8 +191,6 @@
         <com.telefonica.nestedscrollwebview.NestedScrollWebView
             android:id="@+id/article_content"
             android:layout_marginTop="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

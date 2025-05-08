@@ -354,15 +354,16 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         }
 
         TextView note = view.findViewById(R.id.note);
+        View noteContainer = view.findViewById(R.id.note_container);
 
-        if (note != null) {
-            if (m_article.note != null && !"".equals(m_article.note)) {
+        if (note != null && noteContainer != null) {
+            if (m_article.note != null && m_article.note.length() > 0) {
                 note.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
                 note.setText(m_article.note);
+                noteContainer.setVisibility(View.VISIBLE);
             } else {
-                note.setVisibility(View.GONE);
+                noteContainer.setVisibility(View.GONE);
             }
-
         }
 
         TextView dv = view.findViewById(R.id.date);
