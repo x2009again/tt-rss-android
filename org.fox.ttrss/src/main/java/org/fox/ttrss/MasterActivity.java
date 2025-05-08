@@ -2,7 +2,6 @@ package org.fox.ttrss;
 
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +16,10 @@ import android.view.View;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -67,6 +69,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		}
 
 		setSmallScreen(findViewById(R.id.sw600dp_anchor) == null);
+
+		applyEdgeToEdgeInsets();
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
@@ -221,7 +225,32 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		}
 	}
 
-    protected void onPostCreate(Bundle savedInstanceState) {
+	private void applyEdgeToEdgeInsets() {
+		// https://stackoverflow.com/questions/79018063/trying-to-understand-edge-to-edge-in-android
+		// https://developer.android.com/develop/ui/views/layout/edge-to-edge
+
+		View coordinatorView = findViewById(R.id.headlines_coordinator);
+
+		if (coordinatorView != null) {
+			ViewCompat.setOnApplyWindowInsetsListener(coordinatorView, (v, windowInsets) -> {
+				Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+				v.setPadding(0, insets.top, 0, insets.bottom);
+				return windowInsets;
+			});
+		}
+
+		View navigationView = findViewById(R.id.modal_navigation_view);
+
+		if (navigationView != null) {
+			ViewCompat.setOnApplyWindowInsetsListener(navigationView, (v, windowInsets) -> {
+				Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+				v.setPadding(0, insets.top, 0, insets.bottom);
+				return windowInsets;
+			});
+		}
+	}
+
+	protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         if (m_drawerToggle != null) m_drawerToggle.syncState();

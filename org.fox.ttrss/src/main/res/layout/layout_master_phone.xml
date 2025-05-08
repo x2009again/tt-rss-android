@@ -6,6 +6,7 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/headlines_coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -36,7 +37,7 @@
 
     <com.google.android.material.navigation.NavigationView
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/navigationView"
+        android:id="@+id/modal_navigation_view"
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start">
