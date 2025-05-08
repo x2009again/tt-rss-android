@@ -2,14 +2,12 @@ package org.fox.ttrss;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.content.res.Resources.Theme;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
@@ -49,14 +47,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -914,13 +910,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					layoutId = R.layout.headlines_row_loadmore;
 					break;
 				case VIEW_UNREAD:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_unread_compact : R.layout.headlines_row_unread;
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_unread : R.layout.headlines_row_unread;
 					break;
 				case VIEW_SELECTED:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_compact : R.layout.headlines_row;
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected : R.layout.headlines_row;
 					break;
 				case VIEW_SELECTED_UNREAD:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_unread_compact : R.layout.headlines_row_unread;
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected_unread : R.layout.headlines_row_unread;
 					break;
 			}
 

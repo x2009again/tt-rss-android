@@ -1,14 +1,12 @@
 package org.fox.ttrss.offline;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Paint;
@@ -42,7 +40,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
@@ -677,13 +674,13 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
                         layoutId = R.layout.headlines_row_loadmore;
                         break;
                     case VIEW_UNREAD:
-                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_unread_compact : R.layout.headlines_row_unread;
+                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_unread : R.layout.headlines_row_unread;
                         break;
                     case VIEW_SELECTED:
-                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_compact : R.layout.headlines_row;
+                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected : R.layout.headlines_row;
                         break;
                     case VIEW_SELECTED_UNREAD:
-                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_unread_compact : R.layout.headlines_row_unread;
+                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected_unread : R.layout.headlines_row_unread;
                         break;
                 }
 

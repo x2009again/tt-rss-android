@@ -8,7 +8,8 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="?colorPrimaryContainer"
+    android:background="?colorTertiaryContainer"
+    android:textColor="?colorOnTertiaryContainer"
     tools:ignore="HardcodedText" >
 
     <FrameLayout
@@ -50,7 +51,6 @@
             android:maxLines="2"
             android:ellipsize="end"
             tools:text="Sample entry title"
-            android:textColor="?colorOnPrimaryContainer"
             android:textSize="18sp"
             android:layout_span="2" />
 
@@ -62,7 +62,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-            android:textColor="?colorOnPrimaryContainer"
             android:textSize="13sp"
             android:layout_span="2"
             android:paddingTop="4dp" />
@@ -82,7 +81,6 @@
                 android:singleLine="true"
                 tools:text="Example Feed"
                 android:textAlignment="viewStart"
-                android:textColor="?colorOnPrimaryContainer"
                 android:textSize="12sp"
                 android:layout_weight="0.5"
                 android:paddingTop="4dp" />
