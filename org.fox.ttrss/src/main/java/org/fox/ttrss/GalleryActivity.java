@@ -257,10 +257,13 @@ public class GalleryActivity extends CommonActivity {
         m_prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         setTheme(R.style.AppTheme);
 
         super.onCreate(savedInstanceState);
+
+        Window window = getWindow();
+        WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        windowInsetsController.hide(WindowInsetsCompat.Type.statusBars());
 
         setContentView(R.layout.activity_gallery);
 
