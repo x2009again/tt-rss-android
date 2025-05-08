@@ -24,7 +24,6 @@ public class PreferencesActivity extends CommonActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().hide();
 
         if (savedInstanceState == null) {
             android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
