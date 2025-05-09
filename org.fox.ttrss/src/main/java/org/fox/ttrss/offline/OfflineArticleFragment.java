@@ -264,12 +264,6 @@ public class OfflineArticleFragment extends Fragment {
 				comments.setVisibility(View.GONE);
 			}
 
-			View host = view.findViewById(R.id.host);
-
-			if (host != null) {
-				host.setVisibility(View.GONE);
-			}
-
 			TextView note = view.findViewById(R.id.note);
 			
 			if (note != null) {
