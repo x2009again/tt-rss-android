@@ -5,9 +5,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <LinearLayout
         android:id="@+id/fragment_container"
+        android:background="?colorSurfaceContainer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:baselineAligned="false"
@@ -24,14 +24,13 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/navigation_view"
             android:layout_width="300dp"
+            app:shapeAppearance="@style/ShapeAppearanceFeedsTablet"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            app:elevation="8dp">
+            android:layout_gravity="start">
 
             <FrameLayout
                 android:id="@+id/feeds_fragment"
                 android:layout_width="match_parent"
-                android:background="?colorSurfaceContainer"
                 android:layout_height="match_parent" >
             </FrameLayout>
 
