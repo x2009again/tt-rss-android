@@ -1,6 +1,7 @@
 package org.fox.ttrss.share;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,18 +12,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.fox.ttrss.ApiRequest;
 import org.fox.ttrss.PreferencesActivity;
 import org.fox.ttrss.R;
 import org.fox.ttrss.util.SimpleLoginManager;
 
-import icepick.State;
-
 
 public abstract class CommonShareActivity extends CommonActivity {
 	protected SharedPreferences m_prefs;
-	@State protected String m_sessionId;
-	@State protected int m_apiLevel = 0;
+	protected String m_sessionId;
+	protected int m_apiLevel = 0;
 
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -31,7 +32,20 @@ public abstract class CommonShareActivity extends CommonActivity {
 		m_prefs = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 
+		if (savedInstanceState != null) {
+			m_sessionId = savedInstanceState.getString("m_sessionId");
+			m_apiLevel = savedInstanceState.getInt("m_apiLevel");
+		}
+
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putString("m_sessionId", m_sessionId);
+		out.putInt("m_apiLevel", m_apiLevel);
 	}
 
 	protected abstract void onLoggedIn(int requestId);
@@ -42,10 +56,10 @@ public abstract class CommonShareActivity extends CommonActivity {
 
 		if (m_prefs.getString("ttrss_url", "").trim().length() == 0) {
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.dialog_need_configure_prompt)
-			       .setCancelable(false)
-			       .setPositiveButton(R.string.dialog_open_preferences, new DialogInterface.OnClickListener() {
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+				.setMessage(R.string.dialog_need_configure_prompt)
+			    .setCancelable(false)
+			    .setPositiveButton(R.string.dialog_open_preferences, new DialogInterface.OnClickListener() {
 			           public void onClick(DialogInterface dialog, int id) {
 			   			// launch preferences
 			   			
@@ -54,12 +68,12 @@ public abstract class CommonShareActivity extends CommonActivity {
 			        	   startActivityForResult(intent, 0);
 			           }
 			       })
-			       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			           public void onClick(DialogInterface dialog, int id) {
 			                dialog.cancel();
 			           }
 			       });
-			AlertDialog alert = builder.create();
+			Dialog alert = builder.create();
 			alert.show();
 			
 		} else {
@@ -94,18 +108,16 @@ public abstract class CommonShareActivity extends CommonActivity {
 	}	
 	
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.preferences:
-			Intent intent = new Intent(CommonShareActivity.this,
-					PreferencesActivity.class);
-			startActivityForResult(intent, 0);
-			return true;
-		default:
-			Log.d(TAG,
-					"onOptionsItemSelected, unhandled id=" + item.getItemId());
-			return super.onOptionsItemSelected(item);
-		}
-	}
+        if (item.getItemId() == R.id.preferences) {
+            Intent intent = new Intent(CommonShareActivity.this,
+                    PreferencesActivity.class);
+            startActivityForResult(intent, 0);
+            return true;
+        }
+        Log.d(TAG,
+                "onOptionsItemSelected, unhandled id=" + item.getItemId());
+        return super.onOptionsItemSelected(item);
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

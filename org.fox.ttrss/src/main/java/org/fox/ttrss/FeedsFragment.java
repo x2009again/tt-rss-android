@@ -29,6 +29,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -45,11 +50,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import icepick.State;
-
 public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickListener, OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
@@ -57,10 +57,10 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	private FeedListAdapter m_adapter;
 	private FeedList m_feeds = new FeedList();
 	private MasterActivity m_activity;
-	@State Feed m_selectedFeed;
-	@State FeedCategory m_activeCategory;
+	Feed m_selectedFeed;
+	FeedCategory m_activeCategory;
 	private SwipeRefreshLayout m_swipeLayout;
-    @State boolean m_enableParentBtn = false;
+    boolean m_enableParentBtn = false;
     private ListView m_list;
 
     public void initialize(FeedCategory cat, boolean enableParentBtn) {
@@ -237,75 +237,72 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-		switch (item.getItemId()) {
-		case R.id.browse_headlines:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
-				if (feed != null) {
-					m_activity.onFeedSelected(feed);
-				}
-			}
-			return true;
-		case R.id.browse_feeds:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
-				if (feed != null) {
-					m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
-				}
-			}
-			return true;
-		case R.id.unsubscribe_feed:
-			if (true) {
-				final Feed feed = getFeedAtPosition(info.position);
+        int itemId = item.getItemId();
+        if (itemId == R.id.browse_headlines) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+                if (feed != null) {
+                    m_activity.onFeedSelected(feed);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.browse_feeds) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+                if (feed != null) {
+                    m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.unsubscribe_feed) {
+            if (true) {
+                final Feed feed = getFeedAtPosition(info.position);
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						m_activity)
-						.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
-						.setPositiveButton(R.string.unsubscribe,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int which) {
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                        .setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
+                        .setPositiveButton(R.string.unsubscribe,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-										m_activity.unsubscribeFeed(feed);											
-										
-									}
-								})
-						.setNegativeButton(R.string.dialog_cancel,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int which) {
+                                        m_activity.unsubscribeFeed(feed);
 
-									}
-								});
+                                    }
+                                })
+                        .setNegativeButton(R.string.dialog_cancel,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-				AlertDialog dlg = builder.create();
-				dlg.show();	
-			}			
-			
-			return true;
-		case R.id.create_shortcut:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
-				if (feed != null) {
-					m_activity.createFeedShortcut(feed);
-				}
-			}
-			return true;
-		case R.id.catchup_feed:
-			if (true) {
-				Feed feed = getFeedAtPosition(info.position);
+                                    }
+                                });
 
-				if (feed != null) {
-					m_activity.catchupDialog(feed);
-				}
-			}
-			return true;
-		
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+                Dialog dlg = builder.create();
+                dlg.show();
+            }
+
+            return true;
+        } else if (itemId == R.id.create_shortcut) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+                if (feed != null) {
+                    m_activity.createFeedShortcut(feed);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.catchup_feed) {
+            if (true) {
+                Feed feed = getFeedAtPosition(info.position);
+
+                if (feed != null) {
+                    m_activity.catchupDialog(feed);
+                }
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -333,6 +330,32 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 		super.onCreateContextMenu(menu, v, menuInfo);		
 		
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			ArrayList<Feed> list = savedInstanceState.getParcelableArrayList("m_feeds");
+
+			m_feeds.clear();
+			m_feeds.addAll(list);
+
+			m_selectedFeed = savedInstanceState.getParcelable("m_selectedFeed");
+			m_activeCategory = savedInstanceState.getParcelable("m_activeCategory");
+			m_enableParentBtn = savedInstanceState.getBoolean("m_enableParentBtn");
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putParcelableArrayList("m_feeds", m_feeds);
+		out.putParcelable("m_selectedFeed", m_selectedFeed);
+		out.putParcelable("m_activeCategory", m_activeCategory);
+		out.putBoolean("m_enableParentBtn", m_enableParentBtn);
 	}
 	
 	@Override

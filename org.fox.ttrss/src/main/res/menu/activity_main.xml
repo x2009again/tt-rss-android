@@ -12,22 +12,27 @@
         <group android:id="@+id/menu_group_headlines" >
             <item
                 android:id="@+id/search"
-                android:icon="@drawable/ic_search"
+                android:icon="@drawable/baseline_search_24"
+                app:iconTint="?attr/colorControlNormal"
                 app:showAsAction="ifRoom"
                 android:title="@string/search"/>
             <item
                 android:id="@+id/headlines_mark_as_read"
                 app:showAsAction=""
+                app:iconTint="?attr/colorControlNormal"
+                android:icon="@drawable/baseline_mark_email_read_24"
                 android:title="@string/headlines_mark_as_read"/>
             <item
                 android:id="@+id/headlines_select"
                 app:showAsAction="ifRoom"
-                android:icon="@drawable/ic_select"
+                app:iconTint="?attr/colorControlNormal"
+                android:icon="@drawable/baseline_select_all_24"
                 android:title="@string/headlines_select"/>
 
             <item
                 android:id="@+id/headlines_toggle_sort_order"
-                android:icon="@drawable/ic_sort"
+                app:iconTint="?attr/colorControlNormal"
+                android:icon="@drawable/baseline_sort_by_alpha_24"
                 app:showAsAction="ifRoom"
                 android:title="@string/toggle_sort_order"/>
 
@@ -45,29 +50,31 @@
         <group android:id="@+id/menu_group_article" >
             <item
                 android:id="@+id/toggle_marked"
-                android:icon="@drawable/ic_star_outline"
+                android:icon="@drawable/baseline_star_outline_24"
+                app:iconTint="?attr/colorControlNormal"
                 app:showAsAction="ifRoom"
                 android:title="@string/article_toggle_marked"/>
             <item
                 android:id="@+id/toggle_published"
-                android:icon="@drawable/ic_rss_box"
+                android:icon="@drawable/baseline_rss_feed_24"
+                app:iconTint="?attr/colorControlNormal"
                 app:showAsAction="ifRoom"
                 android:title="@string/article_toggle_published"/>
             <item
                 android:id="@+id/toggle_unread"
-                android:icon="@drawable/ic_email"
-                app:showAsAction="ifRoom"
+                android:icon="@drawable/baseline_email_24"
+                app:iconTint="?attr/colorControlNormal"
                 android:title="@string/article_toggle_unread"/>
-            <!-- <item
+            <item
                 android:id="@+id/toggle_attachments"
-                android:icon="@drawable/ic_attachment"
+                android:icon="@drawable/baseline_attach_file_24"
                 app:showAsAction=""
-                android:title="@string/attachments_prompt"/> -->
-            <!-- <item
+                android:title="@string/attachments_prompt"/>
+            <item
                 android:id="@+id/share_article"
-                android:icon="@drawable/ic_share"
+                android:icon="@drawable/baseline_share_24"
                 app:showAsAction="ifRoom"
-                android:title="@string/share_article"/> -->
+                android:title="@string/share_article"/>
             <item
                 android:id="@+id/set_labels"
                 app:showAsAction=""
@@ -76,6 +83,10 @@
                 android:id="@+id/article_set_note"
                 app:showAsAction=""
                 android:title="@string/article_set_note"/>
+            <item
+                android:id="@+id/article_set_score"
+                app:showAsAction=""
+                android:title="@string/set_score"/>
 
             <item
                 android:id="@+id/catchup_above"
@@ -83,26 +94,21 @@
 
         </group>
 
-        <!-- <item
-            android:orderInCategory="999"
-            android:id="@+id/preferences"
-            android:icon="@drawable/ic_settings"
-            app:showAsAction=""
-            android:title="@string/preferences"/> -->
-
     </group>
 
     <group android:id="@+id/menu_group_logged_out" >
         <item
             android:id="@+id/login"
-            android:icon="@drawable/ic_login"
+            android:icon="@drawable/baseline_login_24"
+            app:iconTint="?attr/colorControlNormal"
             app:showAsAction="ifRoom"
             android:title="@string/login_login"/>
 
         <item
             android:orderInCategory="999"
             android:id="@+id/preferences"
-            android:icon="@drawable/ic_settings"
+            android:icon="@drawable/baseline_settings_24"
+            app:iconTint="?attr/colorControlNormal"
             app:showAsAction="ifRoom"
             android:title="@string/preferences"/>
 

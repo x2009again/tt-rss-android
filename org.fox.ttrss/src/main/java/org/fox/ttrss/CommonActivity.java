@@ -27,12 +27,14 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.widget.CheckBox;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsCallback;
@@ -47,8 +49,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.livefront.bridge.Bridge;
 
 import org.fox.ttrss.util.DatabaseHelper;
 import org.fox.ttrss.widget.SmallWidgetProvider;
@@ -62,8 +64,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import icepick.State;
 
 public class CommonActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private final String TAG = this.getClass().getSimpleName();
@@ -91,7 +91,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	//private SQLiteDatabase m_writableDb;
 
 	private boolean m_smallScreenMode = true;
-	@State protected String m_theme;
+	protected String m_theme;
 	private boolean m_needRestart;
 
 	private static String s_customTabPackageName;
@@ -233,6 +233,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		EdgeToEdge.enable(this);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			NotificationManager nmgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -263,10 +264,10 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 		setupWidgetUpdates(this);
 
-		Bridge.restoreInstanceState(this, savedInstanceState);
-
         if (savedInstanceState == null) {
 			m_theme = m_prefs.getString("theme", CommonActivity.THEME_DEFAULT);
+		} else {
+			m_theme = savedInstanceState.getString("m_theme");
 		}
 
 		String customTabPackageName = getCustomTabPackageName(this);
@@ -282,7 +283,8 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	@Override
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
-		Bridge.saveInstanceState(this, out);
+
+		out.putString("m_theme", m_theme);
 	}
 	
 	public boolean isSmallScreen() {
@@ -454,15 +456,11 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	private void openUriWithCustomTab(Uri uri) {
 		if (m_customTabClient != null) {
-			TypedValue tvBackground = new TypedValue();
-			getTheme().resolveAttribute(R.attr.colorPrimary, tvBackground, true);
-
 			CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(getCustomTabSession());
 
 			builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
 			builder.setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right);
 
-			builder.setToolbarColor(tvBackground.data);
 			builder.setShowTitle(true);
 
 			Intent shareIntent = getShareIntent(uri.toString(), null);
@@ -470,7 +468,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 			PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
 					CommonActivity.PENDING_INTENT_CHROME_SHARE, shareIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-			builder.setActionButton(BitmapFactory.decodeResource(getResources(), R.drawable.ic_share),
+			builder.setActionButton(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_share_24),
 					getString(R.string.share_article), pendingIntent);
 
 			CustomTabsIntent intent = builder.build();
@@ -508,8 +506,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 				View dialogView = View.inflate(this, R.layout.dialog_open_link_askcb, null);
 				final CheckBox askEveryTimeCB = dialogView.findViewById(R.id.open_link_ask_checkbox);
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						CommonActivity.this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 						.setView(dialogView)
 						.setMessage(uri.toString())
 						.setPositiveButton(R.string.quick_preview,
@@ -564,7 +561,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 								}
 							});*/
 
-				AlertDialog dlg = builder.create();
+				Dialog dlg = builder.create();
 				dlg.show();
 
 			} else {
@@ -616,7 +613,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 		if (es.size() > 0) {
 			if (es.get(0).hasAttr("title")) {
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(this)
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setCancelable(true)
 					.setMessage(es.get(0).attr("title"))
 					.setPositiveButton(R.string.dialog_close, new DialogInterface.OnClickListener() {
@@ -627,7 +624,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 							}
 					);
 
-				AlertDialog dialog = builder.create();
+				Dialog dialog = builder.create();
 				dialog.show();
 
 			} else {
@@ -654,6 +651,12 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	public static void requestWidgetUpdate(Context context) {
 		JobIntentService.enqueueWork(context.getApplicationContext(), WidgetUpdateService.class, 0, new Intent());
+	}
+
+	static public int dpToPx(Context context, int dp) {
+		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+		return px;
 	}
 
 }

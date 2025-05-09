@@ -1,13 +1,12 @@
 package org.fox.ttrss.offline;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources.Theme;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Paint;
@@ -36,11 +35,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
@@ -50,6 +49,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.fox.ttrss.Application;
 import org.fox.ttrss.CommonActivity;
@@ -158,79 +159,77 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 	}
 
 	private boolean onArticleMenuItemSelected(MenuItem item, final int articleId) {
-		switch (item.getItemId()) {
-			case R.id.headlines_article_unread:
-				if (true) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.headlines_article_unread) {
+            if (true) {
 
-					SQLiteStatement stmt = m_activity.getDatabase().compileStatement(
-							"UPDATE articles SET modified = 1, unread = not unread " + "WHERE " + BaseColumns._ID
-									+ " = ?");
+                SQLiteStatement stmt = m_activity.getDatabase().compileStatement(
+                        "UPDATE articles SET modified = 1, unread = not unread " + "WHERE " + BaseColumns._ID
+                                + " = ?");
 
-					stmt.bindLong(1, articleId);
-					stmt.execute();
-					stmt.close();
+                stmt.bindLong(1, articleId);
+                stmt.execute();
+                stmt.close();
 
-					refresh();
-				}
-				return true;
-			case R.id.headlines_article_link_copy:
-				if (true) {
-					Cursor article = m_activity.getArticleById(articleId);
+                refresh();
+            }
+            return true;
+        } else if (itemId == R.id.headlines_article_link_copy) {
+            if (true) {
+                Cursor article = m_activity.getArticleById(articleId);
 
-					if (article != null) {
-						m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
-						article.close();
-					}
-				}
-				return true;
-			case R.id.headlines_article_link_open:
-				if (true) {
-					Cursor article = m_activity.getArticleById(articleId);
+                if (article != null) {
+                    m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
+                    article.close();
+                }
+            }
+            return true;
+        } else if (itemId == R.id.headlines_article_link_open) {
+            if (true) {
+                Cursor article = m_activity.getArticleById(articleId);
 
-					if (article != null) {
-						m_activity.openUri(Uri.parse(article.getString(article.getColumnIndex("link"))));
+                if (article != null) {
+                    m_activity.openUri(Uri.parse(article.getString(article.getColumnIndex("link"))));
 
-						// TODO: mark article as read, set modified = 1, refresh
+                    // TODO: mark article as read, set modified = 1, refresh
 
-						article.close();
-					}
-				}
-				return true;
-			case R.id.headlines_share_article:
-				m_activity.shareArticle(articleId);
-				return true;
-			case R.id.catchup_above:
-				if (true) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(
-							m_activity)
-							.setMessage(R.string.confirm_catchup_above)
-							.setPositiveButton(R.string.dialog_ok,
-									new Dialog.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-															int which) {
+                    article.close();
+                }
+            }
+            return true;
+        } else if (itemId == R.id.headlines_share_article) {
+            m_activity.shareArticle(articleId);
+            return true;
+        } else if (itemId == R.id.catchup_above) {
+            if (true) {
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                        .setMessage(R.string.confirm_catchup_above)
+                        .setPositiveButton(R.string.dialog_ok,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-											catchupAbove(articleId);
+                                        catchupAbove(articleId);
 
-										}
-									})
-							.setNegativeButton(R.string.dialog_cancel,
-									new Dialog.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-															int which) {
+                                    }
+                                })
+                        .setNegativeButton(R.string.dialog_cancel,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-										}
-									});
+                                    }
+                                });
 
-					AlertDialog dialog = builder.create();
-					dialog.show();
-				}
-				return true;
-			default:
-				Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
-				return false;
-		}
+                Dialog dialog = builder.create();
+                dialog.show();
+            }
+            return true;
+        }
+        Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
+        return false;
 
-	}
+    }
 
 	private void catchupAbove(int articleId) {
 		SQLiteStatement stmt = null;
@@ -488,14 +487,14 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
         public TextView titleView;
         public TextView feedTitleView;
-        public ImageView markedView;
-        public ImageView publishedView;
+        public MaterialButton markedView;
+        public MaterialButton publishedView;
         public TextView excerptView;
         public ImageView flavorImageView;
         public TextView authorView;
         public TextView dateView;
         public CheckBox selectionBoxView;
-        public ImageView menuButtonView;
+        public MaterialButton menuButtonView;
         public ViewGroup flavorImageHolder;
         public ProgressBar flavorImageLoadingBar;
         public View headlineFooter;
@@ -504,8 +503,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 		public ImageView flavorVideoKindView;
 		public View flavorImageOverflow;
 		public View headlineHeader;
-		public ImageView attachmentsView;
-		public ImageView scoreView;
+		public MaterialButton attachmentsView;
+		public MaterialButton scoreView;
 
 		public ArticleViewHolder(View v) {
 
@@ -564,7 +563,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 		public static final int VIEW_COUNT = VIEW_LOADMORE+1;
 		
 		private final Integer[] origTitleColors = new Integer[VIEW_COUNT];
-		private final int titleHighScoreUnreadColor;
 
         private ColorGenerator m_colorGenerator = ColorGenerator.DEFAULT;
         private TextDrawable.IBuilder m_drawableBuilder = TextDrawable.builder().round();
@@ -576,11 +574,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				String[] from, int[] to, int flags) {
 			super(context, layout, c, from, to, flags);
 			
-			Theme theme = context.getTheme();
-			TypedValue tv = new TypedValue();
-			theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tv, true);
-			titleHighScoreUnreadColor = tv.data;
-
 			String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 			showFlavorImage = "HL_DEFAULT".equals(headlineMode) || "HL_COMPACT".equals(headlineMode);
 
@@ -669,8 +662,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
             final ArticleViewHolder holder;
 
 			final int articleId = article.getInt(0);
-			
-			int headlineFontSize = Integer.parseInt(m_prefs.getString("headlines_font_size_sp", "13"));
+
+			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
 			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
 			
 			if (v == null) {
@@ -681,13 +674,13 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
                         layoutId = R.layout.headlines_row_loadmore;
                         break;
                     case VIEW_UNREAD:
-                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_unread_compact : R.layout.headlines_row_unread;
+                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_unread : R.layout.headlines_row_unread;
                         break;
                     case VIEW_SELECTED:
-                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_compact : R.layout.headlines_row;
+                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected : R.layout.headlines_row;
                         break;
                     case VIEW_SELECTED_UNREAD:
-                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_unread_compact : R.layout.headlines_row_unread;
+                        layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected_unread : R.layout.headlines_row_unread;
                         break;
                 }
 
@@ -789,8 +782,11 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				holder.feedTitleView.setVisibility(View.GONE);
 			}
 
-			TypedValue tvAccent = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorAccent, tvAccent, true);
+			TypedValue tvTertiary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
+
+			TypedValue tvPrimary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
 
 			if (holder.attachmentsView != null) {
 				holder.attachmentsView.setVisibility(View.GONE);
@@ -807,12 +803,12 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 				m_activity.getTheme().resolveAttribute(marked ? R.attr.ic_star : R.attr.ic_star_outline, tv, true);
 
-				holder.markedView.setImageResource(tv.resourceId);
+				holder.markedView.setIconResource(tv.resourceId);
 
 				if (marked)
-					holder.markedView.setColorFilter(tvAccent.data);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
-					holder.markedView.setColorFilter(null);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 				
 				holder.markedView.setOnClickListener(new OnClickListener() {
 
@@ -838,12 +834,12 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 				m_activity.getTheme().resolveAttribute(published ? R.attr.ic_checkbox_marked : R.attr.ic_rss_box, tv, true);
 
-				holder.publishedView.setImageResource(tv.resourceId);
+				holder.publishedView.setIconResource(tv.resourceId);
 
 				if (published)
-					holder.publishedView.setColorFilter(tvAccent.data);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
-					holder.publishedView.setColorFilter(null);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.publishedView.setOnClickListener(new OnClickListener() {
 
@@ -935,8 +931,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 				holder.flavorVideoKindView.setVisibility(View.GONE);
 				holder.flavorImageOverflow.setVisibility(View.GONE);
 
-				holder.headlineHeader.setBackgroundDrawable(null);
-
 				// this is needed if our flavor image goes behind base listview element
 				holder.headlineHeader.setOnClickListener(new OnClickListener() {
 					@Override
@@ -967,9 +961,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 						//Log.d(TAG, articleId + " IMG: " + afi.flavorImageUri + " STREAM: " + afi.flavorStreamUri + " H:" + flavorViewHeight);
 
 						if (flavorViewHeight > 0) {
-							RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
+							FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
 							lp.height = flavorViewHeight;
-							holder.flavorImageView.setLayoutParams(lp);
 						}
 
 						final String articleContent = article.getString(article.getColumnIndex("content"));
@@ -1011,23 +1004,7 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 												holder.flavorImageView.setVisibility(View.VISIBLE);
 
-
-												//TODO: not implemented
-												//holder.flavorImageOverflow.setVisibility(View.VISIBLE);
-
-												/*boolean forceDown = article.flavorImage != null && "video".equals(article.flavorImage.tagName().toLowerCase());
-
-												maybeRepositionFlavorImage(holder.flavorImageView, resource, holder, forceDown);*/
 												adjustVideoKindView(holder, afi);
-
-												/* we don't support image embedding in offline */
-
-												RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-												lp.addRule(RelativeLayout.BELOW, R.id.headline_header);
-												lp.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-												holder.flavorImageView.setLayoutParams(lp);
-
-												holder.headlineHeader.setBackgroundDrawable(null);
 
 												return false;
 											} else {
@@ -1081,10 +1058,10 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 		private void adjustVideoKindView(ArticleViewHolder holder, ArticleFlavorInfo afi) {
 			if (afi.flavorImageUri != null) {
 				if (afi.flavorStreamUri != null) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_play_circle);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else if (afi.mediaList.size() > 1) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_image_album);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_photo_album_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else {
 					holder.flavorVideoKindView.setVisibility(View.INVISIBLE);
@@ -1208,9 +1185,6 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 			if (score < -500) {
 				tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-			} else if (score > 500) {
-				tv.setTextColor(titleHighScoreUnreadColor);
-				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 			} else {
 				tv.setTextColor(origTitleColors[viewType].intValue());
 				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);

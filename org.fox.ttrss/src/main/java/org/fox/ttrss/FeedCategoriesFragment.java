@@ -24,6 +24,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -40,17 +44,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import icepick.State;
-
 public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnItemClickListener, OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
 	private FeedCategoryListAdapter m_adapter;
 	private FeedCategoryList m_cats = new FeedCategoryList();
-	@State FeedCategory m_selectedCat;
+	FeedCategory m_selectedCat;
 	private MasterActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
     private ListView m_list;
@@ -216,50 +215,48 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-		
-		switch (item.getItemId()) {
-		case R.id.browse_headlines:
-			if (true) {
-				FeedCategory cat = getCategoryAtPosition(info.position);
-				if (cat != null) {
-					m_activity.onCatSelected(cat, true);
-					//setSelectedCategory(cat);
-				}
-			}
-			return true;
-		case R.id.browse_feeds:
-			if (true) {
-				FeedCategory cat = getCategoryAtPosition(info.position);
-				if (cat != null) {
-					m_activity.onCatSelected(cat, false);
-					//cf.setSelectedCategory(cat);
-				}
-			}
-			return true;
-		case R.id.create_shortcut:
-			if (true) {
-				FeedCategory cat = getCategoryAtPosition(info.position);
-				if (cat != null) {
-					m_activity.createCategoryShortcut(cat);
-					//cf.setSelectedCategory(cat);
-				}
-			}
-			return true;
-		case R.id.catchup_category:
-			if (true) {
-				final FeedCategory cat = getCategoryAtPosition(info.position);
 
-				if (cat != null) {
-					m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
-				}
-			}
-			return true;
-		
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+        int itemId = item.getItemId();
+        if (itemId == R.id.browse_headlines) {
+            if (true) {
+                FeedCategory cat = getCategoryAtPosition(info.position);
+                if (cat != null) {
+                    m_activity.onCatSelected(cat, true);
+                    //setSelectedCategory(cat);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.browse_feeds) {
+            if (true) {
+                FeedCategory cat = getCategoryAtPosition(info.position);
+                if (cat != null) {
+                    m_activity.onCatSelected(cat, false);
+                    //cf.setSelectedCategory(cat);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.create_shortcut) {
+            if (true) {
+                FeedCategory cat = getCategoryAtPosition(info.position);
+                if (cat != null) {
+                    m_activity.createCategoryShortcut(cat);
+                    //cf.setSelectedCategory(cat);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.catchup_category) {
+            if (true) {
+                final FeedCategory cat = getCategoryAtPosition(info.position);
+
+                if (cat != null) {
+                    m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
+                }
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -290,11 +287,20 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
             return null;
         }
 	}
-	
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			m_selectedCat = savedInstanceState.getParcelable("m_selectedCat");
+		}
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {  
 
-		View view = inflater.inflate(R.layout.fragment_cats, container, false);
+		View view = inflater.inflate(R.layout.fragment_feeds, container, false);
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
@@ -474,5 +480,10 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		}
 	}
 
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
 
+		out.putParcelable("m_selectedCat", m_selectedCat);
+	}
 }

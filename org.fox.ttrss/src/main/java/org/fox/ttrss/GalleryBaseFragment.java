@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.View;
 
-public class GalleryBaseFragment extends StateSavedFragment {
+public class GalleryBaseFragment extends androidx.fragment.app.Fragment {
     private final String TAG = this.getClass().getSimpleName();
     protected GalleryActivity m_activity;
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/feeds_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,8 +20,8 @@
         android:layout_height="21dp"
         android:layout_weight="0"
         android:scaleType="fitXY"
-        android:tint="?colorAccent"
-        android:src="?ic_go_back" />
+        android:src="?ic_go_back"
+        app:tint="?colorTertiary" />
 
     <TextView
         android:fontFamily="sans-serif-medium"
@@ -29,11 +30,9 @@
         android:gravity="center_vertical"
         android:layout_weight="1"
         android:ellipsize="end"
-        android:paddingStart="35dp"
+        android:paddingStart="16dp"
         android:singleLine="true"
         android:text=".."
-        android:paddingBottom="2dp"
-        android:textColor="?feedlistTextColor"
         android:textSize="14sp" />
 
 </LinearLayout>

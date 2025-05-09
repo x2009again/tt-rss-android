@@ -3,18 +3,26 @@ package org.fox.ttrss;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -34,16 +42,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import icepick.State;
 import me.relex.circleindicator.CircleIndicator;
 
 public class GalleryActivity extends CommonActivity {
     private final String TAG = this.getClass().getSimpleName();
 
-    @State protected ArrayList<GalleryEntry> m_items = new ArrayList<>();
-    @State protected String m_title;
+    protected ArrayList<GalleryEntry> m_items = new ArrayList<>();
+    protected String m_title;
     private ArticleImagesPagerAdapter m_adapter;
-    @State public String m_content;
+    public String m_content;
     private ViewPager m_pager;
     private ProgressBar m_checkProgress;
 
@@ -234,6 +241,14 @@ public class GalleryActivity extends CommonActivity {
         return firstFound;
     }
 
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putParcelableArrayList("m_items", m_items);
+        out.putString("m_title", m_title);
+        out.putString("m_content", m_content);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         ActivityCompat.postponeEnterTransition(this);
@@ -242,18 +257,18 @@ public class GalleryActivity extends CommonActivity {
         m_prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-
-        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        setTheme(R.style.AppTheme);
+        setAppTheme(m_prefs);
 
         super.onCreate(savedInstanceState);
+
+        Window window = getWindow();
+        WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        windowInsetsController.hide(WindowInsetsCompat.Type.statusBars());
 
         setContentView(R.layout.activity_gallery);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        //m_progress = (ProgressBar) findViewById(R.id.gallery_check_progress);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().hide();
@@ -273,6 +288,14 @@ public class GalleryActivity extends CommonActivity {
             if (!collectGalleryContents(imgSrcFirst, doc, uncheckedItems))
                 if (!collectGalleryContents("", doc, uncheckedItems))
                     m_items.add(new GalleryEntry(imgSrcFirst, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
+        } else {
+            ArrayList<GalleryEntry> list = savedInstanceState.getParcelableArrayList("m_items");
+
+            m_items.clear();
+            m_items.addAll(list);
+
+            m_title = savedInstanceState.getString("m_title");
+            m_content = savedInstanceState.getString("m_content");
         }
 
         findViewById(R.id.gallery_overflow).setOnClickListener(new View.OnClickListener() {
@@ -361,44 +384,43 @@ public class GalleryActivity extends CommonActivity {
     public boolean onImageMenuItemSelected(MenuItem item, GalleryEntry entry) {
         String url = entry.url;
 
-        switch (item.getItemId()) {
-            case R.id.article_img_open:
-                if (url != null) {
-                    try {
-                        openUri(Uri.parse(url));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        toast(R.string.error_other_error);
-                    }
+        int itemId = item.getItemId();
+        if (itemId == R.id.article_img_open) {
+            if (url != null) {
+                try {
+                    openUri(Uri.parse(url));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    toast(R.string.error_other_error);
                 }
-                return true;
-            case R.id.article_img_copy:
-                if (url != null) {
-                    copyToClipboard(url);
-                }
-                return true;
-            case R.id.article_img_share:
-                if (url != null) {
-                    if (entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE) {
-                        Log.d(TAG, "image sharing image from URL=" + url);
+            }
+            return true;
+        } else if (itemId == R.id.article_img_copy) {
+            if (url != null) {
+                copyToClipboard(url);
+            }
+            return true;
+        } else if (itemId == R.id.article_img_share) {
+            if (url != null) {
+                if (entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE) {
+                    Log.d(TAG, "image sharing image from URL=" + url);
 
-                        shareImageFromUri(url);
-                    }
+                    shareImageFromUri(url);
                 }
-                return true;
-            case R.id.article_img_share_url:
-                if (url != null) {
-                    shareText(url);
-                }
-                return true;
-            case R.id.article_img_view_caption:
-                if (url != null) {
-                    displayImageCaption(url, m_content);
-                }
-                return true;
-            default:
-                Log.d(TAG, "onImageMenuItemSelected, unhandled id=" + item.getItemId());
-                return false;
+            }
+            return true;
+        } else if (itemId == R.id.article_img_share_url) {
+            if (url != null) {
+                shareText(url);
+            }
+            return true;
+        } else if (itemId == R.id.article_img_view_caption) {
+            if (url != null) {
+                displayImageCaption(url, m_content);
+            }
+            return true;
         }
+        Log.d(TAG, "onImageMenuItemSelected, unhandled id=" + item.getItemId());
+        return false;
     }
 }

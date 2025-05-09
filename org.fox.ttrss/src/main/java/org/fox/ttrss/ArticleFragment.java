@@ -6,13 +6,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -29,10 +28,12 @@ import android.webkit.WebView.HitTestResult;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.text.HtmlCompat;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Attachment;
@@ -43,13 +44,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import icepick.State;
-
-public class ArticleFragment extends StateSavedFragment  {
+public class ArticleFragment extends androidx.fragment.app.Fragment  {
 	private final String TAG = this.getClass().getSimpleName();
 
 	private SharedPreferences m_prefs;
-	@State protected Article m_article;
+    protected Article m_article;
 	private DetailActivity m_activity;
     private WebView m_web;
     protected View m_customView;
@@ -155,6 +154,15 @@ public class ArticleFragment extends StateSavedFragment  {
 
 	}
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            m_article = savedInstanceState.getParcelable("m_article");
+        }
+    }
+
 	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
@@ -171,7 +179,6 @@ public class ArticleFragment extends StateSavedFragment  {
             view.findViewById(R.id.article_scrollview).setVisibility(View.INVISIBLE);
         } */
 
-        m_contentView = view.findViewById(R.id.article_scrollview);
         m_customViewContainer = view.findViewById(R.id.article_fullscreen_video);
 
         /* if (m_article.id == HeadlinesFragment.ARTICLE_SPECIAL_TOP_CHANGED) {
@@ -185,7 +192,7 @@ public class ArticleFragment extends StateSavedFragment  {
             return view;
         } */
 
-        m_articleFontSize = Integer.parseInt(m_prefs.getString("article_font_size_sp", "16"));
+        m_articleFontSize = m_prefs.getInt("article_font_size_sp_int", 16);
         m_articleSmallFontSize = Math.max(10, Math.min(18, m_articleFontSize - 2));
 
         TextView title = view.findViewById(R.id.title);
@@ -217,97 +224,6 @@ public class ArticleFragment extends StateSavedFragment  {
 
         }
 
-        final ImageView scoreView = view.findViewById(R.id.score);
-
-        if (scoreView != null) {
-            setScoreImage(scoreView, m_article.score);
-
-            Resources.Theme theme = m_activity.getTheme();
-            TypedValue tv = new TypedValue();
-            theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tv, true);
-            int titleHighScoreUnreadColor = tv.data;
-
-            if (m_article.score > Article.SCORE_HIGH)
-                scoreView.setColorFilter(titleHighScoreUnreadColor);
-            else
-                scoreView.setColorFilter(null);
-
-            if (m_activity.getApiLevel() >= 16) {
-                scoreView.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final EditText edit = new EditText(getActivity());
-                        edit.setText(String.valueOf(m_article.score));
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                                .setTitle(R.string.score_for_this_article)
-                                .setPositiveButton(R.string.set_score,
-                                        new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(DialogInterface dialog,
-                                                                int which) {
-
-                                                try {
-                                                    int newScore = Integer.parseInt(edit.getText().toString());
-
-                                                    m_article.score = newScore;
-
-                                                    m_activity.saveArticleScore(m_article);
-
-                                                    setScoreImage(scoreView, newScore);
-                                                } catch (NumberFormatException e) {
-                                                    m_activity.toast(R.string.score_invalid);
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        })
-                                .setNegativeButton(getString(R.string.cancel),
-                                        new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(DialogInterface dialog,
-                                                                int which) {
-
-                                                //
-
-                                            }
-                                        }).setView(edit);
-
-                        Dialog dialog = builder.create();
-                        dialog.show();
-                    }
-                });
-            }
-        }
-
-        ImageView attachments = view.findViewById(R.id.attachments);
-
-        if (attachments != null) {
-            if (m_article.attachments != null && m_article.attachments.size() > 0) {
-                attachments.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        m_activity.displayAttachments(m_article);
-                    }
-                });
-
-            } else {
-                attachments.setVisibility(View.GONE);
-            }
-        }
-
-        ImageView share = view.findViewById(R.id.share);
-
-        if (share != null) {
-            share.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    m_activity.shareArticle(m_article);
-                }
-            });
-        }
-
         TextView comments = view.findViewById(R.id.comments);
 
         if (comments != null) {
@@ -337,31 +253,17 @@ public class ArticleFragment extends StateSavedFragment  {
             }
         }
 
-        TextView host = view.findViewById(R.id.host);
-        if (host != null) {
-            try {
-                URL inurl = new URL(m_article.site_url != null ? m_article.site_url : m_article.comments_link);
-                URL outurl = new URL(m_article.link);
-                String inhost = inurl.getHost();
-                String outhost = outurl.getHost();
-                if (!inhost.equals(outhost)) {
-                    host.setText(outhost.replaceFirst("^www\\.", ""));
-                    host.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
-                    host.setVisibility(View.VISIBLE);
-                }
-            } catch (MalformedURLException ignored) {}
-        }
-
         TextView note = view.findViewById(R.id.note);
+        View noteContainer = view.findViewById(R.id.note_container);
 
-        if (note != null) {
-            if (m_article.note != null && !"".equals(m_article.note)) {
+        if (note != null && noteContainer != null) {
+            if (m_article.note != null && m_article.note.length() > 0) {
                 note.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
                 note.setText(m_article.note);
+                noteContainer.setVisibility(View.VISIBLE);
             } else {
-                note.setVisibility(View.GONE);
+                noteContainer.setVisibility(View.GONE);
             }
-
         }
 
         TextView dv = view.findViewById(R.id.date);
@@ -446,7 +348,7 @@ public class ArticleFragment extends StateSavedFragment  {
         return view;
 	}
 
-    private void setScoreImage(ImageView scoreView, int score) {
+    private void setScoreImage(MaterialButton scoreView, int score) {
         TypedValue tv = new TypedValue();
         int scoreAttr = R.attr.ic_action_trending_flat;
 
@@ -457,7 +359,10 @@ public class ArticleFragment extends StateSavedFragment  {
 
         m_activity.getTheme().resolveAttribute(scoreAttr, tv, true);
 
-        scoreView.setImageResource(tv.resourceId);
+        scoreView.setIconResource(tv.resourceId);
+
+        TypedValue tvPrimary = new TypedValue();
+        m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
     }
 
     protected void renderContent(Bundle savedInstanceState) {
@@ -468,41 +373,29 @@ public class ArticleFragment extends StateSavedFragment  {
         WebSettings ws = m_web.getSettings();
         ws.setSupportZoom(false);
 
-        TypedValue tvBackground = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.articleBackground, tvBackground, true);
-
-        String backgroundHexColor = String.format("#%06X", (0xFFFFFF & tvBackground.data));
-
-        String cssOverride = "";
-
-        cssOverride = "body { background : "+ backgroundHexColor+"; }";
-
         TypedValue tvTextColor = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.articleTextColor, tvTextColor, true);
+        getActivity().getTheme().resolveAttribute(R.attr.colorOnSurface, tvTextColor, true);
 
         String textColor = String.format("#%06X", (0xFFFFFF & tvTextColor.data));
 
-        cssOverride += "body { color : "+textColor+"; }";
+        String cssOverride = "body { color : "+textColor+"; }";
 
-        TypedValue tvLinkColor = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.linkColor, tvLinkColor, true);
+        TypedValue tvColorPrimary = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, tvColorPrimary, true);
 
-        String linkHexColor = String.format("#%06X", (0xFFFFFF & tvLinkColor.data));
+        String linkHexColor = String.format("#%06X", (0xFFFFFF & tvColorPrimary.data));
         cssOverride += " a:link {color: "+linkHexColor+";} a:visited { color: "+linkHexColor+";}";
 
         String articleContent = m_article.content != null ? m_article.content : "";
 
-        ws.setJavaScriptEnabled(true);
+        ws.setJavaScriptEnabled(false);
 
         m_chromeClient = new FSVideoChromeClient(getView());
         m_web.setWebChromeClient(m_chromeClient);
+        m_web.setBackgroundColor(Color.TRANSPARENT);
 
         ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         ws.setMediaPlaybackRequiresUserGesture(true);
-
-        if (m_activity.isUiNightMode()) {
-            m_web.setBackgroundColor(Color.BLACK);
-        }
 
         if (m_prefs.getBoolean("justify_article_text", true)) {
             cssOverride += "body { text-align : justify; } ";
@@ -512,12 +405,14 @@ public class ArticleFragment extends StateSavedFragment  {
 
         ws.setDefaultFontSize(m_articleFontSize);
 
+        int margin8dp = CommonActivity.dpToPx(getContext(), 8);
+
         StringBuilder content = new StringBuilder("<html>" +
                 "<head>" +
                 "<meta content=\"text/html; charset=utf-8\" http-equiv=\"content-type\">" +
                 "<meta name=\"viewport\" content=\"width=device-width, user-scalable=no\" />" +
                 "<style type=\"text/css\">" +
-                "body { padding : 0px; margin : 0px; line-height : 1.3; word-wrap: break-word; }" +
+                "body { padding : 0px; margin : "+margin8dp+"px; line-height : 1.3; word-wrap: break-word; }" +
                 "h1, h2, h3, h4, h5, h6 { line-height: 1; text-align: initial; }" +
                 "img, video, iframe { max-width : 100%; width : auto; height : auto; }" +
                 " table { width : 100%; }" +
@@ -628,4 +523,11 @@ public class ArticleFragment extends StateSavedFragment  {
 		m_activity = (DetailActivity)activity;
 
 	}
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putParcelable("m_article", m_article);
+    }
 }

@@ -1,0 +1,72 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/headlines"
+    android:fitsSystemWindows="true"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:id="@+id/sw600dp_anchor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:orientation="horizontal" >
+
+        <com.google.android.material.navigation.NavigationView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/navigation_view"
+            android:background="?colorSurfaceContainer"
+            android:layout_width="0dp"
+            android:layout_weight="0.3"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            app:shapeAppearance="@style/ShapeAppearanceHeadlinesTablet"
+            android:layout_gravity="start">
+
+        <FrameLayout
+            android:id="@+id/headlines_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+        </FrameLayout>
+
+        </com.google.android.material.navigation.NavigationView>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="0dp"
+            android:layout_weight="0.7"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include layout="@layout/toolbar" android:id="@+id/toolbar" />
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:id="@+id/article_fragment"
+                app:layout_behavior=".util.DetailActivityScrollingViewBehavior"
+                android:layout_height="match_parent"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/detail_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:visibility="gone"
+                android:src="@drawable/baseline_open_in_browser_24"
+                android:layout_margin="16dp" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </LinearLayout>
+
+</LinearLayout>

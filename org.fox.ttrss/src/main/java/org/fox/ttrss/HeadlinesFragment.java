@@ -2,14 +2,12 @@ package org.fox.ttrss;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.res.Resources.Theme;
+import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
@@ -44,18 +42,17 @@ import android.view.WindowManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,6 +66,9 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 
@@ -87,14 +87,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
-import icepick.State;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
-public class HeadlinesFragment extends StateSavedFragment {
+public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	public enum ArticlesSelection { ALL, NONE, UNREAD }
 
@@ -105,23 +102,23 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 	private final String TAG = this.getClass().getSimpleName();
 
-	@State Feed m_feed;
-	@State Article m_activeArticle;
-	@State String m_searchQuery = "";
+	Feed m_feed;
+	Article m_activeArticle;
+	String m_searchQuery = "";
 	private boolean m_refreshInProgress = false;
-	@State int m_firstId = 0;
-	@State boolean m_lazyLoadDisabled = false;
+	int m_firstId = 0;
+	boolean m_lazyLoadDisabled = false;
 
 	private SharedPreferences m_prefs;
 
 	private HeaderViewRecyclerAdapter m_adapter;
-	@State ArticleList m_articles = new ArticleList();
+	ArticleList m_articles = new ArticleList();
 	private ArticleList m_readArticles = new ArticleList();
 	private HeadlinesEventListener m_listener;
 	private OnlineActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
 	private int m_maxImageSize = 0;
-	@State boolean m_compactLayoutMode = false;
+	boolean m_compactLayoutMode = false;
     private RecyclerView m_list;
 	private LinearLayoutManager m_layoutManager;
 
@@ -159,68 +156,66 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 		if (article == null) return false;
 
-		switch (item.getItemId()) {
-			case R.id.set_labels:
-				m_activity.editArticleLabels(article);
-				return true;
-			case R.id.article_set_note:
-				m_activity.editArticleNote(article);
-				return true;
-			case R.id.headlines_article_unread:
-				article.unread = !article.unread;
-				m_activity.saveArticleUnread(article);
-				m_adapter.notifyItemChanged(position);
-				return true;
-			case R.id.headlines_article_link_copy:
-				m_activity.copyToClipboard(article.link);
-				return true;
-			case R.id.headlines_article_link_open:
-				m_activity.openUri(Uri.parse(article.link));
+        int itemId = item.getItemId();
+        if (itemId == R.id.set_labels) {
+            m_activity.editArticleLabels(article);
+            return true;
+        } else if (itemId == R.id.article_set_note) {
+            m_activity.editArticleNote(article);
+            return true;
+        } else if (itemId == R.id.headlines_article_unread) {
+            article.unread = !article.unread;
+            m_activity.saveArticleUnread(article);
+            m_adapter.notifyItemChanged(position);
+            return true;
+        } else if (itemId == R.id.headlines_article_link_copy) {
+            m_activity.copyToClipboard(article.link);
+            return true;
+        } else if (itemId == R.id.headlines_article_link_open) {
+            m_activity.openUri(Uri.parse(article.link));
 
-				if (article.unread) {
-					article.unread = false;
-					m_activity.saveArticleUnread(article);
+            if (article.unread) {
+                article.unread = false;
+                m_activity.saveArticleUnread(article);
 
-					m_adapter.notifyItemChanged(position);
-				}
-				return true;
-			case R.id.headlines_share_article:
-				m_activity.shareArticle(article);
-				return true;
-			case R.id.catchup_above:
-				if (true) {
+                m_adapter.notifyItemChanged(position);
+            }
+            return true;
+        } else if (itemId == R.id.headlines_share_article) {
+            m_activity.shareArticle(article);
+            return true;
+        } else if (itemId == R.id.catchup_above) {
+            if (true) {
 
-					final Article fa = article;
+                final Article fa = article;
 
-					AlertDialog.Builder builder = new AlertDialog.Builder(
-							m_activity)
-							.setMessage(R.string.confirm_catchup_above)
-							.setPositiveButton(R.string.dialog_ok,
-									new Dialog.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-															int which) {
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                        .setMessage(R.string.confirm_catchup_above)
+                        .setPositiveButton(R.string.dialog_ok,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-											catchupAbove(fa);
+                                        catchupAbove(fa);
 
-										}
-									})
-							.setNegativeButton(R.string.dialog_cancel,
-									new Dialog.OnClickListener() {
-										public void onClick(DialogInterface dialog,
-															int which) {
+                                    }
+                                })
+                        .setNegativeButton(R.string.dialog_cancel,
+                                new Dialog.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
 
-										}
-									});
+                                    }
+                                });
 
-					AlertDialog dialog = builder.create();
-					dialog.show();
-				}
-				return true;
-			default:
-				Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
-				return false;
-		}
-	}
+                Dialog dialog = builder.create();
+                dialog.show();
+            }
+            return true;
+        }
+        Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
+        return false;
+    }
 
 	private void catchupAbove(Article article) {
 		ArticleList articles = getAllArticles();
@@ -283,9 +278,46 @@ public class HeadlinesFragment extends StateSavedFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		if (savedInstanceState != null) {
+			m_feed = savedInstanceState.getParcelable("m_feed");
+			m_activeArticle = savedInstanceState.getParcelable("m_activeArticle");
+			m_searchQuery = savedInstanceState.getString("m_searchQuery");
+			m_firstId = savedInstanceState.getInt("m_firstId");
+			m_lazyLoadDisabled = savedInstanceState.getBoolean("m_lazyLoadDisabled");
+
+			/*ArrayList<Article> list = savedInstanceState.getParcelableArrayList("m_articles");
+
+			m_articles.clear(); // ?
+			m_articles.addAll(list);*/
+
+			ArticleList tmp = Application.getInstance().tmpArticleList;
+
+			if (tmp != null) {
+				m_articles.clear();
+				m_articles.addAll(Application.getInstance().tmpArticleList);
+			}
+
+			savedInstanceState.getBoolean("m_compactLayoutMode", m_compactLayoutMode);
+		}
+
 		setRetainInstance(true);
 
 		Glide.get(getContext()).clearMemory();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+
+		out.putParcelable("m_feed", m_feed);
+		out.putParcelable("m_activeArticle", m_activeArticle);
+		out.putString("m_searchQuery", m_searchQuery);
+		out.putInt("m_firstId", m_firstId);
+		out.putBoolean("m_lazyLoadDisabled", m_lazyLoadDisabled);
+		//out.putParcelable("m_articles", m_articles);
+		out.putBoolean("m_compactLayoutMode", m_compactLayoutMode);
+
+		Application.getInstance().tmpArticleList = m_articles;
 	}
 
 	@Override
@@ -325,7 +357,13 @@ public class HeadlinesFragment extends StateSavedFragment {
 		m_layoutManager = new LinearLayoutManager(m_activity.getApplicationContext());
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
-		m_list.addItemDecoration(new DividerItemDecoration(m_list.getContext(), m_layoutManager.getOrientation()));
+
+		if (m_compactLayoutMode) {
+			MaterialDividerItemDecoration materialDivider = new MaterialDividerItemDecoration(m_list.getContext(), m_layoutManager.getOrientation());
+			materialDivider.setDividerInsetStart(dpToPx(80));
+
+			m_list.addItemDecoration(materialDivider);
+		}
 
 		ArticleListAdapter adapter = new ArticleListAdapter(getActivity(), R.layout.headlines_row, m_articles);
 
@@ -701,16 +739,16 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 		public TextView titleView;
 		public TextView feedTitleView;
-		public ImageView markedView;
-		public ImageView scoreView;
-		public ImageView publishedView;
+		public MaterialButton markedView;
+		public MaterialButton scoreView;
+		public MaterialButton publishedView;
 		public TextView excerptView;
 		public ImageView flavorImageView;
 		public ImageView flavorVideoKindView;
 		public TextView authorView;
 		public TextView dateView;
 		public CheckBox selectionBoxView;
-		public ImageView menuButtonView;
+		public MaterialButton menuButtonView;
 		public ViewGroup flavorImageHolder;
 		public ProgressBar flavorImageLoadingBar;
         public View headlineFooter;
@@ -719,7 +757,7 @@ public class HeadlinesFragment extends StateSavedFragment {
 		public View headlineHeader;
 		public View flavorImageOverflow;
 		public TextureView flavorVideoView;
-		public ImageView attachmentsView;
+		public MaterialButton attachmentsView;
 		//public int position;
 		public boolean flavorImageEmbedded;
 		public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
@@ -815,14 +853,12 @@ public class HeadlinesFragment extends StateSavedFragment {
 		public static final int VIEW_COUNT = VIEW_AMR_FOOTER + 1;
 
 		private final Integer[] origTitleColors = new Integer[VIEW_COUNT];
-		private final int titleHighScoreUnreadColor;
 
         private ColorGenerator m_colorGenerator = ColorGenerator.DEFAULT;
         private TextDrawable.IBuilder m_drawableBuilder = TextDrawable.builder().round();
 
 		boolean flavorImageEnabled;
 		private int m_minimumHeightToEmbed;
-		boolean m_youtubeInstalled;
 		private int m_screenHeight;
 		private int m_lastAddedPosition;
 
@@ -859,19 +895,6 @@ public class HeadlinesFragment extends StateSavedFragment {
 			flavorImageEnabled = "HL_DEFAULT".equals(headlineMode) || "HL_COMPACT".equals(headlineMode);
 
 			m_cmgr = (ConnectivityManager) m_activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-			Theme theme = context.getTheme();
-			TypedValue tv = new TypedValue();
-			theme.resolveAttribute(R.attr.headlineTitleHighScoreUnreadTextColor, tv, true);
-			titleHighScoreUnreadColor = tv.data;
-
-			List<ApplicationInfo> packages = m_activity.getPackageManager().getInstalledApplications(0);
-			for (ApplicationInfo pi : packages) {
-				if (pi.packageName.equals("com.google.android.youtube")) {
-					m_youtubeInstalled = true;
-					break;
-				}
-			}
 		}
 
 		@Override
@@ -887,13 +910,13 @@ public class HeadlinesFragment extends StateSavedFragment {
 					layoutId = R.layout.headlines_row_loadmore;
 					break;
 				case VIEW_UNREAD:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_unread_compact : R.layout.headlines_row_unread;
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_unread : R.layout.headlines_row_unread;
 					break;
 				case VIEW_SELECTED:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_compact : R.layout.headlines_row;
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected : R.layout.headlines_row;
 					break;
 				case VIEW_SELECTED_UNREAD:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_selected_unread_compact : R.layout.headlines_row_unread;
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected_unread : R.layout.headlines_row_unread;
 					break;
 			}
 
@@ -908,7 +931,7 @@ public class HeadlinesFragment extends StateSavedFragment {
 		public void onBindViewHolder(final ArticleViewHolder holder, int position) {
 			holder.article = items.get(position);
 
-			int headlineFontSize = Integer.parseInt(m_prefs.getString("headlines_font_size_sp", "13"));
+			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
 			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
 
 			final Article article = holder.article;
@@ -1007,19 +1030,23 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 			}
 
-			TypedValue tvAccent = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorAccent, tvAccent, true);
+			TypedValue tvTertiary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
+
+			TypedValue tvPrimary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
 
 			if (holder.markedView != null) {
 				TypedValue tv = new TypedValue();
 				m_activity.getTheme().resolveAttribute(article.marked ? R.attr.ic_star : R.attr.ic_star_outline, tv, true);
 
-				holder.markedView.setImageResource(tv.resourceId);
+				holder.markedView.setIconResource(tv.resourceId);
+
 
 				if (article.marked)
-					holder.markedView.setColorFilter(tvAccent.data);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
-					holder.markedView.setColorFilter(null);
+					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.markedView.setOnClickListener(new OnClickListener() {
 
@@ -1045,12 +1072,12 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 				m_activity.getTheme().resolveAttribute(scoreAttr, tv, true);
 
-				holder.scoreView.setImageResource(tv.resourceId);
+				holder.scoreView.setIconResource(tv.resourceId);
 
 				if (article.score > Article.SCORE_HIGH)
-					holder.scoreView.setColorFilter(titleHighScoreUnreadColor);
+					holder.scoreView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
-					holder.scoreView.setColorFilter(null);
+					holder.scoreView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				if (m_activity.getApiLevel() >= 16) {
 					holder.scoreView.setOnClickListener(new OnClickListener() {
@@ -1059,7 +1086,7 @@ public class HeadlinesFragment extends StateSavedFragment {
 							final EditText edit = new EditText(getActivity());
 							edit.setText(String.valueOf(article.score));
 
-							AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+							MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
 									.setTitle(R.string.score_for_this_article)
 									.setPositiveButton(R.string.set_score,
 											new DialogInterface.OnClickListener() {
@@ -1103,14 +1130,14 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 			if (holder.publishedView != null) {
 				TypedValue tv = new TypedValue();
-				m_activity.getTheme().resolveAttribute(article.published ? R.attr.ic_checkbox_marked : R.attr.ic_rss_box, tv, true);
+				m_activity.getTheme().resolveAttribute(R.attr.ic_rss_box, tv, true);
 
-				holder.publishedView.setImageResource(tv.resourceId);
+				holder.publishedView.setIconResource(tv.resourceId);
 
 				if (article.published)
-					holder.publishedView.setColorFilter(tvAccent.data);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
 				else
-					holder.publishedView.setColorFilter(null);
+					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.publishedView.setOnClickListener(new OnClickListener() {
 
@@ -1182,7 +1209,6 @@ public class HeadlinesFragment extends StateSavedFragment {
 				holder.flavorVideoKindView.setVisibility(View.GONE);
 				holder.flavorImageOverflow.setVisibility(View.GONE);
 				holder.flavorVideoView.setVisibility(View.GONE);
-				holder.headlineHeader.setBackgroundDrawable(null);
 
 				Glide.clear(holder.flavorImageView);
 
@@ -1224,26 +1250,25 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 										Uri mediaUri = Uri.parse(article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri);
 
-										switch (item.getItemId()) {
-											case R.id.article_img_open:
-												m_activity.openUri(mediaUri);
-												return true;
-											case R.id.article_img_copy:
-												m_activity.copyToClipboard(mediaUri.toString());
-												return true;
-											case R.id.article_img_share:
-												m_activity.shareImageFromUri(mediaUri.toString());
-												return true;
-											case R.id.article_img_share_url:
-												m_activity.shareText(mediaUri.toString());
-												return true;
-											case R.id.article_img_view_caption:
-												m_activity.displayImageCaption(article.flavorImageUri, article.content);
-												return true;
-											default:
-												return false;
-										}
-									}
+                                        int itemId = item.getItemId();
+                                        if (itemId == R.id.article_img_open) {
+                                            m_activity.openUri(mediaUri);
+                                            return true;
+                                        } else if (itemId == R.id.article_img_copy) {
+                                            m_activity.copyToClipboard(mediaUri.toString());
+                                            return true;
+                                        } else if (itemId == R.id.article_img_share) {
+                                            m_activity.shareImageFromUri(mediaUri.toString());
+                                            return true;
+                                        } else if (itemId == R.id.article_img_share_url) {
+                                            m_activity.shareText(mediaUri.toString());
+                                            return true;
+                                        } else if (itemId == R.id.article_img_view_caption) {
+                                            m_activity.displayImageCaption(article.flavorImageUri, article.content);
+                                            return true;
+                                        }
+                                        return false;
+                                    }
 								});
 
 								popup.show();
@@ -1263,24 +1288,15 @@ public class HeadlinesFragment extends StateSavedFragment {
 					//Log.d(TAG, "TAG:" + holder.flavorImageOverflow.getTag());
 
 					holder.flavorImageView.setVisibility(View.VISIBLE);
+					holder.flavorImageView.setMaxHeight((int)(m_screenHeight * 0.6f));
 
-					holder.flavorImageView.setMaxHeight((int)(m_screenHeight * 0.8f));
-					holder.flavorProgressTarget.setModel(article.flavorImageUri);
-
+					// prevent lower listiew entries from jumping around if this row is modified
 					if (article.flavorViewHeight > 0) {
-						RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
+						FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
 						lp.height = article.flavorViewHeight;
-						holder.flavorImageView.setLayoutParams(lp);
 					}
 
-
-					/*	TODO: maybe an option? force height for all images to reduce list jumping around
-
-						RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-						lp.height = (int)(m_screenHeight * 0.5f);
-						lp.addRule(RelativeLayout.BELOW, R.id.headline_header);
-						holder.flavorImageView.setLayoutParams(lp);
-					*/
+					holder.flavorProgressTarget.setModel(article.flavorImageUri);
 
 					try {
 
@@ -1306,16 +1322,9 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 										if (resource.getIntrinsicWidth() > FLAVOR_IMG_MIN_SIZE && resource.getIntrinsicHeight() > FLAVOR_IMG_MIN_SIZE) {
 
-											//holder.flavorImageView.setVisibility(View.VISIBLE);
+											holder.flavorImageView.setVisibility(View.VISIBLE);
 											holder.flavorImageOverflow.setVisibility(View.VISIBLE);
 
-											boolean forceDown = !m_activity.isSmallScreen() || article.flavorImage != null && "video".equals(article.flavorImage.tagName().toLowerCase());
-
-											RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-											lp.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-											holder.flavorImageView.setLayoutParams(lp);
-
-											maybeRepositionFlavorImage(holder.flavorImageView, resource, holder, forceDown);
 											adjustVideoKindView(holder, article);
 
 											return false;
@@ -1607,20 +1616,7 @@ public class HeadlinesFragment extends StateSavedFragment {
 			//Log.d(TAG, "openGalleryForType: " + article + " " + holder + " " + transitionView);
 
 			if ("iframe".equals(article.flavorImage.tagName().toLowerCase())) {
-
-				if (m_youtubeInstalled) {
-					Intent intent = new Intent(m_activity, YoutubePlayerActivity.class);
-					intent.putExtra("streamUri", article.flavorStreamUri);
-					intent.putExtra("vid", article.youtubeVid);
-					intent.putExtra("title", article.title);
-
-					startActivity(intent);
-					m_activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-
-				} else {
-					m_activity.openUri(Uri.parse(article.flavorStreamUri));
-				}
-
+				m_activity.openUri(Uri.parse(article.flavorStreamUri));
 			} else {
 
 				Intent intent = new Intent(m_activity, GalleryActivity.class);
@@ -1664,13 +1660,10 @@ public class HeadlinesFragment extends StateSavedFragment {
 		private void adjustVideoKindView(ArticleViewHolder holder, Article article) {
 			if (article.flavorImage != null) {
 				if (article.flavor_kind == Article.FLAVOR_KIND_YOUTUBE || "iframe".equals(article.flavorImage.tagName().toLowerCase())) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_youtube_play);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_outline_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else if (article.flavor_kind == Article.FLAVOR_KIND_VIDEO || "video".equals(article.flavorImage.tagName().toLowerCase())) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_play_circle);
-					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
-				} else if (article.flavor_kind == Article.FLAVOR_KIND_ALBUM ||article.mediaList.size() > 1) {
-					holder.flavorVideoKindView.setImageResource(R.drawable.ic_image_album);
+					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else {
 					holder.flavorVideoKindView.setVisibility(View.INVISIBLE);
@@ -1678,48 +1671,6 @@ public class HeadlinesFragment extends StateSavedFragment {
 			} else {
 				holder.flavorVideoKindView.setVisibility(View.INVISIBLE);
 			}
-		}
-
-		public int pxToDp(int px) {
-			DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-			int dp = Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-			return dp;
-		}
-
-		public int dpToPx(int dp) {
-			DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-			int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-			return px;
-		}
-
-		private void maybeRepositionFlavorImage(View view, GlideDrawable resource, ArticleViewHolder holder, boolean forceDown) {
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
-
-			int w = resource.getIntrinsicWidth();
-			int h = resource.getIntrinsicHeight();
-			float r = h != 0 ? (float)w/h : 0;
-
-			//Log.d(TAG, "XYR: " + pxToDp(w) + " " + pxToDp(h) + " " + r);
-
-			if (forceDown || h < m_minimumHeightToEmbed || r >= 1) {
-
-				lp.addRule(RelativeLayout.BELOW, R.id.headline_header);
-
-				holder.headlineHeader.setBackgroundDrawable(null);
-				holder.flavorImageEmbedded = false;
-
-			} else {
-				lp.addRule(RelativeLayout.BELOW, 0);
-
-				TypedValue tv = new TypedValue();
-				if (m_activity.getTheme().resolveAttribute(R.attr.headlineHeaderBackground, tv, true)) {
-					holder.headlineHeader.setBackgroundColor(tv.data);
-				}
-
-				holder.flavorImageEmbedded = true;
-			}
-
-			view.setLayoutParams(lp);
 		}
 
 		private void adjustTitleTextView(int score, TextView tv, int position) {
@@ -1730,9 +1681,6 @@ public class HeadlinesFragment extends StateSavedFragment {
 
 			if (score < Article.SCORE_LOW) {
 				tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-			} else if (score > Article.SCORE_HIGH) {
-				tv.setTextColor(titleHighScoreUnreadColor);
-				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 			} else {
 				tv.setTextColor(origTitleColors[viewType].intValue());
 				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
@@ -1874,7 +1822,19 @@ public class HeadlinesFragment extends StateSavedFragment {
         m_adapter.notifyDataSetChanged();
     }
 
-    @Override
+	public int pxToDp(int px) {
+		DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+		int dp = Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+		return dp;
+	}
+
+	public int dpToPx(int dp) {
+		DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+		return px;
+	}
+
+	@Override
 	public void onPause() {
 		super.onPause();
 

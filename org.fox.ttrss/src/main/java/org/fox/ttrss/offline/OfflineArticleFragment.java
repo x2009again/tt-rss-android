@@ -43,6 +43,8 @@ import java.util.Date;
 
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
+
 public class OfflineArticleFragment extends Fragment {
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -127,26 +129,25 @@ public class OfflineArticleFragment extends Fragment {
 	public boolean onContextItemSelected(MenuItem item) {
 		/* AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo(); */
-		
-		switch (item.getItemId()) {
-		case R.id.article_link_share:
-			m_activity.shareArticle(m_articleId);
-			return true;
-		case R.id.article_link_copy:
-			if (true) {
-				Cursor article = m_activity.getArticleById(m_articleId);
-				
-				if (article != null) {				
-					m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
-					article.close();
-				}
-			}
-			return true;
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.article_link_share) {
+            m_activity.shareArticle(m_articleId);
+            return true;
+        } else if (itemId == R.id.article_link_copy) {
+            if (true) {
+                Cursor article = m_activity.getArticleById(m_articleId);
+
+                if (article != null) {
+                    m_activity.copyToClipboard(article.getString(article.getColumnIndex("link")));
+                    article.close();
+                }
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -198,7 +199,6 @@ public class OfflineArticleFragment extends Fragment {
 		m_cursor.moveToFirst();
 		
 		if (m_cursor.isFirst()) {
-			m_contentView = view.findViewById(R.id.article_scrollview);
 			m_customViewContainer = view.findViewById(R.id.article_fullscreen_video);
 
             final String link = m_cursor.getString(m_cursor.getColumnIndex("link"));
@@ -235,19 +235,19 @@ public class OfflineArticleFragment extends Fragment {
 
 			}
 
-			ImageView score = view.findViewById(R.id.score);
+			/* MaterialButton score = view.findViewById(R.id.score);
 
 			if (score != null) {
 				score.setVisibility(View.GONE);
 			}
 
-			ImageView attachments = view.findViewById(R.id.attachments);
+			MaterialButton attachments = view.findViewById(R.id.attachments);
 
 			if (attachments != null) {
 				attachments.setVisibility(View.GONE);
 			}
 
-			ImageView share = view.findViewById(R.id.share);
+			MaterialButton share = view.findViewById(R.id.share);
 
 			if (share != null) {
 				share.setOnClickListener(new OnClickListener() {
@@ -256,15 +256,14 @@ public class OfflineArticleFragment extends Fragment {
 						m_activity.shareArticle(m_articleId);
 					}
 				});
-			}
-
+			} */
 
 			TextView comments = view.findViewById(R.id.comments);
 			
 			if (comments != null) {
 				comments.setVisibility(View.GONE);
 			}
-			
+
 			TextView note = view.findViewById(R.id.note);
 			
 			if (note != null) {
@@ -274,10 +273,6 @@ public class OfflineArticleFragment extends Fragment {
 			m_web = view.findViewById(R.id.article_content);
 			
 			if (m_web != null) {
-
-				if (m_activity.isUiNightMode()) {
-					m_web.setBackgroundColor(Color.BLACK);
-				}
 
 				m_web.setWebViewClient(new WebViewClient() {
 					@Override
@@ -311,19 +306,16 @@ public class OfflineArticleFragment extends Fragment {
                 });
 
                 String content;
-                String cssOverride = "";
 
                 WebSettings ws = m_web.getSettings();
                 ws.setSupportZoom(false);
+				ws.setJavaScriptEnabled(false);
 
-				if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-					ws.setJavaScriptEnabled(true);
+				m_chromeClient = new FSVideoChromeClient(getView());
+				m_web.setWebChromeClient(m_chromeClient);
+				m_web.setBackgroundColor(Color.TRANSPARENT);
 
-					m_chromeClient = new FSVideoChromeClient(getView());
-					m_web.setWebChromeClient(m_chromeClient);
-
-					ws.setMediaPlaybackRequiresUserGesture(true);
-				}
+				ws.setMediaPlaybackRequiresUserGesture(true);
 
 				// we need to show "insecure" file:// urls
 				if (m_prefs.getBoolean("offline_image_cache_enabled", false) &&
@@ -332,24 +324,17 @@ public class OfflineArticleFragment extends Fragment {
 					ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 				}
 
-                TypedValue tvBackground = new TypedValue();
-                getActivity().getTheme().resolveAttribute(R.attr.articleBackground, tvBackground, true);
-
-                String backgroundHexColor = String.format("#%06X", (0xFFFFFF & tvBackground.data));
-
-                cssOverride = "body { background : "+ backgroundHexColor+"; }";
-
                 TypedValue tvTextColor = new TypedValue();
-                getActivity().getTheme().resolveAttribute(R.attr.articleTextColor, tvTextColor, true);
+                getActivity().getTheme().resolveAttribute(R.attr.colorOnSurface, tvTextColor, true);
 
                 String textColor = String.format("#%06X", (0xFFFFFF & tvTextColor.data));
 
-                cssOverride += "body { color : "+textColor+"; }";
+                String cssOverride = "body { color : "+textColor+"; }";
 
-                TypedValue tvLinkColor = new TypedValue();
-                getActivity().getTheme().resolveAttribute(R.attr.linkColor, tvLinkColor, true);
+                TypedValue tvColorPrimary = new TypedValue();
+                getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, tvColorPrimary, true);
 
-                String linkHexColor = String.format("#%06X", (0xFFFFFF & tvLinkColor.data));
+                String linkHexColor = String.format("#%06X", (0xFFFFFF & tvColorPrimary.data));
                 cssOverride += " a:link {color: "+linkHexColor+";} a:visited { color: "+linkHexColor+";}";
 
 				String articleContent = m_cursor.getString(m_cursor.getColumnIndex("content"));

@@ -136,7 +136,7 @@ public class OfflineArticlePager extends Fragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
-		View view = inflater.inflate(R.layout.article_pager, container, false);
+		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 	
 		if (savedInstanceState != null) {
 			m_articleId = savedInstanceState.getInt("articleId", 0);

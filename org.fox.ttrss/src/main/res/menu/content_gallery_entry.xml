@@ -7,16 +7,19 @@
     <item
         android:id="@+id/article_img_copy"
         app:showAsAction=""
-        android:icon="@drawable/ic_content_copy"
+        app:iconTint="?attr/colorControlNormal"
+        android:icon="@drawable/baseline_content_copy_24"
         android:title="@string/article_link_copy"/>
     <item
         android:id="@+id/article_img_share"
-        android:icon="@drawable/ic_share"
+        android:icon="@drawable/baseline_share_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction=""
         android:title="@string/img_share_image"/>
     <item
         android:id="@+id/article_img_share_url"
-        android:icon="@drawable/ic_share"
+        android:icon="@drawable/baseline_share_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction=""
         android:title="@string/img_share_url"/>
     <item

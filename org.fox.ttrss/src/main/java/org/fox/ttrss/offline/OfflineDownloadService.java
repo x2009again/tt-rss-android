@@ -116,7 +116,7 @@ public class OfflineDownloadService extends Service {
                 .setContentTitle(getString(R.string.notify_downloading_title))
                 .setContentIntent(contentIntent)
                 .setWhen(System.currentTimeMillis())
-				.setSmallIcon(R.drawable.ic_cloud_download)
+				.setSmallIcon(R.drawable.baseline_cloud_download_24)
                 .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),
                         R.drawable.ic_launcher))
                 .setOngoing(!isError)
@@ -124,20 +124,17 @@ public class OfflineDownloadService extends Service {
 
 		if (showProgress) builder.setProgress(max, progress, max == 0);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		intent = new Intent(this, OnlineActivity.class);
+		intent.setAction(INTENT_ACTION_CANCEL);
 
-			intent = new Intent(this, OnlineActivity.class);
-			intent.setAction(INTENT_ACTION_CANCEL);
+		PendingIntent cancelIntent = PendingIntent.getActivity(this, PI_CANCEL, intent, PendingIntent.FLAG_IMMUTABLE);
 
-			PendingIntent cancelIntent = PendingIntent.getActivity(this, PI_CANCEL, intent, PendingIntent.FLAG_IMMUTABLE);
-
-            builder.setCategory(Notification.CATEGORY_PROGRESS)
-                    .setVibrate(new long[0])
-                    .setVisibility(Notification.VISIBILITY_PUBLIC)
-                    .setColor(0x88b0f0)
-                    .setGroup("org.fox.ttrss")
-					.addAction(R.drawable.ic_launcher, getString(R.string.cancel), cancelIntent);
-        }
+		builder.setCategory(Notification.CATEGORY_PROGRESS)
+				.setVibrate(new long[0])
+				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+				.setColor(0x88b0f0)
+				.setGroup("org.fox.ttrss")
+				.addAction(R.drawable.ic_launcher, getString(R.string.cancel), cancelIntent);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			builder.setChannelId(CommonActivity.NOTIFICATION_CHANNEL_NORMAL);
@@ -182,7 +179,7 @@ public class OfflineDownloadService extends Service {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			builder.setCategory(Notification.CATEGORY_MESSAGE)
 					.setVibrate(new long[0])
-					.setVisibility(Notification.VISIBILITY_PUBLIC)
+					.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 					.setColor(0x88b0f0)
 					.setGroup("org.fox.ttrss");
 		}

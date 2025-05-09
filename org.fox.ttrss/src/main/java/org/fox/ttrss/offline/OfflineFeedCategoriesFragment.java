@@ -92,37 +92,36 @@ public class OfflineFeedCategoriesFragment extends BaseFeedlistFragment implemen
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-		
-		switch (item.getItemId()) {
-		case R.id.browse_headlines:
-			if (true) {
-				int catId = getCatIdAtPosition(info.position);
-				if (catId != -10000) {
-					m_activity.onCatSelected(catId, true);
-				}
-			}
-			return true;
-		case R.id.browse_feeds:
-			if (true) {
-				int catId = getCatIdAtPosition(info.position);
-				if (catId != -10000) {
-					m_activity.onCatSelected(catId, false);
-				}
-			}
-			return true;
-		case R.id.catchup_category:
-			if (true) {
-				int catId = getCatIdAtPosition(info.position);
-				if (catId != -10000) {
-					m_activity.catchupFeed(catId, true);
-				}
-			}
-			return true;	
-		default:
-			Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-			return super.onContextItemSelected(item);
-		}
-	}
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.browse_headlines) {
+            if (true) {
+                int catId = getCatIdAtPosition(info.position);
+                if (catId != -10000) {
+                    m_activity.onCatSelected(catId, true);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.browse_feeds) {
+            if (true) {
+                int catId = getCatIdAtPosition(info.position);
+                if (catId != -10000) {
+                    m_activity.onCatSelected(catId, false);
+                }
+            }
+            return true;
+        } else if (itemId == R.id.catchup_category) {
+            if (true) {
+                int catId = getCatIdAtPosition(info.position);
+                if (catId != -10000) {
+                    m_activity.catchupFeed(catId, true);
+                }
+            }
+            return true;
+        }
+        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+        return super.onContextItemSelected(item);
+    }
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	

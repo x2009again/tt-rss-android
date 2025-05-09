@@ -1,9 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion "30.0.2"
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -12,20 +9,22 @@ android {
     defaultConfig {
         applicationId "org.fox.ttrss"
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
-        buildConfigField "boolean", "ENABLE_UPDATER", "false"
         minSdkVersion 24
+        //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 31
-        versionCode 557
-        versionName "1.322"
+        compileSdk 35
+        versionCode 560
+        versionName getVersion()
+        vectorDrawables.useSupportLibrary = true
     }
 
     signingConfigs {
-        fdroid {
-            if (project.hasProperty("FDROID_STORE_FILE")) {
-                storeFile file(FDROID_STORE_FILE)
-                storePassword FDROID_STORE_PASSWORD
-                keyAlias FDROID_KEY_ALIAS
-                keyPassword FDROID_KEY_PASSWORD
+        signed {
+            if (project.hasProperty("SIGNING_STORE_FILE")) {
+                storeFile file(SIGNING_STORE_FILE)
+                storePassword SIGNING_STORE_PASSWORD
+                keyAlias SIGNING_KEY_ALIAS
+                keyPassword SIGNING_KEY_PASSWORD
             }
         }
     }
@@ -42,19 +41,66 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
 
-        fdroid {
+        signed {
             minifyEnabled  false
-            versionNameSuffix "-fdroid"
+            versionNameSuffix "-signed"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            buildConfigField "boolean", "ENABLE_UPDATER", "true"
-            signingConfig signingConfigs.fdroid
+            signingConfig signingConfigs.signed
             matchingFallbacks = ['release']
         }
     }
+    namespace 'org.fox.ttrss'
+    buildFeatures {
+        buildConfig true
+    }
+}
+
+def getGitTimestamp() {
+    // gitlab CI iso-8601 timestamp
+    if (System.getenv("CI_COMMIT_TIMESTAMP")) {
+        return Date.parse("yyyy-MM-dd'T'HH:mm:ssXXX", System.getenv("CI_COMMIT_TIMESTAMP")).format('YY.MM')
+    }
+
+    // try to get version from git repo in current dir
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', '--no-pager', 'log', '--pretty=%ct', '-n1', 'HEAD'
+            standardOutput = stdout
+        }
+
+        return new Date(stdout.toString().trim().toLong() * 1000).format('YY.MM')
+    }
+    catch (ignored) {
+        return 0;
+    }
+
+}
+
+def getGitCommitHash() {
+    // gitlab CI
+    if (System.getenv("CI_COMMIT_SHORT_SHA"))
+        return System.getenv("CI_COMMIT_SHORT_SHA");
+
+    // try to get version from git repo in current dir
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', '--no-pager', 'log', '--pretty=%h', '-n1', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        return 'UNKNOWN';
+    }
+}
+
+def getVersion() {
+    return getGitTimestamp() + '-' + getGitCommitHash();
 }
 
 dependencies {
-    implementation files('libs/dashclock-api-r1.1.jar')
     implementation 'com.squareup.okhttp3:okhttp:3.12.5'
     implementation('com.github.bumptech.glide:okhttp3-integration:1.5.0') {
         exclude group: 'glide-parent'
@@ -63,22 +109,25 @@ dependencies {
     implementation 'com.bogdwellers:pinchtozoom:0.1'
     implementation 'com.github.bumptech.glide:glide:3.8.0'
     implementation files('libs/glide-transformations-2.0.2.jar')
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.activity:activity:1.10.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'androidx.browser:browser:1.4.0'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat-resources:1.7.0'
+    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.3.0'
     implementation 'com.github.natario1:NestedScrollCoordinatorLayout:5a33a7dbd8'
-    implementation 'com.google.android.material:material:1.6.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32@aar'
     implementation 'me.relex:circleindicator:1.2.2@aar'
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation 'com.github.amulyakhare:TextDrawable:558677ea31'
-    implementation 'frankiesardo:icepick:3.2.0'
-    compileOnly 'frankiesardo:icepick-processor:3.2.0'
-    annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
-    implementation 'com.github.livefront:bridge:v1.1.1'
-    implementation files('libs/YouTubeAndroidPlayerApi.jar')
-    implementation 'com.github.javiersantos:AppUpdater:2.7'
+    implementation 'com.telefonica:nestedscrollwebview:0.1.6'
+    implementation 'androidx.preference:preference:1.2.1'
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
