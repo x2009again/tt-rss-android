@@ -1,6 +1,5 @@
 package org.fox.ttrss.share;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;

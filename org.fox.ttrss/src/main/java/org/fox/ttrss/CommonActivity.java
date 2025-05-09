@@ -3,7 +3,6 @@ package org.fox.ttrss;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
