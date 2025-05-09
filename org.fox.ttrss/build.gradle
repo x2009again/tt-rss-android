@@ -13,7 +13,7 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 31
         compileSdk 35
-        versionCode 559
+        versionCode 560
         versionName getVersion()
         vectorDrawables.useSupportLibrary = true
     }
