@@ -931,7 +931,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public void onBindViewHolder(final ArticleViewHolder holder, int position) {
 			holder.article = items.get(position);
 
-			int headlineFontSize = Integer.parseInt(m_prefs.getString("headlines_font_size_sp", "13"));
+			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
 			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
 
 			final Article article = holder.article;

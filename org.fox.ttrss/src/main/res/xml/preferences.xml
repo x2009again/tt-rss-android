@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:title="@string/connection" >
         <EditTextPreference
@@ -37,20 +38,20 @@
             android:key="theme"
             android:title="@string/pref_theme" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="sort_feeds_by_unread"
             android:title="@string/sort_feeds_by_unread" />
-        <!-- <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <!-- <SwitchPreference
             android:defaultValue="false"
             android:key="download_feed_icons"
             android:title="@string/download_feed_icons" /> -->
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="enable_cats"
             android:title="@string/enable_cats" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:dependency="enable_cats"
             android:key="browse_cats_like_feeds"
@@ -64,7 +65,7 @@
             android:key="open_on_startup"
             android:title="@string/open_on_startup" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="force_phone_layout"
             android:summary="@string/force_phone_layout_summary"
@@ -75,10 +76,12 @@
         android:key="category_headlines"
         android:title="@string/headlines" >
 
-        <org.fox.ttrss.util.FontSizeDialogPreference
-            android:defaultValue="13"
-            android:key="headlines_font_size_sp"
-            android:dialogMessage="@string/pref_headline_font_size"
+        <SeekBarPreference
+            app:defaultValue="13"
+            app:min="12"
+            android:max="21"
+            app:showSeekBarValue="true"
+            app:key="headlines_font_size_sp_int"
             android:title="@string/pref_headline_font_size" />
 
         <ListPreference
@@ -89,35 +92,29 @@
             android:summary="@string/prefs_headline_display_mode_long"
             android:title="@string/prefs_headline_display_mode" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="headline_images_wifi_only"
             android:summary="@string/prefs_headline_images_wifi_only_long"
             android:title="@string/prefs_headline_images_wifi_only" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="headlines_show_content"
             android:title="@string/pref_headlines_show_content" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:key="headlines_mark_read_scroll"
             android:title="@string/pref_headlines_mark_read_scroll" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:dependency="headlines_mark_read_scroll"
             android:key="headlines_swipe_to_dismiss"
             android:summary="@string/pref_headlines_swipe_to_dismiss_long"
             android:title="@string/pref_headlines_swipe_to_dismiss" />
-
-        <!-- <org.fox.ttrss.util.LessBrokenSwitchPreference
-            android:defaultValue="false"
-            android:key="enable_condensed_fonts"
-            android:summary="@string/pref_headlines_use_condensed_fonts_long"
-            android:title="@string/pref_headlines_use_condensed_fonts" /> -->
 
         <ListPreference
             android:defaultValue="15"
@@ -127,20 +124,20 @@
             android:summary="@string/prefs_headline_request_size_long"
             android:title="@string/prefs_headline_request_size" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="enable_image_downsampling"
             android:title="@string/prefs_enable_image_downsampling"
             android:summary="@string/prefs_enable_image_downsampling_long" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="always_downsample_images"
             android:dependency="enable_image_downsampling"
             android:title="@string/prefs_always_downsample_images"
             android:summary="@string/prefs_always_downsample_images_long" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="inline_video_player"
             android:summary="@string/prefs_inline_video_player"
@@ -149,37 +146,39 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/reading" >
-        <org.fox.ttrss.util.FontSizeDialogPreference
-            android:defaultValue="16"
-            android:key="article_font_size_sp"
-            android:inputType="number"
+        <SeekBarPreference
+            app:defaultValue="16"
+            app:min="12"
+            android:max="32"
+            app:showSeekBarValue="true"
+            app:key="article_font_size_sp_int"
             android:title="@string/pref_font_size" />
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="justify_article_text"
             android:title="@string/justify_article_text" />
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="use_volume_keys"
             android:summary="@string/use_volume_keys_long"
             android:title="@string/use_volume_keys" />
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="enable_article_fab"
             android:summary="@string/prefs_enable_fab_long"
             android:title="@string/prefs_enable_fab" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_opening_links" >
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="enable_custom_tabs"
             android:summary="@string/prefs_custom_tabs_summary"
             android:title="@string/prefs_use_custom_tabs" />
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="custom_tabs_ask_always"
             android:title="@string/ask_me_every_time" />
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="always_open_uri"
             android:summary="@string/prefs_always_open_uri_summary"
@@ -194,12 +193,12 @@
             android:summary="@string/offline_articles_to_download_long"
             android:title="@string/offline_articles_to_download" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="offline_sort_by_feed"
             android:title="@string/prefs_offline_sort_by_feed" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="offline_image_cache_enabled"
             android:summary="@string/offline_media_cache_enabled_summary"
@@ -221,7 +220,7 @@
             android:key="widget_background"
             android:title="@string/pref_widget_background" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="widget_show_fresh"
             android:title="@string/prefs_widget_show_fresh"
@@ -233,7 +232,7 @@
             android:key="show_logcat"
             android:title="@string/logcat_title" />
 
-        <org.fox.ttrss.util.LessBrokenSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="transport_debugging"
             android:title="@string/transport_debugging" />

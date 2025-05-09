@@ -662,8 +662,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
             final ArticleViewHolder holder;
 
 			final int articleId = article.getInt(0);
-			
-			int headlineFontSize = Integer.parseInt(m_prefs.getString("headlines_font_size_sp", "13"));
+
+			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
 			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
 			
 			if (v == null) {

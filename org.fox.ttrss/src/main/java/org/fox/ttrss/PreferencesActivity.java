@@ -5,6 +5,7 @@ import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
 
 public class PreferencesActivity extends CommonActivity {
 	@Override
@@ -26,7 +27,7 @@ public class PreferencesActivity extends CommonActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
-            android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
             ft.replace(R.id.preferences_container, new PreferencesFragment());
             ft.commit();

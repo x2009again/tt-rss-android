@@ -1,15 +1,14 @@
 package org.fox.ttrss;
 
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
 
-public class NetworkPreferencesFragment extends PreferenceFragment {
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceFragmentCompat;
+
+public class NetworkPreferencesFragment extends PreferenceFragmentCompat {
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Load the preferences from an XML resource
-        addPreferencesFromResource(R.xml.preferences_network);
+    public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+        setPreferencesFromResource(R.xml.preferences_network, rootKey);
     }
 }
