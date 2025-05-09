@@ -39,7 +39,6 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="0dp"
             android:layout_weight="0.75"
-            android:elevation="4dp"
             android:layout_height="match_parent">
 
             <com.google.android.material.appbar.AppBarLayout
@@ -56,8 +55,6 @@
                     android:layout_width="match_parent"
                     android:background="?colorSurfaceContainer"
                     android:minHeight="?attr/actionBarSize"/>
-
-
             </com.google.android.material.appbar.AppBarLayout>
 
             <FrameLayout
