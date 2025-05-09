@@ -38,20 +38,17 @@
             android:key="theme"
             android:title="@string/pref_theme" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="sort_feeds_by_unread"
             android:title="@string/sort_feeds_by_unread" />
-        <!-- <SwitchPreference
-            android:defaultValue="false"
-            android:key="download_feed_icons"
-            android:title="@string/download_feed_icons" /> -->
-        <SwitchPreference
+
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="enable_cats"
             android:title="@string/enable_cats" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:dependency="enable_cats"
             android:key="browse_cats_like_feeds"
@@ -65,7 +62,7 @@
             android:key="open_on_startup"
             android:title="@string/open_on_startup" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="force_phone_layout"
             android:summary="@string/force_phone_layout_summary"
@@ -92,24 +89,24 @@
             android:summary="@string/prefs_headline_display_mode_long"
             android:title="@string/prefs_headline_display_mode" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="headline_images_wifi_only"
             android:summary="@string/prefs_headline_images_wifi_only_long"
             android:title="@string/prefs_headline_images_wifi_only" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="headlines_show_content"
             android:title="@string/pref_headlines_show_content" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:key="headlines_mark_read_scroll"
             android:title="@string/pref_headlines_mark_read_scroll" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:dependency="headlines_mark_read_scroll"
             android:key="headlines_swipe_to_dismiss"
@@ -124,20 +121,20 @@
             android:summary="@string/prefs_headline_request_size_long"
             android:title="@string/prefs_headline_request_size" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="enable_image_downsampling"
             android:title="@string/prefs_enable_image_downsampling"
             android:summary="@string/prefs_enable_image_downsampling_long" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="always_downsample_images"
             android:dependency="enable_image_downsampling"
             android:title="@string/prefs_always_downsample_images"
             android:summary="@string/prefs_always_downsample_images_long" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="inline_video_player"
             android:summary="@string/prefs_inline_video_player"
@@ -153,32 +150,32 @@
             app:showSeekBarValue="true"
             app:key="article_font_size_sp_int"
             android:title="@string/pref_font_size" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="justify_article_text"
             android:title="@string/justify_article_text" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="use_volume_keys"
             android:summary="@string/use_volume_keys_long"
             android:title="@string/use_volume_keys" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="enable_article_fab"
             android:summary="@string/prefs_enable_fab_long"
             android:title="@string/prefs_enable_fab" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_opening_links" >
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="enable_custom_tabs"
             android:summary="@string/prefs_custom_tabs_summary"
             android:title="@string/prefs_use_custom_tabs" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="custom_tabs_ask_always"
             android:title="@string/ask_me_every_time" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="always_open_uri"
             android:summary="@string/prefs_always_open_uri_summary"
@@ -193,12 +190,12 @@
             android:summary="@string/offline_articles_to_download_long"
             android:title="@string/offline_articles_to_download" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="offline_sort_by_feed"
             android:title="@string/prefs_offline_sort_by_feed" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="offline_image_cache_enabled"
             android:summary="@string/offline_media_cache_enabled_summary"
@@ -220,7 +217,7 @@
             android:key="widget_background"
             android:title="@string/pref_widget_background" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="widget_show_fresh"
             android:title="@string/prefs_widget_show_fresh"
@@ -232,7 +229,7 @@
             android:key="show_logcat"
             android:title="@string/logcat_title" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="transport_debugging"
             android:title="@string/transport_debugging" />

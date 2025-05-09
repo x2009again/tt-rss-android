@@ -24,7 +24,7 @@
             <com.google.android.material.card.MaterialCardView
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:strokeWidth="0dp"
-                app:shapeAppearance="@style/shape_appearance_article_header"
+                app:shapeAppearance="@style/ShapeAppearanceArticleHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
