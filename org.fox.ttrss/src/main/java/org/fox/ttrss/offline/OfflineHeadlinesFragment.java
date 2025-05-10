@@ -135,8 +135,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 
 		getActivity().getMenuInflater().inflate(R.menu.context_headlines, menu);
 
-		menu.findItem(R.id.set_labels).setVisible(false);
-		menu.findItem(R.id.article_set_note).setVisible(false);
+		menu.findItem(R.id.article_set_labels).setVisible(false);
+		menu.findItem(R.id.article_edit_note).setVisible(false);
 
 		if (m_prefs.getBoolean("offline_sort_by_feed", false)) {
 			menu.findItem(R.id.catchup_above).setVisible(false);
@@ -1037,8 +1037,8 @@ public class OfflineHeadlinesFragment extends Fragment implements OnItemClickLis
 						MenuInflater inflater = popup.getMenuInflater();
 						inflater.inflate(R.menu.context_headlines, popup.getMenu());
 
-						popup.getMenu().findItem(R.id.set_labels).setVisible(false);
-						popup.getMenu().findItem(R.id.article_set_note).setVisible(false);
+						popup.getMenu().findItem(R.id.article_set_labels).setVisible(false);
+						popup.getMenu().findItem(R.id.article_edit_note).setVisible(false);
 
 						popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 							@Override

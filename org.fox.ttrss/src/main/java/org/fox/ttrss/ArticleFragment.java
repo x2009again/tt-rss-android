@@ -39,6 +39,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+// TODO: add ability to update already rendered contents from article somehow (to refresh note, etc)
 public class ArticleFragment extends androidx.fragment.app.Fragment  {
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -335,8 +336,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                 }
             }
         });
-
-        m_web.setVisibility(View.VISIBLE);
 
         renderContent(savedInstanceState);
 

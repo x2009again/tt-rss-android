@@ -1,0 +1,38 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/article_set_score"
+        app:showAsAction="always"
+        app:iconTint="?attr/colorControlNormal"
+        android:icon="@drawable/baseline_trending_flat_24"
+        android:title="@string/set_score"/>
+
+    <item
+        android:id="@+id/toggle_unread"
+        android:icon="@drawable/baseline_email_24"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always"
+        android:title="@string/article_toggle_unread"/>
+
+    <item
+        android:id="@+id/article_set_labels"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_new_label_24"
+        app:iconTint="?attr/colorControlNormal"
+        android:title="@string/article_set_labels"/>
+
+    <item
+        android:id="@+id/article_edit_note"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_note_add_24"
+        app:iconTint="?attr/colorControlNormal"
+        android:title="@string/article_edit_note"/>
+
+    <item
+        android:id="@+id/toggle_attachments"
+        android:icon="@drawable/baseline_attachment_24"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always"
+        android:title="@string/attachments_prompt"/>
+
+</menu>

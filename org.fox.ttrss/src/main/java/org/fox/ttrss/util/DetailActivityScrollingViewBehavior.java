@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class DetailActivityScrollingViewBehavior extends AppBarLayout.ScrollingV
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, View child, View dependency) {
         return super.layoutDependsOn(parent, child, dependency) ||
-                dependency instanceof FloatingActionButton;
+                dependency instanceof FloatingActionButton || dependency instanceof BottomAppBar;
     }
 
     @Override
@@ -54,6 +55,8 @@ public class DetailActivityScrollingViewBehavior extends AppBarLayout.ScrollingV
                 for (View view : dependencies) {
                     if (view instanceof FloatingActionButton) {
                         ((FloatingActionButton) view).hide();
+                    } else if (view instanceof BottomAppBar) {
+                        ((BottomAppBar) view).performHide();
                     }
                 }
             } else if (dy < 0) {
@@ -62,6 +65,8 @@ public class DetailActivityScrollingViewBehavior extends AppBarLayout.ScrollingV
                 for (View view : dependencies) {
                     if (view instanceof FloatingActionButton) {
                         ((FloatingActionButton) view).show();
+                    } else if (view instanceof BottomAppBar) {
+                        ((BottomAppBar) view).performShow();
                     }
                 }
             }

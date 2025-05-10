@@ -14,12 +14,12 @@
 
     <com.otaliastudios.nestedscrollcoordinatorlayout.NestedScrollCoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:background="?colorSurfaceContainer"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.card.MaterialCardView
                 app:layout_scrollFlags="scroll|enterAlways"
@@ -150,7 +150,7 @@
             android:id="@+id/article_content"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
 
     </com.otaliastudios.nestedscrollcoordinatorlayout.NestedScrollCoordinatorLayout>
 

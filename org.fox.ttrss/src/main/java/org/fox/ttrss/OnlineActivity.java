@@ -550,7 +550,7 @@ public class OnlineActivity extends CommonActivity {
 		/*case R.id.go_offline:
 			switchOffline();
 			return true;*/
-        } else if (itemId == R.id.article_set_note) {
+        } else if (itemId == R.id.article_edit_note) {
             if (ap != null && ap.getSelectedArticle() != null) {
                 editArticleNote(ap.getSelectedArticle());
             }
@@ -859,7 +859,7 @@ public class OnlineActivity extends CommonActivity {
 
             }
             return true;
-        } else if (itemId == R.id.set_labels) {
+        } else if (itemId == R.id.article_set_labels) {
             if (ap != null && ap.getSelectedArticle() != null) {
                 if (getApiLevel() != 7) {
                     editArticleLabels(ap.getSelectedArticle());
@@ -937,27 +937,24 @@ public class OnlineActivity extends CommonActivity {
 	} */
 
 	public void editArticleNote(final Article article) {
-		String note = "";
-
 		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 			.setTitle(article.title);
 
 		final EditText topicEdit = new EditText(this);
-		topicEdit.setText(note);
+		topicEdit.setText(article.note);
 		builder.setView(topicEdit);
 		
-		builder.setPositiveButton(R.string.article_set_note, new Dialog.OnClickListener() {
+		builder.setPositiveButton(R.string.article_edit_note, new Dialog.OnClickListener() {
 	        public void onClick(DialogInterface dialog, int which) {
 	        	String note = topicEdit.getText().toString().trim();
 	        	
 	        	saveArticleNote(article, note);
-	        	article.published = true;	
-	        	article.note = note;
-	        	
-	        	saveArticlePublished(article);
-	        	
+
 	        	HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 	        	if (hf != null) hf.notifyUpdated();
+
+				ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+				if (ap != null) ap.notifyUpdated();
 	        }
 	    });
 		
@@ -1130,7 +1127,7 @@ public class OnlineActivity extends CommonActivity {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
 				//toast(R.string.article_set_unread);
-				initMenu();
+				invalidateOptionsMenu();
 			}
 		};
 
@@ -1204,7 +1201,7 @@ public class OnlineActivity extends CommonActivity {
 	public void saveArticleNote(final Article article, final String note) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
-				//
+				article.note = note;
 			}
 		};
 
@@ -1413,64 +1410,54 @@ public class OnlineActivity extends CommonActivity {
 	}
 	
 	// this may be called after activity has been destroyed (i.e. long asynctask)
-	// might as well prevent null pointers if menu items are missing
 	protected void initMenu() {
-		try {
-			if (m_menu != null) {
-				if (getSessionId() != null) {
-					m_menu.setGroupVisible(R.id.menu_group_logged_in, true);
-					m_menu.setGroupVisible(R.id.menu_group_logged_out, false);
-				} else {
-					m_menu.setGroupVisible(R.id.menu_group_logged_in, false);
-					m_menu.setGroupVisible(R.id.menu_group_logged_out, true);
-				}
+		if (m_menu != null) {
+			if (getSessionId() != null) {
+				m_menu.setGroupVisible(R.id.menu_group_logged_in, true);
+				m_menu.setGroupVisible(R.id.menu_group_logged_out, false);
+			} else {
+				m_menu.setGroupVisible(R.id.menu_group_logged_in, false);
+				m_menu.setGroupVisible(R.id.menu_group_logged_out, true);
+			}
 
-				m_menu.setGroupVisible(R.id.menu_group_headlines, false);
-				m_menu.setGroupVisible(R.id.menu_group_article, false);
-				m_menu.setGroupVisible(R.id.menu_group_feeds, false);
+			m_menu.setGroupVisible(R.id.menu_group_headlines, false);
+			m_menu.setGroupVisible(R.id.menu_group_article, false);
+			m_menu.setGroupVisible(R.id.menu_group_feeds, false);
 
-				m_menu.findItem(R.id.set_labels).setEnabled(getApiLevel() >= 1);
-				m_menu.findItem(R.id.article_set_note).setEnabled(getApiLevel() >= 1);
-				m_menu.findItem(R.id.subscribe_to_feed).setEnabled(getApiLevel() >= 5);
+			m_menu.findItem(R.id.subscribe_to_feed).setEnabled(getApiLevel() >= 5);
 
-				MenuItem search = m_menu.findItem(R.id.search);
-				search.setEnabled(getApiLevel() >= 2);
+			MenuItem search = m_menu.findItem(R.id.search);
+			search.setEnabled(getApiLevel() >= 2);
 
-				ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+			ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
-				if (ap != null) {
-					Article article = ap.getSelectedArticle();
+			if (ap != null) {
+				Article article = ap.getSelectedArticle();
 
-					if (article != null) {
-						m_menu.findItem(R.id.toggle_marked).setIcon(article.marked ? R.drawable.baseline_star_24 :
-								R.drawable.baseline_star_outline_24);
+				if (article != null) {
+					m_menu.findItem(R.id.toggle_marked).setIcon(article.marked ? R.drawable.baseline_star_24 :
+							R.drawable.baseline_star_outline_24);
 
-						m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.baseline_check_box_24 :
-								R.drawable.baseline_rss_feed_24);
-
-						m_menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_mark_as_unread_24 :
-								R.drawable.baseline_email_24);
-					}
-				}
-
-				HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-
-				if (hf != null && !m_forceDisableActionMode) {
-					if (hf.getSelectedArticles().size() > 0) {
-						if (m_headlinesActionMode == null) {
-							m_headlinesActionMode = startSupportActionMode(m_headlinesActionModeCallback);
-						}
-
-						m_headlinesActionMode.setTitle(String.valueOf(hf.getSelectedArticles().size()));
-					} else if (hf.getSelectedArticles().size() == 0 && m_headlinesActionMode != null) {
-						m_headlinesActionMode.finish();
-					}
-				} else if (m_forceDisableActionMode && m_headlinesActionMode != null) {
-					m_headlinesActionMode.finish();
+					m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.baseline_check_box_24 :
+							R.drawable.baseline_rss_feed_24);
 				}
 			}
-		} catch (NullPointerException e) {
-			e.printStackTrace();
+
+			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+
+			if (hf != null && !m_forceDisableActionMode) {
+				if (hf.getSelectedArticles().size() > 0) {
+					if (m_headlinesActionMode == null) {
+						m_headlinesActionMode = startSupportActionMode(m_headlinesActionModeCallback);
+					}
+
+					m_headlinesActionMode.setTitle(String.valueOf(hf.getSelectedArticles().size()));
+				} else if (hf.getSelectedArticles().size() == 0 && m_headlinesActionMode != null) {
+					m_headlinesActionMode.finish();
+				}
+			} else if (m_forceDisableActionMode && m_headlinesActionMode != null) {
+				m_headlinesActionMode.finish();
+			}
 		}
 	}
 	

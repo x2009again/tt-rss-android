@@ -157,10 +157,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		if (article == null) return false;
 
         int itemId = item.getItemId();
-        if (itemId == R.id.set_labels) {
+        if (itemId == R.id.article_set_labels) {
             m_activity.editArticleLabels(article);
             return true;
-        } else if (itemId == R.id.article_set_note) {
+        } else if (itemId == R.id.article_edit_note) {
             m_activity.editArticleNote(article);
             return true;
         } else if (itemId == R.id.headlines_article_unread) {
@@ -268,8 +268,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		getActivity().getMenuInflater().inflate(R.menu.context_headlines, menu);
 
-		menu.findItem(R.id.set_labels).setEnabled(m_activity.getApiLevel() >= 1);
-		menu.findItem(R.id.article_set_note).setEnabled(m_activity.getApiLevel() >= 1);
+		menu.findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
+		menu.findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
 
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
@@ -1531,8 +1531,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						MenuInflater inflater = popup.getMenuInflater();
 						inflater.inflate(R.menu.context_headlines, popup.getMenu());
 
-						popup.getMenu().findItem(R.id.set_labels).setEnabled(m_activity.getApiLevel() >= 1);
-						popup.getMenu().findItem(R.id.article_set_note).setEnabled(m_activity.getApiLevel() >= 1);
+						popup.getMenu().findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
+						popup.getMenu().findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
 
 						popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 							@Override

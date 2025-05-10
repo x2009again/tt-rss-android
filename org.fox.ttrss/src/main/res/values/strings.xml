@@ -106,7 +106,7 @@
     <string name="dialog_offline_sync_in_progress">Offline sync in progress</string>
     <string name="dialog_offline_sync_stop">Stop syncing</string>
     <string name="dialog_offline_sync_continue">Continue</string>
-    <string name="article_set_note">Publish with note</string>
+    <string name="article_edit_note">Edit note</string>
     <string name="dialog_open_preferences">Settings</string>
     <string name="dialog_need_configure_prompt">Please fill in your tt-rss server information such as URL, login, and password.</string>
     <!-- <string name="update_headlines">Refresh</string> -->
