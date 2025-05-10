@@ -58,12 +58,12 @@
                 android:id="@+id/toggle_published"
                 android:icon="@drawable/baseline_rss_feed_24"
                 app:iconTint="?attr/colorControlNormal"
-                app:showAsAction="ifRoom"
                 android:title="@string/article_toggle_published"/>
             <item
                 android:id="@+id/toggle_unread"
                 android:icon="@drawable/baseline_email_24"
                 app:iconTint="?attr/colorControlNormal"
+                app:showAsAction="ifRoom"
                 android:title="@string/article_toggle_unread"/>
             <item
                 android:id="@+id/toggle_attachments"
