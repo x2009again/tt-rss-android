@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +14,6 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -138,7 +135,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		m_pager.setAdapter(m_adapter);
 		m_pager.setOffscreenPageLimit(3);
 
-		m_pager.setCurrentItem(position);
+		m_pager.setCurrentItem(position, false);
 		m_pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 			@Override
 			public void onPageSelected(int position) {
@@ -195,7 +192,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				if (isDetached() || !isAdded()) return;
 
 				if (!append) {
-					m_pager.setCurrentItem(0);
+					m_pager.setCurrentItem(0, false);
 					m_articles.clear();
 				}
 
