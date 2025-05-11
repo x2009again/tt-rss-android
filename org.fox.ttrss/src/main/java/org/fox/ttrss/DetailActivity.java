@@ -119,17 +119,21 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 		FloatingActionButton fab = findViewById(R.id.detail_fab);
 
-		if (fab != null && m_prefs.getBoolean("enable_article_fab", true)) {
-			fab.show();
+		if (fab != null) {
+			if (m_prefs.getBoolean("enable_article_fab", true)) {
+				fab.show();
 
-			fab.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (m_activeArticle != null) {
-						openUri(Uri.parse(m_activeArticle.link));
+				fab.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						if (m_activeArticle != null) {
+							openUri(Uri.parse(m_activeArticle.link));
+						}
 					}
-				}
-			});
+				});
+			} else {
+				fab.hide();
+			}
 		}
 
         if (savedInstanceState == null) {

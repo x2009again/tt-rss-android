@@ -48,26 +48,26 @@ public class DetailActivityScrollingViewBehavior extends AppBarLayout.ScrollingV
                                   @NonNull int[] consumed, int type) {
         super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type);
 
-        if (m_prefs.getBoolean("enable_article_fab", true)) {
-            if (dy > 0) {
-                // User scrolled down -> hide the FAB
-                List<View> dependencies = coordinatorLayout.getDependencies(child);
-                for (View view : dependencies) {
-                    if (view instanceof FloatingActionButton) {
-                        ((FloatingActionButton) view).hide();
-                    } else if (view instanceof BottomAppBar) {
-                        ((BottomAppBar) view).performHide();
-                    }
+        boolean enableFab = m_prefs.getBoolean("enable_article_fab", true);
+
+        if (dy > 0) {
+            // User scrolled down -> hide the FAB
+            List<View> dependencies = coordinatorLayout.getDependencies(child);
+            for (View view : dependencies) {
+                if (view instanceof FloatingActionButton) {
+                    ((FloatingActionButton) view).hide();
+                } else if (view instanceof BottomAppBar) {
+                    ((BottomAppBar) view).performHide();
                 }
-            } else if (dy < 0) {
-                // User scrolled up -> show the FAB
-                List<View> dependencies = coordinatorLayout.getDependencies(child);
-                for (View view : dependencies) {
-                    if (view instanceof FloatingActionButton) {
-                        ((FloatingActionButton) view).show();
-                    } else if (view instanceof BottomAppBar) {
-                        ((BottomAppBar) view).performShow();
-                    }
+            }
+        } else if (dy < 0) {
+            // User scrolled up -> show the FAB
+            List<View> dependencies = coordinatorLayout.getDependencies(child);
+            for (View view : dependencies) {
+                if (enableFab && view instanceof FloatingActionButton) {
+                    ((FloatingActionButton) view).show();
+                } else if (view instanceof BottomAppBar) {
+                    ((BottomAppBar) view).performShow();
                 }
             }
         }
