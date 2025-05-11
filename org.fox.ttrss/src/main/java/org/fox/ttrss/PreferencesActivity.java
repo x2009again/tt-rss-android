@@ -1,7 +1,7 @@
 package org.fox.ttrss;
 
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
