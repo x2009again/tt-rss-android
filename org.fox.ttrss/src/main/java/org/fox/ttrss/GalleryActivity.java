@@ -3,7 +3,6 @@ package org.fox.ttrss;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -14,12 +13,8 @@ import android.view.Window;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -51,7 +46,7 @@ public class GalleryActivity extends CommonActivity {
     protected String m_title;
     private ArticleImagesPagerAdapter m_adapter;
     public String m_content;
-    private ViewPager m_pager;
+    private ViewPager m_pager; // TODO replace with viewpager2
     private ProgressBar m_checkProgress;
 
     private static class ArticleImagesPagerAdapter extends FragmentStatePagerAdapter {

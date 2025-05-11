@@ -1,5 +1,7 @@
 package org.fox.ttrss;
 
+import static org.fox.ttrss.ApiCommon.ApiError;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,8 +9,6 @@ import android.os.AsyncTask;
 import com.google.gson.JsonElement;
 
 import java.util.HashMap;
-
-import static org.fox.ttrss.ApiCommon.ApiError;
 
 public class ApiRequest extends AsyncTask<HashMap<String,String>, Integer, JsonElement> implements ApiCommon.ApiCaller {
 	private final String TAG = this.getClass().getSimpleName();

@@ -2,13 +2,13 @@ package org.fox.ttrss;
 
 import android.content.Context;
 
+import androidx.loader.content.AsyncTaskLoader;
+
 import com.google.gson.JsonElement;
 
 import org.fox.ttrss.ApiCommon.ApiError;
 
 import java.util.HashMap;
-
-import androidx.loader.content.AsyncTaskLoader;
 
 public class ApiLoader extends AsyncTaskLoader<JsonElement> implements ApiCommon.ApiCaller {
 	private final String TAG = this.getClass().getSimpleName();

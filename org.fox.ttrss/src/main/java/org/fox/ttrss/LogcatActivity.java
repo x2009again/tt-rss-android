@@ -7,7 +7,6 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -25,7 +24,6 @@ public class LogcatActivity extends CommonActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
-        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         setTheme(R.style.AppTheme);
 
         super.onCreate(savedInstanceState);

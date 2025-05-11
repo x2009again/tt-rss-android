@@ -68,7 +68,6 @@ import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 
@@ -157,10 +156,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		if (article == null) return false;
 
         int itemId = item.getItemId();
-        if (itemId == R.id.set_labels) {
+        if (itemId == R.id.article_set_labels) {
             m_activity.editArticleLabels(article);
             return true;
-        } else if (itemId == R.id.article_set_note) {
+        } else if (itemId == R.id.article_edit_note) {
             m_activity.editArticleNote(article);
             return true;
         } else if (itemId == R.id.headlines_article_unread) {
@@ -268,8 +267,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		getActivity().getMenuInflater().inflate(R.menu.context_headlines, menu);
 
-		menu.findItem(R.id.set_labels).setEnabled(m_activity.getApiLevel() >= 1);
-		menu.findItem(R.id.article_set_note).setEnabled(m_activity.getApiLevel() >= 1);
+		menu.findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
+		menu.findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
 
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
@@ -358,12 +357,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
 
-		if (m_compactLayoutMode) {
+		/* if (m_compactLayoutMode) {
 			MaterialDividerItemDecoration materialDivider = new MaterialDividerItemDecoration(m_list.getContext(), m_layoutManager.getOrientation());
 			materialDivider.setDividerInsetStart(dpToPx(80));
 
 			m_list.addItemDecoration(materialDivider);
-		}
+		} */
 
 		ArticleListAdapter adapter = new ArticleListAdapter(getActivity(), R.layout.headlines_row, m_articles);
 
@@ -795,7 +794,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			menuButtonView = v.findViewById(R.id.article_menu_button);
 			flavorImageHolder = v.findViewById(R.id.flavorImageHolder);
 			flavorImageLoadingBar = v.findViewById(R.id.flavorImageLoadingBar);
-			headlineFooter = v.findViewById(R.id.headline_footer);
 			textImage = v.findViewById(R.id.text_image);
 			textChecked = v.findViewById(R.id.text_checked);
 			headlineHeader = v.findViewById(R.id.headline_header);
@@ -1191,6 +1189,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.excerptView.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineFontSize);
 					holder.excerptView.setText(excerpt);
 
+					if (!excerpt.isEmpty()) {
+						holder.excerptView.setVisibility(View.VISIBLE);
+					} else {
+						holder.excerptView.setVisibility(View.GONE);
+					}
+
 					if (!canShowFlavorImage()) {
 						holder.excerptView.setPadding(holder.excerptView.getPaddingLeft(),
 								0,
@@ -1531,8 +1535,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						MenuInflater inflater = popup.getMenuInflater();
 						inflater.inflate(R.menu.context_headlines, popup.getMenu());
 
-						popup.getMenu().findItem(R.id.set_labels).setEnabled(m_activity.getApiLevel() >= 1);
-						popup.getMenu().findItem(R.id.article_set_note).setEnabled(m_activity.getApiLevel() >= 1);
+						popup.getMenu().findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
+						popup.getMenu().findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
 
 						popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 							@Override

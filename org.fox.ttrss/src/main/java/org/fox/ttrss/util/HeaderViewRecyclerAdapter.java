@@ -19,12 +19,12 @@ package org.fox.ttrss.util;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * <p>

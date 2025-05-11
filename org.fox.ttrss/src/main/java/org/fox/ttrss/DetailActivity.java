@@ -10,12 +10,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.fox.ttrss.types.Article;
@@ -25,6 +27,7 @@ import org.fox.ttrss.types.Feed;
 public class DetailActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();
 	protected ArticleList m_articles = new ArticleList();
+	protected BottomAppBar m_bottomAppBar;
 
 	protected SharedPreferences m_prefs;
     private Article m_activeArticle;
@@ -67,6 +70,52 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
             if (headlines != null)
         		headlines.setVisibility(View.GONE);
         }
+
+		m_bottomAppBar = findViewById(R.id.detail_bottom_appbar);
+
+		if (m_bottomAppBar != null) {
+			m_bottomAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+
+					final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+					final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+
+					Article article = ap.getSelectedArticle();
+
+					if (article == null) return false;
+
+					int itemId = item.getItemId();
+
+					if (itemId == R.id.article_set_labels) {
+						editArticleLabels(article);
+
+						return true;
+					} else if (itemId == R.id.toggle_attachments) {
+						displayAttachments(article);
+
+						return true;
+					} else if (itemId == R.id.article_edit_note) {
+						editArticleNote(article);
+
+						return true;
+					} else if (itemId == R.id.article_set_score) {
+						setArticleScore(article);
+
+						return true;
+					} else if (itemId == R.id.toggle_unread) {
+						article.unread = !article.unread;
+						saveArticleUnread(article);
+
+						if (hf != null) {
+							hf.notifyUpdated();
+						}
+					}
+
+					return false;
+				}
+			});
+		}
 
 		FloatingActionButton fab = findViewById(R.id.detail_fab);
 
@@ -136,11 +185,50 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 				if (feed != null)
 					setTitle(feed.title);
+
+				initBottomBarMenu();
 			}
 		}
 	}
 
-    @Override
+	@Override
+	public void invalidateOptionsMenu() {
+		super.invalidateOptionsMenu();
+
+		initBottomBarMenu();
+	}
+
+	protected void initBottomBarMenu() {
+		if (m_bottomAppBar != null) {
+			Menu menu = m_bottomAppBar.getMenu();
+
+			menu.findItem(R.id.article_set_labels).setEnabled(getApiLevel() >= 1);
+			menu.findItem(R.id.article_edit_note).setEnabled(getApiLevel() >= 1);
+
+			final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+
+			if (ap != null) {
+				Article article = ap.getSelectedArticle();
+
+				if (article != null) {
+					if (article.score > 0) {
+						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_up_24);
+					} else if (article.score < 0) {
+						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_down_24);
+					} else {
+						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_flat_24);
+					}
+
+					menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_mark_email_unread_24 :
+							R.drawable.baseline_email_24);
+
+					menu.findItem(R.id.toggle_attachments).setVisible(article.attachments != null && article.attachments.size() > 0);
+				}
+			}
+		}
+	}
+
+	@Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -197,30 +285,13 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (m_menu != null && getSessionId() != null) {
 			m_menu.setGroupVisible(R.id.menu_group_feeds, false);
 
-			//HeadlinesFragment hf = (HeadlinesFragment)getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-			
 			m_menu.setGroupVisible(R.id.menu_group_headlines, !isPortrait() && !isSmallScreen());
-			//m_menu.findItem(R.id.headlines_toggle_sidebar).setVisible(!isPortrait() && !isSmallScreen());
 			m_menu.findItem(R.id.headlines_toggle_sort_order).setVisible(false);
 
 			ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 			
 			m_menu.setGroupVisible(R.id.menu_group_article, af != null);
-			
-			if (af != null) {
-				if (af.getSelectedArticle() != null && af.getSelectedArticle().attachments != null && af.getSelectedArticle().attachments.size() > 0) {
-					/* if (!isCompatMode() && (isSmallScreen() || !isPortrait())) {
-						m_menu.findItem(R.id.toggle_attachments).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-					} */
-					m_menu.findItem(R.id.toggle_attachments).setVisible(true);
-				} else {
-					/* if (!isCompatMode()) {
-						m_menu.findItem(R.id.toggle_attachments).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-					} */
-					m_menu.findItem(R.id.toggle_attachments).setVisible(false);
-				}
-			}
-			
+
 			m_menu.findItem(R.id.search).setVisible(false);
 		}		
 	}
@@ -278,7 +349,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		//Application.getInstance().m_activeArticle = article;
 		
 		invalidateOptionsMenu();
-		
 	}
 
     public void showSidebar(boolean show) {

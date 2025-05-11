@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,9 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
@@ -31,7 +31,7 @@ import java.util.HashMap;
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	private final String TAG = "ArticlePager";
-	private PagerAdapter m_adapter;
+	private RecyclerView.Adapter m_adapter;
 	private HeadlinesEventListener m_listener;
 	protected Article m_article;
 	protected ArticleList m_articles = new ArticleList(); //m_articles = Application.getInstance().m_loadedArticles;
@@ -42,29 +42,18 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	protected int m_firstId = 0;
 	private boolean m_refreshInProgress;
 	private boolean m_lazyLoadDisabled;
+	private ViewPager2 m_pager;
 
-	private class PagerAdapter extends FragmentStatePagerAdapter {
+	private class PagerAdapter extends FragmentStateAdapter {
 		
-		public PagerAdapter(FragmentManager fm) {
-			super(fm);
+		public PagerAdapter(FragmentActivity fa) {
+			super(fa);
 		}
 
 		private ArticleFragment m_currentFragment;
 
-		// workaround for possible TransactionTooLarge exception on 8.0+
-		// we don't need to save member state anyway, bridge takes care of it
 		@Override
-		public Parcelable saveState() {
-			Bundle bundle = (Bundle) super.saveState();
-
-			if (bundle != null)
-				bundle.putParcelableArray("states", null); // Never maintain any states from the base class, just null it out
-
-			return bundle;
-		}
-
-		@Override
-		public Fragment getItem(int position) {
+		public Fragment createFragment(int position) {
 			try {
 				Article article = m_articles.get(position);
 
@@ -82,19 +71,12 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		}
 
 		@Override
-		public int getCount() {
+		public int getItemCount() {
 			return m_articles.size();
 		}
 
         public ArticleFragment getCurrentFragment() {
             return m_currentFragment;
-        }
-
-        @Override
-        public void setPrimaryItem(ViewGroup container, int position, Object object) {
-			m_currentFragment = ((ArticleFragment) object);
-
-            super.setPrimaryItem(container, position, object);
         }
 
 	}
@@ -125,7 +107,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		if (savedInstanceState != null) {
 			m_article = savedInstanceState.getParcelable("m_article");
-			//m_articles = savedInstanceState.getParcelable("m_articles");
 			m_feed = savedInstanceState.getParcelable("m_feed");
 			m_firstId = savedInstanceState.getInt("m_firstId");
 		}
@@ -136,30 +117,26 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
 		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
-	
+
 		if (savedInstanceState != null) {
 			if (m_activity instanceof DetailActivity) {
 				m_articles = ((DetailActivity)m_activity).m_articles;
 			}
 		}
 		
-		m_adapter = new PagerAdapter(getActivity().getSupportFragmentManager());
+		m_adapter = new PagerAdapter(getActivity());
 		
-		ViewPager pager = view.findViewById(R.id.article_pager);
-				
+		m_pager = view.findViewById(R.id.article_pager);
+
 		int position = m_articles.indexOf(m_article);
 		
 		m_listener.onArticleSelected(m_article, false);
 
-		pager.setAdapter(m_adapter);
+		m_pager.setAdapter(m_adapter);
+		m_pager.setOffscreenPageLimit(3);
 
-		pager.setCurrentItem(position);
-		pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-			}
-
+		m_pager.setCurrentItem(position, false);
+		m_pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 			@Override
 			public void onPageSelected(int position) {
 				Log.d(TAG, "onPageSelected: " + position);
@@ -178,7 +155,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 					//Log.d(TAG, "Page #" + position + "/" + m_adapter.getCount());
 
-					if (!m_refreshInProgress && !m_lazyLoadDisabled && (m_activity.isSmallScreen() || m_activity.isPortrait()) && position >= m_adapter.getCount() - 5) {
+					if (!m_refreshInProgress && !m_lazyLoadDisabled && (m_activity.isSmallScreen() || m_activity.isPortrait()) && position >= m_adapter.getItemCount() - 5) {
 						Log.d(TAG, "loading more articles...");
 
 						new Handler().postDelayed(new Runnable() {
@@ -189,11 +166,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 						}, 100);
 					}
 				}
-			}
-
-			@Override
-			public void onPageScrollStateChanged(int state) {
-
 			}
 		});
 
@@ -220,9 +192,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				if (isDetached() || !isAdded()) return;
 
 				if (!append) {
-					ViewPager pager = getView().findViewById(R.id.article_pager);
-					pager.setCurrentItem(0);
-
+					m_pager.setCurrentItem(0, false);
 					m_articles.clear();
 				}
 
@@ -390,9 +360,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 			int position = m_articles.indexOf(m_article);
 
-			ViewPager pager = getView().findViewById(R.id.article_pager);
-		
-			pager.setCurrentItem(position);
+			m_pager.setCurrentItem(position);
 		}
 	}
 
