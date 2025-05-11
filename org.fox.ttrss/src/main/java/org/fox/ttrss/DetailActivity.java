@@ -26,7 +26,6 @@ import org.fox.ttrss.types.Feed;
 
 public class DetailActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();
-	//protected ArticleList m_articles = new ArticleList();
 	protected BottomAppBar m_bottomAppBar;
 
 	protected SharedPreferences m_prefs;
