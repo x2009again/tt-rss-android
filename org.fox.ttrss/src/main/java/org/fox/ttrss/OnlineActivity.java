@@ -1,15 +1,12 @@
 package org.fox.ttrss;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
@@ -37,15 +34,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
-import org.fox.ttrss.offline.OfflineActivity;
-import org.fox.ttrss.offline.OfflineDownloadService;
-import org.fox.ttrss.offline.OfflineUploadService;
 import org.fox.ttrss.share.SubscribeActivity;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.types.Label;
-import org.fox.ttrss.util.ImageCacheService;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -165,17 +158,6 @@ public class OnlineActivity extends CommonActivity {
 		public abstract void OnLoginFailed();
 	}
 
-    private BroadcastReceiver m_broadcastReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context content, Intent intent) {
-			if (intent.getAction().equals(OfflineUploadService.INTENT_ACTION_SUCCESS)) {
-				toast(R.string.offline_sync_success);
-			}
-		}
-	};
-	
-	
-	@TargetApi(11)
 	private class HeadlinesActionModeCallback implements ActionMode.Callback {
 		
 		@Override
@@ -234,9 +216,6 @@ public class OnlineActivity extends CommonActivity {
 		super.onCreate(savedInstanceState);
 
 		SharedPreferences localPrefs = getSharedPreferences("localprefs", Context.MODE_PRIVATE);
-		boolean isOffline = localPrefs.getBoolean("offline_mode_active", false);
-
-		Log.d(TAG, "m_isOffline=" + isOffline);
 
 		setContentView(R.layout.activity_login);
 
@@ -244,115 +223,9 @@ public class OnlineActivity extends CommonActivity {
 		setSupportActionBar(toolbar);
 
 		m_cmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-		Intent intent = getIntent();
-
-        Log.d(TAG, "intent action=" + intent.getAction());
-
-		if (OfflineDownloadService.INTENT_ACTION_CANCEL.equals(intent.getAction())) {
-
-			Intent serviceIntent = new Intent(
-					OnlineActivity.this,
-					OfflineDownloadService.class);
-
-			stopService(serviceIntent);
-
-			serviceIntent = new Intent();
-			serviceIntent.setAction(ImageCacheService.INTENT_ACTION_ICS_STOP);
-			serviceIntent.addCategory(Intent.CATEGORY_DEFAULT);
-			sendBroadcast(serviceIntent);
-
-		} else if (OfflineDownloadService.INTENT_ACTION_SWITCH_OFFLINE.equals(intent.getAction())) {
-			isOffline = true;
-		}
-
-		if (isOffline) {
-			switchOfflineSuccess();			
-		} else {
-			m_headlinesActionModeCallback = new HeadlinesActionModeCallback();
-		}
+		m_headlinesActionModeCallback = new HeadlinesActionModeCallback();
 	}
 
-	protected void switchOffline() {
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-				.setMessage(R.string.dialog_offline_switch_prompt)
-				.setPositiveButton(R.string.dialog_offline_go,
-						new Dialog.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-
-								if (getSessionId() != null) {
-									Log.d(TAG, "offline: starting");
-
-									Intent intent = new Intent(
-											OnlineActivity.this,
-											OfflineDownloadService.class);
-									intent.putExtra("sessionId", getSessionId());
-
-									startService(intent);
-								}
-							}
-						})
-				.setNegativeButton(R.string.dialog_cancel,
-						new Dialog.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								//
-							}
-						});
-
-		Dialog dlg = builder.create();
-		dlg.show();
-	}
-	
-
-	@Override
-	public void onPause() {
-		super.onPause();
-
-		try {
-			unregisterReceiver(m_broadcastReceiver);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-	}
-
-	private void syncOfflineData() {
-		Log.d(TAG, "offlineSync: starting");
-		
-		Intent intent = new Intent(
-				OnlineActivity.this,
-				OfflineUploadService.class);
-		
-		intent.putExtra("sessionId", getSessionId());
-
-		startService(intent);
-	}
-
-	private void switchOfflineSuccess() {
-		logout();
-		// setLoadingStatus(R.string.blank, false);
-
-		SharedPreferences localPrefs = getSharedPreferences("localprefs", Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = localPrefs.edit();
-		editor.putBoolean("offline_mode_active", true);
-		editor.apply();
-
-		Intent offline = new Intent(OnlineActivity.this, OfflineActivity.class);
-		offline.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_CLEAR_TASK |
-				Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		offline.putExtra("initial", true);
-
-		startActivity(offline);
-
-		finish();
-	}
-	
 	public void login() {
 		login(false, null);
 	}
@@ -415,9 +288,6 @@ public class OnlineActivity extends CommonActivity {
 		startActivityForResult(intent, 0);
 		overridePendingTransition(0, 0);
 
-		if (getDatabaseHelper().hasPendingOfflineData())
-			syncOfflineData();
-		
 		finish();
 	}
 
@@ -541,15 +411,9 @@ public class OnlineActivity extends CommonActivity {
 				displayAttachments(article);
 			}
 			return true;
-		/*case R.id.logout:
-			logout();
-			return true;*/
         } else if (itemId == R.id.login) {
             login();
             return true;
-		/*case R.id.go_offline:
-			switchOffline();
-			return true;*/
         } else if (itemId == R.id.article_edit_note) {
             if (ap != null && ap.getSelectedArticle() != null) {
                 editArticleNote(ap.getSelectedArticle());
@@ -1055,42 +919,12 @@ public class OnlineActivity extends CommonActivity {
 	protected void loginFailure() {
 		setSessionId(null);
 		initMenu();
-		
-		if (getDatabaseHelper().hasOfflineData()) {
-
-			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-					.setMessage(R.string.dialog_offline_prompt)
-					.setPositiveButton(R.string.dialog_offline_go,
-							new Dialog.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int which) {
-									switchOfflineSuccess();
-								}
-							})
-					.setNegativeButton(R.string.dialog_cancel,
-							new Dialog.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int which) {
-									//
-								}
-							});
-
-			Dialog dlg = builder.create();
-			dlg.show();
-		}
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 
-		IntentFilter filter = new IntentFilter();
-		//filter.addAction(OfflineDownloadService.INTENT_ACTION_SUCCESS);
-		filter.addAction(OfflineUploadService.INTENT_ACTION_SUCCESS);
-		filter.addCategory(Intent.CATEGORY_DEFAULT);
-
-		registerReceiver(m_broadcastReceiver, filter);
-		
 		if (getSessionId() == null) {
 			login();
 		} else {

@@ -81,19 +81,6 @@
             android:label="@string/logcat_title" >
         </activity>
         <activity
-            android:name=".offline.OfflineActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name=".offline.OfflineMasterActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name=".offline.OfflineDetailActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
             android:name=".share.ShareActivity"
             android:excludeFromRecents="true"
             android:label="@string/app_name"
@@ -208,16 +195,6 @@
                 <data android:mimeType="application/xml" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".offline.OfflineDownloadService"
-            android:enabled="true" />
-        <service
-            android:name=".offline.OfflineUploadService"
-            android:enabled="true" />
-        <service
-            android:name=".util.ImageCacheService"
-            android:enabled="true" />
 
         <meta-data
             android:name="com.google.android.backup.api_key"
