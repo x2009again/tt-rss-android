@@ -5,6 +5,7 @@ import android.os.Bundle;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class Application extends android.app.Application {
@@ -44,11 +45,10 @@ public class Application extends android.app.Application {
 			m_apiLevel = in.getInt("gs:apiLevel");
 			m_selectedArticleId = in.getInt("gs:selectedArticleId");
 
-			try {
-				m_customSortModes = (LinkedHashMap<String, String>) in.getSerializable("gs:customSortTypes");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			HashMap<String, String> tmp = (HashMap<String, String>) in.getSerializable("gs:customSortTypes");
+
+			m_customSortModes.clear();
+			m_customSortModes.putAll(tmp);
 		}
 				
 	}
