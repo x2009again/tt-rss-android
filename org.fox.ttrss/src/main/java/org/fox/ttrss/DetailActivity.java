@@ -380,7 +380,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	public void onBackPressed() {
         Intent resultIntent = new Intent();
 
-        resultIntent.putExtra("activeArticle", m_activeArticle);
+        Application.getInstance().tmpActiveArticle = m_activeArticle;
 
         setResult(Activity.RESULT_OK, resultIntent);
 

@@ -527,10 +527,14 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		HeadlinesFragment hf = (HeadlinesFragment)getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+		if (requestCode == HEADLINES_REQUEST) {
+			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-		if (hf != null) {
-			hf.notifyUpdated();
+			if (hf != null) {
+				hf.notifyUpdated();
+
+				hf.setActiveArticle(Application.getInstance().tmpActiveArticle);
+			}
 		}
 	}
 
