@@ -39,7 +39,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 		setAppTheme(m_prefs);
 
-        super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
 
 		if (m_prefs.getBoolean("force_phone_layout", false)) {
 			setContentView(R.layout.activity_detail_phone);
@@ -328,13 +328,6 @@ ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(F
 		
 		invalidateOptionsMenu();
 	}
-
-    public void showSidebar(boolean show) {
-        if (!isSmallScreen() && !isPortrait()) {
-            findViewById(R.id.headlines_fragment).setVisibility(show ? View.VISIBLE : View.GONE);
-            invalidateOptionsMenu();
-        }
-    }
 
 	@Override
 	public void onHeadlinesLoaded(boolean appended) {

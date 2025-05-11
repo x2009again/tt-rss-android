@@ -15,7 +15,6 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
@@ -111,8 +110,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private HeadlinesEventListener m_listener;
 	private OnlineActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
-	private int m_maxImageSize = 0;
-	boolean m_compactLayoutMode = false;
+    boolean m_compactLayoutMode = false;
     private RecyclerView m_list;
 	private LinearLayoutManager m_layoutManager;
 
@@ -176,22 +174,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             m_activity.shareArticle(article);
             return true;
         } else if (itemId == R.id.catchup_above) {
-            if (true) {
+            final Article fa = article;
 
-                final Article fa = article;
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+				.setMessage(R.string.confirm_catchup_above)
+				.setPositiveButton(R.string.dialog_ok,
+					(dialog, which) -> catchupAbove(fa))
+				.setNegativeButton(R.string.dialog_cancel,
+					(dialog, which) -> { });
 
-				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-                        .setMessage(R.string.confirm_catchup_above)
-                        .setPositiveButton(R.string.dialog_ok,
-                                (dialog, which) -> catchupAbove(fa))
-                        .setNegativeButton(R.string.dialog_cancel,
-                                (dialog, which) -> {
-
-                                });
-
-                Dialog dialog = builder.create();
-                dialog.show();
-            }
+            Dialog dialog = builder.create();
+            dialog.show();
             return true;
         }
         Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
@@ -235,12 +228,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     public HeadlinesFragment() {
         super();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Transition fade = new Fade();
+        Transition fade = new Fade();
 
-            setEnterTransition(fade);
-            setReenterTransition(fade);
-        }
+        setEnterTransition(fade);
+        setReenterTransition(fade);
     }
 
 	@Override
@@ -295,9 +286,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		m_maxImageSize = (int) (128 * metrics.density + 0.5);
-
-		Log.d(TAG, "maxImageSize=" + m_maxImageSize);
 
 		View view = inflater.inflate(R.layout.fragment_headlines, container, false);
 
@@ -312,14 +300,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
 
-		/* if (m_compactLayoutMode) {
-			MaterialDividerItemDecoration materialDivider = new MaterialDividerItemDecoration(m_list.getContext(), m_layoutManager.getOrientation());
-			materialDivider.setDividerInsetStart(dpToPx(80));
-
-			m_list.addItemDecoration(materialDivider);
-		} */
-
-		ArticleListAdapter adapter = new ArticleListAdapter(getActivity(), R.layout.headlines_row, Application.getArticles());
+		ArticleListAdapter adapter = new ArticleListAdapter(Application.getArticles());
 
 		m_adapter = new HeaderViewRecyclerAdapter(adapter);
 
@@ -337,7 +318,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				@Override
 				public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
 
-					int position = viewHolder.getAdapterPosition() - m_adapter.getHeaderCount();
+					int position = viewHolder.getBindingAdapterPosition() - m_adapter.getHeaderCount();
 
 					Article article = getArticleAtPosition(position);
 
@@ -350,7 +331,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				@Override
 				public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 
-					final int adapterPosition = viewHolder.getAdapterPosition();
+					final int adapterPosition = viewHolder.getBindingAdapterPosition();
 					final int position = adapterPosition - m_adapter.getHeaderCount();
 
 					try {
@@ -399,18 +380,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			@Override
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
-
-				/*if (newState != RecyclerView.SCROLL_STATE_IDLE) {
-
-					try {
-						if (m_mediaPlayer != null && m_mediaPlayer.isPlaying()) {
-							m_mediaPlayer.pause();
-						}
-					} catch (IllegalStateException e) {
-						// i guess it was already released, oh well
-					}
-
-				}*/
 
 				if (newState == RecyclerView.SCROLL_STATE_IDLE && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 					if (!m_readArticles.isEmpty()) {
@@ -520,11 +489,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, Application.getArticles()) {
 				@Override
-				protected void onProgressUpdate(Integer... progress) {
-					m_activity.setProgress(Math.round((((float) progress[0] / (float) progress[1]) * 10000)));
-				}
-
-				@Override
 				protected void onPostExecute(JsonElement result) {
 					if (isDetached() || !isAdded()) return;
 
@@ -554,7 +518,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							}
 						}
 
-						if (m_amountLoaded < Integer.valueOf(m_prefs.getString("headlines_request_size", "15"))) {
+						if (m_amountLoaded < Integer.parseInt(m_prefs.getString("headlines_request_size", "15"))) {
 							//Log.d(TAG, "amount loaded < request size, disabling lazy load");
 							m_lazyLoadDisabled = true;
 						}
@@ -693,8 +657,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public View flavorImageOverflow;
 		public TextureView flavorVideoView;
 		public MaterialButton attachmentsView;
-		//public int position;
-		public boolean flavorImageEmbedded;
 		public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
 
 		public ArticleViewHolder(View v) {
@@ -789,7 +751,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         private final TextDrawable.IBuilder m_drawableBuilder = TextDrawable.builder().round();
 
 		boolean flavorImageEnabled;
-		private final int m_minimumHeightToEmbed;
 		private final int m_screenHeight;
 		private int m_lastAddedPosition;
 
@@ -812,14 +773,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			return false;
 		}
 
-		public ArticleListAdapter(Context context, int textViewResourceId, ArticleList items) {
+		public ArticleListAdapter(ArticleList items) {
 			super();
 			this.items = items;
 
 			Display display = m_activity.getWindowManager().getDefaultDisplay();
 			Point size = new Point();
 			display.getSize(size);
-			m_minimumHeightToEmbed = size.y/3;
 			m_screenHeight = size.y;
 
 			String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
@@ -901,14 +861,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			if (holder.textImage != null) {
-				updateTextCheckedState(holder, article, position);
+				updateTextCheckedState(holder, article);
 
 				holder.textImage.setOnClickListener(view -> {
                     Log.d(TAG, "textImage : onclicked");
 
                     article.selected = !article.selected;
 
-                    updateTextCheckedState(holder, article, m_list.getChildPosition(holder.view));
+                    updateTextCheckedState(holder, article);
 
                     m_listener.onArticleListSelectionChange(getSelectedArticles());
 
@@ -967,7 +927,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.markedView.setOnClickListener(v -> {
                     article.marked = !article.marked;
 
-                    m_adapter.notifyItemChanged(m_list.getChildPosition(holder.view));
+                    m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
 
                     m_activity.saveArticleMarked(article);
                 });
@@ -999,27 +959,18 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
                                 .setTitle(R.string.score_for_this_article)
                                 .setPositiveButton(R.string.set_score,
-(dialog, which) -> {
-
-try {
-int newScore = Integer.parseInt(edit.getText().toString());
-
-article.score = newScore;
-
-m_activity.saveArticleScore(article);
-
-m_adapter.notifyItemChanged(m_list.getChildPosition(holder.view));
-} catch (NumberFormatException e) {
-m_activity.toast(R.string.score_invalid);
-e.printStackTrace();
-}
-})
-                                .setNegativeButton(getString(R.string.cancel),
-(dialog, which) -> {
-
-//
-
-}).setView(edit);
+									(dialog, which) -> {
+										try {
+                                            article.score = Integer.parseInt(edit.getText().toString());
+											m_activity.saveArticleScore(article);
+											m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
+										} catch (NumberFormatException e) {
+											m_activity.toast(R.string.score_invalid);
+											e.printStackTrace();
+										}
+									})
+								.setNegativeButton(getString(R.string.cancel),
+									(dialog, which) -> { }).setView(edit);
 
                         Dialog dialog = builder.create();
                         dialog.show();
@@ -1040,8 +991,7 @@ e.printStackTrace();
 
 				holder.publishedView.setOnClickListener(v -> {
                     article.published = !article.published;
-                    //m_adapter.notifyDataSetChanged();
-                    m_adapter.notifyItemChanged(m_list.getChildPosition(holder.view));
+                    m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
 
                     m_activity.saveArticlePublished(article);
                 });
@@ -1134,27 +1084,27 @@ e.printStackTrace();
 
                             popup.setOnMenuItemClickListener(item -> {
 
-Uri mediaUri = Uri.parse(article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri);
+                                Uri mediaUri = Uri.parse(article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri);
 
-int itemId = item.getItemId();
-if (itemId == R.id.article_img_open) {
-m_activity.openUri(mediaUri);
-return true;
-} else if (itemId == R.id.article_img_copy) {
-m_activity.copyToClipboard(mediaUri.toString());
-return true;
-} else if (itemId == R.id.article_img_share) {
-m_activity.shareImageFromUri(mediaUri.toString());
-return true;
-} else if (itemId == R.id.article_img_share_url) {
-m_activity.shareText(mediaUri.toString());
-return true;
-} else if (itemId == R.id.article_img_view_caption) {
-m_activity.displayImageCaption(article.flavorImageUri, article.content);
-return true;
-}
-return false;
-});
+                                int itemId = item.getItemId();
+                                if (itemId == R.id.article_img_open) {
+                                    m_activity.openUri(mediaUri);
+                                    return true;
+                                } else if (itemId == R.id.article_img_copy) {
+                                    m_activity.copyToClipboard(mediaUri.toString());
+                                    return true;
+                                } else if (itemId == R.id.article_img_share) {
+                                    m_activity.shareImageFromUri(mediaUri.toString());
+                                    return true;
+                                } else if (itemId == R.id.article_img_share_url) {
+                                    m_activity.shareText(mediaUri.toString());
+                                    return true;
+                                } else if (itemId == R.id.article_img_view_caption) {
+                                    m_activity.displayImageCaption(article.flavorImageUri, article.content);
+                                    return true;
+                                }
+                                return false;
+                            });
 
                             popup.show();
                         });
@@ -1164,9 +1114,6 @@ return false;
                             return true;
                         });
 					}
-
-					//Log.d(TAG, "IMG: " + article.flavorImageUri + " STREAM: " + article.flavorStreamUri + " H:" + article.flavorViewHeight);
-					//Log.d(TAG, "TAG:" + holder.flavorImageOverflow.getTag());
 
 					holder.flavorImageView.setVisibility(View.VISIBLE);
 					holder.flavorImageView.setMaxHeight((int)(m_screenHeight * 0.6f));
@@ -1225,7 +1172,7 @@ return false;
 				}
 
 				if (m_prefs.getBoolean("inline_video_player", false) && article.flavorImage != null &&
-						"video".equals(article.flavorImage.tagName().toLowerCase()) && article.flavorStreamUri != null) {
+						"video".equalsIgnoreCase(article.flavorImage.tagName()) && article.flavorStreamUri != null) {
 
 					holder.flavorImageView.setOnLongClickListener(v -> {
                         releaseSurface();
@@ -1250,15 +1197,15 @@ return false;
                         bar.setVisibility(View.VISIBLE);
 
                         holder.flavorVideoView.setOnClickListener(v -> {
-try {
-if (m_mediaPlayer.isPlaying())
-m_mediaPlayer.pause();
-else
-m_mediaPlayer.start();
-} catch (IllegalStateException e) {
-releaseSurface();
-}
-});
+							try {
+								if (m_mediaPlayer.isPlaying())
+									m_mediaPlayer.pause();
+								else
+									m_mediaPlayer.start();
+								} catch (IllegalStateException e) {
+									releaseSurface();
+								}
+							});
 
                         m_activeTexture = holder.flavorVideoView;
 
@@ -1285,15 +1232,14 @@ releaseSurface();
                                          m_mediaPlayer.setDataSource(article.flavorStreamUri);
 
                                          m_mediaPlayer.setOnPreparedListener(mp -> {
-
-try {
-bar.setVisibility(View.GONE);
-mp.setLooping(true);
-mp.start();
-} catch (IllegalStateException e) {
-e.printStackTrace();
-}
-});
+                                             try {
+												 bar.setVisibility(View.GONE);
+                                                 mp.setLooping(true);
+                                                 mp.start();
+                                             } catch (IllegalStateException e) {
+                                                 e.printStackTrace();
+                                             }
+                                         });
 
                                          m_mediaPlayer.prepareAsync();
                                      } catch (Exception e) {
@@ -1389,7 +1335,8 @@ e.printStackTrace();
                     popup.getMenu().findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
                     popup.getMenu().findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
 
-                    popup.setOnMenuItemClickListener(item -> onArticleMenuItemSelected(item, article, m_list.getChildPosition(holder.view)));
+                    popup.setOnMenuItemClickListener(item -> onArticleMenuItemSelected(item, article,
+							m_list.getChildAdapterPosition(holder.view)));
 
                     popup.show();
                 });
@@ -1420,7 +1367,7 @@ e.printStackTrace();
 			return items.size();
 		}
 
-		private void updateTextCheckedState(final ArticleViewHolder holder, final Article article, final int position) {
+		private void updateTextCheckedState(final ArticleViewHolder holder, final Article article) {
             String tmp = !article.title.isEmpty() ? article.title.substring(0, 1).toUpperCase() : "?";
 
             if (article.selected) {
@@ -1464,7 +1411,7 @@ e.printStackTrace();
 		private void openGalleryForType(Article article, ArticleViewHolder holder, View transitionView) {
 			//Log.d(TAG, "openGalleryForType: " + article + " " + holder + " " + transitionView);
 
-			if ("iframe".equals(article.flavorImage.tagName().toLowerCase())) {
+			if ("iframe".equalsIgnoreCase(article.flavorImage.tagName())) {
 				m_activity.openUri(Uri.parse(article.flavorStreamUri));
 			} else {
 
@@ -1508,10 +1455,10 @@ e.printStackTrace();
 
 		private void adjustVideoKindView(ArticleViewHolder holder, Article article) {
 			if (article.flavorImage != null) {
-				if (article.flavor_kind == Article.FLAVOR_KIND_YOUTUBE || "iframe".equals(article.flavorImage.tagName().toLowerCase())) {
+				if (article.flavor_kind == Article.FLAVOR_KIND_YOUTUBE || "iframe".equalsIgnoreCase(article.flavorImage.tagName())) {
 					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_outline_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
-				} else if (article.flavor_kind == Article.FLAVOR_KIND_VIDEO || "video".equals(article.flavorImage.tagName().toLowerCase())) {
+				} else if (article.flavor_kind == Article.FLAVOR_KIND_VIDEO || "video".equalsIgnoreCase(article.flavorImage.tagName())) {
 					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_24);
 					holder.flavorVideoKindView.setVisibility(View.VISIBLE);
 				} else {
@@ -1526,12 +1473,12 @@ e.printStackTrace();
 			int viewType = getItemViewType(position);
 			if (origTitleColors[viewType] == null)
 				// store original color
-				origTitleColors[viewType] = Integer.valueOf(tv.getCurrentTextColor());
+				origTitleColors[viewType] = tv.getCurrentTextColor();
 
 			if (score < Article.SCORE_LOW) {
 				tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 			} else {
-				tv.setTextColor(origTitleColors[viewType].intValue());
+				tv.setTextColor(origTitleColors[viewType]);
 				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 			}
 		}
@@ -1621,14 +1568,6 @@ e.printStackTrace();
 		return null;
 	}
 
-	public ArticleList getUnreadArticles() {
-		ArticleList tmp = new ArticleList();
-		for (Article a : Application.getArticles()) {
-			if (a.unread) tmp.add(a);
-		}
-		return tmp;
-	}
-
 	public Article getActiveArticle() {
 		return m_activeArticle;
 	}
@@ -1660,27 +1599,6 @@ e.printStackTrace();
 
 	public Feed getFeed() {
 		return m_feed;
-	}
-
-    public void setArticles(ArticleList articles) {
-        Application.getArticles().clear();
-        Application.getArticles().addAll(articles);
-
-		Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
-
-        m_adapter.notifyDataSetChanged();
-    }
-
-	public int pxToDp(int px) {
-		DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-		int dp = Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-		return dp;
-	}
-
-	public int dpToPx(int dp) {
-		DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-		return px;
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcelable {
 	@Override
@@ -52,6 +53,11 @@ public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcel
 				break;
 			}
 		}
+	}
+
+	public String getAsCommaSeparatedIds() {
+		return this.stream().map(a -> String.valueOf(a.id))
+				.collect(Collectors.joining(","));
 	}
 
 	@SuppressWarnings("rawtypes")

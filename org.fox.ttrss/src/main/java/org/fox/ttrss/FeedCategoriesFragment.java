@@ -38,7 +38,6 @@ import org.fox.ttrss.types.FeedCategoryList;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -99,9 +98,10 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 					}
 
 					for (FeedCategory c : cats) {
-						if (c.id == -1) {
-							specialCatFound = true;
-						}
+                        if (c.id == -1) {
+                            specialCatFound = true;
+                            break;
+                        }
 					}
 
 					m_cats.addAll(cats);
@@ -149,7 +149,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		}
 
 		try {
-			Collections.sort(m_cats, cmp);
+			m_cats.sort(cmp);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
@@ -283,7 +283,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
-	    m_swipeLayout.setOnRefreshListener(() -> refresh());
+	    m_swipeLayout.setOnRefreshListener(this::refresh);
 
 		m_list = view.findViewById(R.id.feeds);
 		m_adapter = new FeedCategoryListAdapter(getActivity(), R.layout.feeds_row, m_cats);

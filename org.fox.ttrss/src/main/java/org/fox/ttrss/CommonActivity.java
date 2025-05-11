@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -281,29 +280,14 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	@SuppressLint({ "NewApi", "ServiceCast" })
 	@SuppressWarnings("deprecation")
 	public void copyToClipboard(String str) {
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-			clipboard.setText(str);
-		} else {
-			android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-			clipboard.setText(str);
-		}
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clipboard.setText(str);
 
-		Snackbar.make(findViewById(android.R.id.content), R.string.text_copied_to_clipboard, Snackbar.LENGTH_SHORT)
+        Snackbar.make(findViewById(android.R.id.content), R.string.text_copied_to_clipboard, Snackbar.LENGTH_SHORT)
 				.setAction(R.string.dialog_close, v -> {
 
                 })
 				.show();
-	}
-
-	public boolean isUiNightMode() {
-		try {
-			int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
-			return Configuration.UI_MODE_NIGHT_YES == nightModeFlags;
-		} catch (Exception e) {
-			return false;
-		}
 	}
 
 	protected void setAppTheme(SharedPreferences prefs) {
@@ -334,7 +318,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 				"headlines_swipe_to_dismiss", "headlines_mark_read_scroll", "headlines_request_size",
 				"force_phone_layout", "open_on_startup"};
 
-		m_needRestart = Arrays.asList(filter).indexOf(key) != -1;
+		m_needRestart = Arrays.asList(filter).contains(key);
 	}
 
 	private CustomTabsSession getCustomTabSession() {
@@ -618,8 +602,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	static public int dpToPx(Context context, int dp) {
 		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-		return px;
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
 	}
 
 }

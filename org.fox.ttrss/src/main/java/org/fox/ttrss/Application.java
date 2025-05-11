@@ -47,7 +47,8 @@ public class Application extends android.app.Application {
 		out.putSerializable("gs:customSortTypes", m_customSortModes);
 	}
 	
-	public void load(Bundle in) {
+	/** @noinspection unchecked*/
+    public void load(Bundle in) {
 		if (in != null) {
 			m_sessionId = in.getString("gs:sessionId");
 			m_apiLevel = in.getInt("gs:apiLevel");

@@ -41,7 +41,6 @@ import org.fox.ttrss.types.FeedList;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -78,9 +77,9 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		params.put("sid", sessionId);
 		params.put("include_nested", "true");
 		params.put("cat_id", String.valueOf(catId));
-		if (unreadOnly) {
-			params.put("unread_only", String.valueOf(unreadOnly));
-		}
+
+		if (unreadOnly)
+			params.put("unread_only", "true");
 
 		return new FeedsLoader(getActivity().getApplicationContext(), params, catId);
 	}
@@ -154,16 +153,11 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			} else {
 				m_activity.toast(al.getErrorMessage());
 			}
-
-			//m_activity.setLoadingStatus(getErrorMessage(), false);
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<JsonElement> loader) {
-		/*m_feeds.clear();
-		m_adapter.notifyDataSetChanged();*/
-	}
+	public void onLoaderReset(Loader<JsonElement> loader) { }
 
 	@SuppressLint("DefaultLocale")
 	static class FeedUnreadComparator implements Comparator<Feed> {
@@ -203,9 +197,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 		@Override
 		public int compare(Feed a, Feed b) {
-			//Log.d(TAG, "A:" + a.title + " " + a.is_cat + " " + a.order_id);
-			//Log.d(TAG, "B:" + b.title + " " + b.is_cat + " " + b.order_id);
-
 			if (a.id >= 0 && b.id >= 0)
 				if (a.is_cat && b.is_cat)
 					if (a.order_id != 0 && b.order_id != 0)
@@ -331,7 +322,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
-	    m_swipeLayout.setOnRefreshListener(() -> refresh());
+	    m_swipeLayout.setOnRefreshListener(this::refresh);
 
 		m_list = view.findViewById(R.id.feeds);
 
@@ -538,7 +529,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		}
 		
 		try {
-			Collections.sort(m_feeds, cmp);
+			m_feeds.sort(cmp);
 		} catch (IllegalArgumentException e) {
 			// sort order got changed in prefs or something
 			e.printStackTrace();

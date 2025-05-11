@@ -70,22 +70,17 @@ public class GalleryActivity extends CommonActivity {
             GalleryEntry item = m_items.get(position);
 
             switch (item.type) {
-                case TYPE_IMAGE:
-                    if (true) {
-                        GalleryImageFragment frag = new GalleryImageFragment();
-                        frag.initialize(item.url);
+                case TYPE_IMAGE: {
+                    GalleryImageFragment frag = new GalleryImageFragment();
+                    frag.initialize(item.url);
 
-                        return frag;
-                    }
-                    break;
+                    return frag;
+                }
                 case TYPE_VIDEO:
-                    if (true) {
-                        GalleryVideoFragment frag = new GalleryVideoFragment();
-                        frag.initialize(item.url, item.coverUrl);
+                    GalleryVideoFragment frag = new GalleryVideoFragment();
+                    frag.initialize(item.url, item.coverUrl);
 
-                        return frag;
-                    }
-                    break;
+                    return frag;
             }
 
             return null;
@@ -225,7 +220,7 @@ public class GalleryActivity extends CommonActivity {
                 }
             }
 
-            if ((firstFound || imgSrcFirst.equals("")) && item.url != null) {
+            if ((firstFound || imgSrcFirst.isEmpty()) && item.url != null) {
                 if (m_items.isEmpty())
                     m_items.add(item);
                 else

@@ -193,8 +193,6 @@ public class OnlineActivity extends CommonActivity {
 
 		super.onCreate(savedInstanceState);
 
-		SharedPreferences localPrefs = getSharedPreferences("localprefs", Context.MODE_PRIVATE);
-
 		setContentView(R.layout.activity_login);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
@@ -265,9 +263,6 @@ public class OnlineActivity extends CommonActivity {
 
 	@Override
 	public boolean onContextItemSelected(android.view.MenuItem item) {
-		/* AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
-				.getMenuInfo(); */
-		
 		final ArticlePager ap = (ArticlePager)getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
         int itemId = item.getItemId();
@@ -458,18 +453,21 @@ public class OnlineActivity extends CommonActivity {
             if (hf != null) {
                 String viewMode = getViewMode();
 
-                //Log.d(TAG, "viewMode:" + getViewMode());
-
                 int selectedIndex = 0;
 
-                if (viewMode.equals("all_articles")) {
-                    selectedIndex = 1;
-                } else if (viewMode.equals("marked")) {
-                    selectedIndex = 2;
-                } else if (viewMode.equals("published")) {
-                    selectedIndex = 3;
-                } else if (viewMode.equals("unread")) {
-                    selectedIndex = 4;
+                switch (viewMode) {
+                    case "all_articles":
+                        selectedIndex = 1;
+                        break;
+                    case "marked":
+                        selectedIndex = 2;
+                        break;
+                    case "published":
+                        selectedIndex = 3;
+                        break;
+                    case "unread":
+                        selectedIndex = 4;
+                        break;
                 }
 
 				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
@@ -910,15 +908,6 @@ public class OnlineActivity extends CommonActivity {
 		req.execute(map);
 	}
 
-	public static String articlesToIdString(ArticleList articles) {
-		String tmp = "";
-
-		for (Article a : articles)
-			tmp += a.id + ",";
-
-		return tmp.replaceAll(",$", "");
-	}
-	
 	public void shareArticle(Article article) {
 		if (article != null) {
 			shareText(article.link, article.title);
@@ -1055,7 +1044,7 @@ article.score = Integer.parseInt(edit.getText().toString());
 		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
-		map.put("article_ids", articlesToIdString(articles));
+		map.put("article_ids", articles.getAsCommaSeparatedIds());
 		map.put("mode", "2");
 		map.put("field", "0");
 
@@ -1068,8 +1057,8 @@ article.score = Integer.parseInt(edit.getText().toString());
 		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
-		map.put("article_ids", articlesToIdString(articles));
-		map.put("mode", "2");
+        map.put("article_ids", articles.getAsCommaSeparatedIds());
+        map.put("mode", "2");
 		map.put("field", "2");
 
 		req.execute(map);
@@ -1082,8 +1071,8 @@ article.score = Integer.parseInt(edit.getText().toString());
 		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
-		map.put("article_ids", articlesToIdString(articles));
-		map.put("mode", "2");
+        map.put("article_ids", articles.getAsCommaSeparatedIds());
+        map.put("mode", "2");
 		map.put("field", "1");
 
 		req.execute(map);
@@ -1174,7 +1163,7 @@ article.score = Integer.parseInt(edit.getText().toString());
 	}
 	
 	protected class LoginRequest extends ApiRequest {
-		boolean m_refreshAfterLogin = false;
+		boolean m_refreshAfterLogin;
 		OnLoginFinishedListener m_listener;
 		
 		public LoginRequest(Context context, boolean refresh, OnLoginFinishedListener listener) {
@@ -1255,8 +1244,6 @@ article.score = Integer.parseInt(edit.getText().toString());
 									Log.d(TAG, "Received API level: " + getApiLevel());
 	
 									loginSuccess(m_refreshAfterLogin);
-	
-									return;
 								}
 							};
 	

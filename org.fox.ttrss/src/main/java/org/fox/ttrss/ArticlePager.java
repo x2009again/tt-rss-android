@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
@@ -30,7 +31,7 @@ import java.util.HashMap;
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	private final String TAG = "ArticlePager";
-	private RecyclerView.Adapter m_adapter;
+	private PagerAdapter m_adapter;
 	private HeadlinesEventListener m_listener;
 	protected Article m_article;
 	private OnlineActivity m_activity;
@@ -42,15 +43,14 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private boolean m_lazyLoadDisabled;
 	private ViewPager2 m_pager;
 
-	private class PagerAdapter extends FragmentStateAdapter {
+	private static class PagerAdapter extends FragmentStateAdapter {
 		
 		public PagerAdapter(FragmentActivity fa) {
 			super(fa);
 		}
 
-		private ArticleFragment m_currentFragment;
-
 		@Override
+		@NonNull
 		public Fragment createFragment(int position) {
 			try {
 				Article article = Application.getArticles().get(position);
@@ -72,10 +72,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		public int getItemCount() {
 			return Application.getArticles().size();
 		}
-
-        public ArticleFragment getCurrentFragment() {
-            return m_currentFragment;
-        }
 
 	}
 		
@@ -162,11 +158,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, Application.getArticles()) {
 			@Override
-			protected void onProgressUpdate(Integer... progress) {
-				m_activity.setProgress(progress[0] / progress[1] * 10000);
-			}
-
-			@Override
 			protected void onPostExecute(JsonElement result) {
 				if (isDetached() || !isAdded()) return;
 
@@ -192,7 +183,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 								.setAction(R.string.reload, v -> refresh(false)).show();
 					}
 
-					if (m_amountLoaded < Integer.valueOf(m_prefs.getString("headlines_request_size", "15"))) {
+					if (m_amountLoaded < Integer.parseInt(m_prefs.getString("headlines_request_size", "15"))) {
 						m_lazyLoadDisabled = true;
 					}
 
@@ -299,13 +290,13 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 			}
 		}
 
-        Log.d(TAG, "[AP] request more headlines, firstId=" + m_firstId);
+		Log.d(TAG, "[AP] request more headlines, firstId=" + m_firstId);
 
 		req.execute(map);
 	}
 	
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);		
 		
 		m_listener = (HeadlinesEventListener)activity;

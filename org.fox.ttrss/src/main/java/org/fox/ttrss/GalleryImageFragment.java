@@ -47,7 +47,7 @@ public class GalleryImageFragment extends GalleryBaseFragment {
         imgView.setOnTouchListener(touchHandler);
 
         // shared element transitions stop GIFs from playing
-        if (m_url.toLowerCase().indexOf(".gif") == -1) {
+        if (!m_url.toLowerCase().contains(".gif")) {
             ViewCompat.setTransitionName(imgView, "gallery:" + m_url);
         }
 
