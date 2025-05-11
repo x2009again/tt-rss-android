@@ -219,7 +219,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_flat_24);
 					}
 
-					menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_mark_as_unread_24 :
+					menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_mark_email_unread_24 :
 							R.drawable.baseline_email_24);
 
 					menu.findItem(R.id.toggle_attachments).setVisible(article.attachments != null && article.attachments.size() > 0);
