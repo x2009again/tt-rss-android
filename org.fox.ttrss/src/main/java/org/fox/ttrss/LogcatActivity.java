@@ -25,7 +25,6 @@ public class LogcatActivity extends CommonActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
-        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         setTheme(R.style.AppTheme);
 
         super.onCreate(savedInstanceState);
