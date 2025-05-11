@@ -218,31 +218,25 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 
         int itemId = item.getItemId();
         if (itemId == R.id.browse_headlines) {
-            if (true) {
-                FeedCategory cat = getCategoryAtPosition(info.position);
-                if (cat != null) {
-                    m_activity.onCatSelected(cat, true);
-                    //setSelectedCategory(cat);
-                }
-            }
+			FeedCategory cat = getCategoryAtPosition(info.position);
+			if (cat != null) {
+				m_activity.onCatSelected(cat, true);
+				//setSelectedCategory(cat);
+			}
             return true;
         } else if (itemId == R.id.browse_feeds) {
-            if (true) {
-                FeedCategory cat = getCategoryAtPosition(info.position);
-                if (cat != null) {
-                    m_activity.onCatSelected(cat, false);
-                    //cf.setSelectedCategory(cat);
-                }
-            }
+			FeedCategory cat = getCategoryAtPosition(info.position);
+			if (cat != null) {
+				m_activity.onCatSelected(cat, false);
+				//cf.setSelectedCategory(cat);
+			}
             return true;
         } else if (itemId == R.id.catchup_category) {
-            if (true) {
-                final FeedCategory cat = getCategoryAtPosition(info.position);
+			final FeedCategory cat = getCategoryAtPosition(info.position);
 
-                if (cat != null) {
-                    m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
-                }
-            }
+			if (cat != null) {
+				m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
+			}
             return true;
         }
         Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
@@ -325,7 +319,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	public void onResume() {
 		super.onResume();
 
-		getLoaderManager().initLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).initLoader(0, null, this).forceLoad();
 
 		m_activity.invalidateOptionsMenu();
 	}
@@ -337,7 +331,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 			m_swipeLayout.setRefreshing(true);
 		}
 
-		getLoaderManager().restartLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
 	}
 	
 	private class FeedCategoryListAdapter extends ArrayAdapter<FeedCategory> {
@@ -410,19 +404,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 				tu.setText(String.valueOf(cat.unread));
 				tu.setVisibility((cat.unread > 0) ? View.VISIBLE : View.INVISIBLE);
 			}
-			
-			/*ImageButton ib = (ImageButton) v.findViewById(R.id.feed_menu_button);
-			
-			if (ib != null) {
-				ib.setOnClickListener(new OnClickListener() {					
-					@Override
-					public void onClick(View v) {
-						getActivity().openContextMenu(v);
-					}
-				});								
-			} */
 
-			
 			return v;
 		}
 	}

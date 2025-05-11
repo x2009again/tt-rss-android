@@ -236,64 +236,56 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-        int itemId = item.getItemId();
-        if (itemId == R.id.browse_headlines) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
-                if (feed != null) {
-                    m_activity.onFeedSelected(feed);
-                }
-            }
-            return true;
-        } else if (itemId == R.id.browse_feeds) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
-                if (feed != null) {
-                    m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
-                }
-            }
-            return true;
-        } else if (itemId == R.id.unsubscribe_feed) {
-            if (true) {
-                final Feed feed = getFeedAtPosition(info.position);
+		int itemId = item.getItemId();
+		if (itemId == R.id.browse_headlines) {
+			Feed feed = getFeedAtPosition(info.position);
+			if (feed != null) {
+				m_activity.onFeedSelected(feed);
+			}
+			return true;
+		} else if (itemId == R.id.browse_feeds) {
+			Feed feed = getFeedAtPosition(info.position);
+			if (feed != null) {
+				m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
+			}
+			return true;
+		} else if (itemId == R.id.unsubscribe_feed) {
+			final Feed feed = getFeedAtPosition(info.position);
 
-				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-                        .setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
-                        .setPositiveButton(R.string.unsubscribe,
-                                new Dialog.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+					.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
+					.setPositiveButton(R.string.unsubscribe,
+							new Dialog.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+													int which) {
 
-                                        m_activity.unsubscribeFeed(feed);
+									m_activity.unsubscribeFeed(feed);
 
-                                    }
-                                })
-                        .setNegativeButton(R.string.dialog_cancel,
-                                new Dialog.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
+								}
+							})
+					.setNegativeButton(R.string.dialog_cancel,
+							new Dialog.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+													int which) {
 
-                                    }
-                                });
+								}
+							});
 
-                Dialog dlg = builder.create();
-                dlg.show();
-            }
+			Dialog dlg = builder.create();
+			dlg.show();
 
-            return true;
-        } else if (itemId == R.id.catchup_feed) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
+			return true;
+		} else if (itemId == R.id.catchup_feed) {
+			Feed feed = getFeedAtPosition(info.position);
 
-                if (feed != null) {
-                    m_activity.catchupDialog(feed);
-                }
-            }
-            return true;
-        }
-        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-        return super.onContextItemSelected(item);
-    }
+			if (feed != null) {
+				m_activity.catchupDialog(feed);
+			}
+			return true;
+		}
+		Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+		return super.onContextItemSelected(item);
+	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -405,7 +397,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public void onResume() {
 		super.onResume();
 
-		getLoaderManager().initLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).initLoader(0, null, this).forceLoad();
 		
 		m_activity.invalidateOptionsMenu();
 	}
@@ -436,7 +428,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		}
 	}
 
-	@SuppressWarnings({ "serial" })
 	public void refresh() {
 		if (!isAdded()) return;
 
@@ -444,7 +435,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
             m_swipeLayout.setRefreshing(true);
         }
 
-		getLoaderManager().restartLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
 	}
 
 	private class FeedListAdapter extends ArrayAdapter<Feed> {
@@ -554,17 +545,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 				tu.setVisibility((feed.unread > 0) ? View.VISIBLE : View.INVISIBLE);
 			}
 
-			/*ImageButton ib = (ImageButton) v.findViewById(R.id.feed_menu_button);
-
-			if (ib != null) {
-				ib.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						getActivity().openContextMenu(v);
-					}
-				});
-			}*/
-
 			return v;
 		}
 	}
@@ -601,8 +581,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			String key) {
 
 		sortFeeds();
-		//m_enableFeedIcons = m_prefs.getBoolean("download_feed_icons", false);
-		
 	}
 
 	public Feed getFeedAtPosition(int position) {
