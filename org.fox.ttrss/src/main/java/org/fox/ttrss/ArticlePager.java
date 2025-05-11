@@ -18,7 +18,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -196,9 +195,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				if (isDetached() || !isAdded()) return;
 
 				if (!append) {
-					ViewPager pager = getView().findViewById(R.id.article_pager);
-					pager.setCurrentItem(0);
-
+					m_pager.setCurrentItem(0);
 					m_articles.clear();
 				}
 
@@ -366,9 +363,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 			int position = m_articles.indexOf(m_article);
 
-			ViewPager pager = getView().findViewById(R.id.article_pager);
-		
-			pager.setCurrentItem(position);
+			m_pager.setCurrentItem(position);
 		}
 	}
 

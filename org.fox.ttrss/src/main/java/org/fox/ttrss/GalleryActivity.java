@@ -51,7 +51,7 @@ public class GalleryActivity extends CommonActivity {
     protected String m_title;
     private ArticleImagesPagerAdapter m_adapter;
     public String m_content;
-    private ViewPager m_pager;
+    private ViewPager m_pager; // TODO replace with viewpager2
     private ProgressBar m_checkProgress;
 
     private static class ArticleImagesPagerAdapter extends FragmentStatePagerAdapter {
