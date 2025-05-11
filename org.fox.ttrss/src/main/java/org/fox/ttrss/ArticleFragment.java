@@ -23,8 +23,6 @@ import android.widget.TextView;
 import androidx.core.text.HtmlCompat;
 import androidx.preference.PreferenceManager;
 
-import com.google.android.material.button.MaterialButton;
-
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Attachment;
 import org.jsoup.helper.StringUtil;
@@ -58,7 +56,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 		if (v.getId() == R.id.article_content) {
 			HitTestResult result = ((WebView)v).getHitTestResult();
 
-			if (result != null && (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
+			if (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
 
 				menu.setHeaderTitle(result.getExtra());
 				getActivity().getMenuInflater().inflate(R.menu.content_gallery_entry, menu);
@@ -99,17 +97,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 		if (m_article == null) {
 		    m_activity.finish();
         }
-
-        /* if (m_article.id == HeadlinesFragment.ARTICLE_SPECIAL_TOP_CHANGED) {
-            TextView statusMessage = (TextView) view.findViewById(R.id.article_status_message);
-            statusMessage.setText(R.string.headlines_row_top_changed);
-            statusMessage.setVisibility(View.VISIBLE);
-
-            view.findViewById(R.id.article_scrollview).setVisibility(View.GONE);
-            view.findViewById(R.id.article_fab).setVisibility(View.GONE);
-
-            return view;
-        } */
 
         m_articleFontSize = m_prefs.getInt("article_font_size_sp_int", 16);
         m_articleSmallFontSize = Math.max(10, Math.min(18, m_articleFontSize - 2));
@@ -236,7 +223,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         m_web.setOnLongClickListener(v -> {
             HitTestResult result = ((WebView)v).getHitTestResult();
 
-            if (result != null && (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
+            if (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
                 registerForContextMenu(m_web);
                 m_activity.openContextMenu(m_web);
                 unregisterForContextMenu(m_web);
@@ -250,23 +237,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         return view;
 	}
-
-    private void setScoreImage(MaterialButton scoreView, int score) {
-        TypedValue tv = new TypedValue();
-        int scoreAttr = R.attr.ic_action_trending_flat;
-
-        if (m_article.score > 0)
-            scoreAttr = R.attr.ic_action_trending_up;
-        else if (m_article.score < 0)
-            scoreAttr = R.attr.ic_action_trending_down;
-
-        m_activity.getTheme().resolveAttribute(scoreAttr, tv, true);
-
-        scoreView.setIconResource(tv.resourceId);
-
-        TypedValue tvPrimary = new TypedValue();
-        m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
-    }
 
     protected void renderContent(Bundle savedInstanceState) {
         if (!isAdded() || m_web == null) return;
@@ -331,7 +301,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             for (Attachment a : m_article.attachments) {
                 if (a.content_type != null && a.content_url != null) {
                     try {
-                        if (a.content_type.indexOf("image") != -1 &&
+                        if (a.content_type.contains("image") &&
                                 (!hasImages || m_article.always_display_attachments)) {
 
                             URL url = new URL(a.content_url.trim());
