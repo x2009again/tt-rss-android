@@ -10,9 +10,13 @@ import java.util.LinkedHashMap;
 
 public class Application extends android.app.Application {
 	private static Application m_singleton;
-	
-	public ArticleList tmpArticleList;
-	public Article tmpArticle;
+
+	// this is the only instance of a (large) object which contains all currently loaded articles and is
+	// used by all fragments and activities concurrently
+	private ArticleList m_articles = new ArticleList();
+
+	// we use this to pass a large temporary object between activities
+	public Article tmpActiveArticle;
 
 	public int m_selectedArticleId;
 	public String m_sessionId;
@@ -22,7 +26,11 @@ public class Application extends android.app.Application {
 	public static Application getInstance(){
 		return m_singleton;
 	}
-	
+
+	public static ArticleList getArticles() {
+		return getInstance().m_articles;
+	}
+
 	@Override
 	public final void onCreate() {
 		super.onCreate();

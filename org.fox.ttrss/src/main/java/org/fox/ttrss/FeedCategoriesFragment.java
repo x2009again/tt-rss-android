@@ -235,15 +235,6 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
                 }
             }
             return true;
-        } else if (itemId == R.id.create_shortcut) {
-            if (true) {
-                FeedCategory cat = getCategoryAtPosition(info.position);
-                if (cat != null) {
-                    m_activity.createCategoryShortcut(cat);
-                    //cf.setSelectedCategory(cat);
-                }
-            }
-            return true;
         } else if (itemId == R.id.catchup_category) {
             if (true) {
                 final FeedCategory cat = getCategoryAtPosition(info.position);
@@ -269,10 +260,6 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		
 		if (cat != null) 
 			menu.setHeaderTitle(cat.title);
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			menu.findItem(R.id.create_shortcut).setVisible(false);
-		}
 
 		super.onCreateContextMenu(menu, v, menuInfo);		
 		

@@ -4,9 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings("serial")
-public class ArticleList extends ArrayList<Article> implements Parcelable {
+public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcelable {
 	@Override
 	public int describeContents() {
 		return 0;

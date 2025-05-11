@@ -26,7 +26,7 @@ import org.fox.ttrss.types.Feed;
 
 public class DetailActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();
-	protected ArticleList m_articles = new ArticleList();
+	//protected ArticleList m_articles = new ArticleList();
 	protected BottomAppBar m_bottomAppBar;
 
 	protected SharedPreferences m_prefs;
@@ -41,10 +41,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		setAppTheme(m_prefs);
 
         super.onCreate(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			m_articles = savedInstanceState.getParcelable("m_articles");
-		}
 
 		if (m_prefs.getBoolean("force_phone_layout", false)) {
 			setContentView(R.layout.activity_detail_phone);
@@ -152,35 +148,25 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 					String feedTitle = i.getStringExtra("feed_title");
 					
 					tmpFeed = new Feed(feedId, feedTitle, isCat);
-
-					//Application.getInstance().m_loadedArticles.clear();
 				} else {
 					tmpFeed = i.getParcelableExtra("feed");
 				}
 				
 				final Feed feed = tmpFeed;
 				
-				//final Article article = i.getParcelableExtra("article");
-				final Article article = Application.getInstance().tmpArticle;
+				final Article article = Application.getInstance().tmpActiveArticle;
 				final String searchQuery = i.getStringExtra("searchQuery");
-
-                ArticleList tmp = Application.getInstance().tmpArticleList;
-
-                if (tmp != null) {
-					m_articles.clear();
-                    m_articles.addAll(tmp);
-                }
 
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
                 final HeadlinesFragment hf = new HeadlinesFragment();
-                hf.initialize(feed, article, true, m_articles);
+                hf.initialize(feed, article, true);
                 hf.setSearchQuery(searchQuery);
 
                 ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
 				ArticlePager af = new ArticlePager();
-				af.initialize(article != null ? hf.getArticleById(article.id) : new Article(), feed, m_articles);
+				af.initialize(article != null ? hf.getArticleById(article.id) : new Article(), feed);
 				af.setSearchQuery(searchQuery);
 
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
@@ -261,8 +247,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
-
-		out.putParcelable("m_articles", m_articles);
 
 		Application.getInstance().save(out);
 	}
@@ -384,7 +368,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						.beginTransaction();
 
 				ArticlePager af = new ArticlePager();
-				af.initialize(article, hf.getFeed(), m_articles);
+				af.initialize(article, hf.getFeed());
 
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
 				ft.commitAllowingStateLoss();
@@ -396,7 +380,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	public void onBackPressed() {
         Intent resultIntent = new Intent();
 
-        Application.getInstance().tmpArticleList = m_articles;
         resultIntent.putExtra("activeArticle", m_activeArticle);
 
         setResult(Activity.RESULT_OK, resultIntent);

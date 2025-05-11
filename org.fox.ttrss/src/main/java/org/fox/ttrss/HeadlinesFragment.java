@@ -111,7 +111,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private SharedPreferences m_prefs;
 
 	private HeaderViewRecyclerAdapter m_adapter;
-	ArticleList m_articles = new ArticleList();
 	private ArticleList m_readArticles = new ArticleList();
 	private HeadlinesEventListener m_listener;
 	private OnlineActivity m_activity;
@@ -127,7 +126,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public ArticleList getSelectedArticles() {
         ArticleList tmp = new ArticleList();
 
-        for (Article a : m_articles) {
+        for (Article a : Application.getArticles()) {
             if (a.selected) tmp.add(a);
         }
 
@@ -138,7 +137,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_feed = feed;
 	}
 
-	public void initialize(Feed feed, Article activeArticle, boolean compactMode, ArticleList articles) {
+	public void initialize(Feed feed, Article activeArticle, boolean compactMode) {
 		m_feed = feed;
         m_compactLayoutMode = compactMode;
 
@@ -146,9 +145,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_activeArticle = getArticleById(activeArticle.id);
 		}
 
-        if (articles != null) {
-            m_articles = articles;
-        }
 	}
 
 	public boolean onArticleMenuItemSelected(MenuItem item, Article article, int position) {
@@ -283,20 +279,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_searchQuery = savedInstanceState.getString("m_searchQuery");
 			m_firstId = savedInstanceState.getInt("m_firstId");
 			m_lazyLoadDisabled = savedInstanceState.getBoolean("m_lazyLoadDisabled");
-
-			/*ArrayList<Article> list = savedInstanceState.getParcelableArrayList("m_articles");
-
-			m_articles.clear(); // ?
-			m_articles.addAll(list);*/
-
-			ArticleList tmp = Application.getInstance().tmpArticleList;
-
-			if (tmp != null) {
-				m_articles.clear();
-				m_articles.addAll(Application.getInstance().tmpArticleList);
-			}
-
-			savedInstanceState.getBoolean("m_compactLayoutMode", m_compactLayoutMode);
+			m_compactLayoutMode = savedInstanceState.getBoolean("m_compactLayoutMode");
 		}
 
 		setRetainInstance(true);
@@ -313,20 +296,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		out.putString("m_searchQuery", m_searchQuery);
 		out.putInt("m_firstId", m_firstId);
 		out.putBoolean("m_lazyLoadDisabled", m_lazyLoadDisabled);
-		//out.putParcelable("m_articles", m_articles);
 		out.putBoolean("m_compactLayoutMode", m_compactLayoutMode);
-
-		Application.getInstance().tmpArticleList = m_articles;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        if (savedInstanceState != null) {
-            if (m_activity instanceof DetailActivity) {
-                m_articles = ((DetailActivity)m_activity).m_articles;
-            }
-		}
 
 		String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 
@@ -364,7 +338,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_list.addItemDecoration(materialDivider);
 		} */
 
-		ArticleListAdapter adapter = new ArticleListAdapter(getActivity(), R.layout.headlines_row, m_articles);
+		ArticleListAdapter adapter = new ArticleListAdapter(getActivity(), R.layout.headlines_row, Application.getArticles());
 
 		m_adapter = new HeaderViewRecyclerAdapter(adapter);
 
@@ -412,7 +386,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 								wasUnread = false;
 							}
 
-							m_articles.remove(position);
+							Application.getArticles().remove(position);
 							m_adapter.notifyDataSetChanged();
 
 							Snackbar.make(m_list, R.string.headline_undo_row_prompt, Snackbar.LENGTH_LONG)
@@ -425,7 +399,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 												m_activity.saveArticleUnread(article);
 											}
 
-											m_articles.add(position, article);
+											Application.getArticles().add(position, article);
 											m_adapter.notifyItemInserted(adapterPosition);
 											m_adapter.notifyItemRangeChanged(adapterPosition, 1);
 										}
@@ -486,7 +460,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				if (m_prefs.getBoolean("headlines_mark_read_scroll", false) && firstVisibleItem > m_adapter.getHeaderCount()) {
 
-					if (firstVisibleItem <= m_articles.size() + m_adapter.getHeaderCount()) {
+					if (firstVisibleItem <= Application.getArticles().size() + m_adapter.getHeaderCount()) {
 
 						Article a = getArticleAtPosition(firstVisibleItem - m_adapter.getHeaderCount() - 1);
 
@@ -500,7 +474,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					}
 				}
 
-				if (!m_refreshInProgress && !m_lazyLoadDisabled && lastVisibleItem >= m_articles.size() - 5) {
+				if (!m_refreshInProgress && !m_lazyLoadDisabled && lastVisibleItem >= Application.getArticles().size() - 5) {
 					m_refreshInProgress = true;
 					new Handler().postDelayed(new Runnable() {
 						@Override
@@ -532,7 +506,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			setActiveArticle(m_activeArticle);
 		}
 
-        if (m_articles.size() == 0) {
+        if (Application.getArticles().size() == 0) {
             refresh(false);
         }
 
@@ -553,7 +527,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	@SuppressWarnings({ "serial" })
 	public void refresh(final boolean append, boolean userInitiated) {
-		m_articles.stripFooters();
+		Application.getArticles().stripFooters();
 		m_adapter.notifyDataSetChanged();
 
 		if (!append) m_lazyLoadDisabled = false;
@@ -565,11 +539,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			if (!append) {
 				m_activity.getSupportActionBar().show();
-				m_articles.clear();
+				Application.getArticles().clear();
 				m_adapter.notifyDataSetChanged();
 			} else {
 				if (!(m_activity instanceof DetailActivity)) {
-					m_articles.add(new Article(Article.TYPE_LOADMORE));
+					Application.getArticles().add(new Article(Article.TYPE_LOADMORE));
 					m_adapter.notifyDataSetChanged();
 				}
 			}
@@ -577,7 +551,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			final String sessionId = m_activity.getSessionId();
 			final boolean isCat = m_feed.is_cat;
 
-			@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, m_articles) {
+			@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, Application.getArticles()) {
 				@Override
 				protected void onProgressUpdate(Integer... progress) {
 					m_activity.setProgress(Math.round((((float) progress[0] / (float) progress[1]) * 10000)));
@@ -597,7 +571,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					if (result != null) {
 
-						if (m_activeArticle != null && !m_articles.containsId(m_activeArticle.id)) {
+						if (m_activeArticle != null && !Application.getArticles().containsId(m_activeArticle.id)) {
 							m_activeArticle = null;
 						}
 
@@ -643,7 +617,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					}
 
 					if (!(m_activity instanceof DetailActivity)) {
-						m_articles.add(new Article(Article.TYPE_AMR_FOOTER));
+						Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
 						m_adapter.notifyDataSetChanged();
 					}
 				}
@@ -655,9 +629,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				// adaptive, all_articles, marked, published, unread
 				String viewMode = m_activity.getViewMode();
 				int numUnread = 0;
-				int numAll = m_articles.size();
+				int numAll = Application.getArticles().size();
 
-				for (Article a : m_articles) {
+				for (Article a : Application.getArticles()) {
 					if (a.unread) ++numUnread;
 				}
 
@@ -839,7 +813,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	private class ArticleListAdapter extends RecyclerView.Adapter<ArticleViewHolder>  {
-		private ArrayList<Article> items;
+		private ArticleList items;
 
 		public static final int VIEW_NORMAL = 0;
 		public static final int VIEW_UNREAD = 1;
@@ -879,7 +853,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			return false;
 		}
 
-		public ArticleListAdapter(Context context, int textViewResourceId, ArrayList<Article> items) {
+		public ArticleListAdapter(Context context, int textViewResourceId, ArticleList items) {
 			super();
 			this.items = items;
 
@@ -1716,7 +1690,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	// returns cloned array without footers
 	public ArticleList getAllArticles() {
-		ArticleList tmp = (ArticleList) m_articles.clone();
+		ArticleList tmp = (ArticleList) Application.getArticles().clone();
 		tmp.stripFooters();
 
 		return tmp;
@@ -1740,11 +1714,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void setSelection(ArticlesSelection select) {
-		for (Article a : m_articles)
+		for (Article a : Application.getArticles())
             a.selected = false;
 
 		if (select != ArticlesSelection.NONE) {
-			for (Article a : m_articles) {
+			for (Article a : Application.getArticles()) {
 				if (select == ArticlesSelection.ALL || select == ArticlesSelection.UNREAD && a.unread) {
 					a.selected = true;
 				}
@@ -1758,7 +1732,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
     public Article getArticleAtPosition(int position) {
 		try {
-			return m_articles.get(position);
+			return Application.getArticles().get(position);
 		} catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -1769,7 +1743,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public Article getArticleById(int id) {
-		for (Article a : m_articles) {
+		for (Article a : Application.getArticles()) {
 			if (a.id == id)
 				return a;
 		}
@@ -1778,7 +1752,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	public ArticleList getUnreadArticles() {
 		ArticleList tmp = new ArticleList();
-		for (Article a : m_articles) {
+		for (Article a : Application.getArticles()) {
 			if (a.unread) tmp.add(a);
 		}
 		return tmp;
@@ -1789,8 +1763,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
     public int getArticlePositionById(int id) {
-        for (int i = 0; i < m_articles.size(); i++) {
-            if (m_articles.get(i).id == id) {
+        for (int i = 0; i < Application.getArticles().size(); i++) {
+            if (Application.getArticles().get(i).id == id) {
                 return i + m_adapter.getHeaderCount();
             }
         }
@@ -1818,10 +1792,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
     public void setArticles(ArticleList articles) {
-        m_articles.clear();
-        m_articles.addAll(articles);
+        Application.getArticles().clear();
+        Application.getArticles().addAll(articles);
 
-		m_articles.add(new Article(Article.TYPE_AMR_FOOTER));
+		Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
 
         m_adapter.notifyDataSetChanged();
     }

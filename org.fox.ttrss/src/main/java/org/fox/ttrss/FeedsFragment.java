@@ -281,14 +281,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
             }
 
             return true;
-        } else if (itemId == R.id.create_shortcut) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
-                if (feed != null) {
-                    m_activity.createFeedShortcut(feed);
-                }
-            }
-            return true;
         } else if (itemId == R.id.catchup_feed) {
             if (true) {
                 Feed feed = getFeedAtPosition(info.position);
@@ -323,11 +315,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			menu.findItem(R.id.unsubscribe_feed).setVisible(false);
 		}
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            menu.findItem(R.id.create_shortcut).setVisible(false);
-        }
-
-		super.onCreateContextMenu(menu, v, menuInfo);		
+		super.onCreateContextMenu(menu, v, menuInfo);
 		
 	}
 

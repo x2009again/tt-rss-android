@@ -72,8 +72,6 @@ public class HeadlinesRequest extends ApiRequest {
 						Type listType = new TypeToken<List<Article>>() {}.getType();
 						articles = new Gson().fromJson(content.get(1), listType);
 					} else {
-						header = null;
-
 						Type listType = new TypeToken<List<Article>>() {}.getType();
 						articles = new Gson().fromJson(content, listType);
 					}
@@ -87,11 +85,6 @@ public class HeadlinesRequest extends ApiRequest {
 						while (m_articles.size() > HeadlinesFragment.HEADLINES_BUFFER_MAX) {
 							m_articles.remove(0);
 						}
-
-						/*if (m_articles.get(m_articles.size()-1).id == HeadlinesFragment.ARTICLE_SPECIAL_LOADMORE) {
-							m_articles.remove(m_articles.size()-1); // remove previous placeholder
-						}*/
-						
 					}
 
 					m_amountLoaded = articles.size();
@@ -103,17 +96,6 @@ public class HeadlinesRequest extends ApiRequest {
 							m_articles.add(f);
 						}
 
-					/*if (articles.size() == HEADLINES_REQUEST_SIZE) {
-						Article placeholder = new Article(HeadlinesFragment.ARTICLE_SPECIAL_LOADMORE);
-						m_articles.add(placeholder);
-					}*/
-
-					/* if (m_articles.size() == 0)
-						m_activity.setLoadingStatus(R.string.no_headlines_to_display, false);
-					else */
-					
-					//m_activity.setLoadingStatus(R.string.blank, false);
-					
 					return;
 				}
 						

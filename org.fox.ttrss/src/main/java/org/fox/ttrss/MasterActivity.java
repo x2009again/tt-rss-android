@@ -482,8 +482,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
 				intent.putExtra("feed", hf.getFeed());
 				intent.putExtra("searchQuery", hf.getSearchQuery());
-				Application.getInstance().tmpArticleList = hf.getAllArticles();
-				Application.getInstance().tmpArticle = article;
+
+				Application.getInstance().tmpActiveArticle = article;
 
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -525,44 +525,13 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == HEADLINES_REQUEST && data != null) {
-            ArticleList articles = Application.getInstance().tmpArticleList;
-
-            if (articles != null) {
-                HeadlinesFragment hf = (HeadlinesFragment)getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-
-                if (hf != null) {
-                    hf.setArticles(articles);
-                }
-            }
-		}
-
 		super.onActivityResult(requestCode, resultCode, data);
-	}
 
-	// TODO: remove; not supported on oreo
-	public void createFeedShortcut(Feed feed) {
-		final Intent shortcutIntent = new Intent(this, MasterActivity.class);
-		shortcutIntent.putExtra("feed_id", feed.id);
-		shortcutIntent.putExtra("feed_is_cat", feed.is_cat);
-		shortcutIntent.putExtra("feed_title", feed.title);
-		shortcutIntent.putExtra("shortcut_mode", true);
-		
-		Intent intent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
-		
-		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, feed.title);
-		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.drawable.ic_launcher));
-		intent.putExtra("duplicate", false);
-		
-		sendBroadcast(intent);
-		
-		toast(R.string.shortcut_has_been_placed_on_the_home_screen);
-	}
+		HeadlinesFragment hf = (HeadlinesFragment)getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-	// TODO: remove; not supported on oreo
-	public void createCategoryShortcut(FeedCategory cat) {
-		createFeedShortcut(new Feed(cat.id, cat.title, true));
+		if (hf != null) {
+			hf.notifyUpdated();
+		}
 	}
 
 	public void unsubscribeFeed(final Feed feed) {

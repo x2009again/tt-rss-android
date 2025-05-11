@@ -34,7 +34,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private RecyclerView.Adapter m_adapter;
 	private HeadlinesEventListener m_listener;
 	protected Article m_article;
-	protected ArticleList m_articles = new ArticleList(); //m_articles = Application.getInstance().m_loadedArticles;
 	private OnlineActivity m_activity;
 	private String m_searchQuery = "";
 	protected Feed m_feed;
@@ -55,7 +54,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		@Override
 		public Fragment createFragment(int position) {
 			try {
-				Article article = m_articles.get(position);
+				Article article = Application.getArticles().get(position);
 
 				if (article != null) {
 					ArticleFragment af = new ArticleFragment();
@@ -72,7 +71,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		@Override
 		public int getItemCount() {
-			return m_articles.size();
+			return Application.getArticles().size();
 		}
 
         public ArticleFragment getCurrentFragment() {
@@ -81,10 +80,9 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	}
 		
-	public void initialize(Article article, Feed feed, ArticleList articles) {
+	public void initialize(Article article, Feed feed) {
 		m_article = article;
 		m_feed = feed;
-        m_articles = articles;
 	}
 
 	public void setSearchQuery(String searchQuery) {
@@ -96,7 +94,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		super.onSaveInstanceState(out);
 
 		out.putParcelable("m_article", m_article);
-		//out.putParcelable("m_articles", m_articles);
 		out.putParcelable("m_feed", m_feed);
 		out.putInt("m_firstId", m_firstId);
 	}
@@ -118,17 +115,11 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
 		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 
-		if (savedInstanceState != null) {
-			if (m_activity instanceof DetailActivity) {
-				m_articles = ((DetailActivity)m_activity).m_articles;
-			}
-		}
-		
 		m_adapter = new PagerAdapter(getActivity());
 		
 		m_pager = view.findViewById(R.id.article_pager);
 
-		int position = m_articles.indexOf(m_article);
+		int position = Application.getArticles().indexOf(m_article);
 		
 		m_listener.onArticleSelected(m_article, false);
 
@@ -141,7 +132,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 			public void onPageSelected(int position) {
 				Log.d(TAG, "onPageSelected: " + position);
 
-				final Article article = m_articles.get(position);
+				final Article article = Application.getArticles().get(position);
 
 				if (article != null) {
 					m_article = article;
@@ -181,7 +172,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		m_refreshInProgress = true;
 
-		@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, m_articles) {
+		@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, Application.getArticles()) {
 			@Override
 			protected void onProgressUpdate(Integer... progress) {
 				m_activity.setProgress(progress[0] / progress[1] * 10000);
@@ -193,7 +184,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 				if (!append) {
 					m_pager.setCurrentItem(0, false);
-					m_articles.clear();
+					Application.getArticles().clear();
 				}
 
 				super.onPostExecute(result);
@@ -234,9 +225,9 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 					}
 					
 					if (m_article != null) {
-						if (m_article.id == 0 || !m_articles.containsId(m_article.id)) {
-							if (m_articles.size() > 0) {
-								m_article = m_articles.get(0);
+						if (m_article.id == 0 || !Application.getArticles().containsId(m_article.id)) {
+							if (Application.getArticles().size() > 0) {
+								m_article = Application.getArticles().get(0);
 								m_listener.onArticleSelected(m_article, false);
 							}
 						}
@@ -264,9 +255,9 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 			// adaptive, all_articles, marked, published, unread
 			String viewMode = m_activity.getViewMode();
 			int numUnread = 0;
-			int numAll = m_articles.size();
+			int numAll = Application.getArticles().size();
 			
-			for (Article a : m_articles) {
+			for (Article a : Application.getArticles()) {
 				if (a.unread) ++numUnread;
 			}
 			
@@ -358,15 +349,15 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		if (m_article != article) {
 			m_article = article;
 
-			int position = m_articles.indexOf(m_article);
+			int position = Application.getArticles().indexOf(m_article);
 
-			m_pager.setCurrentItem(position);
+			m_pager.setCurrentItem(position, false);
 		}
 	}
 
 	public void selectArticle(boolean next) {
 		if (m_article != null) {
-			int position = m_articles.indexOf(m_article);
+			int position = Application.getArticles().indexOf(m_article);
 			
 			if (next) 
 				position++;
@@ -374,7 +365,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				position--;
 			
 			try {
-				Article tmp = m_articles.get(position);
+				Article tmp = Application.getArticles().get(position);
 				
 				if (tmp != null) {
 					setActiveArticle(tmp);
