@@ -24,9 +24,9 @@ public class HeadlinesRequest extends ApiRequest {
 	private final String TAG = this.getClass().getSimpleName();
 	
 	private int m_offset = 0;
-	private OnlineActivity m_activity;
-	private ArticleList m_articles; // = new ArticleList(); //Application.getInstance().m_loadedArticles;
-	private Feed m_feed;
+	private final OnlineActivity m_activity;
+	private final ArticleList m_articles; // = new ArticleList(); //Application.getInstance().m_loadedArticles;
+	private final Feed m_feed;
 
 	protected boolean m_firstIdChanged = false;
 	protected int m_firstId = 0;

@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,7 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -22,7 +22,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.util.HeadlinesRequest;
 
@@ -137,24 +136,14 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				if (article != null) {
 					m_article = article;
 
-					new Handler().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							m_listener.onArticleSelected(article, false);
-						}
-					}, 250);
+					new Handler().postDelayed(() -> m_listener.onArticleSelected(article, false), 250);
 
 					//Log.d(TAG, "Page #" + position + "/" + m_adapter.getCount());
 
 					if (!m_refreshInProgress && !m_lazyLoadDisabled && (m_activity.isSmallScreen() || m_activity.isPortrait()) && position >= m_adapter.getItemCount() - 5) {
 						Log.d(TAG, "loading more articles...");
 
-						new Handler().postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								refresh(true);
-							}
-						}, 100);
+						new Handler().postDelayed(() -> refresh(true), 100);
 					}
 				}
 			}
@@ -163,7 +152,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		return view;
 	}
 	
-	@SuppressWarnings({ "serial" }) 
 	protected void refresh(final boolean append) {
 
 		if (!append) {
@@ -201,12 +189,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 						//m_activity.toast(R.string.headlines_row_top_changed);
 
 						Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
-								.setAction(R.string.reload, new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										refresh(false);
-									}
-								}).show();
+								.setAction(R.string.reload, v -> refresh(false)).show();
 					}
 
 					if (m_amountLoaded < Integer.valueOf(m_prefs.getString("headlines_request_size", "15"))) {
@@ -226,7 +209,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 					
 					if (m_article != null) {
 						if (m_article.id == 0 || !Application.getArticles().containsId(m_article.id)) {
-							if (Application.getArticles().size() > 0) {
+							if (!Application.getArticles().isEmpty()) {
 								m_article = Application.getArticles().get(0);
 								m_listener.onArticleSelected(m_article, false);
 							}
@@ -267,7 +250,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				skip = numAll;
 			} else if ("unread".equals(viewMode)) {
 				skip = numUnread;					
-			} else if (m_searchQuery != null && m_searchQuery.length() > 0) {
+			} else if (m_searchQuery != null && !m_searchQuery.isEmpty()) {
 				skip = numAll;
 			} else if ("adaptive".equals(viewMode)) {
 				skip = numUnread > 0 ? numUnread : numAll;
@@ -280,7 +263,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		
 		req.setOffset(skip);
 
-		HashMap<String,String> map = new HashMap<String, String>();
+		HashMap<String,String> map = new HashMap<>();
 		map.put("op", "getHeadlines");
 		map.put("sid", sessionId);
 		map.put("feed_id", String.valueOf(feed.id));
@@ -298,7 +281,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		if (feed.is_cat) map.put("is_cat", "true");
 
-		if (m_searchQuery != null && m_searchQuery.length() != 0) {
+		if (m_searchQuery != null && !m_searchQuery.isEmpty()) {
 			map.put("search", m_searchQuery);
 			map.put("search_mode", "");
 			map.put("match_on", "both");

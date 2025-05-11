@@ -49,12 +49,9 @@ public class LogcatActivity extends CommonActivity {
 
         final SwipeRefreshLayout swipeLayout = findViewById(R.id.logcat_swipe_container);
 
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refresh();
-                swipeLayout.setRefreshing(false);
-            }
+        swipeLayout.setOnRefreshListener(() -> {
+            refresh();
+            swipeLayout.setRefreshing(false);
         });
     }
 

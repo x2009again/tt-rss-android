@@ -39,8 +39,8 @@ public class SubscribeActivity extends CommonShareActivity {
 	private Button m_catButton;
 	private CatListAdapter m_catAdapter;
 	private FeedListAdapter m_feedAdapter;
-	private FeedCategoryList m_cats = new FeedCategoryList();
-	private ArrayList<Map.Entry<String, JsonElement>> m_feeds = new ArrayList<Map.Entry<String, JsonElement>>();
+	private final FeedCategoryList m_cats = new FeedCategoryList();
+	private final ArrayList<Map.Entry<String, JsonElement>> m_feeds = new ArrayList<>();
 	private ProgressBar m_progressBar;
 
 	private static final int REQ_CATS = 1;
@@ -95,7 +95,7 @@ public class SubscribeActivity extends CommonShareActivity {
 		m_progressBar = (ProgressBar) findViewById(R.id.subscribe_progress);
 		Spinner catList = (Spinner) findViewById(R.id.category_spinner);
 
-		if (m_cats.size() == 0) m_cats.add(new FeedCategory(0, "Uncategorized", 0));
+		if (m_cats.isEmpty()) m_cats.add(new FeedCategory(0, "Uncategorized", 0));
 		
 		m_catAdapter = new CatListAdapter(this, android.R.layout.simple_spinner_dropdown_item, m_cats);
 		catList.setAdapter(m_catAdapter);
@@ -127,21 +127,11 @@ public class SubscribeActivity extends CommonShareActivity {
 		
 		m_postButton = (Button) findViewById(R.id.subscribe_button);
 		
-		m_postButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				login(REQ_POST);
-			} 
-		});
+		m_postButton.setOnClickListener(v -> login(REQ_POST));
 		
 		m_catButton = (Button) findViewById(R.id.cats_button);
 		
-		m_catButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				login(REQ_CATS);
-			} 
-		});
+		m_catButton.setOnClickListener(v -> login(REQ_CATS));
 		
 		login(REQ_CATS);
 	}
@@ -237,7 +227,7 @@ public class SubscribeActivity extends CommonShareActivity {
 		final EditText feedUrl = (EditText) findViewById(R.id.feed_url);
 
 		if (feedUrl != null ) {
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, String> map = new HashMap<>();
 			map.put("sid", m_sessionId);
 			map.put("op", "subscribeToFeed");
 			map.put("feed_url", feedUrl.getText().toString());
@@ -299,7 +289,7 @@ public class SubscribeActivity extends CommonShareActivity {
 			}
 		};
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", m_sessionId);
 		map.put("op", "getCategories");
 
@@ -326,7 +316,7 @@ public class SubscribeActivity extends CommonShareActivity {
 	}
 
 	private static class CatListAdapter extends ArrayAdapter<String> {
-		private List<FeedCategory> m_items;
+		private final List<FeedCategory> m_items;
 		
 		public CatListAdapter(Context context, int resource,
 				List<FeedCategory> items) {
@@ -355,7 +345,7 @@ public class SubscribeActivity extends CommonShareActivity {
 	}
 
 	private static class FeedListAdapter extends ArrayAdapter<String> {
-		private List<Map.Entry<String, JsonElement>> m_items;
+		private final List<Map.Entry<String, JsonElement>> m_items;
 
 		public FeedListAdapter(Context context, int resource, List<Map.Entry<String, JsonElement>> items) {
 			super(context, resource);

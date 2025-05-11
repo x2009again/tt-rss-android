@@ -13,7 +13,7 @@ public class Application extends android.app.Application {
 
 	// this is the only instance of a (large) object which contains all currently loaded articles and is
 	// used by all fragments and activities concurrently
-	private ArticleList m_articles = new ArticleList();
+	private final ArticleList m_articles = new ArticleList();
 
 	// we use this to pass a large temporary object between activities
 	public Article tmpActiveArticle;
@@ -21,7 +21,7 @@ public class Application extends android.app.Application {
 	public int m_selectedArticleId;
 	public String m_sessionId;
 	public int m_apiLevel;
-	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<String, String>();
+	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
 
 	public static Application getInstance(){
 		return m_singleton;

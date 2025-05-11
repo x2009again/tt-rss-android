@@ -3,13 +3,11 @@ package org.fox.ttrss;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -210,16 +209,13 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         if (fab != null) {
         	fab.show();
 
-        	fab.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+        	fab.setOnClickListener(view -> {
+                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-					if (hf != null && hf.isAdded()) {
-						hf.refresh(false);
-					}
-				}
-			});
+                if (hf != null && hf.isAdded()) {
+                    hf.refresh(false);
+                }
+            });
 		}
 	}
 
@@ -286,24 +282,21 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 		Application.getArticles().clear();
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				FragmentTransaction ft = getSupportFragmentManager()
-						.beginTransaction();
+		new Handler().postDelayed(() -> {
+            FragmentTransaction ft = getSupportFragmentManager()
+                    .beginTransaction();
 
-				HeadlinesFragment hf = new HeadlinesFragment();
-				hf.initialize(feed);
+            HeadlinesFragment hf = new HeadlinesFragment();
+            hf.initialize(feed);
 
-				ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
+            ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
-				ft.commit();
+            ft.commit();
 
-				m_feedIsSelected = true;
-				m_userFeedSelected = selectedByUser;
+            m_feedIsSelected = true;
+            m_userFeedSelected = selectedByUser;
 
-			}
-		}, 250);
+        }, 250);
 
         Date date = new Date();
 
@@ -386,24 +379,20 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
                     .setTitle(getString(R.string.headlines_sort_articles_title))
                     .setSingleChoiceItems(
                             sortTitles,
-                            selectedIndex, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
+                            selectedIndex, (dialog, which) -> {
 
-                                    try {
+                                try {
 //										Log.d(TAG, "sort selected index:" + which + ": " + sortNames[which]);
 
-                                        setSortMode((String) sortNames[which]);
+                                    setSortMode((String) sortNames[which]);
 
-                                    } catch (IndexOutOfBoundsException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    dialog.cancel();
-
-                                    refresh();
+                                } catch (IndexOutOfBoundsException e) {
+                                    e.printStackTrace();
                                 }
+
+                                dialog.cancel();
+
+                                refresh();
                             });
 
             Dialog dialog = builder.create();

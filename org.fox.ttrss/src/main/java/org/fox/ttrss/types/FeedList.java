@@ -5,7 +5,6 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("serial")
 public class FeedList extends ArrayList<Feed> implements Parcelable {
 
 		public FeedList() { }

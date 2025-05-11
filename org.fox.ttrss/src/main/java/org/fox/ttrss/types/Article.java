@@ -26,7 +26,7 @@ public class Article implements Parcelable {
 
 	public int id;
 	public boolean unread; 
-	public boolean marked; 
+	public boolean marked;
 	public boolean published; 
 	public int score;
 	public int updated; 
@@ -78,13 +78,13 @@ public class Article implements Parcelable {
 	}
 
 	public void collectMediaInfo() {
-		if (flavor_image != null && flavor_image.length() > 0) {
+		if (flavor_image != null && !flavor_image.isEmpty()) {
 			flavorImageUri = flavor_image;
 
 			flavorImage = new Element("img")
 					.attr("src", flavorImageUri);
 
-			if (flavor_stream != null && flavor_stream.length() > 0) {
+			if (flavor_stream != null && !flavor_stream.isEmpty()) {
 				flavorStreamUri = flavor_stream;
 			}
 
@@ -127,7 +127,7 @@ public class Article implements Parcelable {
 
 						String srcEmbed = flavorImage.attr("src");
 
-						if (srcEmbed.length() > 0) {
+						if (!srcEmbed.isEmpty()) {
 							Pattern pattern = Pattern.compile("/embed/([\\w-]+)");
 							Matcher matcher = pattern.matcher(srcEmbed);
 
@@ -141,7 +141,7 @@ public class Article implements Parcelable {
 					} else {
 						flavorImageUri = flavorImage.attr("src");
 
-						if (flavorImageUri.length() > 0 && flavorImageUri.startsWith("//")) {
+						if (!flavorImageUri.isEmpty() && flavorImageUri.startsWith("//")) {
 							flavorImageUri = "https:" + flavorImageUri;
 						}
 
@@ -157,7 +157,7 @@ public class Article implements Parcelable {
 			}
 		}
 
-		if (flavorImageUri == null || flavorImageUri.length() == 0) {
+		if (flavorImageUri == null || flavorImageUri.isEmpty()) {
 			// consider attachments
 			if (attachments != null) {
 				for (Attachment a : attachments) {
@@ -185,7 +185,7 @@ public class Article implements Parcelable {
 		this.id = id;
 		this.title = "ID:" + id;
 		this.link = "";
-		this.tags = new ArrayList<String>();
+		this.tags = new ArrayList<>();
 	}
 
 	@Override
@@ -231,13 +231,13 @@ public class Article implements Parcelable {
 		link = in.readString();
 		feed_id = in.readInt();
 		
-		if (tags == null) tags = new ArrayList<String>();
+		if (tags == null) tags = new ArrayList<>();
 		in.readStringList(tags);
 		
 		content = in.readString();
         excerpt = in.readString();
 		
-		attachments = new ArrayList<Attachment>();
+		attachments = new ArrayList<>();
 		in.readList(attachments, Attachment.class.getClassLoader());
 		
 		feed_title = in.readString();

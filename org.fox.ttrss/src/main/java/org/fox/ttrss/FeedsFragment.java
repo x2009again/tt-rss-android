@@ -4,13 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -18,7 +15,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -30,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -54,7 +51,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	private final String TAG = this.getClass().getSimpleName();
 	private SharedPreferences m_prefs;
 	private FeedListAdapter m_adapter;
-	private FeedList m_feeds = new FeedList();
+	private final FeedList m_feeds = new FeedList();
 	private MasterActivity m_activity;
 	Feed m_selectedFeed;
 	FeedCategory m_activeCategory;
@@ -76,7 +73,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		final String sessionId = m_activity.getSessionId();
 		final boolean unreadOnly = m_activity.getUnreadOnly() && (m_activeCategory == null || m_activeCategory.id != -1);
 
-		HashMap<String,String> params = new HashMap<String,String>();
+		HashMap<String,String> params = new HashMap<>();
 		params.put("op", "getFeeds");
 		params.put("sid", sessionId);
 		params.put("include_nested", "true");
@@ -127,7 +124,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 					}
 
-					if (m_enableParentBtn && m_activeCategory != null && m_activeCategory.id >= 0 && m_feeds.size() > 0) {
+					if (m_enableParentBtn && m_activeCategory != null && m_activeCategory.id >= 0 && !m_feeds.isEmpty()) {
 						Feed feed = new Feed(m_activeCategory.id, m_activeCategory.title, true);
 						feed.unread = catUnread;
 						feed.always_display_as_feed = true;
@@ -255,21 +252,11 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
 					.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
 					.setPositiveButton(R.string.unsubscribe,
-							new Dialog.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-													int which) {
-
-									m_activity.unsubscribeFeed(feed);
-
-								}
-							})
+                            (dialog, which) -> m_activity.unsubscribeFeed(feed))
 					.setNegativeButton(R.string.dialog_cancel,
-							new Dialog.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-													int which) {
+                            (dialog, which) -> {
 
-								}
-							});
+                            });
 
 			Dialog dlg = builder.create();
 			dlg.show();
@@ -344,12 +331,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
-	    m_swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				refresh();
-			}
-		});
+	    m_swipeLayout.setOnRefreshListener(() -> refresh());
 
 		m_list = view.findViewById(R.id.feeds);
 
@@ -358,12 +340,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		if (m_enableParentBtn) {
 			View layout = inflater.inflate(R.layout.feeds_goback, m_list, false);
 
-			layout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					m_activity.getSupportFragmentManager().popBackStack();
-				}
-			});
+			layout.setOnClickListener(view1 -> m_activity.getSupportFragmentManager().popBackStack());
 
 			m_list.addHeaderView(layout, null, false);
 		}
@@ -439,7 +416,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	}
 
 	private class FeedListAdapter extends ArrayAdapter<Feed> {
-		private ArrayList<Feed> items;
+		private final ArrayList<Feed> items;
 
 		public static final int VIEW_NORMAL = 0;
 		public static final int VIEW_SELECTED = 1;
@@ -481,11 +458,9 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			if (v == null) {
 				int layoutId = R.layout.feeds_row;
 
-				switch (getItemViewType(position)) {
-				case VIEW_SELECTED:
-					layoutId = R.layout.feeds_row_selected;
-					break;
-				}
+                if (getItemViewType(position) == VIEW_SELECTED) {
+                    layoutId = R.layout.feeds_row_selected;
+                }
 
 				LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				v = vi.inflate(layoutId, null);

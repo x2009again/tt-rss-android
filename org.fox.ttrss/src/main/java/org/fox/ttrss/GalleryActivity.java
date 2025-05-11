@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,6 +20,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.ToxicBakery.viewpager.transforms.DepthPageTransformer;
@@ -50,7 +50,7 @@ public class GalleryActivity extends CommonActivity {
     private ProgressBar m_checkProgress;
 
     private static class ArticleImagesPagerAdapter extends FragmentStatePagerAdapter {
-        private List<GalleryEntry> m_items;
+        private final List<GalleryEntry> m_items;
 
         public ArticleImagesPagerAdapter(FragmentManager fm, List<GalleryEntry> items) {
             super(fm);
@@ -106,7 +106,7 @@ public class GalleryActivity extends CommonActivity {
 
     private class MediaCheckTask extends AsyncTask<List<GalleryEntry>, MediaProgressResult, List<GalleryEntry>> {
 
-        private List<GalleryEntry> m_checkedItems = new ArrayList<>();
+        private final List<GalleryEntry> m_checkedItems = new ArrayList<>();
 
         @Override
         protected List<GalleryEntry> doInBackground(List<GalleryEntry>... params) {
@@ -172,7 +172,7 @@ public class GalleryActivity extends CommonActivity {
                 if (source != null) {
                     String src = source.attr("src");
 
-                    if (src.length() > 0) {
+                    if (!src.isEmpty()) {
                         //Log.d(TAG, "vid/src=" + src);
 
                         if (src.startsWith("//")) {
@@ -200,7 +200,7 @@ public class GalleryActivity extends CommonActivity {
             } else {
                 String src = elem.attr("src");
 
-                if (src.length() > 0) {
+                if (!src.isEmpty()) {
                     if (src.startsWith("//")) {
                         src = "https:" + src;
                     }
@@ -226,7 +226,7 @@ public class GalleryActivity extends CommonActivity {
             }
 
             if ((firstFound || imgSrcFirst.equals("")) && item.url != null) {
-                if (m_items.size() == 0)
+                if (m_items.isEmpty())
                     m_items.add(item);
                 else
                     uncheckedItems.add(item);
@@ -293,28 +293,20 @@ public class GalleryActivity extends CommonActivity {
             m_content = savedInstanceState.getString("m_content");
         }
 
-        findViewById(R.id.gallery_overflow).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(GalleryActivity.this, v);
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.content_gallery_entry, popup.getMenu());
+        findViewById(R.id.gallery_overflow).setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(GalleryActivity.this, v);
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.content_gallery_entry, popup.getMenu());
 
-                final GalleryEntry entry = m_items.get(m_pager.getCurrentItem());
+            final GalleryEntry entry = m_items.get(m_pager.getCurrentItem());
 
-                popup.getMenu().findItem(R.id.article_img_share)
-                        .setVisible(entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE);
+            popup.getMenu().findItem(R.id.article_img_share)
+                    .setVisible(entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE);
 
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return onImageMenuItemSelected(item, entry);
-                    }
-                });
+            popup.setOnMenuItemClickListener(item -> onImageMenuItemSelected(item, entry));
 
-                popup.show();
+            popup.show();
 
-            }
         });
 
         setTitle(m_title);

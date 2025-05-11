@@ -11,13 +11,10 @@ import com.google.gson.JsonElement;
 import java.util.HashMap;
 
 public class ApiRequest extends AsyncTask<HashMap<String,String>, Integer, JsonElement> implements ApiCommon.ApiCaller {
-	private final String TAG = this.getClass().getSimpleName();
 
-	private boolean m_transportDebugging = false;
-	private int m_responseCode = 0;
 	private int m_apiStatusCode = 0;
 
-	private Context m_context;
+	private final Context m_context;
 	protected String m_lastErrorMessage;
 
 	protected ApiError m_lastError;

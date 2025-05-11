@@ -1,11 +1,11 @@
 package org.fox.ttrss;
 
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 public class PreferencesActivity extends CommonActivity {
 	@Override

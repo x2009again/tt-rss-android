@@ -5,7 +5,7 @@ import android.content.Context;
 import java.util.HashMap;
 
 class FeedsLoader extends ApiLoader {
-    private int m_catId;
+    private final int m_catId;
 
     public FeedsLoader(Context context, HashMap<String, String> params, int catId) {
         super(context, params);

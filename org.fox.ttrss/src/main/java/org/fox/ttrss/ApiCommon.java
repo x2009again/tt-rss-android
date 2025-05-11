@@ -6,10 +6,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -126,7 +126,7 @@ public class ApiCommon {
             String httpLogin = m_prefs.getString("http_login", "").trim();
             String httpPassword = m_prefs.getString("http_password", "").trim();
 
-            if (httpLogin.length() > 0) {
+            if (!httpLogin.isEmpty()) {
                 if (m_transportDebugging) Log.d(TAG, "Using HTTP Basic authentication.");
 
                 requestBuilder.addHeader("Authorization", Credentials.basic(httpLogin, httpPassword));

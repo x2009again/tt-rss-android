@@ -10,12 +10,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
+import androidx.preference.PreferenceManager;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -58,19 +58,16 @@ public class WidgetUpdateService extends JobIntentService {
                 Log.d(TAG, "service update requested but network is not available, try: " + retryCount);
 
                 if (retryCount < 10) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent serviceIntent = new Intent(getApplicationContext(), WidgetUpdateService.class);
-                            serviceIntent.putExtra("retryCount", retryCount + 1);
+                    new Handler().postDelayed(() -> {
+                        Intent serviceIntent = new Intent(getApplicationContext(), WidgetUpdateService.class);
+                        serviceIntent.putExtra("retryCount", retryCount + 1);
 
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                startForegroundService(serviceIntent);
-                            } else {
-                                startService(serviceIntent);
-                            }
-
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(serviceIntent);
+                        } else {
+                            startService(serviceIntent);
                         }
+
                     }, 3 * 1000);
                 } else {
                     updateWidgets(-1, UPDATE_RESULT_ERROR_OTHER);
@@ -83,7 +80,7 @@ public class WidgetUpdateService extends JobIntentService {
             m_prefs = PreferenceManager
                     .getDefaultSharedPreferences(getApplicationContext());
 
-            if (m_prefs.getString("ttrss_url", "").trim().length() == 0) {
+            if (m_prefs.getString("ttrss_url", "").trim().isEmpty()) {
 
                 updateWidgets(-1, UPDATE_RESULT_ERROR_NEED_CONF);
 
@@ -124,7 +121,7 @@ public class WidgetUpdateService extends JobIntentService {
 
                         final String fSessionId = sessionId;
 
-                        HashMap<String, String> umap = new HashMap<String, String>();
+                        HashMap<String, String> umap = new HashMap<>();
                         umap.put("op", "getUnread");
                         umap.put("feed_id", String.valueOf(feedId));
                         umap.put("sid", fSessionId);

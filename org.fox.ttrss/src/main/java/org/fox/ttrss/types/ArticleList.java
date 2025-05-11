@@ -3,10 +3,8 @@ package org.fox.ttrss.types;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@SuppressWarnings("serial")
 public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcelable {
 	@Override
 	public int describeContents() {

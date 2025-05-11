@@ -39,7 +39,7 @@ public class Attachment implements Parcelable {
 	}
 	
 	public String toString() {
-		if (title != null && title.length() > 0) {
+		if (title != null && !title.isEmpty()) {
 			return title;
 		} else {		
 			try {

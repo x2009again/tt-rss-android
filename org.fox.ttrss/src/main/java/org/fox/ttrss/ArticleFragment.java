@@ -6,14 +6,12 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebSettings;
@@ -23,11 +21,13 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import androidx.core.text.HtmlCompat;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.button.MaterialButton;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Attachment;
+import org.jsoup.helper.StringUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -129,15 +129,12 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
             title.setText(HtmlCompat.fromHtml(titleStr, HtmlCompat.FROM_HTML_MODE_LEGACY));
             //title.setPaintFlags(title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-            title.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        m_activity.openUri(Uri.parse(m_article.link));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        m_activity.toast(R.string.error_other_error);
-                    }
+            title.setOnClickListener(v -> {
+                try {
+                    m_activity.openUri(Uri.parse(m_article.link));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    m_activity.toast(R.string.error_other_error);
                 }
             });
 
@@ -152,18 +149,15 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                 String commentsTitle = getResources().getQuantityString(R.plurals.article_comments, m_article.comments_count, m_article.comments_count);
                 comments.setText(commentsTitle);
                 //comments.setPaintFlags(title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                comments.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            String url = (m_article.comments_link != null && m_article.comments_link.length() > 0) ?
-                                    m_article.comments_link : m_article.link;
+                comments.setOnClickListener(v -> {
+                    try {
+                        String url = (m_article.comments_link != null && !m_article.comments_link.isEmpty()) ?
+                                m_article.comments_link : m_article.link;
 
-                            m_activity.openUri(Uri.parse(url));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            m_activity.toast(R.string.error_other_error);
-                        }
+                        m_activity.openUri(Uri.parse(url));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        m_activity.toast(R.string.error_other_error);
                     }
                 });
 
@@ -176,7 +170,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         View noteContainer = view.findViewById(R.id.note_container);
 
         if (note != null && noteContainer != null) {
-            if (m_article.note != null && m_article.note.length() > 0) {
+            if (m_article.note != null && !m_article.note.isEmpty()) {
                 note.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
                 note.setText(m_article.note);
                 noteContainer.setVisibility(View.VISIBLE);
@@ -184,12 +178,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                 noteContainer.setVisibility(View.GONE);
             }
 
-            note.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    m_activity.editArticleNote(m_article);
-                }
-            });
+            note.setOnClickListener(view1 -> m_activity.editArticleNote(m_article));
         }
 
         TextView dv = view.findViewById(R.id.date);
@@ -215,20 +204,13 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             if (m_article.feed_title != null) {
                 String fTitle = m_article.feed_title;
 
-                if (m_article.author != null && m_article.author.length() > 0) {
+                if (m_article.author != null && !m_article.author.isEmpty()) {
                     fTitle += " (" + getString(R.string.author_formatted, m_article.author) + ")";
                 }
 
                 tagv.setText(fTitle);
             } else if (m_article.tags != null) {
-                String tagsStr = "";
-
-                for (String tag : m_article.tags)
-                    tagsStr += tag + ", ";
-
-                tagsStr = tagsStr.replaceAll(", $", "");
-
-                tagv.setText(tagsStr);
+                tagv.setText(StringUtil.join(m_article.tags, ", "));
             } else {
                 tagv.setVisibility(View.GONE);
             }
@@ -251,19 +233,16 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             return false;
         } });
 
-        m_web.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                HitTestResult result = ((WebView)v).getHitTestResult();
+        m_web.setOnLongClickListener(v -> {
+            HitTestResult result = ((WebView)v).getHitTestResult();
 
-                if (result != null && (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
-                    registerForContextMenu(m_web);
-                    m_activity.openContextMenu(m_web);
-                    unregisterForContextMenu(m_web);
-                    return true;
-                } else {
-                    return false;
-                }
+            if (result != null && (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
+                registerForContextMenu(m_web);
+                m_activity.openContextMenu(m_web);
+                unregisterForContextMenu(m_web);
+                return true;
+            } else {
+                return false;
             }
         });
 
@@ -345,7 +324,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         content.append(articleContent);
 
-        if (m_article.attachments != null && m_article.attachments.size() != 0) {
+        if (m_article.attachments != null && !m_article.attachments.isEmpty()) {
             String flatContent = articleContent.replaceAll("[\r\n]", "");
             boolean hasImages = flatContent.matches(".*?<img[^>+].*?");
 

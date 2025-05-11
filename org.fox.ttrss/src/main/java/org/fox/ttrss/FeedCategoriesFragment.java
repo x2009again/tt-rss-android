@@ -5,9 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.os.Build;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -26,6 +24,7 @@ import android.widget.TextView;
 
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.gson.Gson;
@@ -48,7 +47,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
 	private FeedCategoryListAdapter m_adapter;
-	private FeedCategoryList m_cats = new FeedCategoryList();
+	private final FeedCategoryList m_cats = new FeedCategoryList();
 	FeedCategory m_selectedCat;
 	private MasterActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
@@ -60,8 +59,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		final String sessionId = m_activity.getSessionId();
 		final boolean unreadOnly = m_activity.getUnreadOnly();
 
-		@SuppressWarnings("serial")
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		params.put("op", "getCategories");
 		params.put("sid", sessionId);
 		params.put("enable_nested", "true");
@@ -285,12 +283,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
-	    m_swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				refresh();
-			}
-		});
+	    m_swipeLayout.setOnRefreshListener(() -> refresh());
 
 		m_list = view.findViewById(R.id.feeds);
 		m_adapter = new FeedCategoryListAdapter(getActivity(), R.layout.feeds_row, m_cats);
@@ -335,7 +328,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	}
 	
 	private class FeedCategoryListAdapter extends ArrayAdapter<FeedCategory> {
-		private ArrayList<FeedCategory> items;
+		private final ArrayList<FeedCategory> items;
 
 		public static final int VIEW_NORMAL = 0;
 		public static final int VIEW_SELECTED = 1;
@@ -370,12 +363,10 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 
 			if (v == null) {
 				int layoutId = R.layout.feeds_row;
-				
-				switch (getItemViewType(position)) {
-				case VIEW_SELECTED:
-					layoutId = R.layout.feeds_row_selected;
-					break;
-				}
+
+                if (getItemViewType(position) == VIEW_SELECTED) {
+                    layoutId = R.layout.feeds_row_selected;
+                }
 				
 				LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				v = vi.inflate(layoutId, null);
