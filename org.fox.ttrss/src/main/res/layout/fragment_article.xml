@@ -1,157 +1,145 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.otaliastudios.nestedscrollcoordinatorlayout.NestedScrollCoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/article_fragment"
-    android:layout_width="fill_parent"
     android:background="?colorSurfaceContainer"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/article_fullscreen_video"
-        android:visibility="invisible"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
-
-    <com.otaliastudios.nestedscrollcoordinatorlayout.NestedScrollCoordinatorLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:background="?colorSurfaceContainer"
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.appbar.AppBarLayout
+        <com.google.android.material.card.MaterialCardView
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:strokeWidth="0dp"
+            app:shapeAppearance="@style/ShapeAppearanceArticleHeader"
             android:layout_width="match_parent"
-            android:background="?colorSurfaceContainer"
             android:layout_height="wrap_content">
 
-            <com.google.android.material.card.MaterialCardView
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:strokeWidth="0dp"
-                app:shapeAppearance="@style/ShapeAppearanceArticleHeader"
+        <LinearLayout
+            android:id="@+id/article_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="?colorPrimary"
+                    tools:text="Unreasonably long article title blah blah blah blah blah blah"
+                    android:textSize="18sp"
+                    android:gravity="start" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/comments"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                tools:text="comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginTop="8dp"
+                android:textColor="?colorPrimary"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tags"
+                    tools:text="alpha, beta, gamma"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7"
+                    android:ellipsize="middle"
+                    android:textAlignment="viewStart"
+                    android:singleLine="true"
+                    android:fontFamily="sans-serif-light"
+                    android:textColor="?colorSecondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/date"
+                    tools:text="Jan 01, 1970"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:textAlignment="viewEnd"
+                    android:fontFamily="sans-serif-light"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?colorSecondary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:id="@+id/article_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/note_container"
                     android:layout_width="match_parent"
+                    app:cardBackgroundColor="?colorTertiaryContainer"
+                    android:layout_margin="8dp"
+                    app:strokeWidth="0dp"
                     android:layout_height="match_parent">
 
-                    <TextView
-                        android:id="@+id/title"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="?colorPrimary"
-                        tools:text="Unreasonably long article title blah blah blah blah blah blah"
-                        android:textSize="18sp"
-                        android:gravity="start" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/comments"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    tools:text="comments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="viewStart"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_marginTop="8dp"
-                    android:textColor="?colorPrimary"
-                    android:textSize="12sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginTop="8dp">
-
-                    <TextView
-                        android:id="@+id/tags"
-                        tools:text="alpha, beta, gamma"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.7"
-                        android:ellipsize="middle"
-                        android:textAlignment="viewStart"
-                        android:singleLine="true"
-                        android:fontFamily="sans-serif-light"
-                        android:textColor="?colorSecondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/date"
-                        tools:text="Jan 01, 1970"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.3"
-                        android:textAlignment="viewEnd"
-                        android:fontFamily="sans-serif-light"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textColor="?colorSecondary"
-                        android:textSize="12sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/note_container"
-                        android:layout_width="match_parent"
-                        app:cardBackgroundColor="?colorTertiaryContainer"
                         android:layout_margin="8dp"
-                        app:strokeWidth="0dp"
-                        android:layout_height="match_parent">
+                        android:layout_height="wrap_content">
 
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/note"
+                            tools:text="Article note (if any...)"
+                            android:layout_gravity="center_vertical"
                             android:layout_width="match_parent"
-                            android:layout_margin="8dp"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:textColor="?colorOnTertiaryContainer"
+                            android:layout_weight="1"
+                            android:textSize="12sp"/>
 
-                            <TextView
-                                android:id="@+id/note"
-                                tools:text="Article note (if any...)"
-                                android:layout_gravity="center_vertical"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                android:textColor="?colorOnTertiaryContainer"
-                                android:layout_weight="1"
-                                android:textSize="12sp"/>
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            app:tint="?colorOnTertiaryContainer"
+                            android:src="@drawable/baseline_note_24"/>
 
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                app:tint="?colorOnTertiaryContainer"
-                                android:src="@drawable/baseline_note_24"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                </LinearLayout>
             </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        </com.google.android.material.appbar.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <com.telefonica.nestedscrollwebview.NestedScrollWebView
-            android:id="@+id/article_content"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <com.telefonica.nestedscrollwebview.NestedScrollWebView
+        android:id="@+id/article_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    </com.otaliastudios.nestedscrollcoordinatorlayout.NestedScrollCoordinatorLayout>
-
-</FrameLayout>
+</com.otaliastudios.nestedscrollcoordinatorlayout.NestedScrollCoordinatorLayout>

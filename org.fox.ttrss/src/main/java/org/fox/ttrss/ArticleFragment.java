@@ -47,10 +47,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
     protected Article m_article;
 	private DetailActivity m_activity;
     private WebView m_web;
-    protected View m_customView;
-    protected FrameLayout m_customViewContainer;
-    protected View m_contentView;
-    protected FSVideoChromeClient m_chromeClient;
     //protected View m_fab;
     protected int m_articleFontSize;
     protected int m_articleSmallFontSize;
@@ -58,68 +54,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
     public void initialize(Article article) {
 		m_article = article;
 	}
-
-    private class FSVideoChromeClient extends WebChromeClient {
-        //protected View m_videoChildView;
-
-        private CustomViewCallback m_callback;
-
-        public FSVideoChromeClient(View container) {
-            super();
-
-        }
-
-        @Override
-        public void onShowCustomView(View view, CustomViewCallback callback) {
-            m_activity.getSupportActionBar().hide();
-
-            // if a view already exists then immediately terminate the new one
-            if (m_customView != null) {
-                callback.onCustomViewHidden();
-                return;
-            }
-            m_customView = view;
-            m_contentView.setVisibility(View.GONE);
-
-            m_customViewContainer.setVisibility(View.VISIBLE);
-            m_customViewContainer.addView(view);
-
-            //if (m_fab != null) m_fab.setVisibility(View.GONE);
-
-            m_activity.showSidebar(false);
-
-            m_callback = callback;
-        }
-
-        @Override
-        public void onHideCustomView() {
-            super.onHideCustomView();
-
-            m_activity.getSupportActionBar().show();
-
-            if (m_customView == null)
-                return;
-
-            m_contentView.setVisibility(View.VISIBLE);
-            m_customViewContainer.setVisibility(View.GONE);
-
-            // Hide the custom view.
-            m_customView.setVisibility(View.GONE);
-
-            // Remove the custom view from its container.
-            m_customViewContainer.removeView(m_customView);
-            m_callback.onCustomViewHidden();
-
-            /*if (m_fab != null && m_prefs.getBoolean("enable_article_fab", true))
-                m_fab.setVisibility(View.VISIBLE);*/
-
-            m_customView = null;
-
-            m_activity.showSidebar(true);
-        }
-    }
-
-	//private View.OnTouchListener m_gestureListener;
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -169,13 +103,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 		if (m_article == null) {
 		    m_activity.finish();
         }
-
-        /* if (m_fsviewShown) {
-            view.findViewById(R.id.article_fullscreen_video).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.article_scrollview).setVisibility(View.INVISIBLE);
-        } */
-
-        m_customViewContainer = view.findViewById(R.id.article_fullscreen_video);
 
         /* if (m_article.id == HeadlinesFragment.ARTICLE_SPECIAL_TOP_CHANGED) {
             TextView statusMessage = (TextView) view.findViewById(R.id.article_status_message);
@@ -391,8 +318,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         ws.setJavaScriptEnabled(false);
 
-        m_chromeClient = new FSVideoChromeClient(getView());
-        m_web.setWebChromeClient(m_chromeClient);
         m_web.setBackgroundColor(Color.TRANSPARENT);
 
         ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
@@ -491,30 +416,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         if (m_web != null) m_web.onResume();
     }
-
-    public boolean inCustomView() {
-        return (m_customView != null);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if (inCustomView()) {
-            hideCustomView();
-        }
-    }
-
-    public void hideCustomView() {
-        if (m_chromeClient != null) {
-            m_chromeClient.onHideCustomView();
-        }
-    }
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-	}
 
 	@Override
 	public void onAttach(Activity activity) {
