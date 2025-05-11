@@ -3,7 +3,6 @@ package org.fox.ttrss;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.TypedValue;
-import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;

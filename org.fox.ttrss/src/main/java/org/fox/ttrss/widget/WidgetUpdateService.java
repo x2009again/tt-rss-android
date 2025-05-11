@@ -14,6 +14,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -23,9 +26,6 @@ import org.fox.ttrss.R;
 import org.fox.ttrss.util.SimpleLoginManager;
 
 import java.util.HashMap;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.JobIntentService;
 
 public class WidgetUpdateService extends JobIntentService {
     private final String TAG = this.getClass().getSimpleName();
