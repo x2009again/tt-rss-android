@@ -349,7 +349,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		//Application.getInstance().m_activeArticle = article;
 		
 		invalidateOptionsMenu();
-		initBottomBarMenu();
 	}
 
     public void showSidebar(boolean show) {

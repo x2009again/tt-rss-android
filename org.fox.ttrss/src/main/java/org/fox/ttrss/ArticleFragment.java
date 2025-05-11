@@ -260,6 +260,13 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             } else {
                 noteContainer.setVisibility(View.GONE);
             }
+
+            note.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    m_activity.editArticleNote(m_article);
+                }
+            });
         }
 
         TextView dv = view.findViewById(R.id.date);
