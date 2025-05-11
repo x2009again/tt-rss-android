@@ -186,9 +186,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			if (!shortcutMode && openFeedId != 0) {
 				Log.d(TAG, "opening feed id: " + openFeedId);
 
-                HeadlinesFragment hf = new HeadlinesFragment();
-                hf.initialize(new Feed(openFeedId, openFeedTitle, openFeedIsCat));
-                ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
+				onFeedSelected(new Feed(openFeedId, openFeedTitle, openFeedIsCat), false);
             } else if (m_drawerLayout != null) {
                 m_drawerLayout.openDrawer(GravityCompat.START);
             }
@@ -285,6 +283,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		if (m_drawerLayout != null) {
 			m_drawerLayout.closeDrawers();
 		}
+
+		Application.getArticles().clear();
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
