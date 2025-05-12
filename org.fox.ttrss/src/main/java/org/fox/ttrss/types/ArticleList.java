@@ -3,6 +3,7 @@ package org.fox.ttrss.types;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -43,15 +44,15 @@ public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcel
 		readFromParcel(in);
 	}
 
+	/** strips all trailing items with negative IDs (Article.TYPE_LOADMORE, Article.TYPE_AMR_FOOTER) */
 	public void stripFooters() {
-		for (int i = this.size()-1; i >= 0; i--) {
-			Article a = this.get(i);
+		for (ListIterator<Article> iterator = this.listIterator(size()); iterator.hasPrevious();) {
+			final Article article = iterator.previous();
 
-			if (a.id < 0) {
-				this.remove(a);
-			} else if (a.id > 0) {
+			if (article.id < 0)
+				this.remove(article);
+			else
 				break;
-			}
 		}
 	}
 

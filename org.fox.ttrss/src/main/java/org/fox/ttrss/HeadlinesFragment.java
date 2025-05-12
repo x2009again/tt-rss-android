@@ -72,7 +72,6 @@ import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Attachment;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.HeaderViewRecyclerAdapter;
 import org.fox.ttrss.util.HeadlinesRequest;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -105,7 +104,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	private SharedPreferences m_prefs;
 
-	private HeaderViewRecyclerAdapter m_adapter;
+	private ArticleListAdapter m_adapter;
 	private final ArticleList m_readArticles = new ArticleList();
 	private HeadlinesEventListener m_listener;
 	private OnlineActivity m_activity;
@@ -216,7 +215,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (info != null) {
 
-			Article article = getArticleAtPosition(info.position - m_adapter.getHeaderCount());
+			Article article = getArticleAtPosition(info.position);
 
 			if (!onArticleMenuItemSelected(item, article, info.position))
 				return super.onContextItemSelected(item);
@@ -300,9 +299,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
 
-		ArticleListAdapter adapter = new ArticleListAdapter(Application.getArticles());
-
-		m_adapter = new HeaderViewRecyclerAdapter(adapter);
+		m_adapter = new ArticleListAdapter(Application.getArticles());
 
 		m_list.setAdapter(m_adapter);
 
@@ -318,7 +315,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				@Override
 				public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
 
-					int position = viewHolder.getBindingAdapterPosition() - m_adapter.getHeaderCount();
+					int position = viewHolder.getBindingAdapterPosition();
 
 					Article article = getArticleAtPosition(position);
 
@@ -332,10 +329,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 
 					final int adapterPosition = viewHolder.getBindingAdapterPosition();
-					final int position = adapterPosition - m_adapter.getHeaderCount();
 
-					try {
-						final Article article = getArticleAtPosition(position);
+                    try {
+						final Article article = getArticleAtPosition(adapterPosition);
 						final boolean wasUnread;
 
 						if (article != null && article.id > 0) {
@@ -348,7 +344,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 								wasUnread = false;
 							}
 
-							Application.getArticles().remove(position);
+							Application.getArticles().remove(adapterPosition);
 							m_adapter.notifyDataSetChanged();
 
 							Snackbar.make(m_list, R.string.headline_undo_row_prompt, Snackbar.LENGTH_LONG)
@@ -359,7 +355,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                                             m_activity.saveArticleUnread(article);
                                         }
 
-                                        Application.getArticles().add(position, article);
+                                        Application.getArticles().add(adapterPosition, article);
                                         m_adapter.notifyItemInserted(adapterPosition);
                                         m_adapter.notifyItemRangeChanged(adapterPosition, 1);
                                     }).show();
@@ -400,11 +396,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				//Log.d(TAG, "onScrolled: FVI=" + firstVisibleItem + " LVI=" + lastVisibleItem);
 
-				if (m_prefs.getBoolean("headlines_mark_read_scroll", false) && firstVisibleItem > m_adapter.getHeaderCount()) {
+				if (m_prefs.getBoolean("headlines_mark_read_scroll", false) && firstVisibleItem > 0) {
 
-					if (firstVisibleItem <= Application.getArticles().size() + m_adapter.getHeaderCount()) {
+					if (firstVisibleItem <= Application.getArticles().size()) {
 
-						Article a = getArticleAtPosition(firstVisibleItem - m_adapter.getHeaderCount() - 1);
+						Article a = getArticleAtPosition(firstVisibleItem);
 
 						if (a != null && a.unread) {
 							Log.d(TAG, "title=" + a.title);
@@ -487,7 +483,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			final String sessionId = m_activity.getSessionId();
 			final boolean isCat = m_feed.is_cat;
 
-			@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, Application.getArticles()) {
+			@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, Application.getArticles()) {
 				@Override
 				protected void onPostExecute(JsonElement result) {
 					if (isDetached() || !isAdded()) return;
@@ -1575,7 +1571,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     public int getArticlePositionById(int id) {
         for (int i = 0; i < Application.getArticles().size(); i++) {
             if (Application.getArticles().get(i).id == id) {
-                return i + m_adapter.getHeaderCount();
+                return i;
             }
         }
 

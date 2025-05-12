@@ -15,7 +15,6 @@ import org.fox.ttrss.HeadlinesFragment;
 import org.fox.ttrss.OnlineActivity;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
-import org.fox.ttrss.types.Feed;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -26,30 +25,20 @@ public class HeadlinesRequest extends ApiRequest {
 	private int m_offset = 0;
 	private final OnlineActivity m_activity;
 	private final ArticleList m_articles; // = new ArticleList(); //Application.getInstance().m_loadedArticles;
-	private final Feed m_feed;
-
 	protected boolean m_firstIdChanged = false;
 	protected int m_firstId = 0;
 	protected int m_amountLoaded = 0;
 
-	public HeadlinesRequest(Context context, OnlineActivity activity, final Feed feed, ArticleList articles) {
+	public HeadlinesRequest(Context context, OnlineActivity activity, ArticleList articles) {
 		super(context);
 
         m_articles = articles;
 		m_activity = activity;
-		m_feed = feed;
 	}
 	
 	protected void onPostExecute(JsonElement result) {
 		if (result != null) {
 			try {
-				
-				// check if we are returning results for correct feed
-				/* if (Application.getInstance().m_activeFeed != null && !m_feed.equals(Application.getInstance().m_activeFeed)) {
-					Log.d(TAG, "received results for wrong feed, bailing out.");
-					return;
-				} */
-				
 				JsonArray content = result.getAsJsonArray();
 				if (content != null) {
 					final List<Article> articles;

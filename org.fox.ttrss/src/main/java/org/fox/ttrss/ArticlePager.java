@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -156,7 +155,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		m_refreshInProgress = true;
 
-		@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, m_feed, Application.getArticles()) {
+		@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, Application.getArticles()) {
 			@Override
 			protected void onPostExecute(JsonElement result) {
 				if (isDetached() || !isAdded()) return;
