@@ -14,8 +14,8 @@ public class Application extends android.app.Application {
 	// used by all fragments and activities concurrently
 	private final ArticleList m_articles = new ArticleList();
 
-	public String m_sessionId;
-	public int m_apiLevel;
+	private String m_sessionId;
+	private int m_apiLevel;
 	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
 
 	public static Application getInstance(){
@@ -31,6 +31,22 @@ public class Application extends android.app.Application {
 		super.onCreate();
 
 		m_singleton = this;
+	}
+
+	public String getSessionId() {
+		return m_sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		m_sessionId = sessionId;
+	}
+
+	public int getApiLevel() {
+		return m_apiLevel;
+	}
+
+	public void setApiLevel(int apiLevel) {
+		m_apiLevel = apiLevel;
 	}
 	
 	public void save(Bundle out) {

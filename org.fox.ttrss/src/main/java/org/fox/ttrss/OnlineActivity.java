@@ -175,11 +175,11 @@ public class OnlineActivity extends CommonActivity {
 	}
 
     protected String getSessionId() {
-		return Application.getInstance().m_sessionId;
+		return Application.getInstance().getSessionId();
 	}
 
 	protected void setSessionId(String sessionId) {
-		Application.getInstance().m_sessionId = sessionId;
+		Application.getInstance().setSessionId(sessionId);
 	}
 	
 	@Override
@@ -833,11 +833,11 @@ public class OnlineActivity extends CommonActivity {
 	}
 
 	public int getApiLevel() {
-		return Application.getInstance().m_apiLevel;
+		return Application.getInstance().getApiLevel();
 	}
 
 	protected void setApiLevel(int apiLevel) {
-		Application.getInstance().m_apiLevel = apiLevel;
+		Application.getInstance().setApiLevel(apiLevel);
 	}
 	
 	public void saveArticleUnread(final Article article) {
