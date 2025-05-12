@@ -1037,46 +1037,58 @@ article.score = Integer.parseInt(edit.getText().toString());
 
 		req.execute(map);
 	}
-	
-	public void toggleArticlesMarked(final ArticleList articles) {
+
+    public void toggleArticlesMarked(final ArticleList articles) {
+        setArticlesMarked(articles, Article.UPDATE_TOGGLE);
+    }
+
+	public void setArticlesMarked(final ArticleList articles, int mode) {
 		ApiRequest req = new ApiRequest(getApplicationContext());
 
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
-		map.put("article_ids", articles.getAsCommaSeparatedIds());
-		map.put("mode", "2");
-		map.put("field", "0");
-
-		req.execute(map);
+        setArticleField(articles, Article.UPDATE_FIELD_MARKED, mode);
 	}
 
-	public void toggleArticlesUnread(final ArticleList articles) {
+    public void toggleArticlesUnread(final ArticleList articles) {
+        setArticlesUnread(articles, Article.UPDATE_FIELD_UNREAD);
+    }
+
+	public void setArticlesUnread(final ArticleList articles, int mode) {
 		ApiRequest req = new ApiRequest(getApplicationContext());
 
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
+        setArticleField(articles, Article.UPDATE_FIELD_UNREAD, mode);
+	}
+
+    public void toggleArticlesPublished(final ArticleList articles) {
+        setArticlesPublished(articles, Article.UPDATE_TOGGLE);
+    }
+
+	public void setArticlesPublished(final ArticleList articles, int mode) {
+        setArticleField(articles, Article.UPDATE_FIELD_PUBLISHED, mode);
+	}
+
+    public void setArticleField(final ArticleList articles, int field, int mode) {
+        ApiRequest req = new ApiRequest(getApplicationContext()) {
+            protected void onPostExecute(JsonElement result) {
+                Log.d(TAG, "setArticleField operation complete");
+
+                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+                if (hf != null) hf.notifyUpdated();
+
+                ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+                if (ap != null) ap.notifyUpdated();
+            }
+        };
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("sid", getSessionId());
+        map.put("op", "updateArticle");
         map.put("article_ids", articles.getAsCommaSeparatedIds());
-        map.put("mode", "2");
-		map.put("field", "2");
+        map.put("mode", String.valueOf(mode));
+        map.put("field", String.valueOf(field));
 
-		req.execute(map);
-		//refresh();
-	}
+        req.execute(map);
 
-	public void toggleArticlesPublished(final ArticleList articles) {
-		ApiRequest req = new ApiRequest(getApplicationContext());
-
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
-        map.put("article_ids", articles.getAsCommaSeparatedIds());
-        map.put("mode", "2");
-		map.put("field", "1");
-
-		req.execute(map);
-	}
+    }
 	
 	// this may be called after activity has been destroyed (i.e. long asynctask)
 	protected void initMenu() {

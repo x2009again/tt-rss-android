@@ -24,6 +24,16 @@ public class Article implements Parcelable {
 	public static final int SCORE_LOW = -500;
 	public static final int SCORE_HIGH = 500;
 
+	public static final int UPDATE_FIELD_MARKED = 0;
+	public static final int UPDATE_FIELD_PUBLISHED = 1;
+	public static final int UPDATE_FIELD_UNREAD = 2;
+	public static final int UPDATE_FIELD_NOTE = 3;
+	public static final int UPDATE_FIELD_SCORE = 4;
+
+	public static final int UPDATE_SET_FALSE = 0;
+	public static final int UPDATE_SET_TRUE = 1;
+	public static final int UPDATE_TOGGLE = 2;
+
 	public int id;
 	public boolean unread; 
 	public boolean marked;

@@ -380,6 +380,15 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				if (newState == RecyclerView.SCROLL_STATE_IDLE && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 					if (!m_readArticles.isEmpty()) {
 						m_activity.toggleArticlesUnread(m_readArticles);
+
+						for (Article a : m_readArticles)
+							a.unread = false;
+
+						if (m_feed != null)
+							m_feed.unread -= m_readArticles.size();
+
+						m_adapter.notifyDataSetChanged();
+
 						m_readArticles.clear();
 
 						new Handler().postDelayed(() -> m_activity.refresh(false), 100);
@@ -394,20 +403,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				int firstVisibleItem = m_layoutManager.findFirstVisibleItemPosition();
 				int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
 
-				//Log.d(TAG, "onScrolled: FVI=" + firstVisibleItem + " LVI=" + lastVisibleItem);
+				// Log.d(TAG, "onScrolled: FVI=" + firstVisibleItem + " LVI=" + lastVisibleItem);
 
-				if (m_prefs.getBoolean("headlines_mark_read_scroll", false) && firstVisibleItem > 0) {
+				if (m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 
-					if (firstVisibleItem <= Application.getArticles().size()) {
+					for (int i = 0; i < firstVisibleItem; i++) {
+						Article article = getArticleAtPosition(i);
 
-						Article a = getArticleAtPosition(firstVisibleItem);
+						if (article.unread && !m_readArticles.contains(article)) {
+							Log.d(TAG, "adding to mark read=" + article.title);
 
-						if (a != null && a.unread) {
-							Log.d(TAG, "title=" + a.title);
-
-							a.unread = false;
-							m_readArticles.add(a);
-							if (m_feed != null) m_feed.unread--;
+							m_readArticles.add(article);
 						}
 					}
 				}
