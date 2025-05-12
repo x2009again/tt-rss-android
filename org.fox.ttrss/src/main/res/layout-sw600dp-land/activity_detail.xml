@@ -61,7 +61,7 @@
                 android:id="@+id/detail_bottom_appbar"
                 app:backgroundTint="?colorSurfaceContainerHigh"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="?actionBarSize"
                 android:layout_gravity="bottom"
                 app:menu="@menu/bottombar_detail" />
 
