@@ -318,11 +318,11 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	}
 	
 	public void refresh() {
-		if (!isAdded()) return;
+		if (!isAdded())
+			return;
 
-        if (m_swipeLayout != null) {
+		if (m_swipeLayout != null)
 			m_swipeLayout.setRefreshing(true);
-		}
 
 		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
 	}
