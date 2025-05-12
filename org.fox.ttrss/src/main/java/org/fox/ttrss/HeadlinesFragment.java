@@ -133,11 +133,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public void initialize(Feed feed, Article activeArticle, boolean compactMode) {
 		m_feed = feed;
         m_compactLayoutMode = compactMode;
-
-		if (activeArticle != null) {
-			m_activeArticle = getArticleById(activeArticle.id);
-		}
-
+		m_activeArticle = activeArticle;
 	}
 
 	public boolean onArticleMenuItemSelected(MenuItem item, Article article, int position) {
@@ -439,15 +435,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public void onResume() {
 		super.onResume();
 
-		//if (m_adapter != null) m_adapter.notifyDataSetChanged();
-
-		if (m_activeArticle != null) {
-			setActiveArticle(m_activeArticle);
-		}
-
         if (Application.getArticles().isEmpty()) {
             refresh(false);
-        }
+        } else if (m_activeArticle != null) {
+			scrollToArticle(m_activeArticle);
+		}
 
 		m_activity.invalidateOptionsMenu();
 	}
@@ -1516,20 +1508,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		return tmp;
 	}
 
-    // if setting active doesn't make sense, scroll to whatever is passed to us
+	public void scrollToArticle(Article article) {
+		m_list.scrollToPosition(getArticlePositionById(article.id));
+	}
+
 	public void setActiveArticle(Article article) {
-		if (article != m_activeArticle && article != null) {
+		if (m_list != null && article != null && !article.equalsById(m_activeArticle)) {
 
-            // only set active article when it makes sense (in DetailActivity)
-            if (getActivity() instanceof DetailActivity) {
-                m_activeArticle = article;
-				m_adapter.notifyDataSetChanged();
-            }
+			m_activeArticle = article;
+			m_adapter.notifyDataSetChanged();
 
-			if (m_list != null) {
-				int position = getArticlePositionById(article.id);
-				m_list.scrollToPosition(position);
-			}
+			scrollToArticle(article);
 		}
 	}
 
@@ -1559,14 +1548,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			e.printStackTrace();
 		}
 
-		return null;
-	}
-
-	public Article getArticleById(int id) {
-		for (Article a : Application.getArticles()) {
-			if (a.id == id)
-				return a;
-		}
 		return null;
 	}
 

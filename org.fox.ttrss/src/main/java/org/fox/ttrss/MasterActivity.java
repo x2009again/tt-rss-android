@@ -525,7 +525,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				// this makes position in headlines in master activity (not quite) randomly jump around when returning
 				// even if active article hasn't been changed, i guess keeping it as-is is a lesser evil?
 
-				// hf.setActiveArticle(Application.getInstance().tmpActiveArticle);
+				hf.scrollToArticle(Application.getInstance().tmpActiveArticle);
 			}
 		}
 	}

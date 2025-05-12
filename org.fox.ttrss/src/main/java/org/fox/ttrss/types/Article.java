@@ -260,6 +260,14 @@ public class Article implements Parcelable {
         selected = in.readInt() == 1;
 		site_url = in.readString();
 	}
+
+	public boolean equalsById(Article article) {
+		if (article != null && id == article.id) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	@SuppressWarnings("rawtypes")
 	public static final Parcelable.Creator CREATOR =

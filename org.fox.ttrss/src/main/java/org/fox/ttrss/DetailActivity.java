@@ -159,7 +159,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
                 ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
 				ArticlePager af = new ArticlePager();
-				af.initialize(article != null ? hf.getArticleById(article.id) : new Article(), feed);
+				af.initialize(article != null ? article : new Article(), feed);
 				af.setSearchQuery(searchQuery);
 
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
