@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.fox.ttrss.ApiCommon;
 import org.fox.ttrss.ApiRequest;
+import org.fox.ttrss.Application;
 import org.fox.ttrss.OnlineActivity;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
@@ -23,7 +24,6 @@ public class HeadlinesRequest extends ApiRequest {
 	
 	private int m_offset = 0;
 	private final OnlineActivity m_activity;
-	private final ArticleList m_articles; // = new ArticleList(); //Application.getInstance().m_loadedArticles;
 	protected boolean m_firstIdChanged = false;
 	protected int m_firstId = 0;
 	protected int m_amountLoaded = 0;
@@ -31,7 +31,6 @@ public class HeadlinesRequest extends ApiRequest {
 	public HeadlinesRequest(Context context, OnlineActivity activity, ArticleList articles) {
 		super(context);
 
-        m_articles = articles;
 		m_activity = activity;
 	}
 	
@@ -40,7 +39,7 @@ public class HeadlinesRequest extends ApiRequest {
 			try {
 				JsonArray content = result.getAsJsonArray();
 				if (content != null) {
-					final List<Article> articles;
+					final List<Article> articlesJson;
 					final JsonObject header;
 
 					if (m_activity.getApiLevel() >= 12) {
@@ -58,24 +57,26 @@ public class HeadlinesRequest extends ApiRequest {
 						Log.d(TAG, "firstID=" + m_firstId + " firstIdChanged=" + m_firstIdChanged);
 
 						Type listType = new TypeToken<List<Article>>() {}.getType();
-						articles = new Gson().fromJson(content.get(1), listType);
+						articlesJson = new Gson().fromJson(content.get(1), listType);
 					} else {
 						Type listType = new TypeToken<List<Article>>() {}.getType();
-						articles = new Gson().fromJson(content, listType);
+						articlesJson = new Gson().fromJson(content, listType);
 					}
 
+					ArticleList articles = Application.getArticles();
+
 					if (m_offset == 0)
-						m_articles.clear();
+						articles.clear();
 					else
-						m_articles.stripFooters();
+						articles.stripFooters();
 
-					m_amountLoaded = articles.size();
+					m_amountLoaded = articlesJson.size();
 
-					for (Article f : articles)
-						if (!m_articles.containsId(f.id)) {
+					for (Article f : articlesJson)
+						if (!articles.containsId(f.id)) {
 							f.collectMediaInfo();
 							f.cleanupExcerpt();
-							m_articles.add(f);
+							articles.add(f);
 						}
 
 					return;
