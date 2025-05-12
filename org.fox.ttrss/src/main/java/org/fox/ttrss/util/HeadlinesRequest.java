@@ -11,7 +11,6 @@ import com.google.gson.reflect.TypeToken;
 
 import org.fox.ttrss.ApiCommon;
 import org.fox.ttrss.ApiRequest;
-import org.fox.ttrss.HeadlinesFragment;
 import org.fox.ttrss.OnlineActivity;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;

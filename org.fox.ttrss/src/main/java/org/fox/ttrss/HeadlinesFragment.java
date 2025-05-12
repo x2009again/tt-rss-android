@@ -93,12 +93,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	private final String TAG = this.getClass().getSimpleName();
 
-	Feed m_feed;
-	Article m_activeArticle;
-	String m_searchQuery = "";
+	private Feed m_feed;
+	private int m_activeArticleId;
+	private String m_searchQuery = "";
 	private boolean m_refreshInProgress = false;
-	int m_firstId = 0;
-	boolean m_lazyLoadDisabled = false;
+	private int m_firstId = 0;
+	private boolean m_lazyLoadDisabled = false;
 
 	private SharedPreferences m_prefs;
 
@@ -107,7 +107,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private HeadlinesEventListener m_listener;
 	private OnlineActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
-    boolean m_compactLayoutMode = false;
+    private boolean m_compactLayoutMode = false;
     private RecyclerView m_list;
 	private LinearLayoutManager m_layoutManager;
 
@@ -128,10 +128,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_feed = feed;
 	}
 
-	public void initialize(Feed feed, Article activeArticle, boolean compactMode) {
+	public void initialize(Feed feed, int activeArticleId, boolean compactMode) {
 		m_feed = feed;
         m_compactLayoutMode = compactMode;
-		m_activeArticle = activeArticle;
+		m_activeArticleId = activeArticleId;
 	}
 
 	public boolean onArticleMenuItemSelected(MenuItem item, Article article, int position) {
@@ -197,7 +197,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
 
 		if (!tmp.isEmpty()) {
-            m_activity.setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
+			m_activity.setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
 			m_adapter.notifyDataSetChanged();
         }
 	}
@@ -248,7 +248,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (savedInstanceState != null) {
 			m_feed = savedInstanceState.getParcelable("m_feed");
-			m_activeArticle = savedInstanceState.getParcelable("m_activeArticle");
+			m_activeArticleId = savedInstanceState.getInt("m_activeArticleId");
 			m_searchQuery = savedInstanceState.getString("m_searchQuery");
 			m_firstId = savedInstanceState.getInt("m_firstId");
 			m_lazyLoadDisabled = savedInstanceState.getBoolean("m_lazyLoadDisabled");
@@ -265,7 +265,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		super.onSaveInstanceState(out);
 
 		out.putParcelable("m_feed", m_feed);
-		out.putParcelable("m_activeArticle", m_activeArticle);
+		out.putInt("m_activeArticleId", m_activeArticleId);
 		out.putString("m_searchQuery", m_searchQuery);
 		out.putInt("m_firstId", m_firstId);
 		out.putBoolean("m_lazyLoadDisabled", m_lazyLoadDisabled);
@@ -446,8 +446,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         if (Application.getArticles().isEmpty()) {
             refresh(false);
-        } else if (m_activeArticle != null) {
-			scrollToArticle(m_activeArticle);
+        } else {
+			Article activeArticle = Application.getArticles().getById(m_activeArticleId);
+
+			if (activeArticle != null)
+				scrollToArticle(activeArticle);
 		}
 
 		m_activity.invalidateOptionsMenu();
@@ -503,9 +506,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					if (result != null) {
 
-						if (m_activeArticle != null && !Application.getArticles().containsId(m_activeArticle.id)) {
-							m_activeArticle = null;
-						}
+						// is this needed?
+						if (!Application.getArticles().containsId(m_activeArticleId))
+							m_activeArticleId = 0;
 
 						if (m_firstIdChanged) {
 							m_lazyLoadDisabled = true;
@@ -741,8 +744,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		public static final int VIEW_NORMAL = 0;
 		public static final int VIEW_UNREAD = 1;
-		public static final int VIEW_SELECTED = 2;
-		public static final int VIEW_SELECTED_UNREAD = 3;
+		public static final int VIEW_ACTIVE = 2;
+		public static final int VIEW_ACTIVE_UNREAD = 3;
 		public static final int VIEW_LOADMORE = 4;
 		public static final int VIEW_AMR_FOOTER = 5;
 
@@ -806,11 +809,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				case VIEW_UNREAD:
 					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_unread : R.layout.headlines_row_unread;
 					break;
-				case VIEW_SELECTED:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected : R.layout.headlines_row;
+				case VIEW_ACTIVE:
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_active : R.layout.headlines_row;
 					break;
-				case VIEW_SELECTED_UNREAD:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_selected_unread : R.layout.headlines_row_unread;
+				case VIEW_ACTIVE_UNREAD:
+					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_active_unread : R.layout.headlines_row_unread;
 					break;
 			}
 
@@ -851,7 +854,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
                 // only set active article when it makes sense (in DetailActivity)
                 if (getActivity() instanceof DetailActivity) {
-                    m_activeArticle = article;
+                    m_activeArticleId = article.id;
                     m_adapter.notifyDataSetChanged();
                 }
             });
@@ -1067,7 +1070,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
                     // only set active article when it makes sense (in DetailActivity)
                     if (getActivity() instanceof DetailActivity) {
-                        m_activeArticle = article;
+                        m_activeArticleId = article.id;
                         m_adapter.notifyDataSetChanged();
                     }
                 });
@@ -1354,10 +1357,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				return VIEW_AMR_FOOTER;
 			} else if (a.id == Article.TYPE_LOADMORE) {
 				return VIEW_LOADMORE;
-			} else if (m_activeArticle != null && a.id == m_activeArticle.id && a.unread) {
-				return VIEW_SELECTED_UNREAD;
-			} else if (m_activeArticle != null && a.id == m_activeArticle.id) {
-				return VIEW_SELECTED;
+			} else if (a.id == m_activeArticleId && a.unread) {
+				return VIEW_ACTIVE_UNREAD;
+			} else if (a.id == m_activeArticleId) {
+				return VIEW_ACTIVE;
 			} else if (a.unread) {
 				return VIEW_UNREAD;
 			} else {
@@ -1510,16 +1513,20 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void scrollToArticle(Article article) {
-		m_list.scrollToPosition(Application.getArticles().getById(article.id));
+		scrollToArticleId(article.id);
 	}
 
-	public void setActiveArticle(Article article) {
-		if (m_list != null && article != null && !article.equalsById(m_activeArticle)) {
+	public void scrollToArticleId(int id) {
+		m_list.scrollToPosition(Application.getArticles().getPositionById(id));
+	}
 
-			m_activeArticle = article;
+	public void setActiveArticleId(int articleId) {
+		if (m_list != null && articleId != m_activeArticleId) {
+
+			m_activeArticleId = articleId;
 			m_adapter.notifyDataSetChanged();
 
-			scrollToArticle(article);
+			scrollToArticleId(articleId);
 		}
 	}
 
@@ -1540,8 +1547,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
 	}
 
-	public Article getActiveArticle() {
-		return m_activeArticle;
+	public int getActiveArticleId() {
+		return m_activeArticleId;
 	}
 
 	public String getSearchQuery() {

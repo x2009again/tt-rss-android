@@ -32,12 +32,12 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private final String TAG = "ArticlePager";
 	private PagerAdapter m_adapter;
 	private HeadlinesEventListener m_listener;
-	protected Article m_article;
+	private int m_articleId;
 	private OnlineActivity m_activity;
 	private String m_searchQuery = "";
-	protected Feed m_feed;
+	private Feed m_feed;
 	private SharedPreferences m_prefs;
-	protected int m_firstId = 0;
+	private int m_firstId = 0;
 	private boolean m_refreshInProgress;
 	private boolean m_lazyLoadDisabled;
 	private ViewPager2 m_pager;
@@ -74,8 +74,8 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	}
 		
-	public void initialize(Article article, Feed feed) {
-		m_article = article;
+	public void initialize(int articleId, Feed feed) {
+		m_articleId = articleId;
 		m_feed = feed;
 	}
 
@@ -87,7 +87,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 
-		out.putParcelable("m_article", m_article);
+		out.putInt("m_articleId", m_articleId);
 		out.putParcelable("m_feed", m_feed);
 		out.putInt("m_firstId", m_firstId);
 	}
@@ -97,7 +97,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		super.onCreate(savedInstanceState);
 
 		if (savedInstanceState != null) {
-			m_article = savedInstanceState.getParcelable("m_article");
+			m_articleId = savedInstanceState.getInt("m_articleId");
 			m_feed = savedInstanceState.getParcelable("m_feed");
 			m_firstId = savedInstanceState.getInt("m_firstId");
 		}
@@ -113,9 +113,9 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		
 		m_pager = view.findViewById(R.id.article_pager);
 
-		int position = Application.getArticles().indexOf(m_article);
-		
-		m_listener.onArticleSelected(m_article, false);
+		int position = Application.getArticles().getPositionById(m_articleId);
+
+		m_listener.onArticleSelected(Application.getArticles().getById(m_articleId), false);
 
 		m_pager.setAdapter(m_adapter);
 		m_pager.setOffscreenPageLimit(3);
@@ -129,7 +129,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				final Article article = Application.getArticles().get(position);
 
 				if (article != null) {
-					m_article = article;
+					m_articleId = article.id;
 
 					new Handler().postDelayed(() -> m_listener.onArticleSelected(article, false), 250);
 
@@ -196,13 +196,13 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 							return;
 						}
 					}
-					
-					if (m_article != null) {
-						if (m_article.id == 0 || !Application.getArticles().containsId(m_article.id)) {
-							if (!Application.getArticles().isEmpty()) {
-								m_article = Application.getArticles().get(0);
-								m_listener.onArticleSelected(m_article, false);
-							}
+
+					if (!Application.getArticles().isEmpty()) {
+						if (Application.getArticles().getById(m_articleId) == null) {
+							Article article = Application.getArticles().get(0);
+
+							m_articleId = article.id;
+							m_listener.onArticleSelected(article, false);
 						}
 					}
 
@@ -213,8 +213,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 						m_activity.login(true);
 					} else {
 						m_activity.toast(getErrorMessage());
-						//setLoadingStatus(getErrorMessage(), false);
-					}	
+					}
 				}
 			}
 		};
@@ -314,40 +313,36 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		m_activity.invalidateOptionsMenu();
 	}
 
-	public Article getSelectedArticle() {
-		return m_article;
-	}
-
-	public void setActiveArticle(Article article) {
-		if (m_article != article) {
-			m_article = article;
-
-			int position = Application.getArticles().indexOf(m_article);
+	public void setActiveArticleId(int articleId) {
+		if (m_pager != null && articleId != m_articleId) {
+			int position = Application.getArticles().getPositionById(articleId);
 
 			m_pager.setCurrentItem(position, false);
 		}
 	}
 
-	public void selectArticle(boolean next) {
-		if (m_article != null) {
-			int position = Application.getArticles().indexOf(m_article);
-			
-			if (next) 
+	public void switchToArticle(boolean next) {
+		int position = Application.getArticles().getPositionById(m_articleId);
+
+		if (position != -1) {
+
+			if (next)
 				position++;
 			else
 				position--;
-			
+
 			try {
-				Article tmp = Application.getArticles().get(position);
-				
-				if (tmp != null) {
-					setActiveArticle(tmp);
-				}
-				
+				Article targetArticle = Application.getArticles().get(position);
+
+				setActiveArticleId(targetArticle.id);
 			} catch (IndexOutOfBoundsException e) {
-				// do nothing
+				e.printStackTrace();
 			}
-		}		
+		}
+	}
+
+	public int getSelectedArticleId() {
+		return m_articleId;
 	}
 
 	public void notifyUpdated() {

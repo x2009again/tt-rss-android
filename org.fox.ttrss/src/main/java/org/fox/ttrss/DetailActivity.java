@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,7 +28,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	protected BottomAppBar m_bottomAppBar;
 
 	protected SharedPreferences m_prefs;
-    private Article m_activeArticle;
+    //private int m_activeArticleId;
 
     @SuppressLint("NewApi")
 	@Override
@@ -49,9 +48,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-
-        m_forceDisableActionMode = isPortrait() || isSmallScreen();
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -59,12 +55,10 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		
 		Application.getInstance().load(savedInstanceState);
 
-        if (isPortrait()) {
-            View headlines = findViewById(R.id.headlines_fragment);
+		View headlines = findViewById(R.id.headlines_fragment);
 
-            if (headlines != null)
-        		headlines.setVisibility(View.GONE);
-        }
+		if (headlines != null)
+			headlines.setVisibility(isPortrait() ? View.GONE : View.VISIBLE);
 
 		m_bottomAppBar = findViewById(R.id.detail_bottom_appbar);
 
@@ -74,36 +68,36 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
                 final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
                 final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-                Article article = ap.getSelectedArticle();
+                Article article = Application.getArticles().getById(ap.getSelectedArticleId());
 
-                if (article == null) return false;
+				if (article != null) {
+					int itemId = item.getItemId();
 
-                int itemId = item.getItemId();
+					if (itemId == R.id.article_set_labels) {
+						editArticleLabels(article);
 
-                if (itemId == R.id.article_set_labels) {
-                    editArticleLabels(article);
+						return true;
+					} else if (itemId == R.id.toggle_attachments) {
+						displayAttachments(article);
 
-                    return true;
-                } else if (itemId == R.id.toggle_attachments) {
-                    displayAttachments(article);
+						return true;
+					} else if (itemId == R.id.article_edit_note) {
+						editArticleNote(article);
 
-                    return true;
-                } else if (itemId == R.id.article_edit_note) {
-                    editArticleNote(article);
+						return true;
+					} else if (itemId == R.id.article_set_score) {
+						setArticleScore(article);
 
-                    return true;
-                } else if (itemId == R.id.article_set_score) {
-                    setArticleScore(article);
+						return true;
+					} else if (itemId == R.id.toggle_unread) {
+						article.unread = !article.unread;
+						saveArticleUnread(article);
 
-                    return true;
-                } else if (itemId == R.id.toggle_unread) {
-                    article.unread = !article.unread;
-                    saveArticleUnread(article);
-
-                    if (hf != null) {
-                        hf.notifyUpdated();
-                    }
-                }
+						if (hf != null) {
+							hf.notifyUpdated();
+						}
+					}
+				}
 
                 return false;
             });
@@ -116,9 +110,13 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 				fab.show();
 
 				fab.setOnClickListener(view -> {
-                    if (m_activeArticle != null) {
-                        openUri(Uri.parse(m_activeArticle.link));
-                    }
+					ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+					if (ap != null) {
+						Article article = Application.getArticles().getById(ap.getSelectedArticleId());
+
+						if (article != null)
+							openUri(Uri.parse(article.link));
+					}
                 });
 			} else {
 				fab.hide();
@@ -146,20 +144,19 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 				}
 				
 				final Feed feed = tmpFeed;
-				
-				final Article article = Application.getInstance().tmpActiveArticle;
+				final int openedArticleId = i.getIntExtra("openedArticleId", 0);
 				final String searchQuery = i.getStringExtra("searchQuery");
 
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
                 final HeadlinesFragment hf = new HeadlinesFragment();
-                hf.initialize(feed, article, true);
+                hf.initialize(feed, openedArticleId, true);
                 hf.setSearchQuery(searchQuery);
 
                 ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
 				ArticlePager af = new ArticlePager();
-				af.initialize(article != null ? article : new Article(), feed);
+				af.initialize(openedArticleId, feed);
 				af.setSearchQuery(searchQuery);
 
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
@@ -191,43 +188,26 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
 			if (ap != null) {
-				Article article = ap.getSelectedArticle();
+				Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
-				if (article != null) {
-					if (article.score > 0) {
+				if (selectedArticle != null) {
+					if (selectedArticle.score > 0) {
 						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_up_24);
-					} else if (article.score < 0) {
+					} else if (selectedArticle.score < 0) {
 						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_down_24);
 					} else {
 						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_flat_24);
 					}
 
-					menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_mark_email_unread_24 :
+					menu.findItem(R.id.toggle_unread).setIcon(selectedArticle.unread ? R.drawable.baseline_mark_email_unread_24 :
 							R.drawable.baseline_email_24);
 
-					menu.findItem(R.id.toggle_attachments).setVisible(article.attachments != null && !article.attachments.isEmpty());
+					menu.findItem(R.id.toggle_attachments).setVisible(selectedArticle.attachments != null && !selectedArticle.attachments.isEmpty());
 				}
 			}
 		}
 	}
 
-	@Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (!isSmallScreen()) {
-            findViewById(R.id.headlines_fragment).setVisibility(isPortrait() ? View.GONE : View.VISIBLE);
-        }
-
-        m_forceDisableActionMode = isPortrait() || isSmallScreen();
-        invalidateOptionsMenu();
-    }
-
-	@Override
-	protected void refresh() {
-		super.refresh();
-	}
-	
 	@Override
 	protected void loginSuccess(boolean refresh) {
 		Log.d(TAG, "loginSuccess");
@@ -257,6 +237,8 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onResume() {
 		super.onResume();
+
+		m_forceDisableActionMode = isPortrait() || isSmallScreen();
 	}
 
 	@Override
@@ -267,7 +249,8 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			m_menu.setGroupVisible(R.id.menu_group_feeds, false);
 
 			m_menu.setGroupVisible(R.id.menu_group_headlines, !isPortrait() && !isSmallScreen());
-			m_menu.findItem(R.id.headlines_toggle_sort_order).setVisible(false);
+
+			m_menu.findItem(R.id.catchup_above).setVisible(!isSmallScreen());
 
 			ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 			
@@ -308,24 +291,20 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (open) {
 
 			new Handler().postDelayed(() -> {
-                ArticlePager af = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+                ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
-                if (af != null) {
-                    af.setActiveArticle(article);
+                if (ap != null) {
+                    ap.setActiveArticleId(article.id);
                 }
             }, 250);
 
 		} else {
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 			if (hf != null) {
-				hf.setActiveArticle(article);
+				hf.setActiveArticleId(article.id);
 			}
 		}
 
-        m_activeArticle = article;
-
-		//Application.getInstance().m_activeArticle = article;
-		
 		invalidateOptionsMenu();
 	}
 
@@ -339,19 +318,19 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
         }
 
 		if (hf != null) {
-			Article article = hf.getActiveArticle();
+			Article article = Application.getArticles().getById(hf.getActiveArticleId());
 						
 			if (article == null && !Application.getArticles().isEmpty()) {
 
 				article = Application.getArticles().get(0);
 
-				hf.setActiveArticle(article);
+				hf.setActiveArticleId(article.id);
 
 				FragmentTransaction ft = getSupportFragmentManager()
 						.beginTransaction();
 
 				ArticlePager af = new ArticlePager();
-				af.initialize(article, hf.getFeed());
+				af.initialize(article.id, hf.getFeed());
 
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
 				ft.commitAllowingStateLoss();
@@ -363,7 +342,10 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	public void onBackPressed() {
         Intent resultIntent = new Intent();
 
-        Application.getInstance().tmpActiveArticle = m_activeArticle;
+		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+
+		if (ap != null)
+			resultIntent.putExtra("activeArticleId", ap.getSelectedArticleId());
 
         setResult(Activity.RESULT_OK, resultIntent);
 

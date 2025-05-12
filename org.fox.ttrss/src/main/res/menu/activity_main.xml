@@ -66,7 +66,10 @@
                 app:iconTint="?attr/colorControlNormal"
                 app:showAsAction="ifRoom"
                 android:title="@string/share_article"/>
-
+            <item
+                android:id="@+id/catchup_above"
+                app:showAsAction=""
+                android:title="@string/article_mark_read_above"/>
         </group>
 
     </group>

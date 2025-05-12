@@ -459,8 +459,9 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				}
 
 				HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+
 				if (hf != null) {
-					hf.setActiveArticle(article);
+					hf.setActiveArticleId(article.id);
 				}
 
 				openUri(Uri.parse(article.link));
@@ -471,12 +472,11 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
 				intent.putExtra("feed", hf.getFeed());
 				intent.putExtra("searchQuery", hf.getSearchQuery());
+				intent.putExtra("openedArticleId", article.id);
 
 				// we use shared article list, but detail activity does not use special footers
 				// we will append those back (if needed) in onActivityResult()
 				Application.getArticles().stripFooters();
-
-				Application.getInstance().tmpActiveArticle = article;
 
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -532,8 +532,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 				// this makes position in headlines in master activity (not quite) randomly jump around when returning
 				// even if active article hasn't been changed, i guess keeping it as-is is a lesser evil?
-
-				hf.scrollToArticle(Application.getInstance().tmpActiveArticle);
+				hf.scrollToArticleId(data.getIntExtra("activeArticleId", 0));
 			}
 		}
 	}

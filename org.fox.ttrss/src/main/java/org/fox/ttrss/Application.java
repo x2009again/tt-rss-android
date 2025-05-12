@@ -2,7 +2,6 @@ package org.fox.ttrss;
 
 import android.os.Bundle;
 
-import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 
 import java.util.HashMap;
@@ -15,10 +14,6 @@ public class Application extends android.app.Application {
 	// used by all fragments and activities concurrently
 	private final ArticleList m_articles = new ArticleList();
 
-	// we use this to pass a large temporary object between activities
-	public Article tmpActiveArticle;
-
-	public int m_selectedArticleId;
 	public String m_sessionId;
 	public int m_apiLevel;
 	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
@@ -43,7 +38,6 @@ public class Application extends android.app.Application {
 		out.setClassLoader(getClass().getClassLoader());
 		out.putString("gs:sessionId", m_sessionId);
 		out.putInt("gs:apiLevel", m_apiLevel);
-		out.putInt("gs:selectedArticleId", m_selectedArticleId);
 		out.putSerializable("gs:customSortTypes", m_customSortModes);
 	}
 	
@@ -52,7 +46,6 @@ public class Application extends android.app.Application {
 		if (in != null) {
 			m_sessionId = in.getString("gs:sessionId");
 			m_apiLevel = in.getInt("gs:apiLevel");
-			m_selectedArticleId = in.getInt("gs:selectedArticleId");
 
 			HashMap<String, String> tmp = (HashMap<String, String>) in.getSerializable("gs:customSortTypes");
 
