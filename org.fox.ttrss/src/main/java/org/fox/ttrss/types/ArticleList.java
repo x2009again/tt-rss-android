@@ -3,6 +3,8 @@ package org.fox.ttrss.types;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.fox.ttrss.Application;
+
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -54,6 +56,16 @@ public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcel
 			else
 				break;
 		}
+	}
+
+	public int getById(int id) {
+		for (int i = 0; i < size(); i++) {
+			if (get(i).id == id) {
+				return i;
+			}
+		}
+
+		return -1;
 	}
 
 	public String getAsCommaSeparatedIds() {

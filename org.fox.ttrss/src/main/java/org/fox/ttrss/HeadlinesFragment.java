@@ -211,10 +211,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (info != null) {
 
-			Article article = getArticleAtPosition(info.position);
+			try {
+				Article article = Application.getArticles().get(info.position);
 
-			if (!onArticleMenuItemSelected(item, article, info.position))
-				return super.onContextItemSelected(item);
+				if (!onArticleMenuItemSelected(item, article, info.position))
+					return super.onContextItemSelected(item);
+			} catch (IndexOutOfBoundsException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return super.onContextItemSelected(item);
@@ -313,10 +317,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					int position = viewHolder.getBindingAdapterPosition();
 
-					Article article = getArticleAtPosition(position);
+					try {
+						Article article = Application.getArticles().get(position);
 
-					if (article == null || article.id < 0)
+						if (article == null || article.id < 0)
+							return 0;
+					} catch (IndexOutOfBoundsException e) {
 						return 0;
+					}
 
 					return super.getSwipeDirs(recyclerView, viewHolder);
 				}
@@ -327,7 +335,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					final int adapterPosition = viewHolder.getBindingAdapterPosition();
 
                     try {
-						final Article article = getArticleAtPosition(adapterPosition);
+						final Article article = Application.getArticles().get(adapterPosition);
 						final boolean wasUnread;
 
 						if (article != null && article.id > 0) {
@@ -341,7 +349,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							}
 
 							Application.getArticles().remove(adapterPosition);
-							m_adapter.notifyDataSetChanged();
+							m_adapter.notifyItemRemoved(adapterPosition);
 
 							Snackbar.make(m_list, R.string.headline_undo_row_prompt, Snackbar.LENGTH_LONG)
 									.setAction(getString(R.string.headline_undo_row_button), v -> {
@@ -404,12 +412,16 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				if (m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 
 					for (int i = 0; i < firstVisibleItem; i++) {
-						Article article = getArticleAtPosition(i);
+						try {
+							Article article = Application.getArticles().get(i);
 
-						if (article.unread && !m_readArticles.contains(article)) {
-							Log.d(TAG, "adding to mark read=" + article.title);
+							if (article.unread && !m_readArticles.contains(article)) {
+								Log.d(TAG, "adding to mark read=" + article.title);
 
-							m_readArticles.add(article);
+								m_readArticles.add(article);
+							}
+						} catch (IndexOutOfBoundsException e) {
+							e.printStackTrace();
 						}
 					}
 				}
@@ -1509,7 +1521,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void scrollToArticle(Article article) {
-		m_list.scrollToPosition(getArticlePositionById(article.id));
+		m_list.scrollToPosition(Application.getArticles().getById(article.id));
 	}
 
 	public void setActiveArticle(Article article) {
@@ -1539,31 +1551,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
 	}
 
-    public Article getArticleAtPosition(int position) {
-		try {
-			return Application.getArticles().get(position);
-		} catch (IndexOutOfBoundsException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
 	public Article getActiveArticle() {
 		return m_activeArticle;
 	}
-
-    public int getArticlePositionById(int id) {
-        for (int i = 0; i < Application.getArticles().size(); i++) {
-            if (Application.getArticles().get(i).id == id) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
 
 	public String getSearchQuery() {
 		return m_searchQuery;
