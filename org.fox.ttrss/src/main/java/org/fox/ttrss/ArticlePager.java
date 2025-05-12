@@ -146,8 +146,12 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		return view;
 	}
-	
+
 	protected void refresh(final boolean append) {
+		//
+	}
+
+	/* protected void refresh(final boolean append) {
 
 		if (!append) {
 			m_lazyLoadDisabled = false;
@@ -291,7 +295,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		Log.d(TAG, "[AP] request more headlines, firstId=" + m_firstId);
 
 		req.execute(map);
-	}
+	} */
 	
 	@Override
 	public void onAttach(@NonNull Activity activity) {

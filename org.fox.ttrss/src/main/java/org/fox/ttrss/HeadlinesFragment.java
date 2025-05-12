@@ -44,11 +44,16 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.view.ViewCompat;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -84,7 +89,106 @@ import java.util.TimeZone;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
-public class HeadlinesFragment extends androidx.fragment.app.Fragment {
+public class HeadlinesFragment extends androidx.fragment.app.Fragment implements LoaderManager.LoaderCallbacks<ArticleList> {
+
+	public class HeadlinesDiffutilCallback extends DiffUtil.Callback {
+		private ArticleList m_oldList;
+		private ArticleList m_newList;
+
+		public HeadlinesDiffutilCallback(ArticleList oldList, ArticleList newList) {
+			m_oldList = oldList;
+			m_newList = newList;
+		}
+
+		@Override
+		public int getOldListSize() {
+			return m_oldList != null ? m_oldList.size() : 0;
+		}
+
+		@Override
+		public int getNewListSize() {
+			return m_newList != null ? m_newList.size() : 0;
+		}
+
+		@Override
+		public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+			return m_newList.get(newItemPosition).id == m_oldList.get(oldItemPosition).id;
+		}
+
+		@Override
+		public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+			return false;
+		}
+	}
+
+
+	private HeadlinesLoader m_loader;
+
+	@NonNull
+	@Override
+	public Loader<ArticleList> onCreateLoader(int id, @Nullable Bundle args) {
+		return new HeadlinesLoader(getContext(), m_feed, m_activity.getResizeWidth());
+	}
+
+	@Override
+	public void onLoadFinished(@NonNull Loader<ArticleList> loader, ArticleList data) {
+		Log.d(TAG, "onLoadFinished loader=" + loader + " count=" + data.size());
+
+		HeadlinesLoader headlinesLoader = (HeadlinesLoader) loader;
+
+		// successful update
+		if (data != null) {
+			ArticleList articles = Application.getArticles();
+
+			articles.stripFooters();
+
+			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(articles, data));
+
+			articles.clear();
+			articles.addAll(data);
+
+			diffResult.dispatchUpdatesTo(m_adapter);
+
+			// detail activity does not use footers (see above)
+			if (!(m_activity instanceof DetailActivity)) {
+				articles.add(new Article(Article.TYPE_AMR_FOOTER));
+				m_adapter.notifyItemInserted(articles.size());
+			}
+
+			if (!headlinesLoader.getAppend())
+				m_list.scrollToPosition(0);
+
+			//m_adapter.notifyDataSetChanged();
+
+			if (headlinesLoader.getFirstIdChanged()) {
+				//if (m_activity.isSmallScreen() || !m_activity.isPortrait()) {
+					Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
+							.setAction(R.string.reload, v -> refresh(false)).show();
+				//}
+			}
+
+		} else {
+			if (headlinesLoader.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
+				m_activity.login();
+			} else {
+
+				if (headlinesLoader.getLastErrorMessage() != null) {
+					m_activity.toast(m_activity.getString(headlinesLoader.getErrorMessage()) + "\n" + headlinesLoader.getLastErrorMessage());
+				} else {
+					m_activity.toast(headlinesLoader.getErrorMessage());
+				}
+			}
+
+		}
+
+		if (m_swipeLayout != null)
+			m_swipeLayout.setRefreshing(false);
+	}
+
+	@Override
+	public void onLoaderReset(@NonNull Loader<ArticleList> loader) {
+
+	}
 
 	public enum ArticlesSelection { ALL, NONE, UNREAD }
 
@@ -98,7 +202,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private String m_searchQuery = "";
 	private boolean m_refreshInProgress = false;
 	private int m_firstId = 0;
-	private boolean m_lazyLoadDisabled = false;
+	//private boolean m_lazyLoadDisabled = false;
 
 	private SharedPreferences m_prefs;
 
@@ -251,7 +355,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_activeArticleId = savedInstanceState.getInt("m_activeArticleId");
 			m_searchQuery = savedInstanceState.getString("m_searchQuery");
 			m_firstId = savedInstanceState.getInt("m_firstId");
-			m_lazyLoadDisabled = savedInstanceState.getBoolean("m_lazyLoadDisabled");
 			m_compactLayoutMode = savedInstanceState.getBoolean("m_compactLayoutMode");
 		}
 
@@ -268,7 +371,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		out.putInt("m_activeArticleId", m_activeArticleId);
 		out.putString("m_searchQuery", m_searchQuery);
 		out.putInt("m_firstId", m_firstId);
-		out.putBoolean("m_lazyLoadDisabled", m_lazyLoadDisabled);
 		out.putBoolean("m_compactLayoutMode", m_compactLayoutMode);
 	}
 
@@ -287,7 +389,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		m_swipeLayout = view.findViewById(R.id.headlines_swipe_container);
 
-	    m_swipeLayout.setOnRefreshListener(() -> refresh(false, true));
+	    m_swipeLayout.setOnRefreshListener(() -> refresh(false));
 
 		m_list = view.findViewById(R.id.headlines_list);
 		registerForContextMenu(m_list);
@@ -394,6 +496,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 						new Handler().postDelayed(() -> m_activity.refresh(false), 100);
 					}
+
+					int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
+
+					if (lastVisibleItem >= Application.getArticles().size() - 5)
+						new Handler().postDelayed(() -> refresh(true), 100);
 				}
 			}
 
@@ -423,11 +530,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					}
 				}
 
-				if (!m_refreshInProgress && !m_lazyLoadDisabled && lastVisibleItem >= Application.getArticles().size() - 5) {
+				/*if (!m_refreshInProgress && !m_lazyLoadDisabled && lastVisibleItem >= Application.getArticles().size() - 5) {
 					m_refreshInProgress = true;
 					new Handler().postDelayed(() -> refresh(true), 100);
-				}
+				}*/
 
+				/* if (lastVisibleItem >= Application.getArticles().size() - 5)
+					new Handler().postDelayed(() -> refresh(true), 100); */
 			}
 		});
 
@@ -444,7 +553,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public void onResume() {
 		super.onResume();
 
-        if (Application.getArticles().isEmpty()) {
+		m_loader = (HeadlinesLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
+
+        if (Application.getArticles().getSizeWithoutFooters() == 0) {
             refresh(false);
         } else {
 			Article activeArticle = Application.getArticles().getById(m_activeArticleId);
@@ -464,11 +575,20 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_listener = (HeadlinesEventListener) activity;
 	}
 
-	public void refresh(boolean append) {
-		refresh(append, false);
+	public void refresh(final boolean append) {
+
+		if (!(m_activity instanceof DetailActivity)) {
+			// detail activity does not use footers because it would break 1-to-1 mapping with pager view
+			// pager will need to work on a footerless subset of shared article view before this is possible
+
+			Application.getArticles().add(new Article(Article.TYPE_LOADMORE));
+			m_adapter.notifyDataSetChanged();
+		}
+
+		m_loader.refresh(append);
 	}
 
-	public void refresh(final boolean append, boolean userInitiated) {
+	/* public void __refresh(final boolean append) {
 		Application.getArticles().stripFooters();
 		m_adapter.notifyDataSetChanged();
 
@@ -557,10 +677,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			final int skip = getSkip(append);
 
 			final boolean allowForceUpdate = m_activity.getApiLevel() >= 9 &&
-					!m_feed.is_cat && m_feed.id > 0 && !append && userInitiated &&
-					skip == 0;
+					!m_feed.is_cat && m_feed.id > 0 && !append && skip == 0;
 
-			Log.d(TAG, "allowForceUpdate=" + allowForceUpdate + " userInitiated=" + userInitiated + " skip=" + skip);
+			Log.d(TAG, "allowForceUpdate=" + allowForceUpdate + " skip=" + skip);
 
 			req.setOffset(skip);
 
@@ -636,7 +755,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		}
 
 		return skip;
-	}
+	} */
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
 		public View view;
@@ -1531,11 +1650,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void setSelection(ArticlesSelection select) {
-		for (Article a : Application.getArticles())
+		ArticleList articlesWithoutFooters = Application.getArticles().getWithoutFooters();
+
+		for (Article a : articlesWithoutFooters)
             a.selected = false;
 
 		if (select != ArticlesSelection.NONE) {
-			for (Article a : Application.getArticles()) {
+			for (Article a : articlesWithoutFooters) {
 				if (select == ArticlesSelection.ALL || select == ArticlesSelection.UNREAD && a.unread) {
 					a.selected = true;
 				}

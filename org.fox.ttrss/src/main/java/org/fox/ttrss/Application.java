@@ -1,5 +1,8 @@
 package org.fox.ttrss;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import org.fox.ttrss.types.ArticleList;
@@ -17,6 +20,7 @@ public class Application extends android.app.Application {
 	private String m_sessionId;
 	private int m_apiLevel;
 	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
+	ConnectivityManager m_cmgr;
 
 	public static Application getInstance(){
 		return m_singleton;
@@ -31,6 +35,7 @@ public class Application extends android.app.Application {
 		super.onCreate();
 
 		m_singleton = this;
+		m_cmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	}
 
 	public String getSessionId() {
@@ -68,6 +73,15 @@ public class Application extends android.app.Application {
 			m_customSortModes.clear();
 			m_customSortModes.putAll(tmp);
 		}
-				
 	}
+
+	public boolean isWifiConnected() {
+		NetworkInfo wifi = m_cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+		if (wifi != null)
+			return wifi.isConnected();
+
+		return false;
+	}
+
 }

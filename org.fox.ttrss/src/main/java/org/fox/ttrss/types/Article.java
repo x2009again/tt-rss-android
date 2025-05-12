@@ -3,6 +3,8 @@ package org.fox.ttrss.types;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -268,7 +270,7 @@ public class Article implements Parcelable {
 			return false;
 		}
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static final Parcelable.Creator CREATOR =
     	new Parcelable.Creator() {
