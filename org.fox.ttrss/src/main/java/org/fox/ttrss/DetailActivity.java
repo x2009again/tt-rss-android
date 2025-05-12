@@ -308,7 +308,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (open) {
 
 			new Handler().postDelayed(() -> {
-ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+                ArticlePager af = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
                 if (af != null) {
                     af.setActiveArticle(article);
@@ -341,9 +341,9 @@ ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(F
 		if (hf != null) {
 			Article article = hf.getActiveArticle();
 						
-			if (article == null && !hf.getAllArticles().isEmpty()) {
+			if (article == null && !Application.getArticles().isEmpty()) {
 
-				article = hf.getAllArticles().get(0);
+				article = Application.getArticles().get(0);
 
 				hf.setActiveArticle(article);
 

@@ -46,6 +46,18 @@ public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcel
 		readFromParcel(in);
 	}
 
+	public ArticleList getWithoutFooters() {
+		return this.stream().filter(a -> { return a.id > 0; }).collect(Collectors.toCollection(ArticleList::new));
+	}
+
+	public long getUnreadCount() {
+		return this.stream().filter(a -> { return a.unread; }).count();
+	}
+
+	public long getSizeWithoutFooters() {
+		return this.stream().filter(a -> { return a.id > 0; }).count();
+	}
+
 	/** strips all trailing items with negative IDs (Article.TYPE_LOADMORE, Article.TYPE_AMR_FOOTER) */
 	public void stripFooters() {
 		for (ListIterator<Article> iterator = this.listIterator(size()); iterator.hasPrevious();) {
@@ -84,4 +96,5 @@ public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcel
                 return new ArticleList[size];
             }
         };
+
 }

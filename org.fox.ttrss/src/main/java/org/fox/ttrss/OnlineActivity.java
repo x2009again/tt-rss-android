@@ -655,24 +655,27 @@ public class OnlineActivity extends CommonActivity {
     }
 
 	private void catchupAbove(HeadlinesFragment hf, ArticlePager ap) {
-		if (ap != null && ap.getSelectedArticle() != null) {
-            Article article = ap.getSelectedArticle();
+		if (ap != null) {
+            Article selectedArticle = ap.getSelectedArticle();
 
-            ArticleList articles = hf.getAllArticles();
-            ArticleList tmp = new ArticleList();
-            for (Article a : articles) {
-                if (article.id == a.id)
-                    break;
+            if (selectedArticle != null) {
+                ArticleList tmp = new ArticleList();
 
-                if (a.unread) {
-                    a.unread = false;
-                    tmp.add(a);
+                for (Article a : Application.getArticles()) {
+                    if (selectedArticle.equalsById(a))
+                        break;
+
+                    if (a.unread) {
+                        a.unread = false;
+                        tmp.add(a);
+                    }
                 }
-            }
-            if (!tmp.isEmpty()) {
-                toggleArticlesUnread(tmp);
-                hf.notifyUpdated();
-                invalidateOptionsMenu();
+
+                if (!tmp.isEmpty()) {
+                    setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
+                    hf.notifyUpdated();
+                    invalidateOptionsMenu();
+                }
             }
         }
 	}

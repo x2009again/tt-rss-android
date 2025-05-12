@@ -472,6 +472,10 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				intent.putExtra("feed", hf.getFeed());
 				intent.putExtra("searchQuery", hf.getSearchQuery());
 
+				// we use shared article list, but detail activity does not use special footers
+				// we will append those back (if needed) in onActivityResult()
+				Application.getArticles().stripFooters();
+
 				Application.getInstance().tmpActiveArticle = article;
 
 				startActivityForResult(intent, HEADLINES_REQUEST);
@@ -517,6 +521,10 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if (requestCode == HEADLINES_REQUEST) {
+
+			// we add back footers stripped when this was passed to DetailActivity
+			Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
+
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
 			if (hf != null) {

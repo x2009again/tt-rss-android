@@ -91,8 +91,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     public static final int FLAVOR_IMG_MIN_SIZE = 128;
 	public static final int THUMB_IMG_MIN_SIZE = 32;
 
-	public static final int HEADLINES_BUFFER_MAX = 1000;
-
 	private final String TAG = this.getClass().getSimpleName();
 
 	Feed m_feed;
@@ -187,10 +185,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     }
 
 	private void catchupAbove(Article article) {
-		ArticleList articles = getAllArticles();
 		ArticleList tmp = new ArticleList();
-		for (Article a : articles) {
-            if (article.id == a.id)
+		for (Article a : Application.getArticles()) {
+            if (article.equalsById(a))
                 break;
 
             if (a.unread) {
@@ -198,11 +195,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 tmp.add(a);
             }
         }
+
 		if (!tmp.isEmpty()) {
-            m_activity.toggleArticlesUnread(tmp);
-            //updateHeadlines();
+            m_activity.setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
+			m_adapter.notifyDataSetChanged();
         }
-		m_adapter.notifyDataSetChanged();
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
@@ -483,11 +480,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				m_activity.getSupportActionBar().show();
 				Application.getArticles().clear();
 				m_adapter.notifyDataSetChanged();
-			} else {
-				if (!(m_activity instanceof DetailActivity)) {
-					Application.getArticles().add(new Article(Article.TYPE_LOADMORE));
-					m_adapter.notifyDataSetChanged();
-				}
+			} else if (!(m_activity instanceof DetailActivity)) {
+				// detail activity does not use footers because it would break 1-to-1 mapping with pager view
+				// pager will need to work on a footerless subset of shared article view before this is possible
+				Application.getArticles().add(new Article(Article.TYPE_LOADMORE));
+				m_adapter.notifyDataSetChanged();
 			}
 
 			final String sessionId = m_activity.getSessionId();
@@ -499,11 +496,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					if (isDetached() || !isAdded()) return;
 
 					super.onPostExecute(result);
-					m_adapter.notifyDataSetChanged();
 
 					if (m_swipeLayout != null) m_swipeLayout.setRefreshing(false);
 
-					//m_adapter.removeAllFooterViews();
 					m_refreshInProgress = false;
 
 					if (result != null) {
@@ -515,17 +510,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						if (m_firstIdChanged) {
 							m_lazyLoadDisabled = true;
 
-							//Log.d(TAG, "first id changed, disabling lazy load");
+							Log.d(TAG, "first id changed, disabling lazy load");
 
+							// article pager deals with this in tablet landscape view
 							if (m_activity.isSmallScreen() || !m_activity.isPortrait()) {
-
 								Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
 										.setAction(R.string.reload, v -> refresh(false)).show();
 							}
 						}
 
 						if (m_amountLoaded < Integer.parseInt(m_prefs.getString("headlines_request_size", "15"))) {
-							//Log.d(TAG, "amount loaded < request size, disabling lazy load");
+							// Log.d(TAG, "amount loaded "+m_amountLoaded+" < request size, disabling lazy load");
 							m_lazyLoadDisabled = true;
 						}
 
@@ -548,6 +543,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						}
 					}
 
+					// detail activity does not use footers (see above)
 					if (!(m_activity instanceof DetailActivity)) {
 						Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
 						m_adapter.notifyDataSetChanged();
@@ -555,40 +551,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				}
 			};
 
-			int skip = 0;
-
-			if (append) {
-				// adaptive, all_articles, marked, published, unread
-				String viewMode = m_activity.getViewMode();
-				int numUnread = 0;
-				int numAll = Application.getArticles().size();
-
-				for (Article a : Application.getArticles()) {
-					if (a.unread) ++numUnread;
-				}
-
-				if ("marked".equals(viewMode)) {
-					skip = numAll;
-				} else if ("published".equals(viewMode)) {
-					skip = numAll;
-				} else if ("unread".equals(viewMode)) {
-					skip = numUnread;
-				} else if (m_searchQuery != null && !m_searchQuery.isEmpty()) {
-					skip = numAll;
-				} else if ("adaptive".equals(viewMode)) {
-					skip = numUnread > 0 ? numUnread : numAll;
-				} else {
-					skip = numAll;
-				}
-			}
-
-			final int fskip = skip;
+			final int skip = getSkip(append);
 
 			final boolean allowForceUpdate = m_activity.getApiLevel() >= 9 &&
 					!m_feed.is_cat && m_feed.id > 0 && !append && userInitiated &&
 					skip == 0;
 
-			Log.d(TAG, "allowForceUpdate=" + allowForceUpdate + " userInitiated=" + userInitiated);
+			Log.d(TAG, "allowForceUpdate=" + allowForceUpdate + " userInitiated=" + userInitiated + " skip=" + skip);
 
 			req.setOffset(skip);
 
@@ -603,7 +572,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			map.put("view_mode", m_activity.getViewMode());
 			map.put("limit", m_prefs.getString("headlines_request_size", "15"));
 			map.put("offset", String.valueOf(0));
-			map.put("skip", String.valueOf(fskip));
+			map.put("skip", String.valueOf(skip));
 			map.put("include_nested", "true");
 			map.put("has_sandbox", "true");
 			map.put("order_by", m_activity.getSortMode());
@@ -636,6 +605,34 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			req.execute(map);
 		}
+	}
+
+	private int getSkip(boolean append) {
+		int skip = 0;
+
+		if (append) {
+			// adaptive, all_articles, marked, published, unread
+			String viewMode = m_activity.getViewMode();
+
+			int numUnread = Math.toIntExact(Application.getArticles().getUnreadCount());
+			int numAll = Math.toIntExact(Application.getArticles().getSizeWithoutFooters());
+
+			if ("marked".equals(viewMode)) {
+				skip = numAll;
+			} else if ("published".equals(viewMode)) {
+				skip = numAll;
+			} else if ("unread".equals(viewMode)) {
+				skip = numUnread;
+			} else if (m_searchQuery != null && !m_searchQuery.isEmpty()) {
+				skip = numAll;
+			} else if ("adaptive".equals(viewMode)) {
+				skip = numUnread > 0 ? numUnread : numAll;
+			} else {
+				skip = numAll;
+			}
+		}
+
+		return skip;
 	}
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
@@ -1510,14 +1507,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	public void notifyUpdated() {
 		m_adapter.notifyDataSetChanged();
-	}
-
-	// returns cloned array without footers
-	public ArticleList getAllArticles() {
-		ArticleList tmp = (ArticleList) Application.getArticles().clone();
-		tmp.stripFooters();
-
-		return tmp;
 	}
 
 	public void scrollToArticle(Article article) {
