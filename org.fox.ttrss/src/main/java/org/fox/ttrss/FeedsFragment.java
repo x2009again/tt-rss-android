@@ -239,18 +239,19 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			return true;
 		} else if (itemId == R.id.unsubscribe_feed) {
 			final Feed feed = getFeedAtPosition(info.position);
+			if (feed != null) {
+				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+						.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
+						.setPositiveButton(R.string.unsubscribe,
+								(dialog, which) -> m_activity.unsubscribeFeed(feed))
+						.setNegativeButton(R.string.dialog_cancel,
+								(dialog, which) -> {
 
-			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-					.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
-					.setPositiveButton(R.string.unsubscribe,
-                            (dialog, which) -> m_activity.unsubscribeFeed(feed))
-					.setNegativeButton(R.string.dialog_cancel,
-                            (dialog, which) -> {
+								});
 
-                            });
-
-			Dialog dlg = builder.create();
-			dlg.show();
+				Dialog dlg = builder.create();
+				dlg.show();
+			}
 
 			return true;
 		} else if (itemId == R.id.catchup_feed) {
@@ -551,12 +552,12 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 	public Feed getFeedAtPosition(int position) {
 		try {
-            return (Feed) m_list.getItemAtPosition(position);
-        } catch (NullPointerException e) {
-            return null;
-		} catch (IndexOutOfBoundsException e) {
-			return null;
+			return (Feed) m_list.getItemAtPosition(position);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
 		}
+
+		return null;
 	}
 
 	public void setSelectedfeed(Feed feed) {
