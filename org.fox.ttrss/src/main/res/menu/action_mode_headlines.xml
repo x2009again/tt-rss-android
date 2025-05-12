@@ -4,7 +4,7 @@
         android:id="@+id/selection_toggle_unread"
         app:showAsAction="always"
         app:iconTint="?attr/colorControlNormal"
-        android:icon="@drawable/baseline_mark_email_unread_24"
+        android:icon="@drawable/baseline_drafts_24"
         android:title="@string/selection_toggle_unread"/>
 
     <item
