@@ -3,10 +3,6 @@
     <item
         android:id="@+id/browse_headlines"
         android:title="@string/category_browse_headlines"/>
-    
-    <!-- <item
-        android:id="@+id/browse_articles"
-        android:title="@string/category_browse_articles"/> -->
 
     <item
         android:id="@+id/browse_feeds"
@@ -15,8 +11,5 @@
     <item
         android:id="@+id/catchup_category"
         android:title="@string/catchup"/>
-    
- 	<item	
-        android:id="@+id/create_shortcut"
-        android:title="@string/place_shortcut"/>    
+
 </menu>

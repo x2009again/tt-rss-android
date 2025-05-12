@@ -8,7 +8,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +15,7 @@ import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,7 +26,6 @@ import org.fox.ttrss.types.Feed;
 
 public class DetailActivity extends OnlineActivity implements HeadlinesEventListener {
 	private final String TAG = this.getClass().getSimpleName();
-	protected ArticleList m_articles = new ArticleList();
 	protected BottomAppBar m_bottomAppBar;
 
 	protected SharedPreferences m_prefs;
@@ -40,11 +39,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 		setAppTheme(m_prefs);
 
-        super.onCreate(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			m_articles = savedInstanceState.getParcelable("m_articles");
-		}
+		super.onCreate(savedInstanceState);
 
 		if (m_prefs.getBoolean("force_phone_layout", false)) {
 			setContentView(R.layout.activity_detail_phone);
@@ -74,47 +69,44 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		m_bottomAppBar = findViewById(R.id.detail_bottom_appbar);
 
 		if (m_bottomAppBar != null) {
-			m_bottomAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(MenuItem item) {
+			m_bottomAppBar.setOnMenuItemClickListener(item -> {
 
-					final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-					final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+                final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+                final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-					Article article = ap.getSelectedArticle();
+                Article article = ap.getSelectedArticle();
 
-					if (article == null) return false;
+                if (article == null) return false;
 
-					int itemId = item.getItemId();
+                int itemId = item.getItemId();
 
-					if (itemId == R.id.article_set_labels) {
-						editArticleLabels(article);
+                if (itemId == R.id.article_set_labels) {
+                    editArticleLabels(article);
 
-						return true;
-					} else if (itemId == R.id.toggle_attachments) {
-						displayAttachments(article);
+                    return true;
+                } else if (itemId == R.id.toggle_attachments) {
+                    displayAttachments(article);
 
-						return true;
-					} else if (itemId == R.id.article_edit_note) {
-						editArticleNote(article);
+                    return true;
+                } else if (itemId == R.id.article_edit_note) {
+                    editArticleNote(article);
 
-						return true;
-					} else if (itemId == R.id.article_set_score) {
-						setArticleScore(article);
+                    return true;
+                } else if (itemId == R.id.article_set_score) {
+                    setArticleScore(article);
 
-						return true;
-					} else if (itemId == R.id.toggle_unread) {
-						article.unread = !article.unread;
-						saveArticleUnread(article);
+                    return true;
+                } else if (itemId == R.id.toggle_unread) {
+                    article.unread = !article.unread;
+                    saveArticleUnread(article);
 
-						if (hf != null) {
-							hf.notifyUpdated();
-						}
-					}
+                    if (hf != null) {
+                        hf.notifyUpdated();
+                    }
+                }
 
-					return false;
-				}
-			});
+                return false;
+            });
 		}
 
 		FloatingActionButton fab = findViewById(R.id.detail_fab);
@@ -123,14 +115,11 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			if (m_prefs.getBoolean("enable_article_fab", true)) {
 				fab.show();
 
-				fab.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						if (m_activeArticle != null) {
-							openUri(Uri.parse(m_activeArticle.link));
-						}
-					}
-				});
+				fab.setOnClickListener(view -> {
+                    if (m_activeArticle != null) {
+                        openUri(Uri.parse(m_activeArticle.link));
+                    }
+                });
 			} else {
 				fab.hide();
 			}
@@ -152,35 +141,25 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 					String feedTitle = i.getStringExtra("feed_title");
 					
 					tmpFeed = new Feed(feedId, feedTitle, isCat);
-
-					//Application.getInstance().m_loadedArticles.clear();
 				} else {
 					tmpFeed = i.getParcelableExtra("feed");
 				}
 				
 				final Feed feed = tmpFeed;
 				
-				//final Article article = i.getParcelableExtra("article");
-				final Article article = Application.getInstance().tmpArticle;
+				final Article article = Application.getInstance().tmpActiveArticle;
 				final String searchQuery = i.getStringExtra("searchQuery");
-
-                ArticleList tmp = Application.getInstance().tmpArticleList;
-
-                if (tmp != null) {
-					m_articles.clear();
-                    m_articles.addAll(tmp);
-                }
 
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
                 final HeadlinesFragment hf = new HeadlinesFragment();
-                hf.initialize(feed, article, true, m_articles);
+                hf.initialize(feed, article, true);
                 hf.setSearchQuery(searchQuery);
 
                 ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
 				ArticlePager af = new ArticlePager();
-				af.initialize(article != null ? hf.getArticleById(article.id) : new Article(), feed, m_articles);
+				af.initialize(article != null ? hf.getArticleById(article.id) : new Article(), feed);
 				af.setSearchQuery(searchQuery);
 
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
@@ -226,7 +205,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 					menu.findItem(R.id.toggle_unread).setIcon(article.unread ? R.drawable.baseline_mark_email_unread_24 :
 							R.drawable.baseline_email_24);
 
-					menu.findItem(R.id.toggle_attachments).setVisible(article.attachments != null && article.attachments.size() > 0);
+					menu.findItem(R.id.toggle_attachments).setVisible(article.attachments != null && !article.attachments.isEmpty());
 				}
 			}
 		}
@@ -261,8 +240,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
-
-		out.putParcelable("m_articles", m_articles);
 
 		Application.getInstance().save(out);
 	}
@@ -330,16 +307,13 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 		if (open) {
 
-			new Handler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-                    ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-					
-					if (af != null) {
-						af.setActiveArticle(article);
-					}
-				}
-			}, 250);
+			new Handler().postDelayed(() -> {
+ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+
+                if (af != null) {
+                    af.setActiveArticle(article);
+                }
+            }, 250);
 
 		} else {
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
@@ -355,13 +329,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		invalidateOptionsMenu();
 	}
 
-    public void showSidebar(boolean show) {
-        if (!isSmallScreen() && !isPortrait()) {
-            findViewById(R.id.headlines_fragment).setVisibility(show ? View.VISIBLE : View.GONE);
-            invalidateOptionsMenu();
-        }
-    }
-
 	@Override
 	public void onHeadlinesLoaded(boolean appended) {
 		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
@@ -374,7 +341,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (hf != null) {
 			Article article = hf.getActiveArticle();
 						
-			if (article == null && hf.getAllArticles().size() > 0) {
+			if (article == null && !hf.getAllArticles().isEmpty()) {
 
 				article = hf.getAllArticles().get(0);
 
@@ -384,7 +351,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						.beginTransaction();
 
 				ArticlePager af = new ArticlePager();
-				af.initialize(article, hf.getFeed(), m_articles);
+				af.initialize(article, hf.getFeed());
 
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
 				ft.commitAllowingStateLoss();
@@ -396,8 +363,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	public void onBackPressed() {
         Intent resultIntent = new Intent();
 
-        Application.getInstance().tmpArticleList = m_articles;
-        resultIntent.putExtra("activeArticle", m_activeArticle);
+        Application.getInstance().tmpActiveArticle = m_activeArticle;
 
         setResult(Activity.RESULT_OK, resultIntent);
 

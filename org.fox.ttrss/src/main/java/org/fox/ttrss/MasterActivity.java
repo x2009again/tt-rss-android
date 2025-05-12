@@ -3,13 +3,11 @@ package org.fox.ttrss;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -186,9 +185,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			if (!shortcutMode && openFeedId != 0) {
 				Log.d(TAG, "opening feed id: " + openFeedId);
 
-                HeadlinesFragment hf = new HeadlinesFragment();
-                hf.initialize(new Feed(openFeedId, openFeedTitle, openFeedIsCat));
-                ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
+				onFeedSelected(new Feed(openFeedId, openFeedTitle, openFeedIsCat), false);
             } else if (m_drawerLayout != null) {
                 m_drawerLayout.openDrawer(GravityCompat.START);
             }
@@ -212,16 +209,13 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         if (fab != null) {
         	fab.show();
 
-        	fab.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+        	fab.setOnClickListener(view -> {
+                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-					if (hf != null && hf.isAdded()) {
-						hf.refresh(false);
-					}
-				}
-			});
+                if (hf != null && hf.isAdded()) {
+                    hf.refresh(false);
+                }
+            });
 		}
 	}
 
@@ -286,24 +280,23 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			m_drawerLayout.closeDrawers();
 		}
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				FragmentTransaction ft = getSupportFragmentManager()
-						.beginTransaction();
+		Application.getArticles().clear();
 
-				HeadlinesFragment hf = new HeadlinesFragment();
-				hf.initialize(feed);
+		new Handler().postDelayed(() -> {
+            FragmentTransaction ft = getSupportFragmentManager()
+                    .beginTransaction();
 
-				ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
+            HeadlinesFragment hf = new HeadlinesFragment();
+            hf.initialize(feed);
 
-				ft.commit();
+            ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
-				m_feedIsSelected = true;
-				m_userFeedSelected = selectedByUser;
+            ft.commit();
 
-			}
-		}, 250);
+            m_feedIsSelected = true;
+            m_userFeedSelected = selectedByUser;
+
+        }, 250);
 
         Date date = new Date();
 
@@ -386,24 +379,20 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
                     .setTitle(getString(R.string.headlines_sort_articles_title))
                     .setSingleChoiceItems(
                             sortTitles,
-                            selectedIndex, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
+                            selectedIndex, (dialog, which) -> {
 
-                                    try {
+                                try {
 //										Log.d(TAG, "sort selected index:" + which + ": " + sortNames[which]);
 
-                                        setSortMode((String) sortNames[which]);
+                                    setSortMode((String) sortNames[which]);
 
-                                    } catch (IndexOutOfBoundsException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    dialog.cancel();
-
-                                    refresh();
+                                } catch (IndexOutOfBoundsException e) {
+                                    e.printStackTrace();
                                 }
+
+                                dialog.cancel();
+
+                                refresh();
                             });
 
             Dialog dialog = builder.create();
@@ -482,8 +471,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
 				intent.putExtra("feed", hf.getFeed());
 				intent.putExtra("searchQuery", hf.getSearchQuery());
-				Application.getInstance().tmpArticleList = hf.getAllArticles();
-				Application.getInstance().tmpArticle = article;
+
+				Application.getInstance().tmpActiveArticle = article;
 
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -525,44 +514,20 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == HEADLINES_REQUEST && data != null) {
-            ArticleList articles = Application.getInstance().tmpArticleList;
-
-            if (articles != null) {
-                HeadlinesFragment hf = (HeadlinesFragment)getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-
-                if (hf != null) {
-                    hf.setArticles(articles);
-                }
-            }
-		}
-
 		super.onActivityResult(requestCode, resultCode, data);
-	}
 
-	// TODO: remove; not supported on oreo
-	public void createFeedShortcut(Feed feed) {
-		final Intent shortcutIntent = new Intent(this, MasterActivity.class);
-		shortcutIntent.putExtra("feed_id", feed.id);
-		shortcutIntent.putExtra("feed_is_cat", feed.is_cat);
-		shortcutIntent.putExtra("feed_title", feed.title);
-		shortcutIntent.putExtra("shortcut_mode", true);
-		
-		Intent intent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
-		
-		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, feed.title);
-		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.drawable.ic_launcher));
-		intent.putExtra("duplicate", false);
-		
-		sendBroadcast(intent);
-		
-		toast(R.string.shortcut_has_been_placed_on_the_home_screen);
-	}
+		if (requestCode == HEADLINES_REQUEST) {
+			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-	// TODO: remove; not supported on oreo
-	public void createCategoryShortcut(FeedCategory cat) {
-		createFeedShortcut(new Feed(cat.id, cat.title, true));
+			if (hf != null) {
+				hf.notifyUpdated();
+
+				// this makes position in headlines in master activity (not quite) randomly jump around when returning
+				// even if active article hasn't been changed, i guess keeping it as-is is a lesser evil?
+
+				// hf.setActiveArticle(Application.getInstance().tmpActiveArticle);
+			}
+		}
 	}
 
 	public void unsubscribeFeed(final Feed feed) {

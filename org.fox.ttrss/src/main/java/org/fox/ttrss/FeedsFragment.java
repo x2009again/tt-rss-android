@@ -4,13 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -18,7 +15,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -30,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -44,7 +41,6 @@ import org.fox.ttrss.types.FeedList;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +50,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	private final String TAG = this.getClass().getSimpleName();
 	private SharedPreferences m_prefs;
 	private FeedListAdapter m_adapter;
-	private FeedList m_feeds = new FeedList();
+	private final FeedList m_feeds = new FeedList();
 	private MasterActivity m_activity;
 	Feed m_selectedFeed;
 	FeedCategory m_activeCategory;
@@ -76,14 +72,14 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		final String sessionId = m_activity.getSessionId();
 		final boolean unreadOnly = m_activity.getUnreadOnly() && (m_activeCategory == null || m_activeCategory.id != -1);
 
-		HashMap<String,String> params = new HashMap<String,String>();
+		HashMap<String,String> params = new HashMap<>();
 		params.put("op", "getFeeds");
 		params.put("sid", sessionId);
 		params.put("include_nested", "true");
 		params.put("cat_id", String.valueOf(catId));
-		if (unreadOnly) {
-			params.put("unread_only", String.valueOf(unreadOnly));
-		}
+
+		if (unreadOnly)
+			params.put("unread_only", "true");
 
 		return new FeedsLoader(getActivity().getApplicationContext(), params, catId);
 	}
@@ -127,7 +123,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 					}
 
-					if (m_enableParentBtn && m_activeCategory != null && m_activeCategory.id >= 0 && m_feeds.size() > 0) {
+					if (m_enableParentBtn && m_activeCategory != null && m_activeCategory.id >= 0 && !m_feeds.isEmpty()) {
 						Feed feed = new Feed(m_activeCategory.id, m_activeCategory.title, true);
 						feed.unread = catUnread;
 						feed.always_display_as_feed = true;
@@ -157,16 +153,11 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			} else {
 				m_activity.toast(al.getErrorMessage());
 			}
-
-			//m_activity.setLoadingStatus(getErrorMessage(), false);
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<JsonElement> loader) {
-		/*m_feeds.clear();
-		m_adapter.notifyDataSetChanged();*/
-	}
+	public void onLoaderReset(Loader<JsonElement> loader) { }
 
 	@SuppressLint("DefaultLocale")
 	static class FeedUnreadComparator implements Comparator<Feed> {
@@ -206,9 +197,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 		@Override
 		public int compare(Feed a, Feed b) {
-			//Log.d(TAG, "A:" + a.title + " " + a.is_cat + " " + a.order_id);
-			//Log.d(TAG, "B:" + b.title + " " + b.is_cat + " " + b.order_id);
-
 			if (a.id >= 0 && b.id >= 0)
 				if (a.is_cat && b.is_cat)
 					if (a.order_id != 0 && b.order_id != 0)
@@ -236,72 +224,46 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-        int itemId = item.getItemId();
-        if (itemId == R.id.browse_headlines) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
-                if (feed != null) {
-                    m_activity.onFeedSelected(feed);
-                }
-            }
-            return true;
-        } else if (itemId == R.id.browse_feeds) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
-                if (feed != null) {
-                    m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
-                }
-            }
-            return true;
-        } else if (itemId == R.id.unsubscribe_feed) {
-            if (true) {
-                final Feed feed = getFeedAtPosition(info.position);
+		int itemId = item.getItemId();
+		if (itemId == R.id.browse_headlines) {
+			Feed feed = getFeedAtPosition(info.position);
+			if (feed != null) {
+				m_activity.onFeedSelected(feed);
+			}
+			return true;
+		} else if (itemId == R.id.browse_feeds) {
+			Feed feed = getFeedAtPosition(info.position);
+			if (feed != null) {
+				m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
+			}
+			return true;
+		} else if (itemId == R.id.unsubscribe_feed) {
+			final Feed feed = getFeedAtPosition(info.position);
 
-				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-                        .setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
-                        .setPositiveButton(R.string.unsubscribe,
-                                new Dialog.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
+			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+					.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
+					.setPositiveButton(R.string.unsubscribe,
+                            (dialog, which) -> m_activity.unsubscribeFeed(feed))
+					.setNegativeButton(R.string.dialog_cancel,
+                            (dialog, which) -> {
 
-                                        m_activity.unsubscribeFeed(feed);
+                            });
 
-                                    }
-                                })
-                        .setNegativeButton(R.string.dialog_cancel,
-                                new Dialog.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
+			Dialog dlg = builder.create();
+			dlg.show();
 
-                                    }
-                                });
+			return true;
+		} else if (itemId == R.id.catchup_feed) {
+			Feed feed = getFeedAtPosition(info.position);
 
-                Dialog dlg = builder.create();
-                dlg.show();
-            }
-
-            return true;
-        } else if (itemId == R.id.create_shortcut) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
-                if (feed != null) {
-                    m_activity.createFeedShortcut(feed);
-                }
-            }
-            return true;
-        } else if (itemId == R.id.catchup_feed) {
-            if (true) {
-                Feed feed = getFeedAtPosition(info.position);
-
-                if (feed != null) {
-                    m_activity.catchupDialog(feed);
-                }
-            }
-            return true;
-        }
-        Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
-        return super.onContextItemSelected(item);
-    }
+			if (feed != null) {
+				m_activity.catchupDialog(feed);
+			}
+			return true;
+		}
+		Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
+		return super.onContextItemSelected(item);
+	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -323,11 +285,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			menu.findItem(R.id.unsubscribe_feed).setVisible(false);
 		}
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            menu.findItem(R.id.create_shortcut).setVisible(false);
-        }
-
-		super.onCreateContextMenu(menu, v, menuInfo);		
+		super.onCreateContextMenu(menu, v, menuInfo);
 		
 	}
 
@@ -364,12 +322,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
-	    m_swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				refresh();
-			}
-		});
+	    m_swipeLayout.setOnRefreshListener(this::refresh);
 
 		m_list = view.findViewById(R.id.feeds);
 
@@ -378,12 +331,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		if (m_enableParentBtn) {
 			View layout = inflater.inflate(R.layout.feeds_goback, m_list, false);
 
-			layout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					m_activity.getSupportFragmentManager().popBackStack();
-				}
-			});
+			layout.setOnClickListener(view1 -> m_activity.getSupportFragmentManager().popBackStack());
 
 			m_list.addHeaderView(layout, null, false);
 		}
@@ -417,7 +365,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public void onResume() {
 		super.onResume();
 
-		getLoaderManager().initLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).initLoader(0, null, this).forceLoad();
 		
 		m_activity.invalidateOptionsMenu();
 	}
@@ -448,7 +396,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		}
 	}
 
-	@SuppressWarnings({ "serial" })
 	public void refresh() {
 		if (!isAdded()) return;
 
@@ -456,11 +403,11 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
             m_swipeLayout.setRefreshing(true);
         }
 
-		getLoaderManager().restartLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
 	}
 
 	private class FeedListAdapter extends ArrayAdapter<Feed> {
-		private ArrayList<Feed> items;
+		private final ArrayList<Feed> items;
 
 		public static final int VIEW_NORMAL = 0;
 		public static final int VIEW_SELECTED = 1;
@@ -502,11 +449,9 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			if (v == null) {
 				int layoutId = R.layout.feeds_row;
 
-				switch (getItemViewType(position)) {
-				case VIEW_SELECTED:
-					layoutId = R.layout.feeds_row_selected;
-					break;
-				}
+                if (getItemViewType(position) == VIEW_SELECTED) {
+                    layoutId = R.layout.feeds_row_selected;
+                }
 
 				LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				v = vi.inflate(layoutId, null);
@@ -566,17 +511,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 				tu.setVisibility((feed.unread > 0) ? View.VISIBLE : View.INVISIBLE);
 			}
 
-			/*ImageButton ib = (ImageButton) v.findViewById(R.id.feed_menu_button);
-
-			if (ib != null) {
-				ib.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						getActivity().openContextMenu(v);
-					}
-				});
-			}*/
-
 			return v;
 		}
 	}
@@ -595,7 +529,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		}
 		
 		try {
-			Collections.sort(m_feeds, cmp);
+			m_feeds.sort(cmp);
 		} catch (IllegalArgumentException e) {
 			// sort order got changed in prefs or something
 			e.printStackTrace();
@@ -613,8 +547,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			String key) {
 
 		sortFeeds();
-		//m_enableFeedIcons = m_prefs.getBoolean("download_feed_icons", false);
-		
 	}
 
 	public Feed getFeedAtPosition(int position) {

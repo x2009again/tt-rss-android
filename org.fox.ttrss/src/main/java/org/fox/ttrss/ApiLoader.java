@@ -13,14 +13,14 @@ import java.util.HashMap;
 public class ApiLoader extends AsyncTaskLoader<JsonElement> implements ApiCommon.ApiCaller {
 	private final String TAG = this.getClass().getSimpleName();
 
-	private int m_responseCode = 0;
+	private final int m_responseCode = 0;
 	protected String m_responseMessage;
 	private int m_apiStatusCode = 0;
 
-	private Context m_context;
+	private final Context m_context;
 	private String m_lastErrorMessage;
 	private ApiError m_lastError;
-	private HashMap<String,String> m_params;
+	private final HashMap<String,String> m_params;
 	private JsonElement m_data;
 
 	ApiLoader(Context context, HashMap<String, String> params) {

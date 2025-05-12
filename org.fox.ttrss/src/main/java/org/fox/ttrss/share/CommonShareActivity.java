@@ -1,15 +1,15 @@
 package org.fox.ttrss.share;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -53,25 +53,19 @@ public abstract class CommonShareActivity extends CommonActivity {
 
 	public void login(int requestId) {
 
-		if (m_prefs.getString("ttrss_url", "").trim().length() == 0) {
+		if (m_prefs.getString("ttrss_url", "").trim().isEmpty()) {
 
 			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 				.setMessage(R.string.dialog_need_configure_prompt)
 			    .setCancelable(false)
-			    .setPositiveButton(R.string.dialog_open_preferences, new DialogInterface.OnClickListener() {
-			           public void onClick(DialogInterface dialog, int id) {
-			   			// launch preferences
-			   			
-			        	   Intent intent = new Intent(CommonShareActivity.this,
-			        			   PreferencesActivity.class);
-			        	   startActivityForResult(intent, 0);
-			           }
-			       })
-			    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			           public void onClick(DialogInterface dialog, int id) {
-			                dialog.cancel();
-			           }
-			       });
+			    .setPositiveButton(R.string.dialog_open_preferences, (dialog, id) -> {
+                    // launch preferences
+
+                    Intent intent = new Intent(CommonShareActivity.this,
+                            PreferencesActivity.class);
+                    startActivityForResult(intent, 0);
+                })
+			    .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
 			Dialog alert = builder.create();
 			alert.show();
 			

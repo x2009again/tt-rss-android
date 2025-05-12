@@ -14,7 +14,7 @@ public abstract class SimpleLoginManager {
 	private final String TAG = this.getClass().getSimpleName();
 	
 	protected class LoginRequest extends ApiRequest {
-		private int m_requestId;
+		private final int m_requestId;
 		protected String m_sessionId;
 		protected int m_apiLevel;
 		protected Context m_context;
@@ -55,8 +55,7 @@ public abstract class SimpleLoginManager {
 							}
 						};
 
-						@SuppressWarnings("serial")
-						HashMap<String, String> map = new HashMap<String, String>();
+						HashMap<String, String> map = new HashMap<>();
 						map.put("sid", m_sessionId);
 						map.put("op", "getApiLevel");
 
@@ -80,7 +79,7 @@ public abstract class SimpleLoginManager {
 	public void logIn(Context context, int requestId, final String login, final String password) {
 		LoginRequest ar = new LoginRequest(context, requestId); 
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("op", "login");
 		map.put("user", login.trim());
 		map.put("password", password.trim());

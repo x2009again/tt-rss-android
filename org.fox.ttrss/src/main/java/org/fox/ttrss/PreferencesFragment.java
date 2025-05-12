@@ -6,9 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -26,26 +24,20 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         findPreference("ttrss_url").setSummary(prefs.getString("ttrss_url", getString(R.string.ttrss_url_summary)));
         findPreference("login").setSummary(prefs.getString("login", getString(R.string.login_summary)));
 
-        findPreference("show_logcat").setOnPreferenceClickListener(new androidx.preference.Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(@NonNull androidx.preference.Preference preference) {
-                Intent intent = new Intent(getActivity(), LogcatActivity.class);
-                startActivity(intent);
-                return false;
-            }
+        findPreference("show_logcat").setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent(getActivity(), LogcatActivity.class);
+            startActivity(intent);
+            return false;
         });
 
-        findPreference("network_settings").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.preferences_container, new NetworkPreferencesFragment() )
-                        .addToBackStack( NetworkPreferencesFragment.class.getSimpleName() )
-                        .commit();
+        findPreference("network_settings").setOnPreferenceClickListener(preference -> {
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.preferences_container, new NetworkPreferencesFragment() )
+                    .addToBackStack( NetworkPreferencesFragment.class.getSimpleName() )
+                    .commit();
 
-                return false;
-            }
+            return false;
         });
 
         CommonActivity activity = (CommonActivity) getActivity();

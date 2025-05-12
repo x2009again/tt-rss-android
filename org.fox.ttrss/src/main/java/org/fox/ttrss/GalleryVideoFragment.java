@@ -126,17 +126,14 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
 
         registerForContextMenu(textureView);
 
-        textureView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (!m_mediaController.isShowing())
-                        m_mediaController.show(5000);
-                    else
-                        m_mediaController.hide();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        textureView.setOnClickListener(v -> {
+            try {
+                if (!m_mediaController.isShowing())
+                    m_mediaController.show(5000);
+                else
+                    m_mediaController.hide();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
@@ -215,22 +212,19 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
                     e.printStackTrace();
                 }
 
-                m_mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        getView().findViewById(R.id.flavor_image).setVisibility(View.GONE);
-                        getView().findViewById(R.id.flavor_image_progress).setVisibility(View.GONE);
+                m_mediaPlayer.setOnPreparedListener(mp -> {
+                    getView().findViewById(R.id.flavor_image).setVisibility(View.GONE);
+                    getView().findViewById(R.id.flavor_image_progress).setVisibility(View.GONE);
 
-                        try {
-                            resizeSurface(textureView);
-                            mp.setLooping(true);
+                    try {
+                        resizeSurface(textureView);
+                        mp.setLooping(true);
 
-                            if (m_userVisibleHint) {
-                                mp.start();
-                            }
-                        } catch (IllegalStateException e) {
-                            e.printStackTrace();
+                        if (m_userVisibleHint) {
+                            mp.start();
                         }
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
                     }
                 });
 

@@ -2,7 +2,6 @@ package org.fox.ttrss.share;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,12 +52,7 @@ public class ShareActivity extends CommonShareActivity {
 
 		m_button = (Button) findViewById(R.id.share_button);
 		
-		m_button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				login(0);
-			} 
-		});
+		m_button.setOnClickListener(v -> login(0));
 	}
 
 	@Override
@@ -108,7 +102,7 @@ public class ShareActivity extends CommonShareActivity {
 		final EditText content = (EditText) findViewById(R.id.content);			
 
 		if (url != null && title != null && content != null) {
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, String> map = new HashMap<>();
 			map.put("sid", m_sessionId);
 			map.put("op", "shareToPublished");
 			map.put("title", title.getText().toString());

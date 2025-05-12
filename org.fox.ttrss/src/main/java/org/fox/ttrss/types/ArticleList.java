@@ -3,10 +3,10 @@ package org.fox.ttrss.types;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
-@SuppressWarnings("serial")
-public class ArticleList extends ArrayList<Article> implements Parcelable {
+public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcelable {
 	@Override
 	public int describeContents() {
 		return 0;
@@ -53,6 +53,11 @@ public class ArticleList extends ArrayList<Article> implements Parcelable {
 				break;
 			}
 		}
+	}
+
+	public String getAsCommaSeparatedIds() {
+		return this.stream().map(a -> String.valueOf(a.id))
+				.collect(Collectors.joining(","));
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -9,13 +9,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -24,7 +21,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -42,6 +38,7 @@ import androidx.browser.customtabs.CustomTabsServiceConnection;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.app.JobIntentService;
 import androidx.core.content.FileProvider;
+import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -50,7 +47,6 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.fox.ttrss.util.DatabaseHelper;
 import org.fox.ttrss.widget.SmallWidgetProvider;
 import org.fox.ttrss.widget.WidgetUpdateService;
 import org.jsoup.Jsoup;
@@ -82,11 +78,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	public static final int LABEL_BASE_INDEX = -1024;
 
 	public static final int PENDING_INTENT_CHROME_SHARE = 1;
-
-	private DatabaseHelper m_databaseHelper;
-
-	//private SQLiteDatabase m_readableDb;
-	//private SQLiteDatabase m_writableDb;
 
 	private boolean m_smallScreenMode = true;
 	protected String m_theme;
@@ -169,14 +160,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 		m_smallScreenMode = smallScreen;
 	}
 
-	public DatabaseHelper getDatabaseHelper() {
-		return m_databaseHelper;
-	}
-
-	public SQLiteDatabase getDatabase() {
-		return m_databaseHelper.getWritableDatabase();
-	}
-
 	public boolean getUnreadOnly() {
 		return m_prefs.getBoolean("show_unread_only", true);
 	}
@@ -198,12 +181,9 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	public void toast(String msg) {
 		Snackbar.make(findViewById(android.R.id.content), msg, Snackbar.LENGTH_LONG)
-				.setAction(R.string.dialog_close, new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
+				.setAction(R.string.dialog_close, v -> {
 
-					}
-				})
+                })
 				.show();
 	}
 
@@ -253,8 +233,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 			nmgr.createNotificationChannel(channel);
 		}
 
-		m_databaseHelper = DatabaseHelper.getInstance(this);
-
 		m_prefs = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 
@@ -302,32 +280,14 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	@SuppressLint({ "NewApi", "ServiceCast" })
 	@SuppressWarnings("deprecation")
 	public void copyToClipboard(String str) {
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-			clipboard.setText(str);
-		} else {
-			android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-			clipboard.setText(str);
-		}
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clipboard.setText(str);
 
-		Snackbar.make(findViewById(android.R.id.content), R.string.text_copied_to_clipboard, Snackbar.LENGTH_SHORT)
-				.setAction(R.string.dialog_close, new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
+        Snackbar.make(findViewById(android.R.id.content), R.string.text_copied_to_clipboard, Snackbar.LENGTH_SHORT)
+				.setAction(R.string.dialog_close, v -> {
 
-					}
-				})
+                })
 				.show();
-	}
-
-	public boolean isUiNightMode() {
-		try {
-			int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
-			return Configuration.UI_MODE_NIGHT_YES == nightModeFlags;
-		} catch (Exception e) {
-			return false;
-		}
 	}
 
 	protected void setAppTheme(SharedPreferences prefs) {
@@ -358,7 +318,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 				"headlines_swipe_to_dismiss", "headlines_mark_read_scroll", "headlines_request_size",
 				"force_phone_layout", "open_on_startup"};
 
-		m_needRestart = Arrays.asList(filter).indexOf(key) != -1;
+		m_needRestart = Arrays.asList(filter).contains(key);
 	}
 
 	private CustomTabsSession getCustomTabSession() {
@@ -487,7 +447,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 		if (uri.getScheme() == null) {
 			try {
-				uri = Uri.parse("https:" + uri.toString());
+				uri = Uri.parse("https:" + uri);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -508,43 +468,37 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 						.setView(dialogView)
 						.setMessage(uri.toString())
 						.setPositiveButton(R.string.quick_preview,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-														int which) {
+                                (dialog, which) -> {
 
-										if (!askEveryTimeCB.isChecked()) {
-											SharedPreferences.Editor editor = m_prefs.edit();
-											editor.putBoolean("custom_tabs_ask_always", false);
-											editor.apply();
-										}
+                                    if (!askEveryTimeCB.isChecked()) {
+                                        SharedPreferences.Editor editor = m_prefs.edit();
+                                        editor.putBoolean("custom_tabs_ask_always", false);
+                                        editor.apply();
+                                    }
 
-										openUriWithCustomTab(finalUri);
+                                    openUriWithCustomTab(finalUri);
 
-									}
-								})
+                                })
 						.setNegativeButton(R.string.open_with,
-								new Dialog.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-														int which) {
+                                (dialog, which) -> {
 
-										if (!askEveryTimeCB.isChecked()) {
-											SharedPreferences.Editor editor = m_prefs.edit();
-											editor.putBoolean("custom_tabs_ask_always", false);
-											editor.putBoolean("enable_custom_tabs", false);
-											editor.apply();
-										}
+                                    if (!askEveryTimeCB.isChecked()) {
+                                        SharedPreferences.Editor editor = m_prefs.edit();
+                                        editor.putBoolean("custom_tabs_ask_always", false);
+                                        editor.putBoolean("enable_custom_tabs", false);
+                                        editor.apply();
+                                    }
 
-										Intent intent = new Intent(Intent.ACTION_VIEW, finalUri);
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, finalUri);
 
-										try {
-											startActivity(intent);
-										} catch (Exception e) {
-											e.printStackTrace();
-											toast(e.getMessage());
-										}
+                                    try {
+                                        startActivity(intent);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        toast(e.getMessage());
+                                    }
 
-									}
-								});
+                                });
 						/*.setNegativeButton(R.string.cancel,
 							new Dialog.OnClickListener() {
 								public void onClick(DialogInterface dialog,
@@ -608,19 +562,14 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 		// the wrong text if an image is used multiple times.
 		Document doc = Jsoup.parse(htmlContent);
 		Elements es = doc.getElementsByAttributeValue("src", url);
-		if (es.size() > 0) {
+		if (!es.isEmpty()) {
 			if (es.get(0).hasAttr("title")) {
 
 				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setCancelable(true)
 					.setMessage(es.get(0).attr("title"))
-					.setPositiveButton(R.string.dialog_close, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
-								}
-							}
-					);
+					.setPositiveButton(R.string.dialog_close, (dialog, which) -> dialog.cancel()
+                    );
 
 				Dialog dialog = builder.create();
 				dialog.show();
@@ -653,8 +602,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	static public int dpToPx(Context context, int dp) {
 		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-		int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-		return px;
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
 	}
 
 }

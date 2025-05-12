@@ -3,9 +3,6 @@ package org.fox.ttrss;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
@@ -13,7 +10,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -27,6 +23,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
@@ -47,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressLint("StaticFieldLeak")
 public class OnlineActivity extends CommonActivity {
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -81,7 +79,7 @@ public class OnlineActivity extends CommonActivity {
 				searchQuery = "";
 			}
 
-			int titleStringId = searchQuery.length() > 0 ? R.string.catchup_dialog_title_search : R.string.catchup_dialog_title;
+			int titleStringId = !searchQuery.isEmpty() ? R.string.catchup_dialog_title_search : R.string.catchup_dialog_title;
 
 			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setTitle(getString(titleStringId, feed.title))
@@ -92,36 +90,26 @@ public class OnlineActivity extends CommonActivity {
 									getString(R.string.catchup_dialog_1week),
 									getString(R.string.catchup_dialog_2week)
 							},
-							selectedIndex, new OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-													int which) {
-								}
-							})
+							selectedIndex, (dialog, which) -> {
+                            })
 					.setPositiveButton(R.string.catchup,
-							new OnClickListener() {
-								public void onClick(DialogInterface dialog,
-													int which) {
+                            (dialog, which) -> {
 
-									ListView list = ((AlertDialog)dialog).getListView();
+                                ListView list = ((AlertDialog)dialog).getListView();
 
-									if (list.getCheckedItemCount() > 0) {
-										int position = list.getCheckedItemPosition();
+                                if (list.getCheckedItemCount() > 0) {
+                                    int position = list.getCheckedItemPosition();
 
-										String[] catchupModes = { "all", "1day", "1week", "2week" };
-										String mode = catchupModes[position];
+                                    String[] catchupModes = { "all", "1day", "1week", "2week" };
+                                    String mode = catchupModes[position];
 
-										catchupFeed(feed, mode, true, searchQuery);
-									}
-								}
-							})
+                                    catchupFeed(feed, mode, true, searchQuery);
+                                }
+                            })
 					.setNegativeButton(R.string.dialog_cancel,
-							new Dialog.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-													int which) {
+                            (dialog, which) -> {
 
-								}
-							});
+                            });
 
 			Dialog dialog = builder.create();
 			dialog.show();
@@ -130,21 +118,11 @@ public class OnlineActivity extends CommonActivity {
 			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setMessage(getString(R.string.catchup_dialog_title, feed.title))
 					.setPositiveButton(R.string.catchup,
-							new Dialog.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-													int which) {
-
-									catchupFeed(feed, "all", true, "");
-
-								}
-							})
+                            (dialog, which) -> catchupFeed(feed, "all", true, ""))
 					.setNegativeButton(R.string.dialog_cancel,
-							new Dialog.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-													int which) {
+                            (dialog, which) -> {
 
-								}
-							});
+                            });
 
 			Dialog dialog = builder.create();
 			dialog.show();
@@ -215,8 +193,6 @@ public class OnlineActivity extends CommonActivity {
 
 		super.onCreate(savedInstanceState);
 
-		SharedPreferences localPrefs = getSharedPreferences("localprefs", Context.MODE_PRIVATE);
-
 		setContentView(R.layout.activity_login);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
@@ -236,27 +212,21 @@ public class OnlineActivity extends CommonActivity {
 
 	public void login(boolean refresh, OnLoginFinishedListener listener) {
 
-		if (m_prefs.getString("ttrss_url", "").trim().length() == 0) {
+		if (m_prefs.getString("ttrss_url", "").trim().isEmpty()) {
 
 			setLoadingStatus(R.string.login_need_configure);
 
 			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setMessage(R.string.dialog_need_configure_prompt)
 			       .setCancelable(false)
-			       .setPositiveButton(R.string.dialog_open_preferences, new DialogInterface.OnClickListener() {
-			           public void onClick(DialogInterface dialog, int id) {
-			   			// launch preferences
-			   			
-			        	   Intent intent = new Intent(OnlineActivity.this,
-			        			   PreferencesActivity.class);
-			        	   startActivityForResult(intent, 0);
-			           }
-			       })
-			       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			           public void onClick(DialogInterface dialog, int id) {
-			                dialog.cancel();
-			           }
-			       });
+			       .setPositiveButton(R.string.dialog_open_preferences, (dialog, id) -> {
+                       // launch preferences
+
+                       Intent intent = new Intent(OnlineActivity.this,
+                               PreferencesActivity.class);
+                       startActivityForResult(intent, 0);
+                   })
+			       .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
 
 			Dialog alert = builder.create();
 			alert.show();
@@ -266,7 +236,7 @@ public class OnlineActivity extends CommonActivity {
 			
 			LoginRequest ar = new LoginRequest(getApplicationContext(), refresh, listener);
 
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, String> map = new HashMap<>();
 			map.put("op", "login");
 			map.put("user", m_prefs.getString("login", "").trim());
 			map.put("password", m_prefs.getString("password", "").trim());
@@ -293,9 +263,6 @@ public class OnlineActivity extends CommonActivity {
 
 	@Override
 	public boolean onContextItemSelected(android.view.MenuItem item) {
-		/* AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
-				.getMenuInfo(); */
-		
 		final ArticlePager ap = (ArticlePager)getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
         int itemId = item.getItemId();
@@ -345,13 +312,13 @@ public class OnlineActivity extends CommonActivity {
     }
 
 	public void displayAttachments(Article article) {
-		if (article != null && article.attachments != null && article.attachments.size() > 0) {
+		if (article != null && article.attachments != null && !article.attachments.isEmpty()) {
 			CharSequence[] items = new CharSequence[article.attachments.size()];
 			final CharSequence[] itemUrls = new CharSequence[article.attachments.size()];
 
 			for (int i = 0; i < article.attachments.size(); i++) {
-				items[i] = article.attachments.get(i).title != null ? article.attachments.get(i).content_url :
-						article.attachments.get(i).content_url;
+				items[i] = article.attachments.get(i).title != null && !article.attachments.get(i).title.isEmpty() ?
+						article.attachments.get(i).title : article.attachments.get(i).content_url;
 
 				itemUrls[i] = article.attachments.get(i).content_url;
 			}
@@ -359,35 +326,19 @@ public class OnlineActivity extends CommonActivity {
 			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 					.setTitle(R.string.attachments_prompt)
 					.setCancelable(true)
-					.setSingleChoiceItems(items, 0, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							//
-						}
-					}).setNeutralButton(R.string.attachment_copy, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
+					.setSingleChoiceItems(items, 0, (dialog, which) -> {
+                        //
+                    }).setNeutralButton(R.string.attachment_copy, (dialog, which) -> {
+                        int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
 
-							copyToClipboard((String)itemUrls[selectedPosition]);
-						}
-					}).setPositiveButton(R.string.attachment_view, new OnClickListener() {
+                        copyToClipboard((String)itemUrls[selectedPosition]);
+                    }).setPositiveButton(R.string.attachment_view, (dialog, id) -> {
+                        int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
 
-						@Override
-						public void onClick(DialogInterface dialog, int id) {
-							int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
+                        openUri(Uri.parse((String)itemUrls[selectedPosition]));
 
-							openUri(Uri.parse((String)itemUrls[selectedPosition]));
-
-							dialog.cancel();
-						}
-					}).setNegativeButton(R.string.dialog_cancel, new OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int id) {
-							dialog.cancel();
-						}
-					});
+                        dialog.cancel();
+                    }).setNegativeButton(R.string.dialog_cancel, (dialog, id) -> dialog.cancel());
 
 			Dialog dialog = builder.create();
 			dialog.show();
@@ -426,38 +377,26 @@ public class OnlineActivity extends CommonActivity {
             return true;
         } else if (itemId == R.id.search) {
             if (hf != null) {
-                Dialog dialog = new Dialog(this);
-
                 final EditText edit = new EditText(this);
 
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.search)
                         .setPositiveButton(getString(R.string.search),
-                                new OnClickListener() {
+                                (dialog4, which) -> {
 
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
+                                    String query = edit.getText().toString().trim();
 
-                                        String query = edit.getText().toString().trim();
+                                    hf.setSearchQuery(query);
 
-                                        hf.setSearchQuery(query);
-
-                                    }
                                 })
                         .setNegativeButton(getString(R.string.cancel),
-                                new OnClickListener() {
+                                (dialog3, which) -> {
 
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
+                                    //
 
-                                        //
-
-                                    }
                                 }).setView(edit);
 
-                dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
             }
             return true;
@@ -473,8 +412,6 @@ public class OnlineActivity extends CommonActivity {
             return true;
         } else if (itemId == R.id.headlines_display_mode) {
             if (hf != null) {
-                Dialog dialog = new Dialog(this);
-
                 String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
                 String[] headlineModeNames = getResources().getStringArray(R.array.headline_mode_names);
                 final String[] headlineModeValues = getResources().getStringArray(R.array.headline_mode_values);
@@ -484,56 +421,53 @@ public class OnlineActivity extends CommonActivity {
 				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.headlines_set_view_mode)
                         .setSingleChoiceItems(headlineModeNames,
-                                selectedIndex, new OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        dialog.cancel();
+                                selectedIndex, (dialog2, which) -> {
+                                    dialog2.cancel();
 
-                                        SharedPreferences.Editor editor = m_prefs.edit();
-                                        editor.putString("headline_mode", headlineModeValues[which]);
-                                        editor.apply();
+                                    SharedPreferences.Editor editor = m_prefs.edit();
+                                    editor.putString("headline_mode", headlineModeValues[which]);
+                                    editor.apply();
 
-                                        Intent intent = getIntent();
+                                    Intent intent = getIntent();
 
-                                        Feed feed = hf.getFeed();
+                                    Feed feed = hf.getFeed();
 
-                                        if (feed != null) {
-                                            intent.putExtra("feed_id", feed.id);
-                                            intent.putExtra("feed_is_cat", feed.is_cat);
-                                            intent.putExtra("feed_title", feed.title);
-                                        }
-
-                                        finish();
-
-                                        startActivity(intent);
-                                        overridePendingTransition(0, 0);
+                                    if (feed != null) {
+                                        intent.putExtra("feed_id", feed.id);
+                                        intent.putExtra("feed_is_cat", feed.is_cat);
+                                        intent.putExtra("feed_title", feed.title);
                                     }
+
+                                    finish();
+
+                                    startActivity(intent);
+                                    overridePendingTransition(0, 0);
                                 });
 
-                dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
 
             }
             return true;
         } else if (itemId == R.id.headlines_view_mode) {
             if (hf != null) {
-                Dialog dialog = new Dialog(this);
-
                 String viewMode = getViewMode();
-
-                //Log.d(TAG, "viewMode:" + getViewMode());
 
                 int selectedIndex = 0;
 
-                if (viewMode.equals("all_articles")) {
-                    selectedIndex = 1;
-                } else if (viewMode.equals("marked")) {
-                    selectedIndex = 2;
-                } else if (viewMode.equals("published")) {
-                    selectedIndex = 3;
-                } else if (viewMode.equals("unread")) {
-                    selectedIndex = 4;
+                switch (viewMode) {
+                    case "all_articles":
+                        selectedIndex = 1;
+                        break;
+                    case "marked":
+                        selectedIndex = 2;
+                        break;
+                    case "published":
+                        selectedIndex = 3;
+                        break;
+                    case "unread":
+                        selectedIndex = 4;
+                        break;
                 }
 
 				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
@@ -545,34 +479,30 @@ public class OnlineActivity extends CommonActivity {
                                         getString(R.string.headlines_starred),
                                         getString(R.string.headlines_published),
                                         getString(R.string.headlines_unread)},
-                                selectedIndex, new OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        switch (which) {
-                                            case 0:
-                                                setViewMode("adaptive");
-                                                break;
-                                            case 1:
-                                                setViewMode("all_articles");
-                                                break;
-                                            case 2:
-                                                setViewMode("marked");
-                                                break;
-                                            case 3:
-                                                setViewMode("published");
-                                                break;
-                                            case 4:
-                                                setViewMode("unread");
-                                                break;
-                                        }
-                                        dialog.cancel();
-
-                                        refresh();
+                                selectedIndex, (dialog1, which) -> {
+                                    switch (which) {
+                                        case 0:
+                                            setViewMode("adaptive");
+                                            break;
+                                        case 1:
+                                            setViewMode("all_articles");
+                                            break;
+                                        case 2:
+                                            setViewMode("marked");
+                                            break;
+                                        case 3:
+                                            setViewMode("published");
+                                            break;
+                                        case 4:
+                                            setViewMode("unread");
+                                            break;
                                     }
+                                    dialog1.cancel();
+
+                                    refresh();
                                 });
 
-                dialog = builder.create();
+                Dialog dialog = builder.create();
                 dialog.show();
 
             }
@@ -586,24 +516,20 @@ public class OnlineActivity extends CommonActivity {
                                         getString(R.string.headlines_select_all),
                                         getString(R.string.headlines_select_unread),
                                         getString(R.string.headlines_select_none)},
-                                0, new OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        switch (which) {
-                                            case 0:
-                                                hf.setSelection(HeadlinesFragment.ArticlesSelection.ALL);
-                                                break;
-                                            case 1:
-                                                hf.setSelection(HeadlinesFragment.ArticlesSelection.UNREAD);
-                                                break;
-                                            case 2:
-                                                hf.setSelection(HeadlinesFragment.ArticlesSelection.NONE);
-                                                break;
-                                        }
-                                        dialog.cancel();
-                                        invalidateOptionsMenu();
+                                0, (dialog, which) -> {
+                                    switch (which) {
+                                        case 0:
+                                            hf.setSelection(HeadlinesFragment.ArticlesSelection.ALL);
+                                            break;
+                                        case 1:
+                                            hf.setSelection(HeadlinesFragment.ArticlesSelection.UNREAD);
+                                            break;
+                                        case 2:
+                                            hf.setSelection(HeadlinesFragment.ArticlesSelection.NONE);
+                                            break;
                                     }
+                                    dialog.cancel();
+                                    invalidateOptionsMenu();
                                 });
 
                 Dialog dialog = builder.create();
@@ -650,7 +576,7 @@ public class OnlineActivity extends CommonActivity {
             if (hf != null) {
                 ArticleList selected = hf.getSelectedArticles();
 
-                if (selected.size() > 0) {
+                if (!selected.isEmpty()) {
                     for (Article a : selected)
                         a.unread = !a.unread;
 
@@ -664,7 +590,7 @@ public class OnlineActivity extends CommonActivity {
             if (hf != null) {
                 ArticleList selected = hf.getSelectedArticles();
 
-                if (selected.size() > 0) {
+                if (!selected.isEmpty()) {
                     for (Article a : selected)
                         a.marked = !a.marked;
 
@@ -678,7 +604,7 @@ public class OnlineActivity extends CommonActivity {
             if (hf != null) {
                 ArticleList selected = hf.getSelectedArticles();
 
-                if (selected.size() > 0) {
+                if (!selected.isEmpty()) {
                     for (Article a : selected)
                         a.published = !a.published;
 
@@ -702,20 +628,10 @@ public class OnlineActivity extends CommonActivity {
 				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setMessage(R.string.confirm_catchup_above)
                         .setPositiveButton(R.string.dialog_ok,
-                                new OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-
-                                        catchupAbove(hf, ap);
-
-                                    }
-                                })
+                                (dialog, which) -> catchupAbove(hf, ap))
                         .setNegativeButton(R.string.dialog_cancel,
-                                new OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
+                                (dialog, which) -> {
 
-                                    }
                                 });
 
                 Dialog dialog = builder.create();
@@ -733,12 +649,6 @@ public class OnlineActivity extends CommonActivity {
 
             }
             return true;
-		/*case R.id.update_headlines:
-			if (hf != null) {
-				//m_pullToRefreshAttacher.setRefreshing(true);
-				hf.refresh(false, true);
-			}
-			return true;*/
         }
         Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
         return super.onOptionsItemSelected(item);
@@ -759,46 +669,13 @@ public class OnlineActivity extends CommonActivity {
                     tmp.add(a);
                 }
             }
-            if (tmp.size() > 0) {
+            if (!tmp.isEmpty()) {
                 toggleArticlesUnread(tmp);
                 hf.notifyUpdated();
                 invalidateOptionsMenu();
             }
         }
 	}
-
-	/* protected void catchupVisibleArticles() {
-		final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-		
-		if (hf != null) {
-			ArticleList articles = hf.getUnreadArticles();
-			
-			for (Article a : articles)
-				a.unread = false;
-	
-			ApiRequest req = new ApiRequest(getApplicationContext()) {
-				protected void onPostExecute(JsonElement result) {
-					if (hf.isAdded()) {
-						hf.refresh(false);
-					}
-				}
-			};
-	
-			final String articleIds = articlesToIdString(articles);
-	
-			@SuppressWarnings("serial")
-			HashMap<String, String> map = new HashMap<String, String>() {
-				{
-					put("sid", getSessionId());
-					put("op", "updateArticle");
-					put("article_ids", articleIds);
-					put("mode", "0");
-					put("field", "2");
-				}
-			};
-			req.execute(map);
-		}
-	} */
 
 	public void editArticleNote(final Article article) {
 		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
@@ -808,25 +685,21 @@ public class OnlineActivity extends CommonActivity {
 		topicEdit.setText(article.note);
 		builder.setView(topicEdit);
 		
-		builder.setPositiveButton(R.string.article_edit_note, new Dialog.OnClickListener() {
-	        public void onClick(DialogInterface dialog, int which) {
-	        	String note = topicEdit.getText().toString().trim();
-	        	
-	        	saveArticleNote(article, note);
+		builder.setPositiveButton(R.string.article_edit_note, (dialog, which) -> {
+            String note = topicEdit.getText().toString().trim();
 
-	        	HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-	        	if (hf != null) hf.notifyUpdated();
+            saveArticleNote(article, note);
 
-				ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-				if (ap != null) ap.notifyUpdated();
-	        }
-	    });
+            HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+            if (hf != null) hf.notifyUpdated();
+
+            ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+            if (ap != null) ap.notifyUpdated();
+        });
 		
-		builder.setNegativeButton(R.string.dialog_cancel, new Dialog.OnClickListener() {
-	        public void onClick(DialogInterface dialog, int which) {
-	        	//
-	        }
-	    });
+		builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
+            //
+        });
 		
 		Dialog dialog = builder.create();
 		dialog.show();
@@ -854,31 +727,20 @@ public class OnlineActivity extends CommonActivity {
 
 					MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(OnlineActivity.this)
 							.setTitle(R.string.article_set_labels)
-							.setMultiChoiceItems(items, checkedItems, new OnMultiChoiceClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which, final boolean isChecked) {
-									final int labelId = itemIds[which];
-									
-									@SuppressWarnings("serial")
-									HashMap<String, String> map = new HashMap<String, String>();
-									map.put("sid", getSessionId());
-									map.put("op", "setArticleLabel");
-									map.put("label_id", String.valueOf(labelId));
-									map.put("article_ids", String.valueOf(articleId));
-									if (isChecked) map.put("assign", "true");
-									
-									ApiRequest req = new ApiRequest(OnlineActivity.this);
-									req.execute(map);
-									
-								}
-							}).setPositiveButton(R.string.dialog_close, new OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.cancel();
-								}
-							});
+							.setMultiChoiceItems(items, checkedItems, (dialog, which, isChecked) -> {
+                                final int labelId = itemIds[which];
+
+                                HashMap<String, String> map = new HashMap<>();
+                                map.put("sid", getSessionId());
+                                map.put("op", "setArticleLabel");
+                                map.put("label_id", String.valueOf(labelId));
+                                map.put("article_ids", String.valueOf(articleId));
+                                if (isChecked) map.put("assign", "true");
+
+                                ApiRequest req1 = new ApiRequest(OnlineActivity.this);
+                                req1.execute(map);
+
+                            }).setPositiveButton(R.string.dialog_close, (dialog, which) -> dialog.cancel());
 
 					Dialog dialog = builder.create();
 					dialog.show();
@@ -887,8 +749,7 @@ public class OnlineActivity extends CommonActivity {
 			}
 		};
 		
-		@SuppressWarnings("serial")
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "getLabels");
 		map.put("article_id", String.valueOf(articleId));
@@ -956,7 +817,6 @@ public class OnlineActivity extends CommonActivity {
 		Application.getInstance().m_apiLevel = apiLevel;
 	}
 	
-	@SuppressWarnings({ "unchecked", "serial" })
 	public void saveArticleUnread(final Article article) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -965,7 +825,7 @@ public class OnlineActivity extends CommonActivity {
 			}
 		};
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
@@ -983,7 +843,7 @@ public class OnlineActivity extends CommonActivity {
 			}
 		};
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
@@ -1001,7 +861,7 @@ public class OnlineActivity extends CommonActivity {
 			}
 		};
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
@@ -1011,7 +871,6 @@ public class OnlineActivity extends CommonActivity {
 		req.execute(map);
 	}
 
-	@SuppressWarnings({ "unchecked", "serial" })
 	public void saveArticlePublished(final Article article) {
 
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
@@ -1021,7 +880,7 @@ public class OnlineActivity extends CommonActivity {
 			}
 		};
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
@@ -1031,7 +890,6 @@ public class OnlineActivity extends CommonActivity {
 		req.execute(map);
 	}
 
-	@SuppressWarnings({ "unchecked", "serial" })
 	public void saveArticleNote(final Article article, final String note) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -1039,7 +897,7 @@ public class OnlineActivity extends CommonActivity {
 			}
 		};
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
@@ -1050,15 +908,6 @@ public class OnlineActivity extends CommonActivity {
 		req.execute(map);
 	}
 
-	public static String articlesToIdString(ArticleList articles) {
-		String tmp = "";
-
-		for (Article a : articles)
-			tmp += a.id + ",";
-
-		return tmp.replaceAll(",$", "");
-	}
-	
 	public void shareArticle(Article article) {
 		if (article != null) {
 			shareText(article.link, article.title);
@@ -1072,33 +921,23 @@ public class OnlineActivity extends CommonActivity {
 		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
 				.setTitle(R.string.score_for_this_article)
 				.setPositiveButton(R.string.set_score,
-						new DialogInterface.OnClickListener() {
+                        (dialog, which) -> {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-												int which) {
+                            try {
+article.score = Integer.parseInt(edit.getText().toString());
 
-								try {
-                                    article.score = Integer.parseInt(edit.getText().toString());
-
-									saveArticleScore(article);
-								} catch (NumberFormatException e) {
-									toast(R.string.score_invalid);
-									e.printStackTrace();
-								}
-							}
-						})
+                                saveArticleScore(article);
+                            } catch (NumberFormatException e) {
+                                toast(R.string.score_invalid);
+                                e.printStackTrace();
+                            }
+                        })
 				.setNegativeButton(getString(R.string.cancel),
-						new DialogInterface.OnClickListener() {
+                        (dialog, which) -> {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-												int which) {
+                            //
 
-								//
-
-							}
-						}).setView(edit);
+                        }).setView(edit);
 
 		Dialog dialog = builder.create();
 		dialog.show();
@@ -1186,8 +1025,7 @@ public class OnlineActivity extends CommonActivity {
 			}
 		};
 
-		@SuppressWarnings("serial")
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "catchupFeed");
 		map.put("feed_id", String.valueOf(feed.id));
@@ -1203,11 +1041,10 @@ public class OnlineActivity extends CommonActivity {
 	public void toggleArticlesMarked(final ArticleList articles) {
 		ApiRequest req = new ApiRequest(getApplicationContext());
 
-		@SuppressWarnings("serial")
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
-		map.put("article_ids", articlesToIdString(articles));
+		map.put("article_ids", articles.getAsCommaSeparatedIds());
 		map.put("mode", "2");
 		map.put("field", "0");
 
@@ -1217,12 +1054,11 @@ public class OnlineActivity extends CommonActivity {
 	public void toggleArticlesUnread(final ArticleList articles) {
 		ApiRequest req = new ApiRequest(getApplicationContext());
 
-		@SuppressWarnings("serial")
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
-		map.put("article_ids", articlesToIdString(articles));
-		map.put("mode", "2");
+        map.put("article_ids", articles.getAsCommaSeparatedIds());
+        map.put("mode", "2");
 		map.put("field", "2");
 
 		req.execute(map);
@@ -1232,12 +1068,11 @@ public class OnlineActivity extends CommonActivity {
 	public void toggleArticlesPublished(final ArticleList articles) {
 		ApiRequest req = new ApiRequest(getApplicationContext());
 
-		@SuppressWarnings("serial")
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put("sid", getSessionId());
 		map.put("op", "updateArticle");
-		map.put("article_ids", articlesToIdString(articles));
-		map.put("mode", "2");
+        map.put("article_ids", articles.getAsCommaSeparatedIds());
+        map.put("mode", "2");
 		map.put("field", "1");
 
 		req.execute(map);
@@ -1280,13 +1115,13 @@ public class OnlineActivity extends CommonActivity {
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
 			if (hf != null && !m_forceDisableActionMode) {
-				if (hf.getSelectedArticles().size() > 0) {
+				if (!hf.getSelectedArticles().isEmpty()) {
 					if (m_headlinesActionMode == null) {
 						m_headlinesActionMode = startSupportActionMode(m_headlinesActionModeCallback);
 					}
 
 					m_headlinesActionMode.setTitle(String.valueOf(hf.getSelectedArticles().size()));
-				} else if (hf.getSelectedArticles().size() == 0 && m_headlinesActionMode != null) {
+				} else if (hf.getSelectedArticles().isEmpty() && m_headlinesActionMode != null) {
 					m_headlinesActionMode.finish();
 				}
 			} else if (m_forceDisableActionMode && m_headlinesActionMode != null) {
@@ -1328,7 +1163,7 @@ public class OnlineActivity extends CommonActivity {
 	}
 	
 	protected class LoginRequest extends ApiRequest {
-		boolean m_refreshAfterLogin = false;
+		boolean m_refreshAfterLogin;
 		OnLoginFinishedListener m_listener;
 		
 		public LoginRequest(Context context, boolean refresh, OnLoginFinishedListener listener) {
@@ -1337,7 +1172,6 @@ public class OnlineActivity extends CommonActivity {
 			m_listener = listener;
 		}
 
-		@SuppressWarnings("unchecked")
 		@SuppressLint("StaticFieldLeak")
 		protected void onPostExecute(JsonElement result) {
 			if (result != null) {
@@ -1410,13 +1244,10 @@ public class OnlineActivity extends CommonActivity {
 									Log.d(TAG, "Received API level: " + getApiLevel());
 	
 									loginSuccess(m_refreshAfterLogin);
-	
-									return;
 								}
 							};
 	
-							@SuppressWarnings("serial")
-							HashMap<String, String> map = new HashMap<String, String>();
+							HashMap<String, String> map = new HashMap<>();
 							map.put("sid", getSessionId());
 							map.put("op", "getApiLevel");
 	
@@ -1447,7 +1278,7 @@ public class OnlineActivity extends CommonActivity {
 	}
 
 	public LinkedHashMap<String, String> getSortModes() {
-		LinkedHashMap<String, String> tmp = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> tmp = new LinkedHashMap<>();
 
 		tmp.put("default", getString(R.string.headlines_sort_default));
 		tmp.put("feed_dates", getString(R.string.headlines_sort_newest_first));

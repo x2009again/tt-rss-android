@@ -5,9 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -26,6 +24,7 @@ import android.widget.TextView;
 
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.gson.Gson;
@@ -39,7 +38,6 @@ import org.fox.ttrss.types.FeedCategoryList;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +46,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
 	private FeedCategoryListAdapter m_adapter;
-	private FeedCategoryList m_cats = new FeedCategoryList();
+	private final FeedCategoryList m_cats = new FeedCategoryList();
 	FeedCategory m_selectedCat;
 	private MasterActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
@@ -60,8 +58,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		final String sessionId = m_activity.getSessionId();
 		final boolean unreadOnly = m_activity.getUnreadOnly();
 
-		@SuppressWarnings("serial")
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		params.put("op", "getCategories");
 		params.put("sid", sessionId);
 		params.put("enable_nested", "true");
@@ -101,9 +98,10 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 					}
 
 					for (FeedCategory c : cats) {
-						if (c.id == -1) {
-							specialCatFound = true;
-						}
+                        if (c.id == -1) {
+                            specialCatFound = true;
+                            break;
+                        }
 					}
 
 					m_cats.addAll(cats);
@@ -151,7 +149,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		}
 
 		try {
-			Collections.sort(m_cats, cmp);
+			m_cats.sort(cmp);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
@@ -218,40 +216,25 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 
         int itemId = item.getItemId();
         if (itemId == R.id.browse_headlines) {
-            if (true) {
-                FeedCategory cat = getCategoryAtPosition(info.position);
-                if (cat != null) {
-                    m_activity.onCatSelected(cat, true);
-                    //setSelectedCategory(cat);
-                }
-            }
+			FeedCategory cat = getCategoryAtPosition(info.position);
+			if (cat != null) {
+				m_activity.onCatSelected(cat, true);
+				//setSelectedCategory(cat);
+			}
             return true;
         } else if (itemId == R.id.browse_feeds) {
-            if (true) {
-                FeedCategory cat = getCategoryAtPosition(info.position);
-                if (cat != null) {
-                    m_activity.onCatSelected(cat, false);
-                    //cf.setSelectedCategory(cat);
-                }
-            }
-            return true;
-        } else if (itemId == R.id.create_shortcut) {
-            if (true) {
-                FeedCategory cat = getCategoryAtPosition(info.position);
-                if (cat != null) {
-                    m_activity.createCategoryShortcut(cat);
-                    //cf.setSelectedCategory(cat);
-                }
-            }
+			FeedCategory cat = getCategoryAtPosition(info.position);
+			if (cat != null) {
+				m_activity.onCatSelected(cat, false);
+				//cf.setSelectedCategory(cat);
+			}
             return true;
         } else if (itemId == R.id.catchup_category) {
-            if (true) {
-                final FeedCategory cat = getCategoryAtPosition(info.position);
+			final FeedCategory cat = getCategoryAtPosition(info.position);
 
-                if (cat != null) {
-                    m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
-                }
-            }
+			if (cat != null) {
+				m_activity.catchupDialog(new Feed(cat.id, cat.title, true));
+			}
             return true;
         }
         Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
@@ -269,10 +252,6 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		
 		if (cat != null) 
 			menu.setHeaderTitle(cat.title);
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			menu.findItem(R.id.create_shortcut).setVisible(false);
-		}
 
 		super.onCreateContextMenu(menu, v, menuInfo);		
 		
@@ -304,12 +283,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
 		
-	    m_swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				refresh();
-			}
-		});
+	    m_swipeLayout.setOnRefreshListener(this::refresh);
 
 		m_list = view.findViewById(R.id.feeds);
 		m_adapter = new FeedCategoryListAdapter(getActivity(), R.layout.feeds_row, m_cats);
@@ -338,7 +312,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	public void onResume() {
 		super.onResume();
 
-		getLoaderManager().initLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).initLoader(0, null, this).forceLoad();
 
 		m_activity.invalidateOptionsMenu();
 	}
@@ -350,11 +324,11 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 			m_swipeLayout.setRefreshing(true);
 		}
 
-		getLoaderManager().restartLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
 	}
 	
 	private class FeedCategoryListAdapter extends ArrayAdapter<FeedCategory> {
-		private ArrayList<FeedCategory> items;
+		private final ArrayList<FeedCategory> items;
 
 		public static final int VIEW_NORMAL = 0;
 		public static final int VIEW_SELECTED = 1;
@@ -389,12 +363,10 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 
 			if (v == null) {
 				int layoutId = R.layout.feeds_row;
-				
-				switch (getItemViewType(position)) {
-				case VIEW_SELECTED:
-					layoutId = R.layout.feeds_row_selected;
-					break;
-				}
+
+                if (getItemViewType(position) == VIEW_SELECTED) {
+                    layoutId = R.layout.feeds_row_selected;
+                }
 				
 				LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				v = vi.inflate(layoutId, null);
@@ -423,19 +395,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 				tu.setText(String.valueOf(cat.unread));
 				tu.setVisibility((cat.unread > 0) ? View.VISIBLE : View.INVISIBLE);
 			}
-			
-			/*ImageButton ib = (ImageButton) v.findViewById(R.id.feed_menu_button);
-			
-			if (ib != null) {
-				ib.setOnClickListener(new OnClickListener() {					
-					@Override
-					public void onClick(View v) {
-						getActivity().openContextMenu(v);
-					}
-				});								
-			} */
 
-			
 			return v;
 		}
 	}

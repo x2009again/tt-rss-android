@@ -51,17 +51,18 @@ public class HeaderViewRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     private static final int ADAPTER_MAX_TYPES = 100;
 
     private RecyclerView.Adapter mWrappedAdapter;
-    private List<View> mHeaderViews, mFooterViews;
-    private Map<Class, Integer> mItemTypesOffset;
+    private final List<View> mHeaderViews;
+    private final List<View> mFooterViews;
+    private final Map<Class, Integer> mItemTypesOffset;
 
     /**
      * Construct a new header view recycler adapter
      * @param adapter The underlying adapter to wrap
      */
     public HeaderViewRecyclerAdapter(RecyclerView.Adapter adapter) {
-        mHeaderViews = new ArrayList<View>();
-        mFooterViews = new ArrayList<View>();
-        mItemTypesOffset = new HashMap<Class, Integer>();
+        mHeaderViews = new ArrayList<>();
+        mFooterViews = new ArrayList<>();
+        mItemTypesOffset = new HashMap<>();
         setWrappedAdapter(adapter);
     }
 
@@ -176,7 +177,7 @@ public class HeaderViewRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         return mItemTypesOffset.get(mWrappedAdapter.getClass());
     }
 
-    private RecyclerView.AdapterDataObserver mDataObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver mDataObserver = new RecyclerView.AdapterDataObserver() {
         @Override
         public void onChanged() {
             super.onChanged();

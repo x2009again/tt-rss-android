@@ -6,14 +6,12 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebSettings;
@@ -23,11 +21,11 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import androidx.core.text.HtmlCompat;
-
-import com.google.android.material.button.MaterialButton;
+import androidx.preference.PreferenceManager;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Attachment;
+import org.jsoup.helper.StringUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -58,7 +56,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 		if (v.getId() == R.id.article_content) {
 			HitTestResult result = ((WebView)v).getHitTestResult();
 
-			if (result != null && (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
+			if (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
 
 				menu.setHeaderTitle(result.getExtra());
 				getActivity().getMenuInflater().inflate(R.menu.content_gallery_entry, menu);
@@ -100,17 +98,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 		    m_activity.finish();
         }
 
-        /* if (m_article.id == HeadlinesFragment.ARTICLE_SPECIAL_TOP_CHANGED) {
-            TextView statusMessage = (TextView) view.findViewById(R.id.article_status_message);
-            statusMessage.setText(R.string.headlines_row_top_changed);
-            statusMessage.setVisibility(View.VISIBLE);
-
-            view.findViewById(R.id.article_scrollview).setVisibility(View.GONE);
-            view.findViewById(R.id.article_fab).setVisibility(View.GONE);
-
-            return view;
-        } */
-
         m_articleFontSize = m_prefs.getInt("article_font_size_sp_int", 16);
         m_articleSmallFontSize = Math.max(10, Math.min(18, m_articleFontSize - 2));
 
@@ -129,15 +116,12 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
             title.setText(HtmlCompat.fromHtml(titleStr, HtmlCompat.FROM_HTML_MODE_LEGACY));
             //title.setPaintFlags(title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-            title.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        m_activity.openUri(Uri.parse(m_article.link));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        m_activity.toast(R.string.error_other_error);
-                    }
+            title.setOnClickListener(v -> {
+                try {
+                    m_activity.openUri(Uri.parse(m_article.link));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    m_activity.toast(R.string.error_other_error);
                 }
             });
 
@@ -152,18 +136,15 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                 String commentsTitle = getResources().getQuantityString(R.plurals.article_comments, m_article.comments_count, m_article.comments_count);
                 comments.setText(commentsTitle);
                 //comments.setPaintFlags(title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                comments.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            String url = (m_article.comments_link != null && m_article.comments_link.length() > 0) ?
-                                    m_article.comments_link : m_article.link;
+                comments.setOnClickListener(v -> {
+                    try {
+                        String url = (m_article.comments_link != null && !m_article.comments_link.isEmpty()) ?
+                                m_article.comments_link : m_article.link;
 
-                            m_activity.openUri(Uri.parse(url));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            m_activity.toast(R.string.error_other_error);
-                        }
+                        m_activity.openUri(Uri.parse(url));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        m_activity.toast(R.string.error_other_error);
                     }
                 });
 
@@ -176,7 +157,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         View noteContainer = view.findViewById(R.id.note_container);
 
         if (note != null && noteContainer != null) {
-            if (m_article.note != null && m_article.note.length() > 0) {
+            if (m_article.note != null && !m_article.note.isEmpty()) {
                 note.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
                 note.setText(m_article.note);
                 noteContainer.setVisibility(View.VISIBLE);
@@ -184,12 +165,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                 noteContainer.setVisibility(View.GONE);
             }
 
-            note.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    m_activity.editArticleNote(m_article);
-                }
-            });
+            note.setOnClickListener(view1 -> m_activity.editArticleNote(m_article));
         }
 
         TextView dv = view.findViewById(R.id.date);
@@ -215,20 +191,13 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             if (m_article.feed_title != null) {
                 String fTitle = m_article.feed_title;
 
-                if (m_article.author != null && m_article.author.length() > 0) {
+                if (m_article.author != null && !m_article.author.isEmpty()) {
                     fTitle += " (" + getString(R.string.author_formatted, m_article.author) + ")";
                 }
 
                 tagv.setText(fTitle);
             } else if (m_article.tags != null) {
-                String tagsStr = "";
-
-                for (String tag : m_article.tags)
-                    tagsStr += tag + ", ";
-
-                tagsStr = tagsStr.replaceAll(", $", "");
-
-                tagv.setText(tagsStr);
+                tagv.setText(StringUtil.join(m_article.tags, ", "));
             } else {
                 tagv.setVisibility(View.GONE);
             }
@@ -251,19 +220,16 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             return false;
         } });
 
-        m_web.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                HitTestResult result = ((WebView)v).getHitTestResult();
+        m_web.setOnLongClickListener(v -> {
+            HitTestResult result = ((WebView)v).getHitTestResult();
 
-                if (result != null && (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
-                    registerForContextMenu(m_web);
-                    m_activity.openContextMenu(m_web);
-                    unregisterForContextMenu(m_web);
-                    return true;
-                } else {
-                    return false;
-                }
+            if (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+                registerForContextMenu(m_web);
+                m_activity.openContextMenu(m_web);
+                unregisterForContextMenu(m_web);
+                return true;
+            } else {
+                return false;
             }
         });
 
@@ -271,23 +237,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         return view;
 	}
-
-    private void setScoreImage(MaterialButton scoreView, int score) {
-        TypedValue tv = new TypedValue();
-        int scoreAttr = R.attr.ic_action_trending_flat;
-
-        if (m_article.score > 0)
-            scoreAttr = R.attr.ic_action_trending_up;
-        else if (m_article.score < 0)
-            scoreAttr = R.attr.ic_action_trending_down;
-
-        m_activity.getTheme().resolveAttribute(scoreAttr, tv, true);
-
-        scoreView.setIconResource(tv.resourceId);
-
-        TypedValue tvPrimary = new TypedValue();
-        m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
-    }
 
     protected void renderContent(Bundle savedInstanceState) {
         if (!isAdded() || m_web == null) return;
@@ -345,14 +294,14 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         content.append(articleContent);
 
-        if (m_article.attachments != null && m_article.attachments.size() != 0) {
+        if (m_article.attachments != null && !m_article.attachments.isEmpty()) {
             String flatContent = articleContent.replaceAll("[\r\n]", "");
             boolean hasImages = flatContent.matches(".*?<img[^>+].*?");
 
             for (Attachment a : m_article.attachments) {
                 if (a.content_type != null && a.content_url != null) {
                     try {
-                        if (a.content_type.indexOf("image") != -1 &&
+                        if (a.content_type.contains("image") &&
                                 (!hasImages || m_article.always_display_attachments)) {
 
                             URL url = new URL(a.content_url.trim());

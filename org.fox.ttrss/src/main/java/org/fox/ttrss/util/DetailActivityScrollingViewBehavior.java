@@ -2,13 +2,13 @@ package org.fox.ttrss.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class DetailActivityScrollingViewBehavior extends AppBarLayout.ScrollingViewBehavior {
 
-    private SharedPreferences m_prefs;
+    private final SharedPreferences m_prefs;
 
     public DetailActivityScrollingViewBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
