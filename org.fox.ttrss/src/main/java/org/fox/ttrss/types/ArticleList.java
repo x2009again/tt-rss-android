@@ -7,17 +7,7 @@ import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcelable {
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeList(this);
-	}
-
+public class ArticleList extends CopyOnWriteArrayList<Article> {
     public boolean containsId(int id) {
         return findById(id) != null;
     }
@@ -33,16 +23,8 @@ public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcel
 		}			
 		return null;
 	}
-	
-	public void readFromParcel(Parcel in) {
-		in.readList(this, getClass().getClassLoader());
-	}
-	
+
 	public ArticleList() { }
-	
-	public ArticleList(Parcel in) {		
-		readFromParcel(in);
-	}
 
 	public ArticleList getWithoutFooters() {
 		return this.stream().filter(a -> { return a.id > 0; }).collect(Collectors.toCollection(ArticleList::new));
@@ -89,17 +71,4 @@ public class ArticleList extends CopyOnWriteArrayList<Article> implements Parcel
 		return this.stream().map(a -> String.valueOf(a.id))
 				.collect(Collectors.joining(","));
 	}
-
-	@SuppressWarnings("rawtypes")
-	public static final Parcelable.Creator CREATOR =
-    	new Parcelable.Creator() {
-            public ArticleList createFromParcel(Parcel in) {
-                return new ArticleList(in);
-            }
- 
-            public ArticleList[] newArray(int size) {
-                return new ArticleList[size];
-            }
-        };
-
 }
