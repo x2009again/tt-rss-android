@@ -253,19 +253,24 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 	private void catchupAbove(Article article) {
 		ArticleList tmp = new ArticleList();
-		for (Article a : Application.getArticles()) {
+		ArticleList articles = Application.getArticles();
+		for (Article a : articles) {
             if (article.equalsById(a))
                 break;
 
             if (a.unread) {
                 a.unread = false;
                 tmp.add(a);
+
+				int position = articles.getPositionById(a.id);
+
+				if (position != -1)
+					m_adapter.notifyItemChanged(position);
             }
         }
 
 		if (!tmp.isEmpty()) {
 			m_activity.setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
-			m_adapter.notifyDataSetChanged();
         }
 	}
 
