@@ -1030,7 +1030,8 @@ article.score = Integer.parseInt(edit.getText().toString());
                 if (selectedArticle != null) {
                     selectedArticle.unread = !selectedArticle.unread;
                     saveArticleUnread(selectedArticle);
-                    if (hf != null) hf.notifyUpdated();
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
                 }
 			}
 			return true;
@@ -1122,11 +1123,19 @@ article.score = Integer.parseInt(edit.getText().toString());
             protected void onPostExecute(JsonElement result) {
                 Log.d(TAG, "setArticleField operation complete");
 
-                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-                if (hf != null) hf.notifyUpdated();
+                // currently this is generally handled before operation completes (but after POJO is modified)
 
+                /* HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
                 ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-                if (ap != null) ap.notifyUpdated();
+
+                for (Article a : articles) {
+                    int position = Application.getArticles().getPositionById(a.id);
+
+                    if (position != -1) {
+                        if (hf != null) hf.notifyItemChanged(position);
+                        if (ap != null) ap.notifyItemChanged(position);
+                    }
+                } */
             }
         };
 

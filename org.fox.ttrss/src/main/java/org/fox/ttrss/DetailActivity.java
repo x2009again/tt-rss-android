@@ -94,7 +94,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						saveArticleUnread(article);
 
 						if (hf != null) {
-							hf.notifyUpdated();
+							hf.notifyItemChanged(Application.getArticles().indexOf(article));
 						}
 					}
 				}
