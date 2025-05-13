@@ -1451,20 +1451,24 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	public void setSelection(ArticlesSelection select) {
 		ArticleList articlesWithoutFooters = Application.getArticles().getWithoutFooters();
 
-		for (Article a : articlesWithoutFooters)
-            a.selected = false;
+		for (Article a : articlesWithoutFooters) {
+			if (select == ArticlesSelection.ALL || select == ArticlesSelection.UNREAD && a.unread) {
+				a.selected = true;
 
-		if (select != ArticlesSelection.NONE) {
-			for (Article a : articlesWithoutFooters) {
-				if (select == ArticlesSelection.ALL || select == ArticlesSelection.UNREAD && a.unread) {
-					a.selected = true;
-				}
+				int position = Application.getArticles().getPositionById(a.id);
+
+				if (position != -1)
+					m_adapter.notifyItemChanged(position);
+
+			} else if (a.selected) {
+				a.selected = false;
+
+				int position = Application.getArticles().getPositionById(a.id);
+
+				if (position != -1)
+					m_adapter.notifyItemChanged(position);
 			}
 		}
-
-        if (m_adapter != null) {
-            m_adapter.notifyDataSetChanged();
-        }
 	}
 
 	public int getActiveArticleId() {
