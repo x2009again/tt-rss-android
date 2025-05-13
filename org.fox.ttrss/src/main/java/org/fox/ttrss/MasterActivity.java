@@ -521,23 +521,22 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if (requestCode == HEADLINES_REQUEST) {
-
 			// we add back footers stripped when this was passed to DetailActivity
 			// Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
 
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
 			if (hf != null) {
-				// articles might've been changed while in detail activity
-				hf.notifyUpdated();
+				// articles might've been changed while in detail activity (resync with shared articles is handled in fragment onResume)
+				//hf.notifyUpdated();
 
 				// data might be null if detailactivity crashed
-				/* if (data != null) {
+				if (data != null) {
 					int activeArticleId = data.getIntExtra("activeArticleId", 0);
 
 					Log.d(TAG, "got back from detail activity, scrolling to id=" + activeArticleId);
 					hf.scrollToArticleId(activeArticleId);
-				} */
+				}
 			}
 		}
 	}
