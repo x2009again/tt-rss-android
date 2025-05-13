@@ -532,13 +532,12 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				hf.notifyUpdated();
 
 				// data might be null if detailactivity crashed
-				if (data != null) {
+				/* if (data != null) {
 					int activeArticleId = data.getIntExtra("activeArticleId", 0);
 
 					Log.d(TAG, "got back from detail activity, scrolling to id=" + activeArticleId);
-					hf.setActiveArticleId(activeArticleId);
-					//hf.scrollToArticleId(activeArticleId);
-				}
+					hf.scrollToArticleId(activeArticleId);
+				} */
 			}
 		}
 	}
