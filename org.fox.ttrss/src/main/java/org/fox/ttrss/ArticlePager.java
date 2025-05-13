@@ -31,9 +31,9 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private ViewPager2 m_pager;
 
 	private static class PagerAdapter extends FragmentStateAdapter {
-		
-		public PagerAdapter(FragmentActivity fa) {
-			super(fa);
+
+		public PagerAdapter(@NonNull Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -91,7 +91,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
 		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 
-		m_adapter = new PagerAdapter(getActivity());
+		m_adapter = new PagerAdapter(this);
 		
 		m_pager = view.findViewById(R.id.article_pager);
 
