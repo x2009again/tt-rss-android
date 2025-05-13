@@ -289,4 +289,12 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 	public boolean getAppend() {
 		return m_append;
 	}
+
+	public void setSearchQuery(String searchQuery) {
+		m_searchQuery = searchQuery;
+	}
+
+	public String getSearchQuery() {
+		return m_searchQuery;
+	}
 }

@@ -121,9 +121,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		}
 	}
 
-
-	private HeadlinesLoader m_loader;
-
 	@NonNull
 	@Override
 	public Loader<ArticleList> onCreateLoader(int id, @Nullable Bundle args) {
@@ -555,8 +552,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	public void onResume() {
 		super.onResume();
 
-		m_loader = (HeadlinesLoader) LoaderManager.getInstance(this).initLoader(0, null, this);
-
         if (Application.getArticles().getSizeWithoutFooters() == 0) {
             refresh(false);
         } else {
@@ -578,7 +573,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	}
 
 	public void refresh(final boolean append) {
-		m_loader.refresh(append);
+		HeadlinesLoader loader = (HeadlinesLoader) LoaderManager.getInstance(this).initLoader(Application.LOADER_HEADLINES, null, this);
+
+		loader.setSearchQuery(getSearchQuery());
+		loader.refresh(append);
 	}
 
 	/* public void __refresh(final boolean append) {
@@ -1673,10 +1671,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		if (!m_searchQuery.equals(query)) {
 			m_searchQuery = query;
 
-			// could be called before fragment view has been initialized
-			if (m_list != null) {
-				refresh(false);
-			}
+			refresh(false);
 		}
 	}
 

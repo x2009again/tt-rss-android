@@ -312,7 +312,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	public void onResume() {
 		super.onResume();
 
-		LoaderManager.getInstance(this).initLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).initLoader(Application.LOADER_CATS, null, this).forceLoad();
 
 		m_activity.invalidateOptionsMenu();
 	}
@@ -324,7 +324,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		if (m_swipeLayout != null)
 			m_swipeLayout.setRefreshing(true);
 
-		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).restartLoader(Application.LOADER_CATS, null, this).forceLoad();
 	}
 	
 	private class FeedCategoryListAdapter extends ArrayAdapter<FeedCategory> {

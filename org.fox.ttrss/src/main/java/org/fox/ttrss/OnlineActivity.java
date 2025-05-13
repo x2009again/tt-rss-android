@@ -391,6 +391,7 @@ public class OnlineActivity extends CommonActivity {
         } else if (itemId == R.id.search) {
             if (hf != null) {
                 final EditText edit = new EditText(this);
+                edit.setText(hf.getSearchQuery());
 
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.search)

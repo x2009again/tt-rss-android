@@ -366,7 +366,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public void onResume() {
 		super.onResume();
 
-		LoaderManager.getInstance(this).initLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).initLoader(Application.LOADER_FEEDS, null, this).forceLoad();
 		
 		m_activity.invalidateOptionsMenu();
 	}
@@ -404,7 +404,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
             m_swipeLayout.setRefreshing(true);
         }
 
-		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).restartLoader(Application.LOADER_FEEDS, null, this).forceLoad();
 	}
 
 	private class FeedListAdapter extends ArrayAdapter<Feed> {
