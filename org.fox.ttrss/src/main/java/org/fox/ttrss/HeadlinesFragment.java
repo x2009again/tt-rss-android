@@ -1,6 +1,5 @@
 package org.fox.ttrss;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -70,21 +69,18 @@ import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.JsonElement;
 
 import org.fox.ttrss.glide.ProgressTarget;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Attachment;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.HeadlinesRequest;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.TimeZone;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
@@ -129,7 +125,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<ArticleList> loader, ArticleList data) {
-		Log.d(TAG, "onLoadFinished loader=" + loader + " count=" + data.size());
+		Log.d(TAG, "onLoadFinished loader=" + loader);
 
 		HeadlinesLoader headlinesLoader = (HeadlinesLoader) loader;
 
@@ -154,9 +150,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 			diffResult.dispatchUpdatesTo(m_adapter);
 
-			if (!headlinesLoader.getAppend())
-				m_list.scrollToPosition(0);
-
 			if (headlinesLoader.getFirstIdChanged()) {
 				//if (m_activity.isSmallScreen() || !m_activity.isPortrait()) {
 					Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
@@ -170,14 +163,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			if (headlinesLoader.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
 				m_activity.login();
 			} else {
-
 				if (headlinesLoader.getLastErrorMessage() != null) {
 					m_activity.toast(m_activity.getString(headlinesLoader.getErrorMessage()) + "\n" + headlinesLoader.getLastErrorMessage());
 				} else {
 					m_activity.toast(headlinesLoader.getErrorMessage());
 				}
 			}
-
 		}
 
 		if (m_swipeLayout != null)
@@ -199,7 +190,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	private Feed m_feed;
 	private int m_activeArticleId;
 	private String m_searchQuery = "";
-	private boolean m_refreshInProgress = false;
+	private HeadlinesLoader m_loader;
 	private int m_firstId = 0;
 	//private boolean m_lazyLoadDisabled = false;
 
@@ -483,13 +474,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					if (!m_readArticles.isEmpty()) {
 						m_activity.toggleArticlesUnread(m_readArticles);
 
-						for (Article a : m_readArticles)
+						for (Article a : m_readArticles) {
 							a.unread = false;
+
+							m_adapter.notifyItemChanged(Application.getArticles().getPositionById(a.id));
+						}
 
 						if (m_feed != null)
 							m_feed.unread -= m_readArticles.size();
-
-						m_adapter.notifyDataSetChanged();
 
 						m_readArticles.clear();
 
@@ -499,7 +491,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
 
 					if (lastVisibleItem >= Application.getArticles().size() - 5)
-						new Handler().postDelayed(() -> refresh(true), 100);
+						refresh(true);
+
+					new Handler().postDelayed(() -> refresh(true), 0);
 				}
 			}
 
@@ -529,13 +523,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					}
 				}
 
-				/*if (!m_refreshInProgress && !m_lazyLoadDisabled && lastVisibleItem >= Application.getArticles().size() - 5) {
-					m_refreshInProgress = true;
-					new Handler().postDelayed(() -> refresh(true), 100);
-				}*/
-
 				/* if (lastVisibleItem >= Application.getArticles().size() - 5)
-					new Handler().postDelayed(() -> refresh(true), 100); */
+					new Handler().postDelayed(() -> refresh(true), 1000); */
 			}
 		});
 
@@ -573,180 +562,16 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	}
 
 	public void refresh(final boolean append) {
-		HeadlinesLoader loader = (HeadlinesLoader) LoaderManager.getInstance(this).initLoader(Application.LOADER_HEADLINES, null, this);
-
-		loader.setSearchQuery(getSearchQuery());
-		loader.refresh(append);
-	}
-
-	/* public void __refresh(final boolean append) {
-		Application.getArticles().stripFooters();
-		m_adapter.notifyDataSetChanged();
-
-		if (!append) m_lazyLoadDisabled = false;
-
-		if (m_activity != null && isAdded() && m_feed != null) {
-			m_refreshInProgress = true;
-
-			if (m_swipeLayout != null) m_swipeLayout.setRefreshing(true);
-
-			if (!append) {
-				m_activity.getSupportActionBar().show();
-				Application.getArticles().clear();
-				m_adapter.notifyDataSetChanged();
-			} else if (!(m_activity instanceof DetailActivity)) {
-				// detail activity does not use footers because it would break 1-to-1 mapping with pager view
-				// pager will need to work on a footerless subset of shared article view before this is possible
-				Application.getArticles().add(new Article(Article.TYPE_LOADMORE));
-				m_adapter.notifyDataSetChanged();
-			}
-
-			final String sessionId = m_activity.getSessionId();
-			final boolean isCat = m_feed.is_cat;
-
-			@SuppressLint("StaticFieldLeak") HeadlinesRequest req = new HeadlinesRequest(getActivity().getApplicationContext(), m_activity, Application.getArticles()) {
-				@Override
-				protected void onPostExecute(JsonElement result) {
-					if (isDetached() || !isAdded()) return;
-
-					super.onPostExecute(result);
-
-					if (m_swipeLayout != null) m_swipeLayout.setRefreshing(false);
-
-					m_refreshInProgress = false;
-
-					if (result != null) {
-
-						// is this needed?
-						if (!Application.getArticles().containsId(m_activeArticleId))
-							m_activeArticleId = 0;
-
-						if (m_firstIdChanged) {
-							m_lazyLoadDisabled = true;
-
-							Log.d(TAG, "first id changed, disabling lazy load");
-
-							// article pager deals with this in tablet landscape view
-							if (m_activity.isSmallScreen() || !m_activity.isPortrait()) {
-								Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
-										.setAction(R.string.reload, v -> refresh(false)).show();
-							}
-						}
-
-						if (m_amountLoaded < Integer.parseInt(m_prefs.getString("headlines_request_size", "15"))) {
-							// Log.d(TAG, "amount loaded "+m_amountLoaded+" < request size, disabling lazy load");
-							m_lazyLoadDisabled = true;
-						}
-
-						HeadlinesFragment.this.m_firstId = m_firstId;
-
-						m_adapter.notifyDataSetChanged();
-						m_listener.onHeadlinesLoaded(append);
-
-					} else {
-						m_lazyLoadDisabled = true;
-
-						if (m_lastError == ApiCommon.ApiError.LOGIN_FAILED) {
-							m_activity.login(true);
-						} else {
-							if (m_lastErrorMessage != null) {
-								m_activity.toast(getString(getErrorMessage()) + "\n" + m_lastErrorMessage);
-							} else {
-								m_activity.toast(getErrorMessage());
-							}
-						}
-					}
-
-					// detail activity does not use footers (see above)
-					if (!(m_activity instanceof DetailActivity)) {
-						Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
-						m_adapter.notifyDataSetChanged();
-					}
-				}
-			};
-
-			final int skip = getSkip(append);
-
-			final boolean allowForceUpdate = m_activity.getApiLevel() >= 9 &&
-					!m_feed.is_cat && m_feed.id > 0 && !append && skip == 0;
-
-			Log.d(TAG, "allowForceUpdate=" + allowForceUpdate + " skip=" + skip);
-
-			req.setOffset(skip);
-
-			HashMap<String,String> map = new HashMap<>();
-			map.put("op", "getHeadlines");
-			map.put("sid", sessionId);
-			map.put("feed_id", String.valueOf(m_feed.id));
-			map.put("show_excerpt", "true");
-			map.put("excerpt_length", String.valueOf(CommonActivity.EXCERPT_MAX_LENGTH));
-			map.put("show_content", "true");
-			map.put("include_attachments", "true");
-			map.put("view_mode", m_activity.getViewMode());
-			map.put("limit", m_prefs.getString("headlines_request_size", "15"));
-			map.put("offset", String.valueOf(0));
-			map.put("skip", String.valueOf(skip));
-			map.put("include_nested", "true");
-			map.put("has_sandbox", "true");
-			map.put("order_by", m_activity.getSortMode());
-
-			if (m_prefs.getBoolean("enable_image_downsampling", false)) {
-				if (m_prefs.getBoolean("always_downsample_images", false) || !m_activity.isWifiConnected()) {
-					map.put("resize_width", String.valueOf(m_activity.getResizeWidth()));
-				}
-			}
-
-			if (isCat) map.put("is_cat", "true");
-
-			if (allowForceUpdate) {
-				map.put("force_update", "true");
-			}
-
-			if (m_searchQuery != null && !m_searchQuery.isEmpty()) {
-				map.put("search", m_searchQuery);
-				map.put("search_mode", "");
-				map.put("match_on", "both");
-			}
-
-			if (m_firstId > 0) map.put("check_first_id", String.valueOf(m_firstId));
-
-			if (m_activity.getApiLevel() >= 12) {
-				map.put("include_header", "true");
-			}
-
-            Log.d(TAG, "[HP] request more headlines, firstId=" + m_firstId);
-
-			req.execute(map);
-		}
-	}
-
-	private int getSkip(boolean append) {
-		int skip = 0;
-
-		if (append) {
-			// adaptive, all_articles, marked, published, unread
-			String viewMode = m_activity.getViewMode();
-
-			int numUnread = Math.toIntExact(Application.getArticles().getUnreadCount());
-			int numAll = Math.toIntExact(Application.getArticles().getSizeWithoutFooters());
-
-			if ("marked".equals(viewMode)) {
-				skip = numAll;
-			} else if ("published".equals(viewMode)) {
-				skip = numAll;
-			} else if ("unread".equals(viewMode)) {
-				skip = numUnread;
-			} else if (m_searchQuery != null && !m_searchQuery.isEmpty()) {
-				skip = numAll;
-			} else if ("adaptive".equals(viewMode)) {
-				skip = numUnread > 0 ? numUnread : numAll;
-			} else {
-				skip = numAll;
-			}
+		// if we try to initLoader() all the time, onLoadFinished() might be sent twice
+		// https://stackoverflow.com/questions/11293441/android-loadercallbacks-onloadfinished-called-twice
+		if (m_loader == null) {
+			m_loader = (HeadlinesLoader) LoaderManager.getInstance(this).
+					initLoader(Application.LOADER_HEADLINES, null, this);
 		}
 
-		return skip;
-	} */
+		m_loader.setSearchQuery(getSearchQuery());
+		m_loader.startLoading(append);
+	}
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
 		public View view;

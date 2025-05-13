@@ -3,7 +3,6 @@ package org.fox.ttrss;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -18,14 +17,8 @@ import androidx.preference.PreferenceManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.JsonElement;
-
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.HeadlinesRequest;
-
-import java.util.HashMap;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 

@@ -1,8 +1,5 @@
 package org.fox.ttrss.types;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;

@@ -56,36 +56,27 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 		m_prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
-	protected void refresh(boolean append) {
-		Log.d(TAG, "refresh, append=" + append + " inProgress=" + m_loadingInProgress + " lazyLoadEnabled=" + m_lazyLoadEnabled);
+	protected void startLoading(boolean append) {
+		// Log.d(TAG, this + " refresh, append=" + append + " inProgress=" + m_loadingInProgress + " lazyLoadEnabled=" + m_lazyLoadEnabled);
 
 		if (!append) {
 			m_append = false;
 			m_lazyLoadEnabled = true;
 
 			forceLoad();
-		} else if (!m_loadingInProgress && m_lazyLoadEnabled) {
+		} else if (m_lazyLoadEnabled && !m_loadingInProgress) {
 			m_append = true;
 			forceLoad();
-		} else {
-			deliverResult(m_articles);
-		}
-	}
-
-	@Override
-	protected void onStartLoading() {
-		if (m_articles != null) {
-			deliverResult(m_articles);
-		} else {
-			forceLoad();
+		/* } else {
+			deliverResult(m_articles); */
 		}
 	}
 
 	@Override
 	public void deliverResult(ArticleList data) {
-		m_articles = data;
+		Log.d(TAG, "deliverResult=" + data);
 
-		super.deliverResult(m_articles);
+		super.deliverResult(data);
 	}
 
 	public int getErrorMessage() {
@@ -106,6 +97,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 
 	@Override
 	public ArticleList loadInBackground() {
+		Log.d(TAG, "loadInBackground append=" + m_append + " offset=" + m_offset);
 
 		m_loadingInProgress = true;
 
@@ -212,6 +204,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 						m_lazyLoadEnabled = false;
 					}
 
+					m_offset += m_amountLoaded;
 					m_loadingInProgress = false;
 
 					return m_articles;
@@ -225,18 +218,6 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 		m_loadingInProgress = false;
 
 		return null;
-
-		/* TODO move to onLoaderFinished() if (m_lastError == ApiCommon.ApiError.LOGIN_FAILED) {
-			m_activity.login();
-		} else {
-
-			if (m_lastErrorMessage != null) {
-				m_activity.toast(m_activity.getString(getErrorMessage()) + "\n" + m_lastErrorMessage);
-			} else {
-				m_activity.toast(getErrorMessage());
-			}
-			//m_activity.setLoadingStatus(getErrorMessage(), false);
-		} */
 	}
 
 	private int getSkip(boolean append) {
@@ -296,5 +277,9 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 
 	public String getSearchQuery() {
 		return m_searchQuery;
+	}
+
+	public int getOffset() {
+		return m_offset;
 	}
 }
