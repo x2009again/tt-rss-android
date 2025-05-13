@@ -88,6 +88,8 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class HeadlinesFragment extends androidx.fragment.app.Fragment implements LoaderManager.LoaderCallbacks<ArticleList> {
 
+	private ArticleList m_articles = new ArticleList();
+
 	@NonNull
 	@Override
 	public Loader<ArticleList> onCreateLoader(int id, @Nullable Bundle args) {
@@ -99,10 +101,15 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		Log.d(TAG, "onLoadFinished loader=" + loader + " size=" + (data != null ? data.size() : "N/A (null)"));
 
 		HeadlinesLoader headlinesLoader = (HeadlinesLoader) loader;
-		ArticleList sharedArticles = Application.getArticles();
+		//ArticleList sharedArticles = Application.getArticles();
 
 		// successful update
 		if (data != null) {
+
+			// shared article list contains raw returned data without footers
+			ArticleList sharedArticles = Application.getArticles();
+			sharedArticles.clear();
+			sharedArticles.addAll(data);
 
 			// detail activity does not use footers
 			if (!(m_activity instanceof DetailActivity)) {
@@ -113,10 +120,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 				data.add(new Article(Article.TYPE_AMR_FOOTER));
 			}
 
-			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(sharedArticles, data));
+			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(m_articles, data));
 
-			sharedArticles.clear();
-			sharedArticles.addAll(data);
+			m_articles.clear();
+			m_articles.addAll(data);
 
 			diffResult.dispatchUpdatesTo(m_adapter);
 
@@ -364,7 +371,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
 
-		m_adapter = new ArticleListAdapter(Application.getArticles());
+		m_articles.clear();
+		m_articles.addAll(Application.getArticles());
+
+		m_adapter = new ArticleListAdapter(m_articles);
 
 		m_list.setAdapter(m_adapter);
 
@@ -539,6 +549,21 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	}
 
 	public void refresh(final boolean append) {
+		if (!append) {
+			m_activeArticleId = -1;
+
+			int size = m_articles.size();
+
+			m_articles.clear();
+
+			if (m_adapter != null) {
+				m_adapter.notifyItemRangeRemoved(0, size);
+
+				m_articles.add(new Article(Article.TYPE_LOADMORE));
+				m_adapter.notifyItemInserted(m_articles.size());
+			}
+		}
+
 		// if we try to initLoader() all the time, onLoadFinished() might be sent twice
 		// https://stackoverflow.com/questions/11293441/android-loadercallbacks-onloadfinished-called-twice
 		if (m_loader == null) {

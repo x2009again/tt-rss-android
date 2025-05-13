@@ -476,7 +476,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 				// we use shared article list, but detail activity does not use special footers
 				// we will append those back (if needed) in onActivityResult()
-				Application.getArticles().stripFooters();
+				// Application.getArticles().stripFooters();
 
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -523,7 +523,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		if (requestCode == HEADLINES_REQUEST) {
 
 			// we add back footers stripped when this was passed to DetailActivity
-			Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
+			// Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
 
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
