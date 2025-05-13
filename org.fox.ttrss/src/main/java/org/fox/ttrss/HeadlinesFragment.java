@@ -1004,6 +1004,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 				holder.flavorVideoKindView.setVisibility(View.GONE);
 				holder.flavorImageOverflow.setVisibility(View.GONE);
 				holder.flavorVideoView.setVisibility(View.GONE);
+				holder.flavorImageHolder.setVisibility(View.GONE);
 
 				Glide.clear(holder.flavorImageView);
 
@@ -1066,6 +1067,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 					holder.flavorImageView.setVisibility(View.VISIBLE);
 					holder.flavorImageView.setMaxHeight((int)(m_screenHeight * 0.6f));
+
+					// only show holder if we're about to display a picture
+					holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
 					// prevent lower listiew entries from jumping around if this row is modified
 					if (article.flavorViewHeight > 0) {
