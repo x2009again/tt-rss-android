@@ -10,11 +10,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import org.fox.ttrss.types.Article;
+import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
+import org.fox.ttrss.util.HeadlinesDiffUtilCallback;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
@@ -27,15 +30,31 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private ViewPager2 m_pager;
 
 	private static class PagerAdapter extends FragmentStateAdapter {
+		private ArticleList m_articles = new ArticleList();
 
-		public PagerAdapter(@NonNull Fragment fragment) {
+		public PagerAdapter(@NonNull Fragment fragment, ArticleList initialArticles) {
 			super(fragment);
+
+			m_articles.clear();
+			m_articles.addAll(initialArticles);
+		}
+
+		private void syncToSharedArticles() {
+			ArticleList tmp = new ArticleList();
+			tmp.addAll(Application.getArticles());
+
+			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
+
+			diffResult.dispatchUpdatesTo(this);
+
+			m_articles.clear();
+			m_articles.addAll(tmp);
 		}
 
 		@Override
 		@NonNull
 		public Fragment createFragment(int position) {
-			Article article = Application.getArticles().get(position);
+			Article article = m_articles.get(position);
 
 			ArticleFragment af = new ArticleFragment();
 			af.initialize(article);
@@ -45,7 +64,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		@Override
 		public int getItemCount() {
-			return Application.getArticles().size();
+			return m_articles.size();
 		}
 
 	}
@@ -79,7 +98,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
 		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 
-		m_adapter = new PagerAdapter(this);
+		m_adapter = new PagerAdapter(this, Application.getArticles());
 		
 		m_pager = view.findViewById(R.id.article_pager);
 
@@ -169,5 +188,10 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	public void notifyUpdated() {
 		m_adapter.notifyDataSetChanged();
+	}
+
+	public void syncToSharedArticles() {
+		if (m_adapter != null)
+			m_adapter.syncToSharedArticles();
 	}
 }

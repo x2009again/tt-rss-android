@@ -793,13 +793,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 			holder.view.setOnClickListener(v -> {
                 m_listener.onArticleSelected(article);
-				setActiveArticleId(article.id);
 
                 // only set active article when it makes sense (in DetailActivity)
-                //if (getActivity() instanceof DetailActivity) {
-                    //m_activeArticleId = article.id;
-                    //m_adapter.notifyDataSetChanged();
-                //}
+                if (getActivity() instanceof DetailActivity) {
+					m_activeArticleId = article.id;
+
+					m_adapter.notifyItemChanged(position);
+				}
             });
 
 			// block footer clicks to make button/selection clicking easier

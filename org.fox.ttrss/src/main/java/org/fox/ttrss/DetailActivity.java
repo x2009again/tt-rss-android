@@ -300,7 +300,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
         if (ap != null) {
-            ap.notifyUpdated();
+            ap.syncToSharedArticles();
         }
 
 		if (hf != null) {
