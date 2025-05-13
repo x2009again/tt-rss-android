@@ -99,6 +99,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		Log.d(TAG, "onLoadFinished loader=" + loader + " size=" + (data != null ? data.size() : "N/A (null)"));
 
 		HeadlinesLoader headlinesLoader = (HeadlinesLoader) loader;
+		ArticleList sharedArticles = Application.getArticles();
 
 		// successful update
 		if (data != null) {
@@ -112,8 +113,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 				data.add(new Article(Article.TYPE_AMR_FOOTER));
 			}
 
-			ArticleList sharedArticles = Application.getArticles();
-
 			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(sharedArticles, data));
 
 			sharedArticles.clear();
@@ -121,12 +120,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 			diffResult.dispatchUpdatesTo(m_adapter);
 
-			if (headlinesLoader.getFirstIdChanged()) {
-				//if (m_activity.isSmallScreen() || !m_activity.isPortrait()) {
-					Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
-							.setAction(R.string.reload, v -> refresh(false)).show();
-				//}
-			}
+			if (headlinesLoader.getFirstIdChanged())
+				Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
+						.setAction(R.string.reload, v -> refresh(false)).show();
+
+			if (!headlinesLoader.getAppend())
+				m_list.scrollToPosition(0);
 
 			m_listener.onHeadlinesLoaded(headlinesLoader.getAppend());
 
@@ -754,12 +753,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 			holder.view.setOnClickListener(v -> {
                 m_listener.onArticleSelected(article);
+				setActiveArticleId(article.id);
 
                 // only set active article when it makes sense (in DetailActivity)
-                if (getActivity() instanceof DetailActivity) {
-                    m_activeArticleId = article.id;
-                    m_adapter.notifyDataSetChanged();
-                }
+                //if (getActivity() instanceof DetailActivity) {
+                    //m_activeArticleId = article.id;
+                    //m_adapter.notifyDataSetChanged();
+                //}
             });
 
 			// block footer clicks to make button/selection clicking easier

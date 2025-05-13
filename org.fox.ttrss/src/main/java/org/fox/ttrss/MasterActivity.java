@@ -528,7 +528,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
 			if (hf != null) {
-
 				// articles might've been changed while in detail activity
 				hf.notifyUpdated();
 
@@ -537,12 +536,10 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 					int activeArticleId = data.getIntExtra("activeArticleId", 0);
 
 					Log.d(TAG, "got back from detail activity, scrolling to id=" + activeArticleId);
-					hf.scrollToArticleId(activeArticleId);
+					hf.setActiveArticleId(activeArticleId);
+					//hf.scrollToArticleId(activeArticleId);
 				}
 			}
-
-			// just in case
-			new Handler().postDelayed((Runnable) () -> hf.refresh(true), 250);
 		}
 	}
 
