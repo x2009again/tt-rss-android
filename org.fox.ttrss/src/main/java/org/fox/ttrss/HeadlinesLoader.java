@@ -67,15 +67,11 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 		} else if (m_lazyLoadEnabled && !m_loadingInProgress) {
 			m_append = true;
 			forceLoad();
-		/* } else {
-			deliverResult(m_articles); */
 		}
 	}
 
 	@Override
 	public void deliverResult(ArticleList data) {
-		Log.d(TAG, "deliverResult=" + data);
-
 		super.deliverResult(data);
 	}
 
@@ -182,8 +178,6 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 
 					if (skip == 0)
 						m_articles.clear();
-					else
-						m_articles.stripFooters();
 
 					m_amountLoaded = articlesJson.size();
 

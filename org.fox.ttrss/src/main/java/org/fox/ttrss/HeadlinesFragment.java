@@ -101,29 +101,30 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		Log.d(TAG, "onLoadFinished loader=" + loader + " size=" + (data != null ? data.size() : "N/A (null)"));
 
 		HeadlinesLoader headlinesLoader = (HeadlinesLoader) loader;
-		//ArticleList sharedArticles = Application.getArticles();
 
 		// successful update
 		if (data != null) {
-
 			// shared article list contains raw returned data without footers
 			ArticleList sharedArticles = Application.getArticles();
 			sharedArticles.clear();
 			sharedArticles.addAll(data);
 
+			ArticleList tmp = new ArticleList();
+			tmp.addAll(data);
+
 			// detail activity does not use footers
 			if (!(m_activity instanceof DetailActivity)) {
 
 				if (headlinesLoader.lazyLoadEnabled())
-					data.add(new Article(Article.TYPE_LOADMORE));
+					tmp.add(new Article(Article.TYPE_LOADMORE));
 
-				data.add(new Article(Article.TYPE_AMR_FOOTER));
+				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 			}
 
-			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(m_articles, data));
+			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(m_articles, tmp));
 
 			m_articles.clear();
-			m_articles.addAll(data);
+			m_articles.addAll(tmp);
 
 			diffResult.dispatchUpdatesTo(m_adapter);
 
@@ -479,7 +480,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
 
 					if (lastVisibleItem >= Application.getArticles().size() - 5) {
-						refresh(true);
+						new Handler().postDelayed(() -> refresh(true), 0);
 					}
 				}
 			}
@@ -528,6 +529,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	public void onResume() {
 		super.onResume();
 
+		syncToSharedArticles();
+
         if (Application.getArticles().getSizeWithoutFooters() == 0) {
             refresh(false);
         } else {
@@ -560,7 +563,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 				m_adapter.notifyItemRangeRemoved(0, size);
 
 				m_articles.add(new Article(Article.TYPE_LOADMORE));
-				m_adapter.notifyItemInserted(m_articles.size());
+				m_articles.add(new Article(Article.TYPE_AMR_FOOTER));
+
+				m_adapter.notifyItemRangeInserted(0, m_articles.size());
 			}
 		}
 
@@ -1479,7 +1484,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			scrollToArticleId(articleId);
 
 			if (newPosition >= articles.size() - 5)
-				refresh(true);
+				new Handler().postDelayed(() -> refresh(true), 0);
 		}
 	}
 
@@ -1531,6 +1536,23 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		super.onPause();
 
 		releaseSurface();
+	}
+
+	private void syncToSharedArticles() {
+		ArticleList tmp = new ArticleList();
+		tmp.addAll(Application.getArticles());
+
+		if (m_loader != null && m_loader.lazyLoadEnabled())
+			tmp.add(new Article(Article.TYPE_LOADMORE));
+
+		tmp.add(new Article(Article.TYPE_AMR_FOOTER));
+
+		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(m_articles, tmp));
+
+		diffResult.dispatchUpdatesTo(m_adapter);
+
+		m_articles.clear();
+		m_articles.addAll(tmp);
 	}
 
 }

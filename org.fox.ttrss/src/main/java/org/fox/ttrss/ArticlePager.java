@@ -39,20 +39,12 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		@Override
 		@NonNull
 		public Fragment createFragment(int position) {
-			try {
-				Article article = Application.getArticles().get(position);
+			Article article = Application.getArticles().get(position);
 
-				if (article != null) {
-					ArticleFragment af = new ArticleFragment();
-					af.initialize(article);
+			ArticleFragment af = new ArticleFragment();
+			af.initialize(article);
 
-					return af;
-				}
-			} catch (IndexOutOfBoundsException e) {
-				e.printStackTrace();
-			}
-
-			return null;
+			return af;
 		}
 
 		@Override
@@ -95,25 +87,30 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		
 		m_pager = view.findViewById(R.id.article_pager);
 
-		int position = Application.getArticles().getPositionById(m_articleId);
-
 		m_listener.onArticleSelected(Application.getArticles().getById(m_articleId), false);
 
 		m_pager.setAdapter(m_adapter);
 		m_pager.setOffscreenPageLimit(3);
 
-		m_pager.setCurrentItem(position, false);
+		int position = Application.getArticles().getPositionById(m_articleId);
+
+		if (position != -1)
+			m_pager.setCurrentItem(position, false);
+
 		m_pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 			@Override
 			public void onPageSelected(int position) {
 				Log.d(TAG, "onPageSelected: " + position);
 
-				final Article article = Application.getArticles().get(position);
+				// wtf
+				if (position != -1) {
+					Article article = Application.getArticles().get(position);
 
-				if (article != null) {
-					m_articleId = article.id;
+					if (article != null) {
+						m_articleId = article.id;
 
-					m_listener.onArticleSelected(article, false);
+						m_listener.onArticleSelected(article, false);
+					}
 				}
 			}
 		});
@@ -140,7 +137,8 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		if (m_pager != null && articleId != m_articleId) {
 			int position = Application.getArticles().getPositionById(articleId);
 
-			m_pager.setCurrentItem(position, false);
+			if (position != -1)
+				m_pager.setCurrentItem(position, false);
 		}
 	}
 
