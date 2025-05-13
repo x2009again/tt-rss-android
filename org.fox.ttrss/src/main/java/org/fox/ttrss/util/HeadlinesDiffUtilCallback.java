@@ -4,11 +4,11 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import org.fox.ttrss.types.ArticleList;
 
-public class HeadlinesDiffutilCallback extends DiffUtil.Callback {
+public class HeadlinesDiffUtilCallback extends DiffUtil.Callback {
 		private ArticleList m_oldList;
 		private ArticleList m_newList;
 
-		public HeadlinesDiffutilCallback(ArticleList oldList, ArticleList newList) {
+		public HeadlinesDiffUtilCallback(ArticleList oldList, ArticleList newList) {
 			m_oldList = oldList;
 			m_newList = newList;
 		}

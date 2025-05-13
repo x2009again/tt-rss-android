@@ -75,7 +75,7 @@ import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Attachment;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.HeadlinesDiffutilCallback;
+import org.fox.ttrss.util.HeadlinesDiffUtilCallback;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -121,7 +121,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 			}
 
-			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(m_articles, tmp));
+			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
 
 			m_articles.clear();
 			m_articles.addAll(tmp);
@@ -1551,7 +1551,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
-		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(m_articles, tmp));
+		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
 
 		diffResult.dispatchUpdatesTo(m_adapter);
 
