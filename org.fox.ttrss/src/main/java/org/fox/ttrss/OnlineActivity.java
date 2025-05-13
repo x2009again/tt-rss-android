@@ -562,28 +562,37 @@ public class OnlineActivity extends CommonActivity {
 			if (ap != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
-                if (selectedArticle != null)
-				    setArticleScore(selectedArticle);
+                if (selectedArticle != null) {
+                    setArticleScore(selectedArticle);
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                }
 			}
 			return true;
         } else if (itemId == R.id.toggle_marked) {
             if (ap != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
-                selectedArticle.marked = !selectedArticle.marked;
-                saveArticleMarked(selectedArticle);
+                if (selectedArticle != null) {
+                    selectedArticle.marked = !selectedArticle.marked;
 
-                if (hf != null) hf.notifyUpdated();
+                    saveArticleMarked(selectedArticle);
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                }
             }
             return true;
         } else if (itemId == R.id.toggle_unread) {
             if (ap != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
-                selectedArticle.unread = !selectedArticle.unread;
-                saveArticleUnread(selectedArticle);
+                if (selectedArticle != null) {
+                    selectedArticle.unread = !selectedArticle.unread;
 
-                if (hf != null) hf.notifyUpdated();
+                    saveArticleUnread(selectedArticle);
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                }
             }
             return true;
         } else if (itemId == R.id.selection_toggle_unread) {
@@ -591,11 +600,13 @@ public class OnlineActivity extends CommonActivity {
                 ArticleList selected = hf.getSelectedArticles();
 
                 if (!selected.isEmpty()) {
-                    for (Article a : selected)
+                    for (Article a : selected) {
                         a.unread = !a.unread;
 
+                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                    }
+
                     toggleArticlesUnread(selected);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
@@ -605,11 +616,13 @@ public class OnlineActivity extends CommonActivity {
                 ArticleList selected = hf.getSelectedArticles();
 
                 if (!selected.isEmpty()) {
-                    for (Article a : selected)
+                    for (Article a : selected) {
                         a.marked = !a.marked;
 
+                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                    }
+
                     toggleArticlesMarked(selected);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
@@ -619,24 +632,26 @@ public class OnlineActivity extends CommonActivity {
                 ArticleList selected = hf.getSelectedArticles();
 
                 if (!selected.isEmpty()) {
-                    for (Article a : selected)
+                    for (Article a : selected) {
                         a.published = !a.published;
 
+                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                    }
+
                     toggleArticlesPublished(selected);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
             return true;
         } else if (itemId == R.id.toggle_published) {
-            if (ap != null) {
+            if (ap != null && hf != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
                 if (selectedArticle != null) {
                     selectedArticle.published = !selectedArticle.published;
                     saveArticlePublished(selectedArticle);
 
-                    if (hf != null) hf.notifyUpdated();
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
                 }
             }
             return true;
@@ -689,12 +704,17 @@ public class OnlineActivity extends CommonActivity {
                     if (a.unread) {
                         a.unread = false;
                         tmp.add(a);
+
+                        if (hf != null) {
+                            int position = Application.getArticles().indexOf(a);
+
+                            hf.notifyItemChanged(position);
+                        }
                     }
                 }
 
                 if (!tmp.isEmpty()) {
                     setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
@@ -1086,8 +1106,6 @@ article.score = Integer.parseInt(edit.getText().toString());
     }
 
 	public void setArticlesUnread(final ArticleList articles, int mode) {
-		ApiRequest req = new ApiRequest(getApplicationContext());
-
         setArticleField(articles, Article.UPDATE_FIELD_UNREAD, mode);
 	}
 
