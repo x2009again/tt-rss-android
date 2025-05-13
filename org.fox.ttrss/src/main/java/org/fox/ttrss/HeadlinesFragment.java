@@ -96,7 +96,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<ArticleList> loader, ArticleList data) {
-		Log.d(TAG, "onLoadFinished loader=" + loader);
+		Log.d(TAG, "onLoadFinished loader=" + loader + " size=" + (data != null ? data.size() : "N/A (null)"));
 
 		HeadlinesLoader headlinesLoader = (HeadlinesLoader) loader;
 
@@ -162,8 +162,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	private int m_activeArticleId;
 	private String m_searchQuery = "";
 	private HeadlinesLoader m_loader;
-	private int m_firstId = 0;
-	//private boolean m_lazyLoadDisabled = false;
 
 	private SharedPreferences m_prefs;
 
@@ -315,7 +313,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			m_feed = savedInstanceState.getParcelable("m_feed");
 			m_activeArticleId = savedInstanceState.getInt("m_activeArticleId");
 			m_searchQuery = savedInstanceState.getString("m_searchQuery");
-			m_firstId = savedInstanceState.getInt("m_firstId");
 			m_compactLayoutMode = savedInstanceState.getBoolean("m_compactLayoutMode");
 		}
 
@@ -331,7 +328,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		out.putParcelable("m_feed", m_feed);
 		out.putInt("m_activeArticleId", m_activeArticleId);
 		out.putString("m_searchQuery", m_searchQuery);
-		out.putInt("m_firstId", m_firstId);
 		out.putBoolean("m_compactLayoutMode", m_compactLayoutMode);
 	}
 
@@ -441,22 +437,24 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 
-				if (newState == RecyclerView.SCROLL_STATE_IDLE && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
-					if (!m_readArticles.isEmpty()) {
-						m_activity.toggleArticlesUnread(m_readArticles);
+				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+					if (m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
+						if (!m_readArticles.isEmpty()) {
+							m_activity.toggleArticlesUnread(m_readArticles);
 
-						for (Article a : m_readArticles) {
-							a.unread = false;
+							for (Article a : m_readArticles) {
+								a.unread = false;
 
-							m_adapter.notifyItemChanged(Application.getArticles().getPositionById(a.id));
+								m_adapter.notifyItemChanged(Application.getArticles().getPositionById(a.id));
+							}
+
+							if (m_feed != null)
+								m_feed.unread -= m_readArticles.size();
+
+							m_readArticles.clear();
+
+							new Handler().postDelayed(() -> m_activity.refresh(false), 100);
 						}
-
-						if (m_feed != null)
-							m_feed.unread -= m_readArticles.size();
-
-						m_readArticles.clear();
-
-						new Handler().postDelayed(() -> m_activity.refresh(false), 100);
 					}
 
 					int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();

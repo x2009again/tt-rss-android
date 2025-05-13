@@ -270,10 +270,8 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	@Override
-	public void onArticleSelected(final Article article, boolean open) {
-		
-		if (article == null) return;
-		
+	public void onArticleSelected(Article article, boolean open) {
+
 		if (article.unread) {
 			article.unread = false;
 			saveArticleUnread(article);
@@ -281,18 +279,14 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();
 
+		ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+
 		if (open) {
-
-			new Handler().postDelayed(() -> {
-                ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-
-                if (ap != null) {
-                    ap.setActiveArticleId(article.id);
-                }
-            }, 250);
-
+			if (ap != null) {
+				ap.setActiveArticleId(article.id);
+			}
 		} else {
-			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 			if (hf != null) {
 				hf.setActiveArticleId(article.id);
 			}

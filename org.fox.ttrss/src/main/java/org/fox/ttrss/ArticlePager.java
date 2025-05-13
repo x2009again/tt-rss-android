@@ -28,7 +28,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private int m_articleId;
 	private OnlineActivity m_activity;
 	private Feed m_feed;
-	private int m_firstId = 0;
 	private ViewPager2 m_pager;
 
 	private static class PagerAdapter extends FragmentStateAdapter {
@@ -74,7 +73,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		out.putInt("m_articleId", m_articleId);
 		out.putParcelable("m_feed", m_feed);
-		out.putInt("m_firstId", m_firstId);
 	}
 
 	@Override
@@ -84,7 +82,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		if (savedInstanceState != null) {
 			m_articleId = savedInstanceState.getInt("m_articleId");
 			m_feed = savedInstanceState.getParcelable("m_feed");
-			m_firstId = savedInstanceState.getInt("m_firstId");
 		}
 
 		setRetainInstance(true);
