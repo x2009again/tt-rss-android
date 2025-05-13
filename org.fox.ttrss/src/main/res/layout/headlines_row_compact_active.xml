@@ -101,6 +101,7 @@
             style="?attr/materialIconButtonStyle"
             android:layout_width="wrap_content"
             android:paddingEnd="0dp"
+            android:layout_gravity="end"
             android:layout_height="24dp"
             android:layout_weight="0.5"
             app:icon="?ic_star_outline" />
