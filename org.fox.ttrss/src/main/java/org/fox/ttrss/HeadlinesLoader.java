@@ -42,7 +42,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 	private int m_amountLoaded;
 	private int m_resizeWidth;
 	private boolean m_append;
-	private boolean m_lazyLoadEnabled;
+	private boolean m_lazyLoadEnabled = true;
 	private boolean m_loadingInProgress;
 
 	HeadlinesLoader(Context context, Feed feed, int resizeWidth) {
@@ -190,8 +190,8 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 
 					if (skip == 0)
 						m_articles.clear();
-					/* else
-						m_articles.stripFooters(); */
+					else
+						m_articles.stripFooters();
 
 					m_amountLoaded = articlesJson.size();
 

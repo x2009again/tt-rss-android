@@ -138,27 +138,27 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		// successful update
 		if (data != null) {
-			ArticleList articles = Application.getArticles();
 
-			articles.stripFooters();
+			// detail activity does not use footers
+			if (!(m_activity instanceof DetailActivity)) {
 
-			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(articles, data));
+				if (headlinesLoader.lazyLoadEnabled())
+					data.add(new Article(Article.TYPE_LOADMORE));
 
-			articles.clear();
-			articles.addAll(data);
+				data.add(new Article(Article.TYPE_AMR_FOOTER));
+			}
+
+			ArticleList sharedArticles = Application.getArticles();
+
+			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffutilCallback(sharedArticles, data));
+
+			sharedArticles.clear();
+			sharedArticles.addAll(data);
 
 			diffResult.dispatchUpdatesTo(m_adapter);
 
-			// detail activity does not use footers (see above)
-			if (!(m_activity instanceof DetailActivity)) {
-				articles.add(new Article(Article.TYPE_AMR_FOOTER));
-				m_adapter.notifyItemInserted(articles.size());
-			}
-
 			if (!headlinesLoader.getAppend())
 				m_list.scrollToPosition(0);
-
-			//m_adapter.notifyDataSetChanged();
 
 			if (headlinesLoader.getFirstIdChanged()) {
 				//if (m_activity.isSmallScreen() || !m_activity.isPortrait()) {
@@ -576,15 +576,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	}
 
 	public void refresh(final boolean append) {
-
-		if (!(m_activity instanceof DetailActivity)) {
-			// detail activity does not use footers because it would break 1-to-1 mapping with pager view
-			// pager will need to work on a footerless subset of shared article view before this is possible
-
-			Application.getArticles().add(new Article(Article.TYPE_LOADMORE));
-			m_adapter.notifyDataSetChanged();
-		}
-
 		m_loader.refresh(append);
 	}
 
