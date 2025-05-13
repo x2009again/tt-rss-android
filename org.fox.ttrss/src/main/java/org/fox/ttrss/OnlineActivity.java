@@ -714,11 +714,15 @@ public class OnlineActivity extends CommonActivity {
 
             saveArticleNote(article, note);
 
-            HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-            if (hf != null) hf.notifyUpdated();
+            int position = Application.getArticles().getPositionById(article.id);
 
-            ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-            if (ap != null) ap.notifyUpdated();
+            if (position != -1) {
+                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+                if (hf != null) hf.notifyItemChanged(position);
+
+                ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+                if (ap != null) ap.notifyItemChanged(position);
+            }
         });
 		
 		builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {

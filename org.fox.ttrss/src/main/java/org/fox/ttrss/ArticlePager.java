@@ -133,9 +133,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-
-		//if (m_adapter != null) m_adapter.notifyDataSetChanged();
-
 		m_activity.invalidateOptionsMenu();
 	}
 
@@ -169,6 +166,11 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 	public int getSelectedArticleId() {
 		return m_articleId;
+	}
+
+	public void notifyItemChanged(int position) {
+		if (m_adapter != null)
+			m_adapter.notifyItemChanged(position);
 	}
 
 	public void notifyUpdated() {

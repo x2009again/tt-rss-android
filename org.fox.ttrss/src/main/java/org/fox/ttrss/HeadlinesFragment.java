@@ -150,6 +150,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 	}
 
+	public void notifyItemChanged(int position) {
+		if (m_adapter != null)
+			m_adapter.notifyItemChanged(position);
+	}
+
 	public enum ArticlesSelection { ALL, NONE, UNREAD }
 
     public static final int FLAVOR_IMG_MIN_SIZE = 128;
