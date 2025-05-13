@@ -330,22 +330,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 		});
 	}
 
-	protected void preloadUriIfAllowed(Uri uri) {
-		boolean enableCustomTabs = m_prefs.getBoolean("enable_custom_tabs", true);
-
-		if (m_customTabClient != null && enableCustomTabs) {
-			ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo info = cm.getActiveNetworkInfo();
-
-			if (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI) {
-				CustomTabsSession session = getCustomTabSession();
-				session.mayLaunchUrl(uri, null, null);
-
-				//toast("Preloading: " + uri.toString());
-			}
-		}
-	}
-
 	protected Intent getShareIntent(String text, String subject) {
 		Intent shareIntent = new Intent(Intent.ACTION_SEND);
 		shareIntent.setType("text/plain");

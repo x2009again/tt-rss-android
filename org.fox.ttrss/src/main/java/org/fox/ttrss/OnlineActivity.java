@@ -1190,12 +1190,6 @@ article.score = Integer.parseInt(edit.getText().toString());
 			if (hf != null) {
 				hf.refresh(false);
 			}
-			
-			ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-			
-			if (af != null) {
-				af.refresh(false);
-			}
 		}
 	}
 	

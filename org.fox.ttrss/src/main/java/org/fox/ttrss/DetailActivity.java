@@ -157,7 +157,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 				ArticlePager ap = new ArticlePager();
 				ap.initialize(openedArticleId, feed);
-				ap.setSearchQuery(searchQuery);
 
 				ft.replace(R.id.article_fragment, ap, FRAG_ARTICLE);
 
@@ -278,12 +277,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (article.unread) {
 			article.unread = false;
 			saveArticleUnread(article);
-		}
-
-		try {
-			preloadUriIfAllowed(Uri.parse(article.link));
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();

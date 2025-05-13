@@ -459,11 +459,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 						new Handler().postDelayed(() -> m_activity.refresh(false), 100);
 					}
 
-					/* int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
+					int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
 
 					if (lastVisibleItem >= Application.getArticles().size() - 5) {
 						refresh(true);
-					} */
+					}
 				}
 			}
 
@@ -493,8 +493,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					}
 				}
 
-				if (lastVisibleItem >= Application.getArticles().size() - 5)
-					new Handler().postDelayed(() -> refresh(true), 1000);
+				/* if (lastVisibleItem >= Application.getArticles().size() - 5)
+					new Handler().postDelayed(() -> refresh(true), 1000); */
 			}
 		});
 
