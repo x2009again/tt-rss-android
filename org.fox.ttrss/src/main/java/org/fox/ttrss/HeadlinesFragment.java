@@ -167,6 +167,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 				//}
 			}
 
+			m_listener.onHeadlinesLoaded(headlinesLoader.getAppend());
+
 		} else {
 			if (headlinesLoader.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
 				m_activity.login();
