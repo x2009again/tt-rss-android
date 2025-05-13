@@ -459,12 +459,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 						new Handler().postDelayed(() -> m_activity.refresh(false), 100);
 					}
 
-					int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
+					/* int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
 
-					if (lastVisibleItem >= Application.getArticles().size() - 5)
+					if (lastVisibleItem >= Application.getArticles().size() - 5) {
 						refresh(true);
-
-					new Handler().postDelayed(() -> refresh(true), 0);
+					} */
 				}
 			}
 
@@ -494,8 +493,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					}
 				}
 
-				/* if (lastVisibleItem >= Application.getArticles().size() - 5)
-					new Handler().postDelayed(() -> refresh(true), 1000); */
+				if (lastVisibleItem >= Application.getArticles().size() - 5)
+					new Handler().postDelayed(() -> refresh(true), 1000);
 			}
 		});
 
@@ -1423,16 +1422,31 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	}
 
 	public void scrollToArticleId(int id) {
-		m_list.scrollToPosition(Application.getArticles().getPositionById(id));
+		int position = Application.getArticles().getPositionById(id);
+
+		if (position != -1)
+			m_list.scrollToPosition(position);
 	}
 
 	public void setActiveArticleId(int articleId) {
 		if (m_list != null && articleId != m_activeArticleId) {
 
+			ArticleList articles = Application.getArticles();
+
+			int oldPosition = articles.getPositionById(m_activeArticleId);
+			int newPosition = articles.getPositionById(articleId);
+
 			m_activeArticleId = articleId;
-			m_adapter.notifyDataSetChanged();
+
+			if (oldPosition != -1)
+				m_adapter.notifyItemChanged(oldPosition);
+
+			m_adapter.notifyItemChanged(newPosition);
 
 			scrollToArticleId(articleId);
+
+			if (newPosition >= articles.size() - 5)
+				refresh(true);
 		}
 	}
 

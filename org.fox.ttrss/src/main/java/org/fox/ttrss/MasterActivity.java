@@ -530,10 +530,18 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			if (hf != null) {
 				hf.notifyUpdated();
 
-				// this makes position in headlines in master activity (not quite) randomly jump around when returning
-				// even if active article hasn't been changed, i guess keeping it as-is is a lesser evil?
-				hf.scrollToArticleId(data.getIntExtra("activeArticleId", 0));
+				// data might be null if detailactivity crashed
+				if (data != null && data.getExtras() != null) {
+					int activeArticleId = data.getIntExtra("activeArticleId", 0);
+
+					Log.d(TAG, "got back from detail activity, scrolling to id=" + activeArticleId);
+
+					hf.scrollToArticleId(activeArticleId);
+				}
 			}
+
+			// just in case
+			new Handler().postDelayed((Runnable) () -> hf.refresh(true), 250);
 		}
 	}
 
