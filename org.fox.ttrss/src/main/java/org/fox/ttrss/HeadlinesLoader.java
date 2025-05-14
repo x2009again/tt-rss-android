@@ -68,7 +68,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 			m_append = true;
 			forceLoad();
 		} else {
-			deliverResult(m_articles);
+			reset();
 		}
 	}
 

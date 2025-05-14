@@ -52,10 +52,9 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.ListUpdateCallback;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -76,7 +75,7 @@ import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Attachment;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.HeadlinesDiffUtilCallback;
+import org.fox.ttrss.util.HeadlinesDiffItemCallback;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -89,7 +88,6 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class HeadlinesFragment extends androidx.fragment.app.Fragment implements LoaderManager.LoaderCallbacks<ArticleList> {
 
-	private ArticleList m_articles = new ArticleList();
 	private boolean m_isLazyLoading;
 
 	@NonNull
@@ -106,51 +104,29 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		// successful update
 		if (data != null) {
+
 			// shared article list contains raw returned data without footers
 			ArticleList sharedArticles = Application.getArticles();
 			sharedArticles.clear();
 			sharedArticles.addAll(data);
 
 			ArticleList tmp = new ArticleList();
+
 			tmp.addAll(data);
 
-			tmp.add(new Article(Article.TYPE_AMR_FOOTER));
+			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
-			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
+			final boolean appended = headlinesLoader.getAppend();
 
-			/* diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
-				@Override
-				public void onInserted(int position, int count) {
-					Log.d(TAG, "[DIFF] onInserted! pos=" + position + " count=" + count);
-				}
-
-				@Override
-				public void onRemoved(int position, int count) {
-					Log.d(TAG, "[DIFF] onRemoved! pos=" + position + " count=" + count);
-				}
-
-				@Override
-				public void onMoved(int fromPosition, int toPosition) {
-					Log.d(TAG, "[DIFF] onMoved! from=" + fromPosition + " to=" + toPosition);
-				}
-
-				@Override
-				public void onChanged(int position, int count, @Nullable Object payload) {
-					Log.d(TAG, "[DIFF] onChanged! pos=" + position + " count=" + count + " payload=" + payload);
-				}
-			}); */
-
-			m_articles.clear();
-			m_articles.addAll(tmp);
-
-			diffResult.dispatchUpdatesTo(m_adapter);
+			m_adapter.submitList(tmp, () -> {
+				if (!appended)
+					m_list.scrollToPosition(0);
+			});
 
 			if (headlinesLoader.getFirstIdChanged())
 				Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
 						.setAction(R.string.reload, v -> refresh(false)).show();
-
-			if (!headlinesLoader.getAppend())
-				m_list.scrollToPosition(0);
 
 			m_listener.onHeadlinesLoaded(headlinesLoader.getAppend());
 
@@ -393,7 +369,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
 
-		m_adapter = new ArticleListAdapter(m_articles);
+		m_adapter = new ArticleListAdapter();
 		m_list.setAdapter(m_adapter);
 
 		if (savedInstanceState == null && Application.getArticles().isEmpty()) {
@@ -577,16 +553,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		if (!append) {
 			m_activeArticleId = -1;
 
-			int size = m_articles.size();
-
-			m_articles.clear();
-
 			if (m_adapter != null) {
-				m_adapter.notifyItemRangeRemoved(0, size);
-
-				m_articles.add(new Article(Article.TYPE_AMR_FOOTER));
-
-				m_adapter.notifyItemRangeInserted(0, m_articles.size());
+				ArticleList tmp = new ArticleList();
+				m_adapter.submitList(tmp);
 			}
 		}
 
@@ -705,14 +674,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		}
 	}
 
-	private class ArticleListAdapter extends RecyclerView.Adapter<ArticleViewHolder>  {
-		private final ArticleList items;
-
+	private class ArticleListAdapter extends ListAdapter<Article, ArticleViewHolder> {
 		public static final int VIEW_NORMAL = 0;
 		public static final int VIEW_UNREAD = 1;
 		public static final int VIEW_ACTIVE = 2;
 		public static final int VIEW_ACTIVE_UNREAD = 3;
-		public static final int VIEW_AMR_FOOTER = 5;
+		public static final int VIEW_AMR_FOOTER = 4;
 
 		public static final int VIEW_COUNT = VIEW_AMR_FOOTER + 1;
 
@@ -744,9 +711,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			return false;
 		}
 
-		public ArticleListAdapter(ArticleList items) {
-			super();
-			this.items = items;
+		public ArticleListAdapter() {
+			super(new HeadlinesDiffItemCallback());
 
 			Display display = m_activity.getWindowManager().getDefaultDisplay();
 			Point size = new Point();
@@ -788,7 +754,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		@Override
 		public void onBindViewHolder(final ArticleViewHolder holder, int position) {
-			holder.article = items.get(position);
+			holder.article = getItem(position);
 
 			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
 			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
@@ -1318,7 +1284,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		@Override
 		public int getItemViewType(int position) {
-			Article a = items.get(position);
+			Article a = getItem(position);
 
 			if (a.id == Article.TYPE_AMR_FOOTER) {
 				return VIEW_AMR_FOOTER;
@@ -1331,11 +1297,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			} else {
 				return VIEW_NORMAL;
 			}
-		}
-
-		@Override
-		public int getItemCount() {
-			return items.size();
 		}
 
 		private void updateTextCheckedState(final ArticleViewHolder holder, final Article article) {
@@ -1473,10 +1434,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		}
 	}
 
-	public void notifyUpdated() {
-		m_adapter.notifyDataSetChanged();
-	}
-
 	public void scrollToArticle(Article article) {
 		scrollToArticleId(article.id);
 	}
@@ -1562,16 +1519,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 	private void syncToSharedArticles() {
 		ArticleList tmp = new ArticleList();
+
 		tmp.addAll(Application.getArticles());
 
-		tmp.add(new Article(Article.TYPE_AMR_FOOTER));
+		if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+			tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
-		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
-
-		m_articles.clear();
-		m_articles.addAll(tmp);
-
-		diffResult.dispatchUpdatesTo(m_adapter);
+		m_adapter.submitList(tmp);
 	}
 
 }

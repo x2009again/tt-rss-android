@@ -1,7 +1,5 @@
 package org.fox.ttrss.util;
 
-import android.util.Log;
-
 import androidx.recyclerview.widget.DiffUtil;
 
 import org.fox.ttrss.types.Article;
