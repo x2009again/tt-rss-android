@@ -80,6 +80,7 @@ import org.jsoup.nodes.Element;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
@@ -389,25 +390,26 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 
+				HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+
 				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-					if (m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
-						if (!m_readArticles.isEmpty()) {
+					if (!m_readArticles.isEmpty() && !m_isLazyLoading && !model.isLoading() && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
+						Log.d(TAG, "marking articles as read, count=" + m_readArticles.size());
 
-							m_activity.setArticlesUnread(m_readArticles, Article.UPDATE_SET_FALSE);
+						m_activity.setArticlesUnread(m_readArticles, Article.UPDATE_SET_FALSE);
 
-							for (Article a : m_readArticles) {
-								a.unread = false;
+						for (Article a : m_readArticles) {
+							a.unread = false;
 
-								int position = Application.getArticles().getPositionById(a.id);
+							int position = Application.getArticles().getPositionById(a.id);
 
-								if (position != -1)
-									m_adapter.notifyItemChanged(position);
-							}
-
-							m_readArticles.clear();
-
-							new Handler().postDelayed(() -> m_activity.refresh(false), 100);
+							if (position != -1)
+								m_adapter.notifyItemChanged(position);
 						}
+
+						m_readArticles.clear();
+
+						new Handler().postDelayed(() -> m_activity.refresh(false), 100);
 					}
 				}
 			}
@@ -461,7 +463,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
 
 		model.getLiveData().observe(getActivity(), articles -> {
-			Log.d(TAG, "observed article list size=" + articles.size());
+			Log.d(TAG, "observed article list size=" + articles.size() + " append=" + model.getAppend());
 
 			ArticleList tmp = new ArticleList();
 
@@ -531,22 +533,31 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void refresh(final boolean append) {
+		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+
 		if (!append) {
 			m_activeArticleId = -1;
 
 			if (m_adapter != null) {
 				ArticleList tmp = new ArticleList();
-				m_adapter.submitList(tmp);
+				m_adapter.submitList(tmp, () -> {
+
+					if (m_swipeLayout != null)
+						m_swipeLayout.setRefreshing(true);
+
+					model.setSearchQuery(getSearchQuery());
+					model.startLoading(false, m_feed, m_activity.getResizeWidth());
+
+				});
 			}
+		} else {
+			if (m_swipeLayout != null)
+				m_swipeLayout.setRefreshing(true);
+
+			model.setSearchQuery(getSearchQuery());
+			model.startLoading(true, m_feed, m_activity.getResizeWidth());
 		}
 
-		if (m_swipeLayout != null)
-			m_swipeLayout.setRefreshing(true);
-
-		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
-
-		model.setSearchQuery(getSearchQuery());
-		model.startLoading(append, m_feed, m_activity.getResizeWidth());
 	}
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
