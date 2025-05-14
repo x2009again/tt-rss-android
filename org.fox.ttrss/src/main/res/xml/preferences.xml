@@ -44,7 +44,7 @@
             android:title="@string/sort_feeds_by_unread" />
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="enable_cats"
             android:title="@string/enable_cats" />
 

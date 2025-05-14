@@ -164,7 +164,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
-			if (m_prefs.getBoolean("enable_cats", false)) {
+			if (m_prefs.getBoolean("enable_cats", true)) {
 				ft.replace(R.id.feeds_fragment, new FeedCategoriesFragment(), FRAG_CATS);
 			} else {
 				ft.replace(R.id.feeds_fragment, new FeedsFragment(), FRAG_FEEDS);
