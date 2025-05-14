@@ -93,7 +93,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	@NonNull
 	@Override
 	public Loader<ArticleList> onCreateLoader(int id, @Nullable Bundle args) {
-		return new HeadlinesLoader(getContext(), m_feed, m_activity.getResizeWidth());
+		return new HeadlinesLoader(getContext(), m_feed, m_activity.getResizeWidth(), Application.getArticles());
 	}
 
 	@Override
@@ -564,6 +564,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		if (m_loader == null) {
 			m_loader = (HeadlinesLoader) LoaderManager.getInstance(this).
 					initLoader(Application.LOADER_HEADLINES, null, this);
+
 		}
 
 		if (m_swipeLayout != null)

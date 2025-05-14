@@ -45,19 +45,24 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 	private boolean m_lazyLoadEnabled = true;
 	private boolean m_loadingInProgress;
 
-	HeadlinesLoader(Context context, Feed feed, int resizeWidth) {
+	HeadlinesLoader(Context context, Feed feed, int resizeWidth, ArticleList articles) {
 		super(context);
+
+		Log.d(TAG, "HeadlinesLoader created!");
 
 		m_context = context;
 		m_lastError = ApiError.NO_ERROR;
 		m_feed = feed;
 		m_articles = new ArticleList();
+
+		m_articles.addAll(articles);
+
 		m_resizeWidth = resizeWidth;
 		m_prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
 	protected void startLoading(boolean append) {
-		// Log.d(TAG, this + " refresh, append=" + append + " inProgress=" + m_loadingInProgress + " lazyLoadEnabled=" + m_lazyLoadEnabled);
+		Log.d(TAG, this + " startLoading append=" + append + " inProgress=" + m_loadingInProgress + " lazyLoadEnabled=" + m_lazyLoadEnabled + "localSize="+ m_articles.size());
 
 		if (!append) {
 			m_append = false;
@@ -68,7 +73,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 			m_append = true;
 			forceLoad();
 		} else {
-			reset();
+			deliverResult(m_articles);
 		}
 	}
 
@@ -95,7 +100,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 
 	@Override
 	public ArticleList loadInBackground() {
-		Log.d(TAG, "loadInBackground append=" + m_append + " offset=" + m_offset);
+		Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset);
 
 		m_loadingInProgress = true;
 
@@ -145,7 +150,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 			params.put("include_header", "true");
 		}
 
-		Log.d(TAG, "request more headlines, firstId=" + m_firstId + ", append=" + m_append + ", skip=" + skip);
+		Log.d(TAG, "firstId=" + m_firstId + " append=" + m_append + " skip=" + skip + " localSize=" + m_articles.size());
 
 		JsonElement result = ApiCommon.performRequest(m_context, params, this);
 
@@ -169,7 +174,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 							m_firstId = 0;
 						}
 
-						Log.d(TAG, "firstID=" + m_firstId + " firstIdChanged=" + m_firstIdChanged);
+						Log.d(TAG, this + " firstID=" + m_firstId + " firstIdChanged=" + m_firstIdChanged);
 
 						Type listType = new TypeToken<List<Article>>() {}.getType();
 						articlesJson = new Gson().fromJson(content.get(1), listType);
@@ -178,7 +183,7 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 						articlesJson = new Gson().fromJson(content, listType);
 					}
 
-					if (skip == 0)
+					if (!m_append)
 						m_articles.clear();
 
 					m_amountLoaded = articlesJson.size();
@@ -197,12 +202,14 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 					}
 
 					if (m_amountLoaded < Integer.parseInt(m_prefs.getString("headlines_request_size", "15"))) {
-						Log.d(TAG, "amount loaded "+m_amountLoaded+" < request size, disabling lazy load");
+						Log.d(TAG, this + " amount loaded "+m_amountLoaded+" < request size, disabling lazy load");
 						m_lazyLoadEnabled = false;
 					}
 
 					m_offset += m_amountLoaded;
 					m_loadingInProgress = false;
+
+					Log.d(TAG, this + " loaded headlines=" + m_amountLoaded + " resultingLocalSize=" + m_articles.size());
 
 					return m_articles;
 				}
