@@ -356,7 +356,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							ArticleList tmpRemove = new ArticleList(Application.getArticles());
 							tmpRemove.remove(adapterPosition);
 
-							Application.getInstance().getHeadlinesModel().update(tmpRemove);
+							Application.getArticlesModel().update(tmpRemove);
 
 							Snackbar.make(m_list, R.string.headline_undo_row_prompt, Snackbar.LENGTH_LONG)
 									.setAction(getString(R.string.headline_undo_row_button), v -> {
@@ -369,7 +369,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 										ArticleList tmpInsert = new ArticleList(Application.getArticles());
 										tmpInsert.add(adapterPosition, article);
 
-										Application.getInstance().getHeadlinesModel().update(tmpInsert);
+										Application.getArticlesModel().update(tmpInsert);
                                     }).show();
 
 						}
@@ -389,7 +389,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 
-				ArticlesModel model = Application.getInstance().getHeadlinesModel();
+				ArticlesModel model = Application.getArticlesModel();
 
 				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
 					if (!m_readArticles.isEmpty() && !m_isLazyLoading && !model.isLoading() && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
@@ -438,7 +438,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					// Log.d(TAG, "pending to auto mark as read count=" + m_readArticles.size());
 				}
 
-				ArticlesModel model = Application.getInstance().getHeadlinesModel();
+				ArticlesModel model = Application.getArticlesModel();
 
 				if (dy > 0 && !m_isLazyLoading && !model.isLoading() && model.lazyLoadEnabled() &&
 						lastVisibleItem >= Application.getArticles().size() - 5) {
@@ -457,7 +457,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             m_activity.setTitle(m_feed.title);
         }
 
-		ArticlesModel model = Application.getHeadlinesModel();
+		ArticlesModel model = Application.getArticlesModel();
 
 		// this gets notified on network update
 		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
@@ -542,7 +542,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void refresh(final boolean append) {
-		ArticlesModel model = Application.getInstance().getHeadlinesModel();
+		ArticlesModel model = Application.getArticlesModel();
 
 		if (!append)
 			m_activeArticleId = -1;
@@ -846,7 +846,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					selectedArticle.marked = !selectedArticle.marked;
 
                     m_activity.saveArticleMarked(selectedArticle);
-					Application.getHeadlinesModel().update(position, selectedArticle);
+					Application.getArticlesModel().update(position, selectedArticle);
                 });
 			}
 
@@ -912,7 +912,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					m_activity.saveArticlePublished(selectedArticle);
 
-					Application.getHeadlinesModel().update(position, selectedArticle);
+					Application.getArticlesModel().update(position, selectedArticle);
                 });
 			}
 
