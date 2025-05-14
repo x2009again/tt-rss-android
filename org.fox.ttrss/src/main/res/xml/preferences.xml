@@ -108,7 +108,6 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:dependency="headlines_mark_read_scroll"
             android:key="headlines_swipe_to_dismiss"
             android:summary="@string/pref_headlines_swipe_to_dismiss_long"
             android:title="@string/pref_headlines_swipe_to_dismiss" />

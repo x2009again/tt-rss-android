@@ -312,7 +312,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			refresh(false);
 		}
 
-		if (m_prefs.getBoolean("headlines_swipe_to_dismiss", true) && !m_prefs.getBoolean("headlines_mark_read_scroll", false) ) {
+		if (m_prefs.getBoolean("headlines_swipe_to_dismiss", true) /*&& !m_prefs.getBoolean("headlines_mark_read_scroll", false) */) {
 
 			ItemTouchHelper swipeHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 
@@ -357,8 +357,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 								wasUnread = false;
 							}
 
-							Application.getArticles().remove(adapterPosition);
-							m_adapter.notifyItemRemoved(adapterPosition);
+							ArticleList tmpRemove = new ArticleList();
+							tmpRemove.addAll(Application.getArticles());
+							tmpRemove.remove(adapterPosition);
+
+							Application.getInstance().getHeadlinesModel().update(tmpRemove);
 
 							Snackbar.make(m_list, R.string.headline_undo_row_prompt, Snackbar.LENGTH_LONG)
 									.setAction(getString(R.string.headline_undo_row_button), v -> {
@@ -368,9 +371,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                                             m_activity.saveArticleUnread(article);
                                         }
 
-                                        Application.getArticles().add(adapterPosition, article);
-                                        m_adapter.notifyItemInserted(adapterPosition);
-                                        m_adapter.notifyItemRangeChanged(adapterPosition, 1);
+										ArticleList tmpInsert = new ArticleList();
+										tmpInsert.addAll(Application.getArticles());
+										tmpInsert.add(adapterPosition, article);
+
+										Application.getInstance().getHeadlinesModel().update(tmpInsert);
                                     }).show();
 
 						}
