@@ -353,8 +353,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 								wasUnread = false;
 							}
 
-							ArticleList tmpRemove = new ArticleList();
-							tmpRemove.addAll(Application.getArticles());
+							ArticleList tmpRemove = new ArticleList(Application.getArticles());
 							tmpRemove.remove(adapterPosition);
 
 							Application.getInstance().getHeadlinesModel().update(tmpRemove);
@@ -367,8 +366,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                                             m_activity.saveArticleUnread(article);
                                         }
 
-										ArticleList tmpInsert = new ArticleList();
-										tmpInsert.addAll(Application.getArticles());
+										ArticleList tmpInsert = new ArticleList(Application.getArticles());
 										tmpInsert.add(adapterPosition, article);
 
 										Application.getInstance().getHeadlinesModel().update(tmpInsert);

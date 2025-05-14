@@ -106,8 +106,7 @@ public class ArticlesModel extends AndroidViewModel implements ApiCommon.ApiCall
     private ArticleList loadInBackground() {
         Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset);
 
-        ArticleList articlesWork = new ArticleList();
-        articlesWork.addAll(m_articles.getValue());
+        ArticleList articlesWork = new ArticleList(m_articles.getValue());
 
         m_loadingInProgress = true;
 

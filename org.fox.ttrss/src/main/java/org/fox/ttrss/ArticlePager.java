@@ -35,10 +35,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		}
 
 		private void syncToSharedArticles() {
-			ArticleList tmp = new ArticleList();
-			tmp.addAll(Application.getArticles());
-
-			submitList(tmp);
+			submitList(new ArticleList(Application.getArticles()));
 		}
 
 		@Override
