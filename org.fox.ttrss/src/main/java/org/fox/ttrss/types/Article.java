@@ -69,7 +69,7 @@ public class Article implements Parcelable {
 	transient public String youtubeVid;
 	transient public List<Element> mediaList = new ArrayList<>();
 
-	public Article(Parcel in) {
+    public Article(Parcel in) {
 		readFromParcel(in);
 	}
 	
@@ -193,6 +193,43 @@ public class Article implements Parcelable {
 		this.id = id;
 		this.title = "ID:" + id;
 		fixNullFields();
+	}
+
+	public Article(Article clone) {
+		id = clone.id;
+		unread = clone.unread;
+		marked = clone.marked;
+		published = clone.published;
+		score = clone.score;
+		updated = clone.updated;
+		is_updated = clone.is_updated;
+		title = clone.title;
+		link = clone.link;
+		feed_id = clone.feed_id;
+		tags = clone.tags;
+		attachments = clone.attachments;
+		content = clone.content;
+		excerpt = clone.excerpt;
+		labels = clone.labels;
+		feed_title = clone.feed_title;
+		comments_count = clone.comments_count;
+		comments_link = clone.comments_link;
+		always_display_attachments = clone.always_display_attachments;
+		author = clone.author;
+		note = clone.note;
+		selected = clone.selected;
+		flavor_image = clone.flavor_image;
+		flavor_stream = clone.flavor_stream;
+		flavor_kind = clone.flavor_kind;
+		site_url = clone.site_url;
+
+		articleDoc = clone.articleDoc;
+		flavorImage = clone.flavorImage;
+
+		flavorImageUri = clone.flavorImageUri;
+		flavorStreamUri = clone.flavorStreamUri;
+		youtubeVid = clone.youtubeVid;
+		mediaList = new ArrayList<>(clone.mediaList);
 	}
 
 	@Override

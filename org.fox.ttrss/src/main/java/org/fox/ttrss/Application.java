@@ -25,7 +25,7 @@ public class Application extends android.app.Application {
 	private int m_apiLevel;
 	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
 	ConnectivityManager m_cmgr;
-	HeadlinesModel m_headlinesModel;
+	ArticlesModel m_headlinesModel;
 
 	public static Application getInstance(){
 		return m_singleton;
@@ -35,7 +35,7 @@ public class Application extends android.app.Application {
 		return getInstance().m_headlinesModel.getArticles();
 	}
 
-	public HeadlinesModel getHeadlinesModel() {
+	public static ArticlesModel getHeadlinesModel() {
 		return getInstance().m_headlinesModel;
 	}
 
@@ -45,7 +45,7 @@ public class Application extends android.app.Application {
 
 		m_singleton = this;
 		m_cmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		m_headlinesModel = new HeadlinesModel(this);
+		m_headlinesModel = new ArticlesModel(this);
 	}
 
 	public String getSessionId() {

@@ -23,6 +23,10 @@ public class ArticleList extends CopyOnWriteArrayList<Article> {
 
 	public ArticleList() { }
 
+	public ArticleList(ArticleList clone) {
+		this.addAll(clone);
+	}
+
 	public ArticleList getWithoutFooters() {
 		return this.stream().filter(a -> { return a.id > 0; }).collect(Collectors.toCollection(ArticleList::new));
 	}

@@ -16,7 +16,7 @@ import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.util.DiffFragmentStateAdapter;
-import org.fox.ttrss.util.HeadlinesDiffItemCallback;
+import org.fox.ttrss.util.ArticleDiffItemCallback;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
@@ -31,7 +31,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private static class PagerAdapter extends DiffFragmentStateAdapter<Article> {
 
 		public PagerAdapter(@NonNull Fragment fragment) {
-			super(fragment, new HeadlinesDiffItemCallback());
+			super(fragment, new ArticleDiffItemCallback());
 		}
 
 		private void syncToSharedArticles() {
@@ -85,10 +85,10 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		m_adapter = new PagerAdapter(this);
 		m_adapter.submitList(Application.getArticles());
 
-		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+		ArticlesModel model = Application.getInstance().getHeadlinesModel();
 
 		// deal with further updates
-		model.getLiveData().observe(getActivity(), articles -> {
+		model.getArticlesData().observe(getActivity(), articles -> {
 				Log.d(TAG, "observed article list size=" + articles.size());
 				m_adapter.submitList(articles);
 			});

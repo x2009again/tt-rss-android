@@ -864,7 +864,8 @@ public class OnlineActivity extends CommonActivity {
 	protected void setApiLevel(int apiLevel) {
 		Application.getInstance().setApiLevel(apiLevel);
 	}
-	
+
+    // TODO switch to setArticleField()
 	public void saveArticleUnread(final Article article) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -878,11 +879,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", article.unread ? "1" : "0");
-		map.put("field", "2");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_UNREAD));
 
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticleScore(final Article article) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -896,11 +898,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("data", String.valueOf(article.score));
-		map.put("field", "4");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_SCORE));
 
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticleMarked(final Article article) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -914,11 +917,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", article.marked ? "1" : "0");
-		map.put("field", "0");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_MARKED));
 		
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticlePublished(final Article article) {
 
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
@@ -933,11 +937,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", article.published ? "1" : "0");
-		map.put("field", "1");
+		map.put("field", String.valueOf(Article.UPDATE_FIELD_PUBLISHED));
 
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticleNote(final Article article, final String note) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -951,7 +956,7 @@ public class OnlineActivity extends CommonActivity {
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", "1");
 		map.put("data", note);
-		map.put("field", "3");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_NOTE));
 
 		req.execute(map);
 	}

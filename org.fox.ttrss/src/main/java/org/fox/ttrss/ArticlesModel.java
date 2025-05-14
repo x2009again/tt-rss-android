@@ -1,7 +1,6 @@
 package org.fox.ttrss;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.loader.app.LoaderManager;
 import androidx.preference.PreferenceManager;
 
 import com.google.gson.Gson;
@@ -30,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCaller {
+public class ArticlesModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private final String TAG = this.getClass().getSimpleName();
     private final MutableLiveData<ArticleList> m_articles = new MutableLiveData<>(new ArticleList());
     private SharedPreferences m_prefs;
@@ -52,8 +50,9 @@ public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCal
     private boolean m_loadingInProgress;
     private ExecutorService m_executor;
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
+    private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(new Long(0));
 
-    public HeadlinesModel(@NonNull Application application) {
+    public ArticlesModel(@NonNull Application application) {
         super(application);
 
         m_prefs = PreferenceManager.getDefaultSharedPreferences(application);
@@ -62,12 +61,21 @@ public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCal
         m_executor = Executors.newSingleThreadExecutor();
     }
 
-    public LiveData<ArticleList> getLiveData() {
+    public LiveData<Long> getUpdatesData() {
+        return m_lastUpdate;
+    }
+
+    public LiveData<ArticleList> getArticlesData() {
         return m_articles;
     }
 
     public ArticleList getArticles() {
         return m_articles.getValue();
+    }
+
+    public void update(int position, Article article) {
+        m_articles.getValue().set(position, article);
+        m_articles.postValue(m_articles.getValue());
     }
 
     public void update(ArticleList articles) {
@@ -90,17 +98,13 @@ public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCal
             m_feed = feed;
             forceLoad();
         } else {
-            ArticleList tmp = new ArticleList();
-            tmp.addAll(m_articles.getValue());
-
-            m_articles.postValue(tmp);
+            m_articles.postValue(m_articles.getValue());
         }
     }
 
     private void forceLoad() {
         Log.d(TAG, "forceLoad");
-
-        m_articles.postValue(loadInBackground());
+        loadInBackground();
     }
 
     private ArticleList loadInBackground() {
@@ -225,7 +229,8 @@ public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCal
             }
 
             m_mainHandler.post(() -> {
-                m_articles.postValue(articlesWork);
+                m_articles.setValue(articlesWork);
+                m_lastUpdate.setValue(System.currentTimeMillis());
             });
         });
 

@@ -43,12 +43,9 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.view.ViewCompat;
-import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -74,13 +71,12 @@ import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Attachment;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.HeadlinesDiffItemCallback;
+import org.fox.ttrss.util.ArticleDiffItemCallback;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
@@ -395,7 +391,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 
-				HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+				ArticlesModel model = Application.getInstance().getHeadlinesModel();
 
 				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
 					if (!m_readArticles.isEmpty() && !m_isLazyLoading && !model.isLoading() && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
@@ -444,7 +440,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					// Log.d(TAG, "pending to auto mark as read count=" + m_readArticles.size());
 				}
 
-				HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+				ArticlesModel model = Application.getInstance().getHeadlinesModel();
 
 				if (dy > 0 && !m_isLazyLoading && !model.isLoading() && model.lazyLoadEnabled() &&
 						lastVisibleItem >= Application.getArticles().size() - 5) {
@@ -463,14 +459,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             m_activity.setTitle(m_feed.title);
         }
 
-		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+		ArticlesModel model = Application.getHeadlinesModel();
 
-		model.getLiveData().observe(getActivity(), articles -> {
-			Log.d(TAG, "observed article list size=" + articles.size() + " append=" + model.getAppend());
+		// this gets notified on network update
+		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
+			ArticleList tmp = new ArticleList(model.getArticles());
 
-			ArticleList tmp = new ArticleList();
-
-			tmp.addAll(articles);
+			Log.d(TAG, "observed last update=" + lastUpdate + " article count=" + tmp.size());
 
 			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
 				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
@@ -503,6 +498,19 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					m_activity.toast(model.getErrorMessage());
 				}
 			}
+
+		});
+
+		// loaded articles might get modified for all sorts of reasons
+		model.getArticlesData().observe(getActivity(), articles -> {
+			Log.d(TAG, "observed article list size=" + articles.size());
+
+			ArticleList tmp = new ArticleList(model.getArticles());
+
+			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
+
+			m_adapter.submitList(tmp);
 		});
 
 		return view;
@@ -536,7 +544,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void refresh(final boolean append) {
-		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+		ArticlesModel model = Application.getInstance().getHeadlinesModel();
 
 		if (!append)
 			m_activeArticleId = -1;
@@ -688,7 +696,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		}
 
 		public ArticleListAdapter() {
-			super(new HeadlinesDiffItemCallback());
+			super(new ArticleDiffItemCallback());
 
 			Display display = m_activity.getWindowManager().getDefaultDisplay();
 			Point size = new Point();
@@ -836,11 +844,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.markedView.setOnClickListener(v -> {
-                    article.marked = !article.marked;
+					Article selectedArticle = new Article(getItem(position));
+					selectedArticle.marked = !selectedArticle.marked;
 
-                    m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
-
-                    m_activity.saveArticleMarked(article);
+                    m_activity.saveArticleMarked(selectedArticle);
+					Application.getHeadlinesModel().update(position, selectedArticle);
                 });
 			}
 
@@ -901,10 +909,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
 
 				holder.publishedView.setOnClickListener(v -> {
-                    article.published = !article.published;
-                    m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
+					Article selectedArticle = new Article(getItem(position));
+					selectedArticle.published = !selectedArticle.published;
 
-                    m_activity.saveArticlePublished(article);
+					m_activity.saveArticlePublished(selectedArticle);
+
+					Application.getHeadlinesModel().update(position, selectedArticle);
                 });
 			}
 

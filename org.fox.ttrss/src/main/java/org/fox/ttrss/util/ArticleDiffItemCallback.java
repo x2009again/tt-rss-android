@@ -5,11 +5,10 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import org.fox.ttrss.types.Article;
 
-public class HeadlinesDiffItemCallback extends DiffUtil.ItemCallback<Article> {
+public class ArticleDiffItemCallback extends DiffUtil.ItemCallback<Article> {
+    private final String TAG = this.getClass().getSimpleName();
     @Override
     public boolean areItemsTheSame(@NonNull Article a1, @NonNull Article a2) {
-        // Log.d(TAG, "[DIFF] areItemsTheSame a1=" + a1.title + " a2=" + a2.title);
-
         return a1.id == a2.id;
     }
 
