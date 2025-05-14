@@ -35,22 +35,6 @@ public class ArticleList extends CopyOnWriteArrayList<Article> {
 		return this.stream().filter(a -> { return a.unread; }).count();
 	}
 
-	public long getSizeWithoutFooters() {
-		return this.stream().filter(a -> { return a.id > 0; }).count();
-	}
-
-	/** strips all trailing items with negative IDs (Article.TYPE_LOADMORE, Article.TYPE_AMR_FOOTER) */
-	public void stripFooters() {
-		for (ListIterator<Article> iterator = this.listIterator(size()); iterator.hasPrevious();) {
-			final Article article = iterator.previous();
-
-			if (article.id < 0)
-				this.remove(article);
-			else
-				break;
-		}
-	}
-
 	public int getPositionById(int id) {
 		for (int i = 0; i < size(); i++) {
 			if (get(i).id == id) {

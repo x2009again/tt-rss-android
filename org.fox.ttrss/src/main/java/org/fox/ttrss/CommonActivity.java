@@ -64,7 +64,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	public final static String FRAG_ARTICLE = "article";
 	public final static String FRAG_FEEDS = "feeds";
 	public final static String FRAG_CATS = "cats";
-	public final static String FRAG_DIALOG = "dialog";
 
 	public final static String THEME_DEFAULT = "THEME_FOLLOW_DEVICE";
 
@@ -72,7 +71,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	public final static String NOTIFICATION_CHANNEL_PRIORITY = "channel_priority";
 
 	public static final int EXCERPT_MAX_LENGTH = 256;
-    public static final int EXCERPT_MAX_QUERY_LENGTH = 2048;
 	public static final int LABEL_BASE_INDEX = -1024;
 
 	public static final int PENDING_INTENT_CHROME_SHARE = 1;

@@ -50,7 +50,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     private boolean m_loadingInProgress;
     private ExecutorService m_executor;
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
-    private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(new Long(0));
+    private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(Long.valueOf(0));
 
     public ArticleModel(@NonNull Application application) {
         super(application);
@@ -100,7 +100,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         }
     }
 
-    private ArticleList loadInBackground() {
+    private void loadInBackground() {
         Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset);
 
         ArticleList articlesWork = new ArticleList(m_articles.getValue());
@@ -228,7 +228,6 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
 
         m_loadingInProgress = false;
 
-        return articlesWork;
     }
 
     private int getSkip(boolean append, ArticleList articles) {

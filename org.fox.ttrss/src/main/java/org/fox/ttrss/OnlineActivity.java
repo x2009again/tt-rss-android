@@ -1394,15 +1394,6 @@ article.score = Integer.parseInt(edit.getText().toString());
 		return m_lastImageHitTestUrl;
 	}
 
-	public boolean isWifiConnected() {
-		NetworkInfo wifi = m_cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-		if (wifi != null)
-			return wifi.isConnected();
-
-		return false;
-	}
-
 	public int getResizeWidth() {
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();

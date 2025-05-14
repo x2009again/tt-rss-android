@@ -10,7 +10,6 @@ public class CommonActivity extends Activity {
 	private final String TAG = this.getClass().getSimpleName();
 	
 	private boolean m_smallScreenMode = true;
-	private boolean m_compatMode = false;
 
 	protected void setSmallScreen(boolean smallScreen) {
 		Log.d(TAG, "m_smallScreenMode=" + smallScreen);
@@ -27,21 +26,8 @@ public class CommonActivity extends Activity {
 		toast.show();
 	}
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		m_compatMode = android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB;
-
-		Log.d(TAG, "m_compatMode=" + m_compatMode);
-		
-		super.onCreate(savedInstanceState);
-	}
-
 	public boolean isSmallScreen() {
 		return m_smallScreenMode;
-	}
-
-	public boolean isCompatMode() {
-		return m_compatMode;
 	}
 
 	public boolean isPortrait() {

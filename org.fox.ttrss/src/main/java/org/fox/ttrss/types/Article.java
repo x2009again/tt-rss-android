@@ -296,11 +296,7 @@ public class Article implements Parcelable {
 	}
 
 	public boolean equalsById(Article article) {
-		if (article != null && id == article.id) {
-			return true;
-		} else {
-			return false;
-		}
+        return article != null && id == article.id;
 	}
 
 	@SuppressWarnings("rawtypes")

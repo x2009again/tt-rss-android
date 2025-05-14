@@ -327,7 +327,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 		m_list = view.findViewById(R.id.feeds);
 
-		initDrawerHeader(inflater, view, m_list, m_activity, m_prefs, !m_enableParentBtn);
+		initDrawerHeader(inflater, view, m_list, m_activity, m_prefs);
 
 		if (m_enableParentBtn) {
 			View layout = inflater.inflate(R.layout.feeds_goback, m_list, false);

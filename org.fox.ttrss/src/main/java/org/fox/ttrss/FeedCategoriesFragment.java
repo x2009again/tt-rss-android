@@ -62,9 +62,9 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		params.put("op", "getCategories");
 		params.put("sid", sessionId);
 		params.put("enable_nested", "true");
-		if (unreadOnly) {
-			params.put("unread_only", String.valueOf(unreadOnly));
-		}
+
+		if (unreadOnly)
+			params.put("unread_only", "true");
 
 		return new ApiLoader(getContext(), params);
 	}
@@ -288,7 +288,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		m_list = view.findViewById(R.id.feeds);
 		m_adapter = new FeedCategoryListAdapter(getActivity(), R.layout.feeds_row, m_cats);
 
-		initDrawerHeader(inflater, view, m_list, m_activity, m_prefs, true);
+		initDrawerHeader(inflater, view, m_list, m_activity, m_prefs);
 
         m_list.setAdapter(m_adapter);
         m_list.setOnItemClickListener(this);

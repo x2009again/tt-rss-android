@@ -103,7 +103,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private Feed m_feed;
 	private int m_activeArticleId;
 	private String m_searchQuery = "";
-	//private HeadlinesLoader m_loader;
 
 	private SharedPreferences m_prefs;
 
@@ -1480,10 +1479,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					m_adapter.notifyItemChanged(position);
 			}
 		}
-	}
-
-	public int getActiveArticleId() {
-		return m_activeArticleId;
 	}
 
 	public String getSearchQuery() {

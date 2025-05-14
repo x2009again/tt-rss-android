@@ -17,7 +17,7 @@ import java.net.URL;
 public abstract class BaseFeedlistFragment extends androidx.fragment.app.Fragment {
     abstract public void refresh();
 
-    public void initDrawerHeader(LayoutInflater inflater, View view, ListView list, final CommonActivity activity, final SharedPreferences prefs, boolean isRoot) {
+    public void initDrawerHeader(LayoutInflater inflater, View view, ListView list, final CommonActivity activity, final SharedPreferences prefs) {
 
         View layout = inflater.inflate(R.layout.drawer_header, list, false);
         list.addHeaderView(layout, null, false);
