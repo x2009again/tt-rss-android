@@ -392,16 +392,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
 					if (m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 						if (!m_readArticles.isEmpty()) {
-							m_activity.toggleArticlesUnread(m_readArticles);
+
+							m_activity.setArticlesUnread(m_readArticles, Article.UPDATE_SET_FALSE);
 
 							for (Article a : m_readArticles) {
 								a.unread = false;
 
-								m_adapter.notifyItemChanged(Application.getArticles().getPositionById(a.id));
-							}
+								int position = Application.getArticles().getPositionById(a.id);
 
-							if (m_feed != null)
-								m_feed.unread -= m_readArticles.size();
+								if (position != -1)
+									m_adapter.notifyItemChanged(position);
+							}
 
 							m_readArticles.clear();
 
@@ -421,20 +422,21 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				// Log.d(TAG, "onScrolled: FVI=" + firstVisibleItem + " LVI=" + lastVisibleItem);
 
 				if (m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
+					Log.d(TAG, "collecting articles to mark as read on scroll...");
 
 					for (int i = 0; i < firstVisibleItem; i++) {
 						try {
 							Article article = Application.getArticles().get(i);
 
-							if (article.unread && !m_readArticles.contains(article)) {
-								Log.d(TAG, "adding to mark read=" + article.title);
-
+							if (article.unread && !m_readArticles.contains(article))
 								m_readArticles.add(article);
-							}
+
 						} catch (IndexOutOfBoundsException e) {
 							e.printStackTrace();
 						}
 					}
+
+					Log.d(TAG, "pending to auto mark as read count=" + m_readArticles.size());
 				}
 
 				HeadlinesModel model = Application.getInstance().getHeadlinesModel();
