@@ -92,19 +92,15 @@ public class ArticlesModel extends AndroidViewModel implements ApiCommon.ApiCall
             m_lazyLoadEnabled = true;
             m_feed = feed;
 
-            forceLoad();
+            loadInBackground();
         } else if (feed != m_feed || m_lazyLoadEnabled && !m_loadingInProgress) {
             m_append = true;
             m_feed = feed;
-            forceLoad();
+
+            loadInBackground();
         } else {
             m_articles.postValue(m_articles.getValue());
         }
-    }
-
-    private void forceLoad() {
-        Log.d(TAG, "forceLoad");
-        loadInBackground();
     }
 
     private ArticleList loadInBackground() {
