@@ -10,8 +10,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import org.fox.ttrss.types.Article;
@@ -19,7 +17,6 @@ import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.util.DiffFragmentStateAdapter;
 import org.fox.ttrss.util.HeadlinesDiffItemCallback;
-import org.fox.ttrss.util.HeadlinesDiffUtilCallback;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
