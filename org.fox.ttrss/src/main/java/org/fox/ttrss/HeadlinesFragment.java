@@ -81,6 +81,7 @@ import org.jsoup.nodes.Element;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -120,6 +121,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	private MediaPlayer m_mediaPlayer;
 	private TextureView m_activeTexture;
+
+	protected static HashMap<Integer, Integer> m_flavorHeightsCache = new HashMap<>();
 
 	public ArticleList getSelectedArticles() {
 		return Application.getArticles()
@@ -470,16 +473,19 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_adapter.submitList(tmp, () -> {
 				if (!appended)
 					m_list.scrollToPosition(0);
+
+				if (m_swipeLayout != null)
+					m_swipeLayout.setRefreshing(false);
+
+				m_isLazyLoading = false;
+
+				m_listener.onHeadlinesLoaded(appended);
+				m_listener.onArticleListSelectionChange();
 			});
 
 			if (model.getFirstIdChanged())
 				Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
 						.setAction(R.string.reload, v -> refresh(false)).show();
-
-			if (m_swipeLayout != null)
-				m_swipeLayout.setRefreshing(false);
-
-			m_isLazyLoading = false;
 
 			if (model.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
 				m_activity.login();
@@ -490,9 +496,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					m_activity.toast(model.getErrorMessage());
 				}
 			}
-
-			m_listener.onHeadlinesLoaded(appended);
-			m_listener.onArticleListSelectionChange();
 		});
 
 		return view;
@@ -535,14 +538,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		// if we try to initLoader() all the time, onLoadFinished() might be sent twice
-		// https://stackoverflow.com/questions/11293441/android-loadercallbacks-onloadfinished-called-twice
-		/* if (m_loader == null) {
-			m_loader = (HeadlinesLoader) LoaderManager.getInstance(this).
-					initLoader(Application.LOADER_HEADLINES, null, this);
-
-		} */
-
 		if (m_swipeLayout != null)
 			m_swipeLayout.setRefreshing(true);
 
@@ -550,9 +545,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		model.setSearchQuery(getSearchQuery());
 		model.startLoading(append, m_feed, m_activity.getResizeWidth());
-
-		//m_loader.setSearchQuery(getSearchQuery());
-		//m_loader.startLoading(append);
 	}
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
@@ -580,8 +572,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public TextureView flavorVideoView;
 		public MaterialButton attachmentsView;
 		public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
-
-		int flavorViewHeight;
+		int articleId;
 
 		public ArticleViewHolder(View v) {
 			super(v);
@@ -592,7 +583,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 View flavorImage = view.findViewById(R.id.flavor_image);
 
                 if (flavorImage != null) {
-                    flavorViewHeight = flavorImage.getMeasuredHeight();
+					HeadlinesFragment.m_flavorHeightsCache.put(articleId, flavorImage.getMeasuredHeight());
                 }
 
                 return true;
@@ -742,6 +733,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
 
 			Article article = getItem(position);
+
+			holder.articleId = article.id;
 
 			if (article.id == Article.TYPE_AMR_FOOTER && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 				WindowManager wm = (WindowManager) m_activity.getSystemService(Context.WINDOW_SERVICE);
@@ -1040,10 +1033,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
 					// prevent lower listiew entries from jumping around if this row is modified
-					// TODO this doesn't work right now
-					if (holder.flavorViewHeight > 0) {
-						FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-						lp.height = holder.flavorViewHeight;
+					if (m_flavorHeightsCache.containsKey(article.id)) {
+						int cachedHeight = m_flavorHeightsCache.get(article.id);
+
+						if (cachedHeight > 0) {
+							FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
+							lp.height = cachedHeight;
+						}
 					}
 
 					holder.flavorProgressTarget.setModel(article.flavorImageUri);
