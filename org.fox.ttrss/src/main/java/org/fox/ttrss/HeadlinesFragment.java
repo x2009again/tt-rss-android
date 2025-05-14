@@ -436,15 +436,15 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				HeadlinesModel model = Application.getInstance().getHeadlinesModel();
 
-				if (dy > 0 && !m_isLazyLoading && model.lazyLoadEnabled() &&
+				if (dy > 0 && !m_isLazyLoading && !model.isLoading() && model.lazyLoadEnabled() &&
 						lastVisibleItem >= Application.getArticles().size() - 5) {
-
-					m_isLazyLoading = true;
 
 					Log.d(TAG, "attempting to lazy load more articles...");
 
+					m_isLazyLoading = true;
+
 					// this has to be dispatched delayed, consequent adapter updates are forbidden in scroll handler
-					new Handler().postDelayed(() -> refresh(true), 0);
+					new Handler().postDelayed(() -> refresh(true), 250);
 				}
 			}
 		});

@@ -64,7 +64,6 @@ public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCal
 
     public LiveData<ArticleList> getLiveData() {
         return m_articles;
-
     }
 
     public ArticleList getArticles() {
@@ -98,13 +97,13 @@ public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCal
         }
     }
 
-    public void forceLoad() {
+    private void forceLoad() {
         Log.d(TAG, "forceLoad");
 
         m_articles.postValue(loadInBackground());
     }
 
-    public ArticleList loadInBackground() {
+    private ArticleList loadInBackground() {
         Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset);
 
         ArticleList articlesWork = new ArticleList();
@@ -314,4 +313,7 @@ public class HeadlinesModel extends AndroidViewModel implements ApiCommon.ApiCal
         return m_lastErrorMessage;
     }
 
+    public boolean isLoading() {
+        return m_loadingInProgress;
+    }
 }
