@@ -112,14 +112,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			ArticleList tmp = new ArticleList();
 			tmp.addAll(data);
 
-			// detail activity does not use footers
-			if (!(m_activity instanceof DetailActivity)) {
+			if (headlinesLoader.lazyLoadEnabled())
+				tmp.add(new Article(Article.TYPE_LOADMORE));
 
-				if (headlinesLoader.lazyLoadEnabled())
-					tmp.add(new Article(Article.TYPE_LOADMORE));
-
-				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
-			}
+			tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
 			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
 
