@@ -535,29 +535,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public void refresh(final boolean append) {
 		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
 
-		if (!append) {
+		if (!append)
 			m_activeArticleId = -1;
 
-			if (m_adapter != null) {
-				ArticleList tmp = new ArticleList();
-				m_adapter.submitList(tmp, () -> {
+		if (m_swipeLayout != null)
+			m_swipeLayout.setRefreshing(true);
 
-					if (m_swipeLayout != null)
-						m_swipeLayout.setRefreshing(true);
-
-					model.setSearchQuery(getSearchQuery());
-					model.startLoading(false, m_feed, m_activity.getResizeWidth());
-
-				});
-			}
-		} else {
-			if (m_swipeLayout != null)
-				m_swipeLayout.setRefreshing(true);
-
-			model.setSearchQuery(getSearchQuery());
-			model.startLoading(true, m_feed, m_activity.getResizeWidth());
-		}
-
+		model.setSearchQuery(getSearchQuery());
+		model.startLoading(append, m_feed, m_activity.getResizeWidth());
 	}
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
