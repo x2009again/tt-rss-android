@@ -429,8 +429,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				// Log.d(TAG, "onScrolled: FVI=" + firstVisibleItem + " LVI=" + lastVisibleItem);
 
 				if (m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
-					Log.d(TAG, "collecting articles to mark as read on scroll...");
-
 					for (int i = 0; i < firstVisibleItem; i++) {
 						try {
 							Article article = Application.getArticles().get(i);
@@ -443,7 +441,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						}
 					}
 
-					Log.d(TAG, "pending to auto mark as read count=" + m_readArticles.size());
+					// Log.d(TAG, "pending to auto mark as read count=" + m_readArticles.size());
 				}
 
 				HeadlinesModel model = Application.getInstance().getHeadlinesModel();
