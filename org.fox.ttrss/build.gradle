@@ -48,6 +48,15 @@ android {
             signingConfig signingConfigs.signed
             matchingFallbacks = ['release']
         }
+
+        signedBranch {
+            minifyEnabled  false
+            versionNameSuffix "-signed-branch"
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.signed
+            matchingFallbacks = ['release']
+            applicationIdSuffix ".branch"
+        }
     }
     namespace 'org.fox.ttrss'
     buildFeatures {
