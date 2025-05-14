@@ -350,6 +350,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.d(TAG, "onCreateView");
 
 		String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 
@@ -372,12 +373,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		m_list.setLayoutManager(m_layoutManager);
 		m_list.setItemAnimator(new DefaultItemAnimator());
 
-		m_articles.clear();
-		m_articles.addAll(Application.getArticles());
-
 		m_adapter = new ArticleListAdapter(m_articles);
-
 		m_list.setAdapter(m_adapter);
+
+		if (savedInstanceState == null && Application.getArticles().isEmpty()) {
+			refresh(false);
+		}
 
 		if (m_prefs.getBoolean("headlines_swipe_to_dismiss", true) && !m_prefs.getBoolean("headlines_mark_read_scroll", false) ) {
 
@@ -520,8 +521,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
             m_activity.setTitle(m_feed.title);
         }
 
-		Log.d(TAG, "onCreateView, feed=" + m_feed);
-
 		return view;
 	}
 
@@ -529,16 +528,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	public void onResume() {
 		super.onResume();
 
+		Log.d(TAG, "onResume");
+
 		syncToSharedArticles();
-
-        if (Application.getArticles().getSizeWithoutFooters() == 0) {
-            refresh(false);
-        } else {
-			Article activeArticle = Application.getArticles().getById(m_activeArticleId);
-
-			if (activeArticle != null)
-				scrollToArticle(activeArticle);
-		}
 
 		m_activity.invalidateOptionsMenu();
 	}
@@ -1553,10 +1545,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
 
-		diffResult.dispatchUpdatesTo(m_adapter);
-
 		m_articles.clear();
 		m_articles.addAll(tmp);
+
+		diffResult.dispatchUpdatesTo(m_adapter);
 	}
 
 }
