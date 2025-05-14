@@ -89,6 +89,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 public class HeadlinesFragment extends androidx.fragment.app.Fragment implements LoaderManager.LoaderCallbacks<ArticleList> {
 
 	private ArticleList m_articles = new ArticleList();
+	private boolean m_isLazyLoading;
 
 	@NonNull
 	@Override
@@ -147,6 +148,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		if (m_swipeLayout != null)
 			m_swipeLayout.setRefreshing(false);
+
+		m_isLazyLoading = false;
 	}
 
 	@Override
@@ -473,12 +476,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 							new Handler().postDelayed(() -> m_activity.refresh(false), 100);
 						}
 					}
-
-					int lastVisibleItem = m_layoutManager.findLastVisibleItemPosition();
-
-					if (lastVisibleItem >= Application.getArticles().size() - 5) {
-						new Handler().postDelayed(() -> refresh(true), 0);
-					}
 				}
 			}
 
@@ -508,8 +505,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					}
 				}
 
-				/* if (lastVisibleItem >= Application.getArticles().size() - 5)
-					new Handler().postDelayed(() -> refresh(true), 1000); */
+				if (!m_isLazyLoading && lastVisibleItem >= Application.getArticles().size() - 5) {
+					m_isLazyLoading = true;
+
+					// this has to be dispatched delayed, consequent adapter updates are forbidden in scroll handler
+					new Handler().postDelayed(() -> refresh(true), 0);
+				}
 			}
 		});
 
@@ -527,6 +528,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		Log.d(TAG, "onResume");
 
 		syncToSharedArticles();
+
+		// we only set this in detail activity
+		if (m_activeArticleId > 0) {
+			Article activeArticle = Application.getArticles().getById(m_activeArticleId);
+
+			if (activeArticle != null)
+				scrollToArticle(activeArticle);
+		}
 
 		m_activity.invalidateOptionsMenu();
 	}
