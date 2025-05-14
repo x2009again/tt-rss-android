@@ -29,7 +29,7 @@
 
         <FrameLayout
             android:id="@+id/headlines_fragment"
-            app:layout_behavior=".util.FabAwareScrollingViewBehavior"
+            app:layout_behavior="org.fox.ttrss.util.FabAwareScrollingViewBehavior"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

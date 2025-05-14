@@ -16,6 +16,9 @@ android {
         versionCode getGitVersionCode()
         versionName getVersion()
         vectorDrawables.useSupportLibrary = true
+        manifestPlaceholders = [
+            appIcon: "@mipmap/ic_launcher"
+        ]
     }
 
     signingConfigs {
@@ -36,8 +39,20 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled  false
+            versionNameSuffix "-debug"
+            applicationIdSuffix ".debug"
+            debuggable true
+            resValue "string", "app_name", "Tiny Tiny RSS (debug)"
+            manifestPlaceholders = [
+                appIcon: "@mipmap/ic_launcher_variant"
+            ]
+        }
+
         release {
             minifyEnabled  false
+            versionNameSuffix "-release-unsigned"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
 
@@ -46,16 +61,18 @@ android {
             versionNameSuffix "-signed"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             signingConfig signingConfigs.signed
-            matchingFallbacks = ['release']
         }
 
-        signedBranch {
+        branch {
             minifyEnabled  false
             versionNameSuffix "-signed-branch"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             signingConfig signingConfigs.signed
-            matchingFallbacks = ['release']
             applicationIdSuffix ".branch"
+            resValue "string", "app_name", "Tiny Tiny RSS (branch)"
+            manifestPlaceholders = [
+                appIcon: "@mipmap/ic_launcher_variant"
+            ]
         }
     }
     namespace 'org.fox.ttrss'
