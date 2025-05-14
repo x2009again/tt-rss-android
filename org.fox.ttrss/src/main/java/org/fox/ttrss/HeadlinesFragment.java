@@ -492,6 +492,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			m_listener.onHeadlinesLoaded(appended);
+			m_listener.onArticleListSelectionChange();
 		});
 
 		return view;
