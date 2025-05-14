@@ -17,11 +17,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
+import org.fox.ttrss.util.DiffFragmentStateAdapter;
+import org.fox.ttrss.util.HeadlinesDiffItemCallback;
 import org.fox.ttrss.util.HeadlinesDiffUtilCallback;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
-	private final String TAG = "ArticlePager";
+	private final String TAG = this.getClass().getSimpleName();
 	private PagerAdapter m_adapter;
 	private HeadlinesEventListener m_listener;
 	private int m_articleId;
@@ -29,44 +31,39 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private Feed m_feed;
 	private ViewPager2 m_pager;
 
-	private static class PagerAdapter extends FragmentStateAdapter {
-		private ArticleList m_articles = new ArticleList();
+	private class PagerAdapter extends DiffFragmentStateAdapter<Article> {
 
-		public PagerAdapter(@NonNull Fragment fragment, ArticleList initialArticles) {
-			super(fragment);
+		public PagerAdapter(@NonNull Fragment fragment) {
+			super(fragment, new HeadlinesDiffItemCallback());
 
-			m_articles.clear();
-			m_articles.addAll(initialArticles);
+			syncToSharedArticles();
 		}
 
 		private void syncToSharedArticles() {
+			Log.d(TAG, "syncToSharedArticles");
+
 			ArticleList tmp = new ArticleList();
 			tmp.addAll(Application.getArticles());
 
-			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
+			Log.d(TAG, "shared size=" + Application.getArticles().size() + " local size=" + getItemCount());
 
-			diffResult.dispatchUpdatesTo(this);
+			for (Article a : tmp) {
+				Log.d(TAG, a.title);
+			}
 
-			m_articles.clear();
-			m_articles.addAll(tmp);
+			submitList(tmp);
 		}
 
 		@Override
 		@NonNull
 		public Fragment createFragment(int position) {
-			Article article = m_articles.get(position);
+			Article article = getItem(position);
 
 			ArticleFragment af = new ArticleFragment();
 			af.initialize(article);
 
 			return af;
 		}
-
-		@Override
-		public int getItemCount() {
-			return m_articles.size();
-		}
-
 	}
 		
 	public void initialize(int articleId, Feed feed) {
@@ -98,7 +95,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
 		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 
-		m_adapter = new PagerAdapter(this, Application.getArticles());
+		m_adapter = new PagerAdapter(this);
 		
 		m_pager = view.findViewById(R.id.article_pager);
 
@@ -184,10 +181,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	public void notifyItemChanged(int position) {
 		if (m_adapter != null)
 			m_adapter.notifyItemChanged(position);
-	}
-
-	public void notifyUpdated() {
-		m_adapter.notifyDataSetChanged();
 	}
 
 	public void syncToSharedArticles() {

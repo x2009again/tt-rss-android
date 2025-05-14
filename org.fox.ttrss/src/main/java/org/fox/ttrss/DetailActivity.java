@@ -299,11 +299,11 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
-        if (ap != null) {
+		if (ap != null) {
             ap.syncToSharedArticles();
         }
 
-		if (hf != null) {
+		/* if (hf != null) {
 			Article article = Application.getArticles().getById(hf.getActiveArticleId());
 						
 			if (article == null && !Application.getArticles().isEmpty()) {
@@ -321,7 +321,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
 				ft.commitAllowingStateLoss();
 			}
-		}
+		} */
 	}
 	
 	@Override

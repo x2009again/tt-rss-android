@@ -520,6 +520,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
+		Log.d(TAG, "onActivityResult:" + requestCode + " "+ resultCode + " " + data);
+
 		if (requestCode == HEADLINES_REQUEST) {
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
