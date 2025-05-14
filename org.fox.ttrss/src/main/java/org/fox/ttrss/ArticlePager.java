@@ -35,8 +35,6 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 
 		public PagerAdapter(@NonNull Fragment fragment) {
 			super(fragment, new HeadlinesDiffItemCallback());
-
-			syncToSharedArticles();
 		}
 
 		private void syncToSharedArticles() {
@@ -88,6 +86,15 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 
 		m_adapter = new PagerAdapter(this);
+		m_adapter.submitList(Application.getArticles());
+
+		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+
+		// deal with further updates
+		model.getLiveData().observe(getActivity(), articles -> {
+				Log.d(TAG, "observed article list size=" + articles.size());
+				m_adapter.submitList(articles);
+			});
 		
 		m_pager = view.findViewById(R.id.article_pager);
 

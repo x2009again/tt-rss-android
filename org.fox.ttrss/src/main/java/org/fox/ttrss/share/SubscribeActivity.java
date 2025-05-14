@@ -157,7 +157,7 @@ public class SubscribeActivity extends CommonShareActivity {
 			protected void onPostExecute(JsonElement result) {
 				m_progressBar.setVisibility(View.INVISIBLE);
 
-				if (m_lastError != ApiCommon.ApiError.NO_ERROR) {
+				if (m_lastError != ApiCommon.ApiError.UNKNOWN_ERROR) {
 					toast(getErrorMessage());
 				} else {
 					try {
@@ -259,7 +259,7 @@ public class SubscribeActivity extends CommonShareActivity {
 			protected void onPostExecute(JsonElement result) {
 				m_progressBar.setVisibility(View.INVISIBLE);
 
-				if (m_lastError != ApiCommon.ApiError.NO_ERROR) {
+				if (m_lastError != ApiCommon.ApiError.UNKNOWN_ERROR) {
 					toast(getErrorMessage());
 				} else {
 					JsonArray content = result.getAsJsonArray();

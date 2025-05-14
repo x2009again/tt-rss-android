@@ -27,7 +27,7 @@ public class ApiLoader extends AsyncTaskLoader<JsonElement> implements ApiCommon
 		super(context);
 
 		m_context = context;
-		m_lastError = ApiError.NO_ERROR;
+		m_lastError = ApiError.UNKNOWN_ERROR;
 		m_params = params;
 	}
 

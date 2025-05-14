@@ -41,13 +41,16 @@ public class ApiCommon {
         void setLastErrorMessage(String message);
     }
 
-    public enum ApiError { NO_ERROR, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND,
+    public enum ApiError {
+        SUCCESS, UNKNOWN_ERROR, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND,
         HTTP_SERVER_ERROR, HTTP_OTHER_ERROR, SSL_REJECTED, SSL_HOSTNAME_REJECTED, PARSE_ERROR, IO_ERROR, OTHER_ERROR, API_DISABLED,
         API_UNKNOWN, LOGIN_FAILED, INVALID_URL, API_INCORRECT_USAGE, NETWORK_UNAVAILABLE, API_UNKNOWN_METHOD }
 
     public static int getErrorMessage(ApiError error) {
         switch (error) {
-            case NO_ERROR:
+            case SUCCESS:
+                return R.string.error_success;
+            case UNKNOWN_ERROR:
                 return R.string.error_unknown;
             case HTTP_UNAUTHORIZED:
                 return R.string.error_http_unauthorized;
@@ -154,6 +157,7 @@ public class ApiCommon {
 
                 switch (statusCode) {
                     case API_STATUS_OK:
+                        caller.setLastError(ApiError.SUCCESS);
                         return result.getAsJsonObject().get("content");
                     case API_STATUS_ERR:
                         JsonObject contentObj = resultObj.get("content").getAsJsonObject();

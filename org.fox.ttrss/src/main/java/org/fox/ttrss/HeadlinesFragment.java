@@ -48,7 +48,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.view.ViewCompat;
-import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -86,73 +85,9 @@ import java.util.TimeZone;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
-public class HeadlinesFragment extends androidx.fragment.app.Fragment implements LoaderManager.LoaderCallbacks<ArticleList> {
+public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	private boolean m_isLazyLoading;
-
-	@NonNull
-	@Override
-	public Loader<ArticleList> onCreateLoader(int id, @Nullable Bundle args) {
-		return new HeadlinesLoader(getContext(), m_feed, m_activity.getResizeWidth(), Application.getArticles());
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<ArticleList> loader, ArticleList data) {
-		Log.d(TAG, "onLoadFinished loader=" + loader + " size=" + (data != null ? data.size() : "N/A (null)"));
-
-		HeadlinesLoader headlinesLoader = (HeadlinesLoader) loader;
-
-		// successful update
-		if (data != null) {
-
-			// shared article list contains raw returned data without footers
-			ArticleList sharedArticles = Application.getArticles();
-			sharedArticles.clear();
-			sharedArticles.addAll(data);
-
-			ArticleList tmp = new ArticleList();
-
-			tmp.addAll(data);
-
-			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
-				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
-
-			final boolean appended = headlinesLoader.getAppend();
-
-			m_adapter.submitList(tmp, () -> {
-				if (!appended)
-					m_list.scrollToPosition(0);
-			});
-
-			if (headlinesLoader.getFirstIdChanged())
-				Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
-						.setAction(R.string.reload, v -> refresh(false)).show();
-
-			m_listener.onHeadlinesLoaded(headlinesLoader.getAppend());
-
-		} else {
-			if (headlinesLoader.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
-				m_activity.login();
-			} else {
-				if (headlinesLoader.getLastErrorMessage() != null) {
-					m_activity.toast(m_activity.getString(headlinesLoader.getErrorMessage()) + "\n" + headlinesLoader.getLastErrorMessage());
-				} else {
-					m_activity.toast(headlinesLoader.getErrorMessage());
-				}
-			}
-		}
-
-		if (m_swipeLayout != null)
-			m_swipeLayout.setRefreshing(false);
-
-		m_isLazyLoading = false;
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<ArticleList> loader) {
-		if (m_swipeLayout != null)
-			m_swipeLayout.setRefreshing(false);
-	}
 
 	public void notifyItemChanged(int position) {
 		if (m_adapter != null)
@@ -169,7 +104,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	private Feed m_feed;
 	private int m_activeArticleId;
 	private String m_searchQuery = "";
-	private HeadlinesLoader m_loader;
+	//private HeadlinesLoader m_loader;
 
 	private SharedPreferences m_prefs;
 
@@ -502,7 +437,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					}
 				}
 
-				if (dy > 0 && !m_isLazyLoading && (m_loader == null || m_loader.lazyLoadEnabled()) &&
+				HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+
+				if (dy > 0 && !m_isLazyLoading && model.lazyLoadEnabled() &&
 						lastVisibleItem >= Application.getArticles().size() - 5) {
 
 					m_isLazyLoading = true;
@@ -518,6 +455,47 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
         if (m_activity.isSmallScreen() && m_feed != null) {
             m_activity.setTitle(m_feed.title);
         }
+
+		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+
+		model.getLiveData().observe(getActivity(), articles -> {
+			Log.d(TAG, "observed article list size=" + articles.size());
+
+			ArticleList tmp = new ArticleList();
+
+			tmp.addAll(articles);
+
+			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
+
+			final boolean appended = model.getAppend();
+
+			m_adapter.submitList(tmp, () -> {
+				if (!appended)
+					m_list.scrollToPosition(0);
+			});
+
+			if (model.getFirstIdChanged())
+				Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
+						.setAction(R.string.reload, v -> refresh(false)).show();
+
+			if (m_swipeLayout != null)
+				m_swipeLayout.setRefreshing(false);
+
+			m_isLazyLoading = false;
+
+			if (model.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
+				m_activity.login();
+			} else if (model.getLastError() != null && model.getLastError() != ApiCommon.ApiError.SUCCESS) {
+				if (model.getLastErrorMessage() != null) {
+					m_activity.toast(m_activity.getString(model.getErrorMessage()) + "\n" + model.getLastErrorMessage());
+				} else {
+					m_activity.toast(model.getErrorMessage());
+				}
+			}
+
+			m_listener.onHeadlinesLoaded(appended);
+		});
 
 		return view;
 	}
@@ -561,17 +539,22 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 		// if we try to initLoader() all the time, onLoadFinished() might be sent twice
 		// https://stackoverflow.com/questions/11293441/android-loadercallbacks-onloadfinished-called-twice
-		if (m_loader == null) {
+		/* if (m_loader == null) {
 			m_loader = (HeadlinesLoader) LoaderManager.getInstance(this).
 					initLoader(Application.LOADER_HEADLINES, null, this);
 
-		}
+		} */
 
 		if (m_swipeLayout != null)
 			m_swipeLayout.setRefreshing(true);
 
-		m_loader.setSearchQuery(getSearchQuery());
-		m_loader.startLoading(append);
+		HeadlinesModel model = Application.getInstance().getHeadlinesModel();
+
+		model.setSearchQuery(getSearchQuery());
+		model.startLoading(append, m_feed, m_activity.getResizeWidth());
+
+		//m_loader.setSearchQuery(getSearchQuery());
+		//m_loader.startLoading(append);
 	}
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
