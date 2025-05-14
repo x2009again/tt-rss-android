@@ -121,13 +121,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private MediaPlayer m_mediaPlayer;
 	private TextureView m_activeTexture;
 
-	public @NonNull ArticleList getSelectedArticles() {
-		if (m_adapter != null)
-			return m_adapter.getCurrentList()
-					.stream()
-					.filter(a -> a.selected).collect(Collectors.toCollection(ArticleList::new));
-		else
-			return new ArticleList();
+	public ArticleList getSelectedArticles() {
+		return Application.getArticles()
+				.stream()
+				.filter(a -> a.selected).collect(Collectors.toCollection(ArticleList::new));
 	}
 
 	public void initialize(Feed feed) {
@@ -559,7 +556,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	static class ArticleViewHolder extends RecyclerView.ViewHolder {
 		public View view;
-		public Article article;
 
 		public TextView titleView;
 		public TextView feedTitleView;
@@ -584,6 +580,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public MaterialButton attachmentsView;
 		public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
 
+		int flavorViewHeight;
+
 		public ArticleViewHolder(View v) {
 			super(v);
 
@@ -593,7 +591,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 View flavorImage = view.findViewById(R.id.flavor_image);
 
                 if (flavorImage != null) {
-                    article.flavorViewHeight = flavorImage.getMeasuredHeight();
+                    flavorViewHeight = flavorImage.getMeasuredHeight();
                 }
 
                 return true;
@@ -624,6 +622,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			if (flavorImageView != null && flavorImageLoadingBar != null) {
 				flavorProgressTarget = new FlavorProgressTarget<>(new GlideDrawableImageViewTarget(flavorImageView), flavorImageLoadingBar);
 			}
+
 		}
 
 		public void clearAnimation() {
@@ -738,12 +737,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		@Override
 		public void onBindViewHolder(final ArticleViewHolder holder, int position) {
-			holder.article = getItem(position);
-
 			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
 			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
 
-			final Article article = holder.article;
+			Article article = getItem(position);
 
 			if (article.id == Article.TYPE_AMR_FOOTER && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 				WindowManager wm = (WindowManager) m_activity.getSystemService(Context.WINDOW_SERVICE);
@@ -780,18 +777,18 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			if (holder.textImage != null) {
-				updateTextCheckedState(holder, article);
+				updateTextCheckedState(holder, position);
 
 				holder.textImage.setOnClickListener(view -> {
-                    Log.d(TAG, "textImage : onclicked");
+					Article selectedArticle = getItem(position);
 
-                    article.selected = !article.selected;
+					Log.d(TAG, "textImage onClick pos=" + position + " article=" + article);
 
-                    updateTextCheckedState(holder, article);
+                    selectedArticle.selected = !selectedArticle.selected;
 
-                    m_listener.onArticleListSelectionChange(getSelectedArticles());
+                    updateTextCheckedState(holder, position);
 
-                    Log.d(TAG, "num selected: " + getSelectedArticles().size());
+                    m_listener.onArticleListSelectionChange();
                 });
 				ViewCompat.setTransitionName(holder.textImage, "gallery:" + article.flavorImageUri);
 
@@ -1042,9 +1039,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
 					// prevent lower listiew entries from jumping around if this row is modified
-					if (article.flavorViewHeight > 0) {
+					// TODO this doesn't work right now
+					if (holder.flavorViewHeight > 0) {
 						FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-						lp.height = article.flavorViewHeight;
+						lp.height = holder.flavorViewHeight;
 					}
 
 					holder.flavorProgressTarget.setModel(article.flavorImageUri);
@@ -1237,18 +1235,19 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			if (holder.selectionBoxView != null) {
 				holder.selectionBoxView.setChecked(article.selected);
 				holder.selectionBoxView.setOnClickListener(view -> {
+					Article currentArticle = getItem(position);
+
+					Log.d(TAG, "selectionCb onClick pos=" + position + " article=" + article);
+
                     CheckBox cb = (CheckBox)view;
 
-                    article.selected = cb.isChecked();
+                    currentArticle.selected = cb.isChecked();
 
-                    m_listener.onArticleListSelectionChange(getSelectedArticles());
-
-                    Log.d(TAG, "num selected: " + getSelectedArticles().size());
+                    m_listener.onArticleListSelectionChange();
                 });
 			}
 
 			if (holder.menuButtonView != null) {
-
 				holder.menuButtonView.setOnClickListener(v -> {
 
                     PopupMenu popup = new PopupMenu(getActivity(), v);
@@ -1258,7 +1257,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                     popup.getMenu().findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
                     popup.getMenu().findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
 
-                    popup.setOnMenuItemClickListener(item -> onArticleMenuItemSelected(item, article,
+                    popup.setOnMenuItemClickListener(item -> onArticleMenuItemSelected(item,
+							getItem(position),
 							m_list.getChildAdapterPosition(holder.view)));
 
                     popup.show();
@@ -1283,7 +1283,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		private void updateTextCheckedState(final ArticleViewHolder holder, final Article article) {
+		private void updateTextCheckedState(final ArticleViewHolder holder, int position) {
+			Article article = getItem(position);
+
             String tmp = !article.title.isEmpty() ? article.title.substring(0, 1).toUpperCase() : "?";
 
             if (article.selected) {

@@ -259,7 +259,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	}
 	
 	@Override
-	public void onArticleListSelectionChange(ArticleList m_selectedArticles) {
+	public void onArticleListSelectionChange() {
 		invalidateOptionsMenu();
 	}
 
