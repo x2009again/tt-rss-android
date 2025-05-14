@@ -82,10 +82,10 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		m_adapter = new PagerAdapter(this);
 		m_adapter.submitList(Application.getArticles());
 
-		ArticlesModel model = Application.getArticlesModel();
+		ArticleModel model = Application.getArticlesModel();
 
 		// deal with further updates
-		model.getArticlesData().observe(getActivity(), articles -> {
+		model.getArticles().observe(getActivity(), articles -> {
 				Log.d(TAG, "observed article list size=" + articles.size());
 				m_adapter.submitList(articles);
 			});

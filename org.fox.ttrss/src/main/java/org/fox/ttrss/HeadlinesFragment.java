@@ -389,7 +389,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 
-				ArticlesModel model = Application.getArticlesModel();
+				ArticleModel model = Application.getArticlesModel();
 
 				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
 					if (!m_readArticles.isEmpty() && !m_isLazyLoading && !model.isLoading() && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
@@ -438,7 +438,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					// Log.d(TAG, "pending to auto mark as read count=" + m_readArticles.size());
 				}
 
-				ArticlesModel model = Application.getArticlesModel();
+				ArticleModel model = Application.getArticlesModel();
 
 				if (dy > 0 && !m_isLazyLoading && !model.isLoading() && model.lazyLoadEnabled() &&
 						lastVisibleItem >= Application.getArticles().size() - 5) {
@@ -457,11 +457,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             m_activity.setTitle(m_feed.title);
         }
 
-		ArticlesModel model = Application.getArticlesModel();
+		ArticleModel model = Application.getArticlesModel();
 
 		// this gets notified on network update
 		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
-			ArticleList tmp = new ArticleList(model.getArticles());
+			ArticleList tmp = new ArticleList(model.getArticles().getValue());
 
 			Log.d(TAG, "observed last update=" + lastUpdate + " article count=" + tmp.size());
 
@@ -500,10 +500,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		});
 
 		// loaded articles might get modified for all sorts of reasons
-		model.getArticlesData().observe(getActivity(), articles -> {
+		model.getArticles().observe(getActivity(), articles -> {
 			Log.d(TAG, "observed article list size=" + articles.size());
 
-			ArticleList tmp = new ArticleList(model.getArticles());
+			ArticleList tmp = new ArticleList(articles);
 
 			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
 				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
@@ -542,7 +542,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void refresh(final boolean append) {
-		ArticlesModel model = Application.getArticlesModel();
+		ArticleModel model = Application.getArticlesModel();
 
 		if (!append)
 			m_activeArticleId = -1;

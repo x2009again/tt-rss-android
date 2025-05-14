@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ArticlesModel extends AndroidViewModel implements ApiCommon.ApiCaller {
+public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private final String TAG = this.getClass().getSimpleName();
     private final MutableLiveData<ArticleList> m_articles = new MutableLiveData<>(new ArticleList());
     private SharedPreferences m_prefs;
@@ -52,7 +52,7 @@ public class ArticlesModel extends AndroidViewModel implements ApiCommon.ApiCall
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
     private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(new Long(0));
 
-    public ArticlesModel(@NonNull Application application) {
+    public ArticleModel(@NonNull Application application) {
         super(application);
 
         m_prefs = PreferenceManager.getDefaultSharedPreferences(application);
@@ -65,13 +65,10 @@ public class ArticlesModel extends AndroidViewModel implements ApiCommon.ApiCall
         return m_lastUpdate;
     }
 
-    public LiveData<ArticleList> getArticlesData() {
+    public LiveData<ArticleList> getArticles() {
         return m_articles;
     }
 
-    public ArticleList getArticles() {
-        return m_articles.getValue();
-    }
 
     public void update(int position, Article article) {
         m_articles.getValue().set(position, article);

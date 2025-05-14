@@ -17,26 +17,22 @@ public class Application extends android.app.Application {
 
 	private static Application m_singleton;
 
-	// this is the only instance of a (large) object which contains all currently loaded articles and is
-	// used by all fragments and activities concurrently
-	// private final ArticleList m_articles = new ArticleList();
-
 	private String m_sessionId;
 	private int m_apiLevel;
 	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
 	ConnectivityManager m_cmgr;
-	ArticlesModel m_articlesModel;
+	ArticleModel m_articleModel;
 
 	public static Application getInstance(){
 		return m_singleton;
 	}
 
 	public static ArticleList getArticles() {
-		return getInstance().m_articlesModel.getArticles();
+		return getInstance().m_articleModel.getArticles().getValue();
 	}
 
-	public static ArticlesModel getArticlesModel() {
-		return getInstance().m_articlesModel;
+	public static ArticleModel getArticlesModel() {
+		return getInstance().m_articleModel;
 	}
 
 	@Override
@@ -45,7 +41,7 @@ public class Application extends android.app.Application {
 
 		m_singleton = this;
 		m_cmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		m_articlesModel = new ArticlesModel(this);
+		m_articleModel = new ArticleModel(this);
 	}
 
 	public String getSessionId() {
