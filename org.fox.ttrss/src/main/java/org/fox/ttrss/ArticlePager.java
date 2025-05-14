@@ -31,7 +31,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	private Feed m_feed;
 	private ViewPager2 m_pager;
 
-	private class PagerAdapter extends DiffFragmentStateAdapter<Article> {
+	private static class PagerAdapter extends DiffFragmentStateAdapter<Article> {
 
 		public PagerAdapter(@NonNull Fragment fragment) {
 			super(fragment, new HeadlinesDiffItemCallback());
@@ -40,16 +40,8 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		}
 
 		private void syncToSharedArticles() {
-			Log.d(TAG, "syncToSharedArticles");
-
 			ArticleList tmp = new ArticleList();
 			tmp.addAll(Application.getArticles());
-
-			Log.d(TAG, "shared size=" + Application.getArticles().size() + " local size=" + getItemCount());
-
-			for (Article a : tmp) {
-				Log.d(TAG, a.title);
-			}
 
 			submitList(tmp);
 		}
