@@ -82,6 +82,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -120,14 +121,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private MediaPlayer m_mediaPlayer;
 	private TextureView m_activeTexture;
 
-	public ArticleList getSelectedArticles() {
-        ArticleList tmp = new ArticleList();
-
-        for (Article a : Application.getArticles()) {
-            if (a.selected) tmp.add(a);
-        }
-
-		return tmp;
+	public @NonNull ArticleList getSelectedArticles() {
+		if (m_adapter != null)
+			return m_adapter.getCurrentList()
+					.stream()
+					.filter(a -> a.selected).collect(Collectors.toCollection(ArticleList::new));
+		else
+			return new ArticleList();
 	}
 
 	public void initialize(Feed feed) {
