@@ -67,6 +67,8 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 		} else if (m_lazyLoadEnabled && !m_loadingInProgress) {
 			m_append = true;
 			forceLoad();
+		} else {
+			deliverResult(m_articles);
 		}
 	}
 
@@ -181,11 +183,12 @@ public class HeadlinesLoader extends AsyncTaskLoader<ArticleList> implements Api
 
 					m_amountLoaded = articlesJson.size();
 
-					for (Article f : articlesJson)
-						if (!m_articles.containsId(f.id)) {
-							f.collectMediaInfo();
-							f.cleanupExcerpt();
-							m_articles.add(f);
+					for (Article article : articlesJson)
+						if (!m_articles.containsId(article.id)) {
+							article.collectMediaInfo();
+							article.cleanupExcerpt();
+							article.fixNullFields();
+							m_articles.add(article);
 						}
 
 					if (m_firstIdChanged) {

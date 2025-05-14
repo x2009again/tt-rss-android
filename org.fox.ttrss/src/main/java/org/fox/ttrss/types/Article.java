@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 
 // TODO: serialize Labels
 public class Article implements Parcelable {
-	public static final int TYPE_LOADMORE = -1;
 	public static final int TYPE_AMR_FOOTER = -2;
 
 	public static final int FLAVOR_KIND_ALBUM = 1;
@@ -194,8 +193,7 @@ public class Article implements Parcelable {
 	public Article(int id) {
 		this.id = id;
 		this.title = "ID:" + id;
-		this.link = "";
-		this.tags = new ArrayList<>();
+		fixNullFields();
 	}
 
 	@Override
@@ -280,4 +278,14 @@ public class Article implements Parcelable {
                 return new Article[size];
             }
         };
+
+	/** set fields which might be missing during JSON deserialization to sane values */
+	public void fixNullFields() {
+		if (note == null) note = "";
+		if (link == null) link = "";
+		if (tags == null) tags = new ArrayList<>();
+		if (note == null) note = "";
+		if (excerpt == null) excerpt = "";
+		if (content == null) content = "";
+	}
 }

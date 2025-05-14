@@ -1,10 +1,14 @@
 package org.fox.ttrss.util;
 
+import android.util.Log;
+
 import androidx.recyclerview.widget.DiffUtil;
 
+import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 
 public class HeadlinesDiffUtilCallback extends DiffUtil.Callback {
+		private final String TAG = this.getClass().getSimpleName();
 		private ArticleList m_oldList;
 		private ArticleList m_newList;
 
@@ -25,11 +29,22 @@ public class HeadlinesDiffUtilCallback extends DiffUtil.Callback {
 
 		@Override
 		public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-			return m_newList.get(newItemPosition).id == m_oldList.get(oldItemPosition).id;
+			Article a1 = m_oldList.get(oldItemPosition);
+			Article a2 = m_newList.get(newItemPosition);
+
+			// Log.d(TAG, "[DIFF] areItemsTheSame a1=" + a1.title + " a2=" + a2.title);
+
+			return a1.id == a2.id;
 		}
 
 		@Override
 		public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-			return false;
+			Article a1 = m_oldList.get(oldItemPosition);
+			Article a2 = m_newList.get(newItemPosition);
+
+			// Log.d(TAG, "[DIFF] areContentsTheSame a1=" + a1.title + " a2=" + a2.title);
+
+			return a1.id == a2.id && a1.unread == a2.unread && a1.marked == a2.marked
+				&& a1.published == a2.published && a1.note.equals(a2.note);
 		}
 	}

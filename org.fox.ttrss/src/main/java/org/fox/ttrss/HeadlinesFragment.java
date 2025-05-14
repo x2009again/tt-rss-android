@@ -55,6 +55,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -113,12 +114,31 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			ArticleList tmp = new ArticleList();
 			tmp.addAll(data);
 
-			if (headlinesLoader.lazyLoadEnabled())
-				tmp.add(new Article(Article.TYPE_LOADMORE));
-
 			tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
 			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HeadlinesDiffUtilCallback(m_articles, tmp));
+
+			/* diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
+				@Override
+				public void onInserted(int position, int count) {
+					Log.d(TAG, "[DIFF] onInserted! pos=" + position + " count=" + count);
+				}
+
+				@Override
+				public void onRemoved(int position, int count) {
+					Log.d(TAG, "[DIFF] onRemoved! pos=" + position + " count=" + count);
+				}
+
+				@Override
+				public void onMoved(int fromPosition, int toPosition) {
+					Log.d(TAG, "[DIFF] onMoved! from=" + fromPosition + " to=" + toPosition);
+				}
+
+				@Override
+				public void onChanged(int position, int count, @Nullable Object payload) {
+					Log.d(TAG, "[DIFF] onChanged! pos=" + position + " count=" + count + " payload=" + payload);
+				}
+			}); */
 
 			m_articles.clear();
 			m_articles.addAll(tmp);
@@ -154,7 +174,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArticleList> loader) {
-
+		if (m_swipeLayout != null)
+			m_swipeLayout.setRefreshing(false);
 	}
 
 	public void notifyItemChanged(int position) {
@@ -505,8 +526,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 					}
 				}
 
-				if (!m_isLazyLoading && lastVisibleItem >= Application.getArticles().size() - 5) {
+				if (dy > 0 && !m_isLazyLoading && (m_loader == null || m_loader.lazyLoadEnabled()) &&
+						lastVisibleItem >= Application.getArticles().size() - 5) {
+
 					m_isLazyLoading = true;
+
+					Log.d(TAG, "attempting to lazy load more articles...");
 
 					// this has to be dispatched delayed, consequent adapter updates are forbidden in scroll handler
 					new Handler().postDelayed(() -> refresh(true), 0);
@@ -559,7 +584,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			if (m_adapter != null) {
 				m_adapter.notifyItemRangeRemoved(0, size);
 
-				m_articles.add(new Article(Article.TYPE_LOADMORE));
 				m_articles.add(new Article(Article.TYPE_AMR_FOOTER));
 
 				m_adapter.notifyItemRangeInserted(0, m_articles.size());
@@ -572,6 +596,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			m_loader = (HeadlinesLoader) LoaderManager.getInstance(this).
 					initLoader(Application.LOADER_HEADLINES, null, this);
 		}
+
+		if (m_swipeLayout != null)
+			m_swipeLayout.setRefreshing(true);
 
 		m_loader.setSearchQuery(getSearchQuery());
 		m_loader.startLoading(append);
@@ -685,7 +712,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 		public static final int VIEW_UNREAD = 1;
 		public static final int VIEW_ACTIVE = 2;
 		public static final int VIEW_ACTIVE_UNREAD = 3;
-		public static final int VIEW_LOADMORE = 4;
 		public static final int VIEW_AMR_FOOTER = 5;
 
 		public static final int VIEW_COUNT = VIEW_AMR_FOOTER + 1;
@@ -741,9 +767,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 			switch (viewType) {
 				case VIEW_AMR_FOOTER:
 					layoutId = R.layout.headlines_footer;
-					break;
-				case VIEW_LOADMORE:
-					layoutId = R.layout.headlines_row_loadmore;
 					break;
 				case VIEW_UNREAD:
 					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_unread : R.layout.headlines_row_unread;
@@ -1299,8 +1322,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 
 			if (a.id == Article.TYPE_AMR_FOOTER) {
 				return VIEW_AMR_FOOTER;
-			} else if (a.id == Article.TYPE_LOADMORE) {
-				return VIEW_LOADMORE;
 			} else if (a.id == m_activeArticleId && a.unread) {
 				return VIEW_ACTIVE_UNREAD;
 			} else if (a.id == m_activeArticleId) {
@@ -1542,9 +1563,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment implements
 	private void syncToSharedArticles() {
 		ArticleList tmp = new ArticleList();
 		tmp.addAll(Application.getArticles());
-
-		if (m_loader != null && m_loader.lazyLoadEnabled())
-			tmp.add(new Article(Article.TYPE_LOADMORE));
 
 		tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
