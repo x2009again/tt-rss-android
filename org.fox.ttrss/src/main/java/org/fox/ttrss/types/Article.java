@@ -319,7 +319,6 @@ public class Article implements Parcelable {
 		if (note == null) note = "";
 		if (link == null) link = "";
 		if (tags == null) tags = new ArrayList<>();
-		if (note == null) note = "";
 		if (excerpt == null) excerpt = "";
 		if (content == null) content = "";
 		if (comments_link == null) comments_link = "";

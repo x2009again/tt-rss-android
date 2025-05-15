@@ -993,12 +993,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				// this is needed if our flavor image goes behind base listview element
 				holder.headlineHeader.setOnClickListener(v -> {
                     m_listener.onArticleSelected(article);
-
-                    // only set active article when it makes sense (in DetailActivity)
-                    if (getActivity() instanceof DetailActivity) {
-                        m_activeArticleId = article.id;
-                        m_adapter.notifyDataSetChanged();
-                    }
                 });
 
 				holder.headlineHeader.setOnLongClickListener(v -> {
