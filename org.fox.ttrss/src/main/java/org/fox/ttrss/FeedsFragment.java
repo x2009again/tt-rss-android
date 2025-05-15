@@ -48,7 +48,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 	private final String TAG = this.getClass().getSimpleName();
 	private SharedPreferences m_prefs;
 	private MasterActivity m_activity;
-	private int m_catId;
+	private FeedCategory m_category;
 	private int m_selectedFeedId;
 	private SwipeRefreshLayout m_swipeLayout;
     private boolean m_enableParentBtn = false;
@@ -56,8 +56,9 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 	private RecyclerView m_list;
 	private RecyclerView.LayoutManager m_layoutManager;
 
-	public void initialize(int catId) {
-        m_catId = catId;
+	public void initialize(@NonNull FeedCategory cat, boolean enableParentBtn) {
+        m_category = cat;
+		m_enableParentBtn = enableParentBtn;
 	}
 
 	@Override
@@ -65,14 +66,13 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		if (m_swipeLayout != null) m_swipeLayout.setRefreshing(true);
 
 		final String sessionId = m_activity.getSessionId();
-		final boolean unreadOnly = false;
-		// final boolean unreadOnly = m_activity.getUnreadOnly() && (m_activeCategory == null || m_activeCategory.id != -1);
+		final boolean unreadOnly = m_activity.getUnreadOnly() && m_category.id != -1; /* starred */
 
 		HashMap<String,String> params = new HashMap<>();
 		params.put("op", "getFeeds");
 		params.put("sid", sessionId);
 		params.put("include_nested", "true");
-		params.put("cat_id", String.valueOf(m_catId));
+		params.put("cat_id", String.valueOf(m_category.id));
 
 		if (unreadOnly)
 			params.put("unread_only", "true");
@@ -131,7 +131,19 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 					// m_adapter.sortFeeds(feedsJson);
 
 					feeds.add(new Feed(Feed.TYPE_HEADER));
-					feeds.add(new Feed(Feed.TYPE_GOBACK));
+
+					if (m_enableParentBtn) {
+						feeds.add(new Feed(Feed.TYPE_GOBACK));
+
+						if (m_enableParentBtn && m_category.id >= 0 && !feedsJson.isEmpty()) {
+							Feed feed = new Feed(m_category.id, m_category.title, true);
+							feed.unread = catUnread;
+							feed.always_display_as_feed = true;
+							feed.display_title = getString(R.string.feed_all_articles);
+
+							feeds.add(0, feed);
+						}
+					}
 
 					feeds.addAll(feedsJson);
 

@@ -171,7 +171,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			} */
 
 			FeedsFragment ff = new FeedsFragment();
-			ff.initialize(12);
+			ff.initialize(-4, false);
 
 			ft.replace(R.id.feeds_fragment, ff, FRAG_FEEDS);
 
@@ -326,7 +326,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 					.beginTransaction();
 
 			FeedsFragment ff = new FeedsFragment();
-			ff.initialize(cat.id);
+			ff.initialize(cat.id, true);
 			ft.replace(R.id.feeds_fragment, ff, FRAG_FEEDS);
 
 			ft.addToBackStack(null);
