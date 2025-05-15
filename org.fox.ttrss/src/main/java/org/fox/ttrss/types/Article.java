@@ -322,6 +322,7 @@ public class Article implements Parcelable {
 		if (note == null) note = "";
 		if (excerpt == null) excerpt = "";
 		if (content == null) content = "";
+		if (comments_link == null) comments_link = "";
 	}
 
 	public boolean isHostDistinct() {
