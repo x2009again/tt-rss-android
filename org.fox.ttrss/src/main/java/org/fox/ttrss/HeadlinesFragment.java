@@ -830,11 +830,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
 
 			if (holder.markedView != null) {
-				TypedValue tv = new TypedValue();
-				m_activity.getTheme().resolveAttribute(article.marked ? R.attr.ic_star : R.attr.ic_star_outline, tv, true);
-
-				holder.markedView.setIconResource(tv.resourceId);
-
+				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
 
 				if (article.marked)
 					holder.markedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
@@ -851,17 +847,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			if (holder.scoreView != null) {
-				TypedValue tv = new TypedValue();
-				int scoreAttr = R.attr.ic_action_trending_flat;
+				int scoreDrawable = R.drawable.baseline_trending_flat_24;
 
 				if (article.score > 0)
-					scoreAttr = R.attr.ic_action_trending_up;
+					scoreDrawable = R.drawable.baseline_trending_up_24;
 				else if (article.score < 0)
-					scoreAttr = R.attr.ic_action_trending_down;
+					scoreDrawable = R.drawable.baseline_trending_down_24;
 
-				m_activity.getTheme().resolveAttribute(scoreAttr, tv, true);
-
-				holder.scoreView.setIconResource(tv.resourceId);
+				holder.scoreView.setIconResource(scoreDrawable);
 
 				if (article.score > Article.SCORE_HIGH)
 					holder.scoreView.setIconTint(ColorStateList.valueOf(tvTertiary.data));

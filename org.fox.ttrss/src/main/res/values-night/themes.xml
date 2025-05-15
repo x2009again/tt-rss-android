@@ -3,28 +3,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
 
-        <item name="ic_checkbox_marked">@drawable/baseline_check_box_24</item>
-        <item name="ic_star">@drawable/baseline_star_24</item>
-        <item name="ic_star_outline">@drawable/baseline_star_outline_24</item>
-        <item name="ic_share">@drawable/baseline_share_24</item>
-        <item name="ic_inbox">@drawable/baseline_inbox_24</item>
-        <item name="ic_go_back">@drawable/baseline_arrow_back_24</item>
-        <item name="ic_settings">@drawable/baseline_settings_24</item>
-        <item name="ic_filter_variant">@drawable/baseline_filter_alt_24</item>
-        <item name="ic_cloud_download">@drawable/baseline_cloud_download_24</item>
-        <item name="ic_cloud_upload">@drawable/baseline_cloud_upload_24</item>
-        <item name="ic_archive">@drawable/baseline_archive_24</item>
-        <item name="ic_fresh">@drawable/baseline_local_fire_department_24</item>
-        <item name="ic_restore">@drawable/baseline_restore_24</item>
-        <item name="ic_folder_outline">@drawable/baseline_folder_open_24</item>
-        <item name="ic_dots_vertical">@drawable/baseline_more_vert_24</item>
-        <item name="ic_dots_vertical_circle">@drawable/outline_more_24</item>
-        <item name="ic_attachment">@drawable/baseline_attachment_24</item>
-        <item name="ic_attachment_vert">@drawable/baseline_attach_file_24</item>
-        <item name="ic_action_trending_up">@drawable/baseline_trending_up_24</item>
-        <item name="ic_action_trending_flat">@drawable/baseline_trending_flat_24</item>
-        <item name="ic_action_trending_down">@drawable/baseline_trending_down_24</item>
-
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>

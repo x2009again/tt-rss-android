@@ -212,7 +212,7 @@
                     android:layout_weight="0"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    app:icon="?ic_action_trending_flat" />
+                    app:icon="@drawable/baseline_trending_flat_24" />
 
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialIconButtonStyle"
@@ -222,7 +222,7 @@
                     android:layout_weight="0"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    app:icon="?ic_attachment" />
+                    app:icon="@drawable/baseline_attachment_24" />
 
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialIconButtonStyle"
@@ -232,7 +232,7 @@
                     android:layout_weight="0"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    app:icon="?ic_star_outline" />
+                    app:icon="@drawable/baseline_star_outline_24" />
 
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialIconButtonStyle"
@@ -252,7 +252,7 @@
                     android:layout_weight="0"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    app:icon="?ic_dots_vertical" />
+                    app:icon="@drawable/baseline_more_vert_24" />
             </LinearLayout>
         </TableRow>
     </TableLayout>

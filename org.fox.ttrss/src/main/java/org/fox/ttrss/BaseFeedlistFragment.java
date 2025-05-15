@@ -62,9 +62,7 @@ public abstract class BaseFeedlistFragment extends androidx.fragment.app.Fragmen
         text.setText(R.string.unread_only);
 
         ImageView icon = rowToggle.findViewById(R.id.icon);
-        TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.ic_filter_variant, tv, true);
-        icon.setImageResource(tv.resourceId);
+        icon.setImageResource(R.drawable.baseline_filter_alt_24);
 
         final SwitchCompat rowSwitch = rowToggle.findViewById(R.id.row_switch);
         rowSwitch.setChecked(activity.getUnreadOnly());

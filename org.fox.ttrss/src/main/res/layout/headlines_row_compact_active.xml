@@ -104,6 +104,6 @@
             android:layout_gravity="end"
             android:layout_height="24dp"
             android:layout_weight="0.5"
-            app:icon="?ic_star_outline" />
+            app:icon="@drawable/baseline_star_outline_24" />
     </LinearLayout>
 </LinearLayout>

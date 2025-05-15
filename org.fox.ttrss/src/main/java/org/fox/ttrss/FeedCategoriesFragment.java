@@ -376,10 +376,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 			ImageView icon = v.findViewById(R.id.icon);
 
 			if (icon != null) {
-				TypedValue tv = new TypedValue();
-
-				m_activity.getTheme().resolveAttribute(R.attr.ic_folder_outline, tv, true);
-				icon.setImageResource(tv.resourceId);
+				icon.setImageResource(R.drawable.baseline_folder_open_24);
 
 			}
 

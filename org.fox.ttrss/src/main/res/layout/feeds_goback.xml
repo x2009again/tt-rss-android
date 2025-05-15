@@ -20,7 +20,7 @@
         android:layout_height="21dp"
         android:layout_weight="0"
         android:scaleType="fitXY"
-        android:src="?ic_go_back"
+        android:src="@drawable/baseline_arrow_back_24"
         app:tint="?colorTertiary" />
 
     <TextView
