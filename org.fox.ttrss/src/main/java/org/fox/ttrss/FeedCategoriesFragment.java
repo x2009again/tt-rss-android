@@ -62,9 +62,9 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		params.put("op", "getCategories");
 		params.put("sid", sessionId);
 		params.put("enable_nested", "true");
-		if (unreadOnly) {
-			params.put("unread_only", String.valueOf(unreadOnly));
-		}
+
+		if (unreadOnly)
+			params.put("unread_only", "true");
 
 		return new ApiLoader(getContext(), params);
 	}
@@ -288,7 +288,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		m_list = view.findViewById(R.id.feeds);
 		m_adapter = new FeedCategoryListAdapter(getActivity(), R.layout.feeds_row, m_cats);
 
-		initDrawerHeader(inflater, view, m_list, m_activity, m_prefs, true);
+		initDrawerHeader(inflater, view, m_list, m_activity, m_prefs);
 
         m_list.setAdapter(m_adapter);
         m_list.setOnItemClickListener(this);
@@ -312,7 +312,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 	public void onResume() {
 		super.onResume();
 
-		LoaderManager.getInstance(this).initLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).initLoader(Application.LOADER_CATS, null, this).forceLoad();
 
 		m_activity.invalidateOptionsMenu();
 	}
@@ -324,7 +324,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 		if (m_swipeLayout != null)
 			m_swipeLayout.setRefreshing(true);
 
-		LoaderManager.getInstance(this).restartLoader(0, null, this).forceLoad();
+		LoaderManager.getInstance(this).restartLoader(Application.LOADER_CATS, null, this).forceLoad();
 	}
 	
 	private class FeedCategoryListAdapter extends ArrayAdapter<FeedCategory> {
@@ -376,10 +376,7 @@ public class FeedCategoriesFragment extends BaseFeedlistFragment implements OnIt
 			ImageView icon = v.findViewById(R.id.icon);
 
 			if (icon != null) {
-				TypedValue tv = new TypedValue();
-
-				m_activity.getTheme().resolveAttribute(R.attr.ic_folder_outline, tv, true);
-				icon.setImageResource(tv.resourceId);
+				icon.setImageResource(R.drawable.baseline_folder_open_24);
 
 			}
 

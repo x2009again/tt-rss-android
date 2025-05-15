@@ -61,7 +61,7 @@
                 android:id="@+id/headlines_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_behavior=".util.FabAwareScrollingViewBehavior" />
+                app:layout_behavior="org.fox.ttrss.util.FabAwareScrollingViewBehavior" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/master_fab"

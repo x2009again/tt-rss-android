@@ -44,7 +44,7 @@
             android:title="@string/sort_feeds_by_unread" />
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="enable_cats"
             android:title="@string/enable_cats" />
 
@@ -108,7 +108,6 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:dependency="headlines_mark_read_scroll"
             android:key="headlines_swipe_to_dismiss"
             android:summary="@string/pref_headlines_swipe_to_dismiss_long"
             android:title="@string/pref_headlines_swipe_to_dismiss" />

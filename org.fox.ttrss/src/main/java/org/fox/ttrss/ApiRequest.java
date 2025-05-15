@@ -21,7 +21,7 @@ public class ApiRequest extends AsyncTask<HashMap<String,String>, Integer, JsonE
 
 	public ApiRequest(Context context) {
 		m_context = context;
-		m_lastError = ApiError.NO_ERROR;
+		m_lastError = ApiError.UNKNOWN_ERROR;
 	}
 
 	@SuppressLint("NewApi")

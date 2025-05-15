@@ -164,7 +164,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
-			if (m_prefs.getBoolean("enable_cats", false)) {
+			if (m_prefs.getBoolean("enable_cats", true)) {
 				ft.replace(R.id.feeds_fragment, new FeedCategoriesFragment(), FRAG_CATS);
 			} else {
 				ft.replace(R.id.feeds_fragment, new FeedsFragment(), FRAG_FEEDS);
@@ -445,7 +445,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	@Override
-	public void onArticleListSelectionChange(ArticleList m_selectedArticles) {
+	public void onArticleListSelectionChange() {
 		invalidateOptionsMenu();
 	}
 
@@ -476,7 +476,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 				// we use shared article list, but detail activity does not use special footers
 				// we will append those back (if needed) in onActivityResult()
-				Application.getArticles().stripFooters();
+				// Application.getArticles().stripFooters();
 
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -520,19 +520,19 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
+		Log.d(TAG, "onActivityResult:" + requestCode + " "+ resultCode + " " + data);
+
 		if (requestCode == HEADLINES_REQUEST) {
-
-			// we add back footers stripped when this was passed to DetailActivity
-			Application.getArticles().add(new Article(Article.TYPE_AMR_FOOTER));
-
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
 			if (hf != null) {
-				hf.notifyUpdated();
+				// data might be null if detailactivity crashed
+				if (data != null) {
+					int activeArticleId = data.getIntExtra("activeArticleId", 0);
 
-				// this makes position in headlines in master activity (not quite) randomly jump around when returning
-				// even if active article hasn't been changed, i guess keeping it as-is is a lesser evil?
-				hf.scrollToArticleId(data.getIntExtra("activeArticleId", 0));
+					Log.d(TAG, "got back from detail activity, scrolling to id=" + activeArticleId);
+					hf.scrollToArticleId(activeArticleId);
+				}
 			}
 		}
 	}

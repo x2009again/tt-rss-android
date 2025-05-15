@@ -86,7 +86,7 @@ public class ShareActivity extends CommonShareActivity {
 			protected void onPostExecute(JsonElement result) {
 				setProgressBarIndeterminateVisibility(false);
 
-				if (m_lastError != ApiCommon.ApiError.NO_ERROR) {
+				if (m_lastError != ApiCommon.ApiError.UNKNOWN_ERROR) {
 					toast(getErrorMessage());
 				} else {
 					toast(R.string.share_article_posted);

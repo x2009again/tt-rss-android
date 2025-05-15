@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 
 // TODO: serialize Labels
 public class Article implements Parcelable {
-	public static final int TYPE_LOADMORE = -1;
 	public static final int TYPE_AMR_FOOTER = -2;
 
 	public static final int FLAVOR_KIND_ALBUM = 1;
@@ -69,9 +68,8 @@ public class Article implements Parcelable {
 	transient public String flavorStreamUri;
 	transient public String youtubeVid;
 	transient public List<Element> mediaList = new ArrayList<>();
-	transient public int flavorViewHeight;
 
-	public Article(Parcel in) {
+    public Article(Parcel in) {
 		readFromParcel(in);
 	}
 	
@@ -194,8 +192,44 @@ public class Article implements Parcelable {
 	public Article(int id) {
 		this.id = id;
 		this.title = "ID:" + id;
-		this.link = "";
-		this.tags = new ArrayList<>();
+		fixNullFields();
+	}
+
+	public Article(Article clone) {
+		id = clone.id;
+		unread = clone.unread;
+		marked = clone.marked;
+		published = clone.published;
+		score = clone.score;
+		updated = clone.updated;
+		is_updated = clone.is_updated;
+		title = clone.title;
+		link = clone.link;
+		feed_id = clone.feed_id;
+		tags = clone.tags;
+		attachments = clone.attachments;
+		content = clone.content;
+		excerpt = clone.excerpt;
+		labels = clone.labels;
+		feed_title = clone.feed_title;
+		comments_count = clone.comments_count;
+		comments_link = clone.comments_link;
+		always_display_attachments = clone.always_display_attachments;
+		author = clone.author;
+		note = clone.note;
+		selected = clone.selected;
+		flavor_image = clone.flavor_image;
+		flavor_stream = clone.flavor_stream;
+		flavor_kind = clone.flavor_kind;
+		site_url = clone.site_url;
+
+		articleDoc = clone.articleDoc;
+		flavorImage = clone.flavorImage;
+
+		flavorImageUri = clone.flavorImageUri;
+		flavorStreamUri = clone.flavorStreamUri;
+		youtubeVid = clone.youtubeVid;
+		mediaList = new ArrayList<>(clone.mediaList);
 	}
 
 	@Override
@@ -262,13 +296,9 @@ public class Article implements Parcelable {
 	}
 
 	public boolean equalsById(Article article) {
-		if (article != null && id == article.id) {
-			return true;
-		} else {
-			return false;
-		}
+        return article != null && id == article.id;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static final Parcelable.Creator CREATOR =
     	new Parcelable.Creator() {
@@ -280,4 +310,14 @@ public class Article implements Parcelable {
                 return new Article[size];
             }
         };
+
+	/** set fields which might be missing during JSON deserialization to sane values */
+	public void fixNullFields() {
+		if (note == null) note = "";
+		if (link == null) link = "";
+		if (tags == null) tags = new ArrayList<>();
+		if (note == null) note = "";
+		if (excerpt == null) excerpt = "";
+		if (content == null) content = "";
+	}
 }

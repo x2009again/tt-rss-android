@@ -15,8 +15,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,7 +64,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	public final static String FRAG_ARTICLE = "article";
 	public final static String FRAG_FEEDS = "feeds";
 	public final static String FRAG_CATS = "cats";
-	public final static String FRAG_DIALOG = "dialog";
 
 	public final static String THEME_DEFAULT = "THEME_FOLLOW_DEVICE";
 
@@ -74,7 +71,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 	public final static String NOTIFICATION_CHANNEL_PRIORITY = "channel_priority";
 
 	public static final int EXCERPT_MAX_LENGTH = 256;
-    public static final int EXCERPT_MAX_QUERY_LENGTH = 2048;
 	public static final int LABEL_BASE_INDEX = -1024;
 
 	public static final int PENDING_INTENT_CHROME_SHARE = 1;
@@ -328,22 +324,6 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 				super.onNavigationEvent(navigationEvent, extras);
 			}
 		});
-	}
-
-	protected void preloadUriIfAllowed(Uri uri) {
-		boolean enableCustomTabs = m_prefs.getBoolean("enable_custom_tabs", true);
-
-		if (m_customTabClient != null && enableCustomTabs) {
-			ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo info = cm.getActiveNetworkInfo();
-
-			if (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI) {
-				CustomTabsSession session = getCustomTabSession();
-				session.mayLaunchUrl(uri, null, null);
-
-				//toast("Preloading: " + uri.toString());
-			}
-		}
 	}
 
 	protected Intent getShareIntent(String text, String subject) {

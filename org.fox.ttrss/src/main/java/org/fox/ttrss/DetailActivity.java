@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -94,7 +93,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						saveArticleUnread(article);
 
 						if (hf != null) {
-							hf.notifyUpdated();
+							hf.notifyItemChanged(Application.getArticles().indexOf(article));
 						}
 					}
 				}
@@ -149,17 +148,16 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
-                final HeadlinesFragment hf = new HeadlinesFragment();
+                HeadlinesFragment hf = new HeadlinesFragment();
                 hf.initialize(feed, openedArticleId, true);
                 hf.setSearchQuery(searchQuery);
 
                 ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
-				ArticlePager af = new ArticlePager();
-				af.initialize(openedArticleId, feed);
-				af.setSearchQuery(searchQuery);
+				ArticlePager ap = new ArticlePager();
+				ap.initialize(openedArticleId, feed);
 
-				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
+				ft.replace(R.id.article_fragment, ap, FRAG_ARTICLE);
 
 				ft.commit();
 
@@ -199,8 +197,8 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_flat_24);
 					}
 
-					menu.findItem(R.id.toggle_unread).setIcon(selectedArticle.unread ? R.drawable.baseline_drafts_24 :
-							R.drawable.baseline_email_24);
+					menu.findItem(R.id.toggle_unread).setIcon(selectedArticle.unread ? R.drawable.baseline_email_24 :
+							R.drawable.baseline_drafts_24);
 
 					menu.findItem(R.id.toggle_attachments).setVisible(selectedArticle.attachments != null && !selectedArticle.attachments.isEmpty());
 				}
@@ -261,7 +259,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	}
 	
 	@Override
-	public void onArticleListSelectionChange(ArticleList m_selectedArticles) {
+	public void onArticleListSelectionChange() {
 		invalidateOptionsMenu();
 	}
 
@@ -271,35 +269,23 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	@Override
-	public void onArticleSelected(final Article article, boolean open) {
-		
-		if (article == null) return;
-		
+	public void onArticleSelected(Article article, boolean open) {
+
 		if (article.unread) {
 			article.unread = false;
 			saveArticleUnread(article);
 		}
 
-		try {
-			preloadUriIfAllowed(Uri.parse(article.link));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();
 
+		ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+
 		if (open) {
-
-			new Handler().postDelayed(() -> {
-                ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-
-                if (ap != null) {
-                    ap.setActiveArticleId(article.id);
-                }
-            }, 250);
-
+			if (ap != null) {
+				ap.setActiveArticleId(article.id);
+			}
 		} else {
-			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 			if (hf != null) {
 				hf.setActiveArticleId(article.id);
 			}
@@ -313,11 +299,11 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
-        if (ap != null) {
-            ap.notifyUpdated();
+		if (ap != null) {
+            ap.syncToSharedArticles();
         }
 
-		if (hf != null) {
+		/* if (hf != null) {
 			Article article = Application.getArticles().getById(hf.getActiveArticleId());
 						
 			if (article == null && !Application.getArticles().isEmpty()) {
@@ -335,7 +321,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
 				ft.commitAllowingStateLoss();
 			}
-		}
+		} */
 	}
 	
 	@Override

@@ -5,12 +5,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,6 +26,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -391,6 +395,7 @@ public class OnlineActivity extends CommonActivity {
         } else if (itemId == R.id.search) {
             if (hf != null) {
                 final EditText edit = new EditText(this);
+                edit.setText(hf.getSearchQuery());
 
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.search)
@@ -561,28 +566,37 @@ public class OnlineActivity extends CommonActivity {
 			if (ap != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
-                if (selectedArticle != null)
-				    setArticleScore(selectedArticle);
+                if (selectedArticle != null) {
+                    setArticleScore(selectedArticle);
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                }
 			}
 			return true;
         } else if (itemId == R.id.toggle_marked) {
             if (ap != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
-                selectedArticle.marked = !selectedArticle.marked;
-                saveArticleMarked(selectedArticle);
+                if (selectedArticle != null) {
+                    selectedArticle.marked = !selectedArticle.marked;
 
-                if (hf != null) hf.notifyUpdated();
+                    saveArticleMarked(selectedArticle);
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                }
             }
             return true;
         } else if (itemId == R.id.toggle_unread) {
             if (ap != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
-                selectedArticle.unread = !selectedArticle.unread;
-                saveArticleUnread(selectedArticle);
+                if (selectedArticle != null) {
+                    selectedArticle.unread = !selectedArticle.unread;
 
-                if (hf != null) hf.notifyUpdated();
+                    saveArticleUnread(selectedArticle);
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                }
             }
             return true;
         } else if (itemId == R.id.selection_toggle_unread) {
@@ -590,11 +604,13 @@ public class OnlineActivity extends CommonActivity {
                 ArticleList selected = hf.getSelectedArticles();
 
                 if (!selected.isEmpty()) {
-                    for (Article a : selected)
+                    for (Article a : selected) {
                         a.unread = !a.unread;
 
+                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                    }
+
                     toggleArticlesUnread(selected);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
@@ -604,11 +620,13 @@ public class OnlineActivity extends CommonActivity {
                 ArticleList selected = hf.getSelectedArticles();
 
                 if (!selected.isEmpty()) {
-                    for (Article a : selected)
+                    for (Article a : selected) {
                         a.marked = !a.marked;
 
+                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                    }
+
                     toggleArticlesMarked(selected);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
@@ -618,24 +636,26 @@ public class OnlineActivity extends CommonActivity {
                 ArticleList selected = hf.getSelectedArticles();
 
                 if (!selected.isEmpty()) {
-                    for (Article a : selected)
+                    for (Article a : selected) {
                         a.published = !a.published;
 
+                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                    }
+
                     toggleArticlesPublished(selected);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
             return true;
         } else if (itemId == R.id.toggle_published) {
-            if (ap != null) {
+            if (ap != null && hf != null) {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
                 if (selectedArticle != null) {
                     selectedArticle.published = !selectedArticle.published;
                     saveArticlePublished(selectedArticle);
 
-                    if (hf != null) hf.notifyUpdated();
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
                 }
             }
             return true;
@@ -688,12 +708,17 @@ public class OnlineActivity extends CommonActivity {
                     if (a.unread) {
                         a.unread = false;
                         tmp.add(a);
+
+                        if (hf != null) {
+                            int position = Application.getArticles().indexOf(a);
+
+                            hf.notifyItemChanged(position);
+                        }
                     }
                 }
 
                 if (!tmp.isEmpty()) {
                     setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
-                    hf.notifyUpdated();
                     invalidateOptionsMenu();
                 }
             }
@@ -713,11 +738,15 @@ public class OnlineActivity extends CommonActivity {
 
             saveArticleNote(article, note);
 
-            HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-            if (hf != null) hf.notifyUpdated();
+            int position = Application.getArticles().getPositionById(article.id);
 
-            ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-            if (ap != null) ap.notifyUpdated();
+            if (position != -1) {
+                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+                if (hf != null) hf.notifyItemChanged(position);
+
+                ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+                if (ap != null) ap.notifyItemChanged(position);
+            }
         });
 		
 		builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
@@ -839,7 +868,8 @@ public class OnlineActivity extends CommonActivity {
 	protected void setApiLevel(int apiLevel) {
 		Application.getInstance().setApiLevel(apiLevel);
 	}
-	
+
+    // TODO switch to setArticleField()
 	public void saveArticleUnread(final Article article) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -853,11 +883,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", article.unread ? "1" : "0");
-		map.put("field", "2");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_UNREAD));
 
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticleScore(final Article article) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -871,11 +902,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("data", String.valueOf(article.score));
-		map.put("field", "4");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_SCORE));
 
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticleMarked(final Article article) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -889,11 +921,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", article.marked ? "1" : "0");
-		map.put("field", "0");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_MARKED));
 		
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticlePublished(final Article article) {
 
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
@@ -908,11 +941,12 @@ public class OnlineActivity extends CommonActivity {
 		map.put("op", "updateArticle");
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", article.published ? "1" : "0");
-		map.put("field", "1");
+		map.put("field", String.valueOf(Article.UPDATE_FIELD_PUBLISHED));
 
 		req.execute(map);
 	}
 
+    // TODO switch to setArticleField()
 	public void saveArticleNote(final Article article, final String note) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
@@ -926,7 +960,7 @@ public class OnlineActivity extends CommonActivity {
 		map.put("article_ids", String.valueOf(article.id));
 		map.put("mode", "1");
 		map.put("data", note);
-		map.put("field", "3");
+        map.put("field", String.valueOf(Article.UPDATE_FIELD_NOTE));
 
 		req.execute(map);
 	}
@@ -1005,7 +1039,8 @@ article.score = Integer.parseInt(edit.getText().toString());
                 if (selectedArticle != null) {
                     selectedArticle.unread = !selectedArticle.unread;
                     saveArticleUnread(selectedArticle);
-                    if (hf != null) hf.notifyUpdated();
+
+                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
                 }
 			}
 			return true;
@@ -1081,8 +1116,6 @@ article.score = Integer.parseInt(edit.getText().toString());
     }
 
 	public void setArticlesUnread(final ArticleList articles, int mode) {
-		ApiRequest req = new ApiRequest(getApplicationContext());
-
         setArticleField(articles, Article.UPDATE_FIELD_UNREAD, mode);
 	}
 
@@ -1099,11 +1132,19 @@ article.score = Integer.parseInt(edit.getText().toString());
             protected void onPostExecute(JsonElement result) {
                 Log.d(TAG, "setArticleField operation complete");
 
-                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-                if (hf != null) hf.notifyUpdated();
+                // currently this is generally handled before operation completes (but after POJO is modified)
 
+                /* HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
                 ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-                if (ap != null) ap.notifyUpdated();
+
+                for (Article a : articles) {
+                    int position = Application.getArticles().getPositionById(a.id);
+
+                    if (position != -1) {
+                        if (hf != null) hf.notifyItemChanged(position);
+                        if (ap != null) ap.notifyItemChanged(position);
+                    }
+                } */
             }
         };
 
@@ -1144,11 +1185,30 @@ article.score = Integer.parseInt(edit.getText().toString());
 				Article article = Application.getArticles().getById(ap.getSelectedArticleId());
 
 				if (article != null) {
+
 					m_menu.findItem(R.id.toggle_marked).setIcon(article.marked ? R.drawable.baseline_star_24 :
 							R.drawable.baseline_star_outline_24);
 
-					m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.baseline_check_box_24 :
-							R.drawable.baseline_rss_feed_24);
+                    // TODO we probably shouldn't do this all the time
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        TypedValue tvTertiary = new TypedValue();
+                        getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
+
+                        ColorStateList colorStateTertiary = ColorStateList.valueOf(ContextCompat.getColor(this, tvTertiary.resourceId));
+
+                        TypedValue tvNormal = new TypedValue();
+                        getTheme().resolveAttribute(R.attr.colorControlNormal, tvNormal, true);
+
+                        ColorStateList colorStateNormal = ColorStateList.valueOf(ContextCompat.getColor(this, tvNormal.resourceId));
+
+                        m_menu.findItem(R.id.toggle_published).setIconTintList(article.published ? colorStateTertiary : colorStateNormal);
+                        m_menu.findItem(R.id.toggle_marked).setIconTintList(article.marked ? colorStateTertiary : colorStateNormal);
+
+                    } else {
+                        m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.rss_box :
+                                R.drawable.baseline_rss_feed_24);
+                    }
+
 				}
 			}
 
@@ -1188,12 +1248,6 @@ article.score = Integer.parseInt(edit.getText().toString());
 		
 			if (hf != null) {
 				hf.refresh(false);
-			}
-			
-			ArticlePager af = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-			
-			if (af != null) {
-				af.refresh(false);
 			}
 		}
 	}
@@ -1361,15 +1415,6 @@ article.score = Integer.parseInt(edit.getText().toString());
 	
 	public String getLastContentImageHitTestUrl() {
 		return m_lastImageHitTestUrl;
-	}
-
-	public boolean isWifiConnected() {
-		NetworkInfo wifi = m_cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-		if (wifi != null)
-			return wifi.isConnected();
-
-		return false;
 	}
 
 	public int getResizeWidth() {

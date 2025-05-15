@@ -157,7 +157,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         View noteContainer = view.findViewById(R.id.note_container);
 
         if (note != null && noteContainer != null) {
-            if (m_article.note != null && !m_article.note.isEmpty()) {
+            if (!m_article.note.isEmpty()) {
                 note.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
                 note.setText(m_article.note);
                 noteContainer.setVisibility(View.VISIBLE);
@@ -259,7 +259,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         String linkHexColor = String.format("#%06X", (0xFFFFFF & tvColorPrimary.data));
         cssOverride += " a:link {color: "+linkHexColor+";} a:visited { color: "+linkHexColor+";}";
 
-        String articleContent = m_article.content != null ? m_article.content : "";
+        String articleContent = m_article.content;
 
         ws.setJavaScriptEnabled(false);
 
