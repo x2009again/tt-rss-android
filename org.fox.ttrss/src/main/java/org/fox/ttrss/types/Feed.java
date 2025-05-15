@@ -7,6 +7,11 @@ import android.os.Parcelable;
 import org.fox.ttrss.R;
 
 public class Feed implements Comparable<Feed>, Parcelable {
+	public static final int TYPE_HEADER = -10000;
+	public static final int TYPE_GOBACK = -10001;
+	public static final int TYPE_DIVIDER = -10002;
+	public static final int TYPE_TOGGLE_UNREAD = -10003;
+
 	public String feed_url;
 	public String title;
 	public int id;
@@ -18,7 +23,13 @@ public class Feed implements Comparable<Feed>, Parcelable {
 	public boolean is_cat;
     public boolean always_display_as_feed;
     public String display_title;
-	
+
+	public Feed(int id) {
+		this.id = id;
+		this.title = "ID:" + id;
+		this.is_cat = false;
+	}
+
 	public Feed(int id, String title, boolean is_cat) {
 		this.id = id;
 		this.title = title;

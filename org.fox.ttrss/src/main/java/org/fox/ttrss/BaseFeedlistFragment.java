@@ -2,7 +2,6 @@ package org.fox.ttrss;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,7 +18,7 @@ public abstract class BaseFeedlistFragment extends androidx.fragment.app.Fragmen
 
     public void initDrawerHeader(LayoutInflater inflater, View view, ListView list, final CommonActivity activity, final SharedPreferences prefs) {
 
-        View layout = inflater.inflate(R.layout.drawer_header, list, false);
+        View layout = inflater.inflate(R.layout.feeds_row_header, list, false);
         list.addHeaderView(layout, null, false);
 
         TextView login = view.findViewById(R.id.drawer_header_login);
@@ -49,7 +48,7 @@ public abstract class BaseFeedlistFragment extends androidx.fragment.app.Fragmen
         /* deal with ~material~ footers */
 
         // divider
-        final View footer = inflater.inflate(R.layout.drawer_divider, list, false);
+        final View footer = inflater.inflate(R.layout.feeds_row_divider, list, false);
         footer.setOnClickListener(v -> {
             //
         });

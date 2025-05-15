@@ -164,11 +164,16 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
-			if (m_prefs.getBoolean("enable_cats", true)) {
+			/* if (m_prefs.getBoolean("enable_cats", true)) {
 				ft.replace(R.id.feeds_fragment, new FeedCategoriesFragment(), FRAG_CATS);
 			} else {
 				ft.replace(R.id.feeds_fragment, new FeedsFragment(), FRAG_FEEDS);
-			}
+			} */
+
+			FeedsFragment ff = new FeedsFragment();
+			ff.initialize(12);
+
+			ft.replace(R.id.feeds_fragment, ff, FRAG_FEEDS);
 
 			// allow overriding feed to open on startup in non-shortcut mode, default to
 			// open_on_startup prefs setting and not-category
@@ -273,7 +278,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
 
 		if (ff != null && ff.isAdded()) {
-			ff.setSelectedfeed(feed);
+			ff.setSelectedFeedId(feed.id);
 		}
 
 		if (m_drawerLayout != null) {
@@ -321,7 +326,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 					.beginTransaction();
 
 			FeedsFragment ff = new FeedsFragment();
-			ff.initialize(cat, true);
+			ff.initialize(cat.id);
 			ft.replace(R.id.feeds_fragment, ff, FRAG_FEEDS);
 
 			ft.addToBackStack(null);

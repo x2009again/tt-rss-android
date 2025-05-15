@@ -2,34 +2,33 @@ package org.fox.ttrss;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -37,7 +36,6 @@ import com.google.gson.reflect.TypeToken;
 
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.types.FeedCategory;
-import org.fox.ttrss.types.FeedList;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -45,43 +43,41 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickListener, OnSharedPreferenceChangeListener,
+public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
 	private SharedPreferences m_prefs;
-	private FeedListAdapter m_adapter;
-	private final FeedList m_feeds = new FeedList();
 	private MasterActivity m_activity;
-	Feed m_selectedFeed;
-	FeedCategory m_activeCategory;
+	private int m_catId;
+	private int m_selectedFeedId;
 	private SwipeRefreshLayout m_swipeLayout;
-    boolean m_enableParentBtn = false;
-    private ListView m_list;
+    private boolean m_enableParentBtn = false;
+	private FeedsAdapter m_adapter;
+	private RecyclerView m_list;
+	private RecyclerView.LayoutManager m_layoutManager;
 
-    public void initialize(FeedCategory cat, boolean enableParentBtn) {
-        m_activeCategory = cat;
-        m_enableParentBtn = enableParentBtn;
+	public void initialize(int catId) {
+        m_catId = catId;
 	}
 
 	@Override
 	public Loader<JsonElement> onCreateLoader(int id, Bundle args) {
 		if (m_swipeLayout != null) m_swipeLayout.setRefreshing(true);
 
-		final int catId = (m_activeCategory != null) ? m_activeCategory.id : -4;
-
 		final String sessionId = m_activity.getSessionId();
-		final boolean unreadOnly = m_activity.getUnreadOnly() && (m_activeCategory == null || m_activeCategory.id != -1);
+		final boolean unreadOnly = false;
+		// final boolean unreadOnly = m_activity.getUnreadOnly() && (m_activeCategory == null || m_activeCategory.id != -1);
 
 		HashMap<String,String> params = new HashMap<>();
 		params.put("op", "getFeeds");
 		params.put("sid", sessionId);
 		params.put("include_nested", "true");
-		params.put("cat_id", String.valueOf(catId));
+		params.put("cat_id", String.valueOf(m_catId));
 
 		if (unreadOnly)
 			params.put("unread_only", "true");
 
-		return new FeedsLoader(getActivity().getApplicationContext(), params, catId);
+		return new ApiLoader(getContext(), params);
 	}
 
 	@Override
@@ -94,16 +90,14 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 				if (content != null) {
 
 					Type listType = new TypeToken<List<Feed>>() {}.getType();
-					final List<Feed> feeds = new Gson().fromJson(content, listType);
+					final List<Feed> feedsJson = new Gson().fromJson(content, listType);
 
-					m_feeds.clear();
+					List<Feed> feeds = new ArrayList<>();
 
-					int catUnread = 0;
+					// int catUnread = 0;
 
-					int catId = ((FeedsLoader) loader).getCatId();
-
-					for (Feed f : feeds)
-						if (f.id > -10 || catId != -4) { // skip labels for flat feedlist for now
+					/* for (Feed f : feeds)
+						if (f.id > -10 || m_catId != -4) { // skip labels for flat feedlist for now
 							if (m_activeCategory != null || f.id >= 0) {
 								m_feeds.add(f);
 								catUnread += f.unread;
@@ -132,7 +126,19 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 						m_feeds.add(0, feed);
 					}
 
-					m_adapter.notifyDataSetChanged();
+					m_adapter.notifyDataSetChanged(); */
+
+					// m_adapter.sortFeeds(feedsJson);
+
+					feeds.add(new Feed(Feed.TYPE_HEADER));
+					feeds.add(new Feed(Feed.TYPE_GOBACK));
+
+					feeds.addAll(feedsJson);
+
+					feeds.add(new Feed(Feed.TYPE_DIVIDER));
+					feeds.add(new Feed(Feed.TYPE_TOGGLE_UNREAD));
+
+					m_adapter.submitList(feeds);
 
 					return;
 				}
@@ -142,16 +148,17 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			}
 		}
 
-		ApiLoader al = (ApiLoader) loader;
+		ApiLoader apiLoader = (ApiLoader) loader;
 
-		if (al.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
-			m_activity.login(true);
-		} else {
-
-			if (al.getLastErrorMessage() != null) {
-				m_activity.toast(getString(al.getErrorMessage()) + "\n" + al.getLastErrorMessage());
+		if (apiLoader.getLastError() != null && apiLoader.getLastError() != ApiCommon.ApiError.SUCCESS) {
+			if (apiLoader.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
+				m_activity.login(true);
 			} else {
-				m_activity.toast(al.getErrorMessage());
+				if (apiLoader.getLastErrorMessage() != null) {
+					m_activity.toast(getString(apiLoader.getErrorMessage()) + "\n" + apiLoader.getLastErrorMessage());
+				} else {
+					m_activity.toast(apiLoader.getErrorMessage());
+				}
 			}
 		}
 	}
@@ -169,7 +176,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 				else
 					return a.title.toUpperCase().compareTo(b.title.toUpperCase());
 			}
-		
+
 	}
 	
 
@@ -222,7 +229,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
+		/* AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
 		int itemId = item.getItemId();
 		if (itemId == R.id.browse_headlines) {
@@ -261,7 +268,8 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 				m_activity.catchupDialog(feed);
 			}
 			return true;
-		}
+		} */
+
 		Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
 		return super.onContextItemSelected(item);
 	}
@@ -270,7 +278,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public void onCreateContextMenu(ContextMenu menu, View v,
 	    ContextMenuInfo menuInfo) {
 		
-		getActivity().getMenuInflater().inflate(R.menu.context_feed, menu);
+		/* getActivity().getMenuInflater().inflate(R.menu.context_feed, menu);
 		
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
@@ -284,7 +292,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 
 		if (feed.id <= 0) {
 			menu.findItem(R.id.unsubscribe_feed).setVisible(false);
-		}
+		} */
 
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
@@ -295,13 +303,8 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		super.onCreate(savedInstanceState);
 
 		if (savedInstanceState != null) {
-			ArrayList<Feed> list = savedInstanceState.getParcelableArrayList("m_feeds");
-
-			m_feeds.clear();
-			m_feeds.addAll(list);
-
-			m_selectedFeed = savedInstanceState.getParcelable("m_selectedFeed");
-			m_activeCategory = savedInstanceState.getParcelable("m_activeCategory");
+			m_catId = savedInstanceState.getInt("m_catId");
+			m_selectedFeedId = savedInstanceState.getInt("m_selectedId");
 			m_enableParentBtn = savedInstanceState.getBoolean("m_enableParentBtn");
 		}
 	}
@@ -310,26 +313,31 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 
-		out.putParcelableArrayList("m_feeds", m_feeds);
-		out.putParcelable("m_selectedFeed", m_selectedFeed);
-		out.putParcelable("m_activeCategory", m_activeCategory);
+		out.putInt("m_catId", m_catId);
+		out.putInt("m_selectedId", m_selectedFeedId);
 		out.putBoolean("m_enableParentBtn", m_enableParentBtn);
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
 		
-		View view = inflater.inflate(R.layout.fragment_feeds, container, false);
+		View view = inflater.inflate(R.layout.fragment_feeds_recycler, container, false);
 		
 		m_swipeLayout = view.findViewById(R.id.feeds_swipe_container);
-		
+
 	    m_swipeLayout.setOnRefreshListener(this::refresh);
 
 		m_list = view.findViewById(R.id.feeds);
+		registerForContextMenu(m_list);
 
-		initDrawerHeader(inflater, view, m_list, m_activity, m_prefs);
+		m_layoutManager = new LinearLayoutManager(m_activity.getApplicationContext());
+		m_list.setLayoutManager(m_layoutManager);
+		m_list.setItemAnimator(new DefaultItemAnimator());
 
-		if (m_enableParentBtn) {
+		m_adapter = new FeedsAdapter();
+		m_list.setAdapter(m_adapter);
+
+		/* if (m_enableParentBtn) {
 			View layout = inflater.inflate(R.layout.feeds_goback, m_list, false);
 
 			layout.setOnClickListener(view1 -> m_activity.getSupportFragmentManager().popBackStack());
@@ -341,7 +349,7 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		m_list.setAdapter(m_adapter);
 		m_list.setOnItemClickListener(this);
 
-		registerForContextMenu(m_list);
+		registerForContextMenu(m_list); */
 
 		return view;    	
 	}
@@ -359,7 +367,6 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		m_prefs.registerOnSharedPreferenceChangeListener(this);
 		
 		m_activity = (MasterActivity)activity;
-				
 	}
 
 	@Override
@@ -367,11 +374,11 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		super.onResume();
 
 		LoaderManager.getInstance(this).initLoader(Application.LOADER_FEEDS, null, this).forceLoad();
-		
+
 		m_activity.invalidateOptionsMenu();
 	}
 	
-	@Override
+	/* @Override
 	public void onItemClick(AdapterView<?> av, View view, int position, long id) {
 		ListView list = (ListView)av;
 
@@ -395,11 +402,9 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
     		//m_selectedFeed = feed;
 			//m_adapter.notifyDataSetChanged();
 		}
-	}
+	} */
 
 	public void refresh() {
-		if (!isAdded()) return;
-
 		if (m_swipeLayout != null) {
             m_swipeLayout.setRefreshing(true);
         }
@@ -407,128 +412,189 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		LoaderManager.getInstance(this).restartLoader(Application.LOADER_FEEDS, null, this).forceLoad();
 	}
 
-	private class FeedListAdapter extends ArrayAdapter<Feed> {
-		private final ArrayList<Feed> items;
+	private class FeedViewHolder extends RecyclerView.ViewHolder {
 
-		public static final int VIEW_NORMAL = 0;
-		public static final int VIEW_SELECTED = 1;
+		private View view;
+		private ImageView icon;
+		private TextView title;
+		private TextView unreadCounter;
+		private TextView rowSwitch;
+		private View settingsBtn;
+		private TextView login;
+		private TextView server;
 
-		public static final int VIEW_COUNT = VIEW_SELECTED+1;
+		public FeedViewHolder(@NonNull View itemView) {
+			super(itemView);
 
-		public FeedListAdapter(Context context, int textViewResourceId, ArrayList<Feed> items) {
-			super(context, textViewResourceId, items);
-			this.items = items;
+			view = itemView;
+			icon = itemView.findViewById(R.id.icon);
+			title = itemView.findViewById(R.id.title);
+			unreadCounter = itemView.findViewById(R.id.unread_counter);
+			rowSwitch = itemView.findViewById(R.id.row_switch);
+			settingsBtn = itemView.findViewById(R.id.drawer_settings_btn);
+			login = itemView.findViewById(R.id.drawer_header_login);
+			server = itemView.findViewById(R.id.drawer_header_server);
+		}
+	}
+
+	private class FeedDiffUtilItemCallback extends DiffUtil.ItemCallback<Feed> {
+
+		@Override
+		public boolean areItemsTheSame(@NonNull Feed oldItem, @NonNull Feed newItem) {
+			return oldItem.id == newItem.id;
 		}
 
-        @Override
-        public boolean isEmpty() {
-            return !m_enableParentBtn && super.isEmpty();
-        }
+		@Override
+		public boolean areContentsTheSame(@NonNull Feed oldItem, @NonNull Feed newItem) {
+			return oldItem.id == newItem.id &&
+					oldItem.is_cat == newItem.is_cat &&
+					oldItem.title.equals(newItem.title) &&
+					oldItem.unread == newItem.unread;
+		}
+	}
 
-        @Override
-		public int getViewTypeCount() {
-			return VIEW_COUNT;
+	private class FeedsAdapter extends ListAdapter<Feed, FeedViewHolder> {
+		public static final int VIEW_NORMAL = 0;
+		public static final int VIEW_SELECTED = 1;
+		public static final int VIEW_GOBACK = 2;
+		public static final int VIEW_HEADER = 3;
+		public static final int VIEW_TOGGLE_UNREAD = 4;
+		public static final int VIEW_DIVIDER = 5;
+
+		protected FeedsAdapter() {
+			super(new FeedDiffUtilItemCallback());
+		}
+
+		@NonNull
+		@Override
+		public FeedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			int layoutId = R.layout.feeds_row;
+
+			switch (viewType) {
+				case VIEW_SELECTED:
+					layoutId = R.layout.feeds_row_selected;
+					break;
+				case VIEW_GOBACK:
+					layoutId = R.layout.feeds_row_goback;
+					break;
+				case VIEW_TOGGLE_UNREAD:
+					layoutId = R.layout.feeds_row_toggle;
+					break;
+				case VIEW_HEADER:
+					layoutId = R.layout.feeds_row_header;
+					break;
+				case VIEW_DIVIDER:
+					layoutId = R.layout.feeds_row_divider;
+					break;
+			}
+
+			return new FeedViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false));
+		}
+
+		@Override
+		public void onBindViewHolder(@NonNull FeedViewHolder holder, int position) {
+			Feed feed = getItem(position);
+
+			if (holder.icon != null) {
+				if (feed.id == Feed.TYPE_GOBACK) {
+					holder.icon.setImageResource(R.drawable.baseline_arrow_back_24);
+				} else if (feed.id == 0 && !feed.is_cat) {
+					holder.icon.setImageResource(R.drawable.baseline_archive_24);
+				} else if (feed.id == -1 && !feed.is_cat) {
+					holder.icon.setImageResource(R.drawable.baseline_star_24);
+				} else if (feed.id == -2 && !feed.is_cat) {
+					holder.icon.setImageResource(R.drawable.rss);
+				} else if (feed.id == -3 && !feed.is_cat) {
+					holder.icon.setImageResource(R.drawable.baseline_local_fire_department_24);
+				} else if (feed.id == -4 && !feed.is_cat) {
+					holder.icon.setImageResource(R.drawable.baseline_inbox_24);
+				} else if (feed.id == -6 && !feed.is_cat) {
+					holder.icon.setImageResource(R.drawable.baseline_restore_24);
+				} else if (feed.is_cat) {
+					holder.icon.setImageResource(R.drawable.baseline_folder_open_24);
+				} else {
+					holder.icon.setImageResource(R.drawable.rss);
+				}
+			}
+
+			if (holder.title != null) {
+				holder.title.setText(feed.display_title != null ? feed.display_title : feed.title);
+
+				if (feed.always_display_as_feed || (!feed.is_cat && feed.id == -4)) {
+					holder.title.setTypeface(null, Typeface.BOLD);
+				} else {
+					holder.title.setTypeface(null, Typeface.NORMAL);
+				}
+
+			}
+
+			if (holder.unreadCounter != null) {
+				holder.unreadCounter.setText(String.valueOf(feed.unread));
+				holder.unreadCounter.setVisibility((feed.unread > 0) ? View.VISIBLE : View.INVISIBLE);
+			}
+
+			if (holder.settingsBtn != null) {
+				holder.settingsBtn.setOnClickListener(view -> {
+					Intent intent = new Intent(getActivity(),
+							PreferencesActivity.class);
+
+					startActivityForResult(intent, 0);
+				});
+			}
+
+			holder.view.setOnClickListener(view -> {
+				if (feed.is_cat) {
+					if (feed.always_display_as_feed) {
+						m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), true);
+					} else if (feed.id < 0) {
+						m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
+					} else {
+						m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread));
+					}
+				} else {
+					m_activity.onFeedSelected(feed);
+				}
+			});
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			Feed feed = items.get(position);
+			Feed feed = getItem(position);
 
-            if (/*!m_activity.isSmallScreen() &&*/ m_selectedFeed != null && feed.id == m_selectedFeed.id) {
+			if (feed.id == Feed.TYPE_GOBACK) {
+				return VIEW_GOBACK;
+			} else if (feed.id == Feed.TYPE_DIVIDER) {
+				return VIEW_DIVIDER;
+			} else if (feed.id == Feed.TYPE_HEADER) {
+				return VIEW_HEADER;
+			} else if (feed.id == Feed.TYPE_TOGGLE_UNREAD) {
+				return VIEW_TOGGLE_UNREAD;
+			} else if (feed.id == m_selectedFeedId) {
 				return VIEW_SELECTED;
 			} else {
 				return VIEW_NORMAL;
 			}
 		}
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View v = convertView;
+		public void sortFeeds(List<Feed> feeds) {
+			Comparator<Feed> cmp;
 
-			Feed feed = items.get(position);
-
-			if (v == null) {
-				int layoutId = R.layout.feeds_row;
-
-                if (getItemViewType(position) == VIEW_SELECTED) {
-                    layoutId = R.layout.feeds_row_selected;
-                }
-
-				LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				v = vi.inflate(layoutId, null);
-
-			}
-
-			ImageView icon = v.findViewById(R.id.icon);
-
-			if (icon != null) {
-				if (feed.id == 0 && !feed.is_cat) {
-					icon.setImageResource(R.drawable.baseline_archive_24);
-				} else if (feed.id == -1 && !feed.is_cat) {
-					icon.setImageResource(R.drawable.baseline_star_24);
-				} else if (feed.id == -2 && !feed.is_cat) {
-					icon.setImageResource(R.drawable.rss);
-				} else if (feed.id == -3 && !feed.is_cat) {
-					icon.setImageResource(R.drawable.baseline_local_fire_department_24);
-				} else if (feed.id == -4 && !feed.is_cat) {
-					icon.setImageResource(R.drawable.baseline_inbox_24);
-				} else if (feed.id == -6 && !feed.is_cat) {
-					icon.setImageResource(R.drawable.baseline_restore_24);
-				} else if (feed.is_cat) {
-					icon.setImageResource(R.drawable.baseline_folder_open_24);
+			if (m_prefs.getBoolean("sort_feeds_by_unread", false)) {
+				cmp = new FeedUnreadComparator();
+			} else {
+				if (m_activity.getApiLevel() >= 3) {
+					cmp = new FeedOrderComparator();
 				} else {
-					icon.setImageResource(R.drawable.rss);
+					cmp = new FeedTitleComparator();
 				}
 			}
 
-			TextView tt = v.findViewById(R.id.title);
-
-			if (tt != null) {
-                tt.setText(feed.display_title != null ? feed.display_title : feed.title);
-
-                if (feed.always_display_as_feed || (!feed.is_cat && feed.id == -4)) {
-                    tt.setTypeface(null, Typeface.BOLD);
-                } else {
-                    tt.setTypeface(null, Typeface.NORMAL);
-                }
-
+			try {
+				feeds.sort(cmp);
+			} catch (IllegalArgumentException e) {
+				// sort order got changed in prefs or something
+				e.printStackTrace();
 			}
-
-			TextView tu = v.findViewById(R.id.unread_counter);
-
-			if (tu != null) {
-				tu.setText(String.valueOf(feed.unread));
-				tu.setVisibility((feed.unread > 0) ? View.VISIBLE : View.INVISIBLE);
-			}
-
-			return v;
-		}
-	}
-
-	public void sortFeeds() {
-		Comparator<Feed> cmp;
-		
-		if (m_prefs.getBoolean("sort_feeds_by_unread", false)) {
-			cmp = new FeedUnreadComparator();
-		} else {
-			if (m_activity.getApiLevel() >= 3) {
-				cmp = new FeedOrderComparator();				
-			} else {
-				cmp = new FeedTitleComparator();
-			}
-		}
-		
-		try {
-			m_feeds.sort(cmp);
-		} catch (IllegalArgumentException e) {
-			// sort order got changed in prefs or something
-			e.printStackTrace();
-		}
-
-		try {
-			m_adapter.notifyDataSetChanged();
-		} catch (NullPointerException e) {
-			// adapter missing
 		}
 	}
 
@@ -536,10 +602,10 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
 
-		sortFeeds();
+		refresh();
 	}
 
-	public Feed getFeedAtPosition(int position) {
+	/* public Feed getFeedAtPosition(int position) {
 		try {
 			return (Feed) m_list.getItemAtPosition(position);
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -547,13 +613,14 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 		}
 
 		return null;
-	}
+	} */
 
-	public void setSelectedfeed(Feed feed) {
-        m_selectedFeed = feed;
-
+	public void setSelectedFeedId(int feedId) {
         if (m_adapter != null) {
-            m_adapter.notifyDataSetChanged();
+			m_selectedFeedId = feedId;
+
+			// TODO handle properly
+			m_adapter.notifyDataSetChanged();
         }
     }
 }
