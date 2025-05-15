@@ -489,9 +489,18 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
 							.setAction(R.string.reload, v -> refresh(false)).show();
 
-				if (model.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
-					m_activity.login();
-				} else if (model.getLastError() != null && model.getLastError() != ApiCommon.ApiError.SUCCESS) {
+				if (model.getLastError() != null && model.getLastError() != ApiCommon.ApiError.SUCCESS) {
+
+					if (m_swipeLayout != null)
+						m_swipeLayout.setRefreshing(false);
+
+					m_isLazyLoading = false;
+
+					if (model.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
+						m_activity.login();
+						return;
+					}
+
 					if (model.getLastErrorMessage() != null) {
 						m_activity.toast(m_activity.getString(model.getErrorMessage()) + "\n" + model.getLastErrorMessage());
 					} else {
@@ -582,6 +591,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public MaterialButton attachmentsView;
 		public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
 		int articleId;
+		public TextView linkHost;
 
 		public ArticleViewHolder(View v) {
 			super(v);
@@ -619,6 +629,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			flavorImageOverflow = v.findViewById(R.id.gallery_overflow);
 			flavorVideoView = v.findViewById(R.id.flavor_video);
 			attachmentsView = v.findViewById(R.id.attachments);
+			linkHost = v.findViewById(R.id.link_host);
 
 			if (flavorImageView != null && flavorImageLoadingBar != null) {
 				flavorProgressTarget = new FlavorProgressTarget<>(new GlideDrawableImageViewTarget(flavorImageView), flavorImageLoadingBar);
@@ -818,11 +829,19 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				if (article.feed_title != null && m_feed != null && (m_feed.is_cat || m_feed.id < 0)) {
 					holder.feedTitleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineSmallFontSize);
 					holder.feedTitleView.setText(article.feed_title);
-
 				} else {
 					holder.feedTitleView.setVisibility(View.GONE);
 				}
+			}
 
+			if (holder.linkHost != null) {
+				if (article.isHostDistinct()) {
+					holder.linkHost.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineSmallFontSize);
+					holder.linkHost.setText(article.getLinkHost());
+					holder.linkHost.setVisibility(View.VISIBLE);
+				} else {
+					holder.linkHost.setVisibility(View.GONE);
+				}
 			}
 
 			TypedValue tvTertiary = new TypedValue();

@@ -6,7 +6,10 @@ import android.os.Parcelable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jspecify.annotations.NonNull;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -319,5 +322,30 @@ public class Article implements Parcelable {
 		if (note == null) note = "";
 		if (excerpt == null) excerpt = "";
 		if (content == null) content = "";
+	}
+
+	public boolean isHostDistinct() {
+		try {
+			String siteDomain = new URL(site_url).getHost().replace("www.", "");
+			String linkDomain = new URL(link).getHost().replace("www.", "");
+
+			return !linkDomain.contains(siteDomain);
+
+		} catch (MalformedURLException e) {
+			//
+		}
+
+		return false;
+	}
+
+	@NonNull
+	public String getLinkHost() {
+		try {
+			return new URL(link).getHost();
+		} catch (MalformedURLException e) {
+			//
+		}
+
+		return "";
 	}
 }

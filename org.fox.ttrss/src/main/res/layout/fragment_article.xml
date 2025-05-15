@@ -57,6 +57,20 @@
                 android:textColor="?colorPrimary"
                 android:textSize="12sp" />
 
+            <TextView
+                android:id="@+id/link_host"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                tools:text="example.com"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginTop="8dp"
+                android:textColor="?colorPrimary"
+                android:textSize="12sp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

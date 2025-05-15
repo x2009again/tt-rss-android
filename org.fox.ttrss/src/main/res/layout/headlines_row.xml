@@ -77,6 +77,20 @@
 
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/link_host"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:layout_below="@+id/linearLayout2"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="middle"
+                    android:fontFamily="sans-serif-light"
+                    android:singleLine="true"
+                    android:textAlignment="viewStart"
+                    android:textColor="?colorSecondary"
+                    android:textSize="12sp"
+                    tools:text="example.com" />
+
             </RelativeLayout>
 
         </TableRow>

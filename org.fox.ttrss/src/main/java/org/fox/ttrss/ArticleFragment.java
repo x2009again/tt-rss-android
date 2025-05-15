@@ -135,6 +135,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
                 String commentsTitle = getResources().getQuantityString(R.plurals.article_comments, m_article.comments_count, m_article.comments_count);
                 comments.setText(commentsTitle);
+
                 //comments.setPaintFlags(title.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                 comments.setOnClickListener(v -> {
                     try {
@@ -150,6 +151,17 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
             } else {
                 comments.setVisibility(View.GONE);
+            }
+        }
+
+        TextView linkHost = view.findViewById(R.id.link_host);
+
+        if (linkHost != null) {
+            if (m_article.isHostDistinct()) {
+                linkHost.setText(m_article.getLinkHost());
+                linkHost.setVisibility(View.VISIBLE);
+            } else {
+                linkHost.setVisibility(View.GONE);
             }
         }
 
