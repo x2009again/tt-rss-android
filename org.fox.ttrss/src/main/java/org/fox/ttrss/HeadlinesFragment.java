@@ -46,6 +46,7 @@ import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -827,16 +828,16 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			TypedValue tvTertiary = new TypedValue();
 			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
 
+			ColorStateList colorTertiary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvTertiary.resourceId));
+
 			TypedValue tvPrimary = new TypedValue();
 			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
 
+			ColorStateList colorPrimary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvPrimary.resourceId));
+
 			if (holder.markedView != null) {
 				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
-
-				if (article.marked)
-					holder.markedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
-				else
-					holder.markedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
+				holder.markedView.setIconTint(article.marked ? colorTertiary : colorPrimary);
 
 				holder.markedView.setOnClickListener(v -> {
 					Article selectedArticle = new Article(getItem(position));
@@ -858,9 +859,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.scoreView.setIconResource(scoreDrawable);
 
 				if (article.score > Article.SCORE_HIGH)
-					holder.scoreView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
+					holder.scoreView.setIconTint(colorTertiary);
 				else
-					holder.scoreView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
+					holder.scoreView.setIconTint(colorPrimary);
 
 				if (m_activity.getApiLevel() >= 16) {
 					holder.scoreView.setOnClickListener(v -> {
@@ -896,10 +897,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
 				}
 
-				if (article.published)
-					holder.publishedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
-				else
-					holder.publishedView.setIconTint(ColorStateList.valueOf(tvPrimary.data));
+				holder.publishedView.setIconTint(article.published ? colorTertiary : colorPrimary);
 
 				holder.publishedView.setOnClickListener(v -> {
 					Article selectedArticle = new Article(getItem(position));
