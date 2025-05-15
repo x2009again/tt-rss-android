@@ -5,12 +5,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,6 +26,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -1181,11 +1185,30 @@ article.score = Integer.parseInt(edit.getText().toString());
 				Article article = Application.getArticles().getById(ap.getSelectedArticleId());
 
 				if (article != null) {
+
 					m_menu.findItem(R.id.toggle_marked).setIcon(article.marked ? R.drawable.baseline_star_24 :
 							R.drawable.baseline_star_outline_24);
 
-					m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.rss_box :
-							R.drawable.baseline_rss_feed_24);
+                    // TODO we probably shouldn't do this all the time
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        TypedValue tvTertiary = new TypedValue();
+                        getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
+
+                        ColorStateList colorStateTertiary = ColorStateList.valueOf(ContextCompat.getColor(this, tvTertiary.resourceId));
+
+                        TypedValue tvNormal = new TypedValue();
+                        getTheme().resolveAttribute(R.attr.colorControlNormal, tvNormal, true);
+
+                        ColorStateList colorStateNormal = ColorStateList.valueOf(ContextCompat.getColor(this, tvNormal.resourceId));
+
+                        m_menu.findItem(R.id.toggle_published).setIconTintList(article.published ? colorStateTertiary : colorStateNormal);
+                        m_menu.findItem(R.id.toggle_marked).setIconTintList(article.marked ? colorStateTertiary : colorStateNormal);
+
+                    } else {
+                        m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.rss_box :
+                                R.drawable.baseline_rss_feed_24);
+                    }
+
 				}
 			}
 

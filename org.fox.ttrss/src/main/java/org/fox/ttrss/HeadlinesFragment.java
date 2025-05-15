@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
@@ -889,7 +890,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			if (holder.publishedView != null) {
-				holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
+
+				// otherwise we just use tinting in actionbar
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+					holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
+				}
 
 				if (article.published)
 					holder.publishedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));
