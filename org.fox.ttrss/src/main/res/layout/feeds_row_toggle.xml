@@ -20,7 +20,7 @@
         android:layout_weight="0"
         android:scaleType="fitXY"
         app:tint="?colorOnPrimaryContainer"
-        android:src="?ic_rss_box" />
+        android:src="@drawable/rss_box" />
 
     <TextView
         android:id="@+id/title"

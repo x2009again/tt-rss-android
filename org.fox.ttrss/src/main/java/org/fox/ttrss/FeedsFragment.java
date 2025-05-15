@@ -462,34 +462,23 @@ public class FeedsFragment extends BaseFeedlistFragment implements OnItemClickLi
 			ImageView icon = v.findViewById(R.id.icon);
 
 			if (icon != null) {
-				TypedValue tv = new TypedValue();
-
 				if (feed.id == 0 && !feed.is_cat) {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_archive, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.baseline_archive_24);
 				} else if (feed.id == -1 && !feed.is_cat) {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_star, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.baseline_star_24);
 				} else if (feed.id == -2 && !feed.is_cat) {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_rss_box, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.rss);
 				} else if (feed.id == -3 && !feed.is_cat) {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_fresh, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.baseline_local_fire_department_24);
 				} else if (feed.id == -4 && !feed.is_cat) {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_inbox, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.baseline_inbox_24);
 				} else if (feed.id == -6 && !feed.is_cat) {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_restore, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.baseline_restore_24);
 				} else if (feed.is_cat) {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_folder_outline, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.baseline_folder_open_24);
 				} else {
-					m_activity.getTheme().resolveAttribute(R.attr.ic_rss_box, tv, true);
-					icon.setImageResource(tv.resourceId);
+					icon.setImageResource(R.drawable.rss);
 				}
-
 			}
 
 			TextView tt = v.findViewById(R.id.title);

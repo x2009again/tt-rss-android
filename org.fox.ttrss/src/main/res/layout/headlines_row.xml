@@ -242,7 +242,7 @@
                     android:layout_weight="0"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    app:icon="?ic_rss_box" />
+                    app:icon="@drawable/rss" />
 
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialIconButtonStyle"

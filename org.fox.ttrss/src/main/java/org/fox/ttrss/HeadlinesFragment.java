@@ -896,10 +896,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			if (holder.publishedView != null) {
-				TypedValue tv = new TypedValue();
-				m_activity.getTheme().resolveAttribute(R.attr.ic_rss_box, tv, true);
-
-				holder.publishedView.setIconResource(tv.resourceId);
+				holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
 
 				if (article.published)
 					holder.publishedView.setIconTint(ColorStateList.valueOf(tvTertiary.data));

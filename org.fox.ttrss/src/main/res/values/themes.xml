@@ -4,7 +4,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
 
-        <item name="ic_rss_box">@drawable/baseline_rss_feed_24</item>
         <item name="ic_checkbox_marked">@drawable/baseline_check_box_24</item>
         <item name="ic_star">@drawable/baseline_star_24</item>
         <item name="ic_star_outline">@drawable/baseline_star_outline_24</item>
