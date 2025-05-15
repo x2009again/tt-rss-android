@@ -460,42 +460,43 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		// this gets notified on network update
 		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
-			ArticleList tmp = new ArticleList(model.getArticles().getValue());
+			if (lastUpdate > 0) {
+				ArticleList tmp = new ArticleList(model.getArticles().getValue());
 
-			Log.d(TAG, "observed last update=" + lastUpdate + " article count=" + tmp.size());
+				Log.d(TAG, "observed last update=" + lastUpdate + " article count=" + tmp.size());
 
-			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
-				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
+				if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+					tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
-			final boolean appended = model.getAppend();
+				final boolean appended = model.getAppend();
 
-			m_adapter.submitList(tmp, () -> {
-				if (!appended)
-					m_list.scrollToPosition(0);
+				m_adapter.submitList(tmp, () -> {
+					if (!appended)
+						m_list.scrollToPosition(0);
 
-				if (m_swipeLayout != null)
-					m_swipeLayout.setRefreshing(false);
+					if (m_swipeLayout != null)
+						m_swipeLayout.setRefreshing(false);
 
-				m_isLazyLoading = false;
+					m_isLazyLoading = false;
 
-				m_listener.onHeadlinesLoaded(appended);
-				m_listener.onArticleListSelectionChange();
-			});
+					m_listener.onHeadlinesLoaded(appended);
+					m_listener.onArticleListSelectionChange();
+				});
 
-			if (model.getFirstIdChanged())
-				Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
-						.setAction(R.string.reload, v -> refresh(false)).show();
+				if (model.getFirstIdChanged())
+					Snackbar.make(getView(), R.string.headlines_row_top_changed, Snackbar.LENGTH_LONG)
+							.setAction(R.string.reload, v -> refresh(false)).show();
 
-			if (model.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
-				m_activity.login();
-			} else if (model.getLastError() != null && model.getLastError() != ApiCommon.ApiError.SUCCESS) {
-				if (model.getLastErrorMessage() != null) {
-					m_activity.toast(m_activity.getString(model.getErrorMessage()) + "\n" + model.getLastErrorMessage());
-				} else {
-					m_activity.toast(model.getErrorMessage());
+				if (model.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
+					m_activity.login();
+				} else if (model.getLastError() != null && model.getLastError() != ApiCommon.ApiError.SUCCESS) {
+					if (model.getLastErrorMessage() != null) {
+						m_activity.toast(m_activity.getString(model.getErrorMessage()) + "\n" + model.getLastErrorMessage());
+					} else {
+						m_activity.toast(model.getErrorMessage());
+					}
 				}
 			}
-
 		});
 
 		// loaded articles might get modified for all sorts of reasons
