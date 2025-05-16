@@ -498,7 +498,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 				holder.rowSwitch.setOnCheckedChangeListener((button, isChecked) -> {
 					m_activity.setUnreadOnly(isChecked);
-					refresh();
 				});
 			}
 
@@ -618,8 +617,12 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			String key) {
 
 		// Can't access ViewModels from detached fragment (= backstack)
-		if (isAdded())
-			refresh();
+		if (isAdded()) {
+			String[] filter = new String[] { "sort_feeds_by_unread", "show_unread_only" };
+
+			if (Arrays.asList(filter).contains(key))
+				refresh();
+		}
 	}
 
 	public void setSelectedFeed(Feed feed) {
