@@ -34,6 +34,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -134,7 +135,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	public void initialize(Feed feed, int activeArticleId, boolean compactMode) {
 		m_feed = feed;
-        m_compactLayoutMode = compactMode;
+		m_compactLayoutMode = compactMode;
 		m_activeArticleId = activeArticleId;
 	}
 
@@ -244,6 +245,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	    ContextMenuInfo menuInfo) {
 
 		getActivity().getMenuInflater().inflate(R.menu.context_headlines, menu);
+
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+
+		Article article = m_adapter.getCurrentList().get(info.position);
+
+		menu.setHeaderTitle(article.title);
 
 		menu.findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
 		menu.findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
@@ -453,10 +460,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				}
 			}
 		});
-
-        if (m_activity.isSmallScreen() && m_feed != null) {
-            m_activity.setTitle(m_feed.title);
-        }
 
 		ArticleModel model = Application.getArticlesModel();
 

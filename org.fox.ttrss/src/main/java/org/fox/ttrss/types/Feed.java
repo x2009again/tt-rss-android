@@ -1,13 +1,11 @@
 package org.fox.ttrss.types;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.fox.ttrss.R;
 
 public class Feed implements Comparable<Feed>, Parcelable {
-	public static final int TYPE_HEADER = -10000;
 	public static final int TYPE_GOBACK = -10001;
 	public static final int TYPE_DIVIDER = -10002;
 	public static final int TYPE_TOGGLE_UNREAD = -10003;
@@ -21,8 +19,7 @@ public class Feed implements Comparable<Feed>, Parcelable {
 	public int last_updated;
 	public int order_id;
 	public boolean is_cat;
-    public boolean always_display_as_feed;
-    public String display_title;
+    transient public boolean always_open_headlines;
 
 	public Feed(int id) {
 		this.id = id;
@@ -36,24 +33,61 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		this.is_cat = is_cat;
 	}
 
-	// TODO: maybe add special categories? (, bool isCat)
-	public static String getSpecialFeedTitleById(Context context, int feedId) {
-		switch (feedId) {
-			case -1:
-				return context.getString(R.string.feed_starred_articles);
-			case -2:
-				return context.getString(R.string.feed_published_articles);
-			case -3:
-				return context.getString(R.string.fresh_articles);
-			case -4:
-				return context.getString(R.string.feed_all_articles);
-			case -6:
-				return context.getString(R.string.feed_recently_read);
-			case 0:
-				return context.getString(R.string.feed_archived_articles);
-			default:
-				return null;
-		}
+	public Feed(Feed feed) {
+		id = feed.id;
+		feed_url = feed.feed_url;
+		title = feed.title;
+		unread = feed.unread;
+		has_icon = feed.has_icon;
+		cat_id = feed.cat_id;
+		last_updated = feed.last_updated;
+		order_id = feed.order_id;
+		is_cat = feed.is_cat;
+		always_open_headlines = feed.always_open_headlines;
+	}
+
+	public static final int MARKED = -1;
+	public static final int PUBLISHED = -2;
+	public static final int FRESH = -3;
+	public static final int ALL_ARTICLES = -4;
+	public static final int RECENTLY_READ = -6;
+	public static final int ARCHIVED = 0;
+
+	public static final int CAT_SPECIAL = -1;
+	public static final int CAT_LABELS = -2;
+	public static final int CAT_UNCATEGORIZED = 0;
+
+	public static int getSpecialFeedTitleId(int feedId, boolean isCat) {
+		if (!isCat)
+			switch (feedId) {
+				case MARKED:
+					return R.string.feed_starred_articles;
+				case PUBLISHED:
+					return R.string.feed_published_articles;
+				case FRESH:
+					return R.string.fresh_articles;
+				case ALL_ARTICLES:
+					return R.string.feed_all_articles;
+				case RECENTLY_READ:
+					return R.string.feed_recently_read;
+				case ARCHIVED:
+					return R.string.feed_archived_articles;
+				case TYPE_TOGGLE_UNREAD:
+					return R.string.unread_only;
+				default:
+					throw new IllegalArgumentException("Invalid special feed id: " + feedId);
+			}
+		else
+			switch (feedId) {
+				case CAT_LABELS:
+					return R.string.cat_labels;
+				case CAT_SPECIAL:
+					return R.string.cat_special;
+				case CAT_UNCATEGORIZED:
+					return R.string.cat_uncategorized;
+				default:
+					throw new IllegalArgumentException("Invalid special category id: " + feedId);
+			}
 	}
 	
 	public Feed(Parcel in) {
@@ -98,8 +132,7 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		out.writeInt(last_updated);
 		out.writeInt(is_cat ? 1 : 0);
 		out.writeInt(order_id);
-        out.writeInt(always_display_as_feed ? 1 : 0);
-        out.writeString(display_title);
+        out.writeInt(always_open_headlines ? 1 : 0);
 	}
 	
 	public void readFromParcel(Parcel in) {
@@ -112,8 +145,7 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		last_updated = in.readInt();
 		is_cat = in.readInt() == 1;
 		order_id = in.readInt();
-        always_display_as_feed = in.readInt() == 1;
-        display_title = in.readString();
+        always_open_headlines = in.readInt() == 1;
 	}
 	
 	@SuppressWarnings("rawtypes")
