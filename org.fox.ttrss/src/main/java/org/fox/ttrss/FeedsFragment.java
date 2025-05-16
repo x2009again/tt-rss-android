@@ -518,7 +518,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				} else {
 					Feed tmpFeed = new Feed(feed);
 
-					if (!neverOpenHeadlines(feed))
+					if (!neverOpenHeadlines(feed) && !tmpFeed.always_open_headlines)
 						tmpFeed.always_open_headlines = m_prefs.getBoolean("browse_cats_like_feeds", false);
 
 					m_activity.onFeedSelected(tmpFeed);
