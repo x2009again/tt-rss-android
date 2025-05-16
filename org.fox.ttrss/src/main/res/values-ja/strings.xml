@@ -286,4 +286,5 @@
     <string name="headlines_row_top_changed">新着記事があります。フィードをリロードしてください。</string>
     <string name="headline_undo_row_prompt">既読にする</string>
     <string name="widget_background_light">ライト</string>
+    <string name="article_edit_note">注釈を編集</string>
 </resources>
