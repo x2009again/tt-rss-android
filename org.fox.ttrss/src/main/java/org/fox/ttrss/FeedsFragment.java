@@ -49,6 +49,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeListener,
@@ -71,19 +72,18 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		m_enableParentBtn = enableParentBtn;
 	}
 
+	@NonNull
 	@Override
 	public Loader<JsonElement> onCreateLoader(int id, Bundle args) {
-		if (m_swipeLayout != null) m_swipeLayout.setRefreshing(true);
+
+		if (m_swipeLayout != null)
+			m_swipeLayout.setRefreshing(true);
 
 		HashMap<String,String> params = new HashMap<>();
 		params.put("op", "getFeeds");
 		params.put("sid", m_activity.getSessionId());
 		params.put("include_nested", "true");
 		params.put("cat_id", String.valueOf(m_rootFeed.id));
-
-		/* except marked */
-		if (m_activity.getUnreadOnly() && m_rootFeed.id != -1)
-			params.put("unread_only", "true");
 
 		return new ApiLoader(getContext(), params);
 	}
@@ -99,8 +99,12 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 					Type listType = new TypeToken<List<Feed>>() {}.getType();
 					List<Feed> feedsJson = new Gson().fromJson(content, listType);
-
 					List<Feed> feeds = new ArrayList<>();
+
+					if (m_activity.getUnreadOnly() && m_rootFeed.id != Feed.CAT_SPECIAL)
+						feedsJson = feedsJson.stream()
+								.filter(f -> f.unread > 0)
+								.collect(Collectors.toList());
 
 					sortFeeds(feedsJson, m_rootFeed);
 

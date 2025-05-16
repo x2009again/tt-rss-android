@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RootCategoriesFragment extends FeedsFragment {
 	private final String TAG = this.getClass().getSimpleName();
@@ -31,9 +32,6 @@ public class RootCategoriesFragment extends FeedsFragment {
 
 		// this confusingly named option means "return top level categories only"
 		params.put("enable_nested", "true");
-
-		if (m_activity.getUnreadOnly())
-			params.put("unread_only", "true");
 
 		return new ApiLoader(getContext(), params);
 	}
@@ -76,7 +74,7 @@ public class RootCategoriesFragment extends FeedsFragment {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<JsonElement> loader, JsonElement result) {
+	public void onLoadFinished(@NonNull Loader<JsonElement> loader, JsonElement result) {
 		if (m_swipeLayout != null) m_swipeLayout.setRefreshing(false);
 
 		if (result != null) {
@@ -93,18 +91,21 @@ public class RootCategoriesFragment extends FeedsFragment {
 
 					// virtual cats implemented in getCategories since api level 1
 					if (m_activity.getApiLevel() == 0) {
-						feeds.add(0, new Feed(-2, getString(R.string.cat_labels), false));
-						feeds.add(1, new Feed(-1, getString(R.string.cat_special), false));
-						feeds.add(new Feed(0, getString(R.string.cat_uncategorized), false));
+						feeds.add(0, new Feed(-2, getString(R.string.cat_labels), true));
+						feeds.add(1, new Feed(-1, getString(R.string.cat_special), true));
+						feeds.add(new Feed(0, getString(R.string.cat_uncategorized), true));
 					}
 
-					if (feedsJson.stream().noneMatch(a -> a.id == -1))
-						feeds.add(new Feed(-1, getString(R.string.cat_special), true));
+					if (m_activity.getUnreadOnly())
+						feedsJson = feedsJson.stream()
+								.filter(f -> f.id == Feed.CAT_SPECIAL || f.unread > 0)
+								.collect(Collectors.toList());
 
-					for (Feed f : feedsJson) {
-						f.is_cat = true;
-						feeds.add(f);
-					}
+					feedsJson = feedsJson.stream()
+							.peek(f -> f.is_cat = true)
+							.collect(Collectors.toList());
+
+					feeds.addAll(feedsJson);
 
 					feeds.add(new Feed(Feed.TYPE_DIVIDER));
 					feeds.add(new Feed(Feed.TYPE_TOGGLE_UNREAD, getString(R.string.unread_only), true));
