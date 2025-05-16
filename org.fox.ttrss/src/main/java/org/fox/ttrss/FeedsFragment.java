@@ -49,6 +49,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {
@@ -234,7 +235,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		if (itemId == R.id.browse_headlines) {
 			Feed tmpFeed = new Feed(feed);
 
-			if (neverOpenHeadlines(feed))
+			if (neverOpenHeadlines(feed) && !tmpFeed.always_open_headlines)
 				tmpFeed.always_open_headlines = true;
 
 			m_activity.onFeedSelected(tmpFeed);
@@ -517,7 +518,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				} else {
 					Feed tmpFeed = new Feed(feed);
 
-					if (neverOpenHeadlines(feed))
+					if (neverOpenHeadlines(feed) && !tmpFeed.always_open_headlines)
 						tmpFeed.always_open_headlines = m_prefs.getBoolean("browse_cats_like_feeds", false);
 
 					m_activity.onFeedSelected(tmpFeed);
@@ -542,19 +543,18 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			}
 		}
 
-		/** TODO there has to be a better way -- Feed.equals()? */
 		public int getPositionOf(Feed feed) {
 			List<Feed> feeds = getCurrentList();
 
-			Optional<Feed> maybeFeed = feeds.stream().filter(a -> a.id == feed.id && a.is_cat == feed.is_cat).findFirst();
+			return IntStream.range(0, feeds.size())
+					.sequential()
+					.filter(i -> {
+						Feed f = feeds.get(i);
 
-			if (maybeFeed.isPresent()) {
-				Feed foundFeed = maybeFeed.get();
-
-				return feeds.indexOf(foundFeed);
-			}
-
-			return -1;
+						return f.id == feed.id && f.is_cat == feed.is_cat;
+					})
+					.findFirst()
+					.orElse(-1);
 		}
 	}
 
