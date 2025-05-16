@@ -42,7 +42,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	protected long m_lastRefresh = 0;
 	protected long m_lastWidgetRefresh = 0;
 	
-	protected boolean m_feedIsSelected = false;
+	protected Feed m_activeFeed;
 
     private ActionBarDrawerToggle m_drawerToggle;
     private DrawerLayout m_drawerLayout;
@@ -185,13 +185,11 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 			ft.commit();
 
-            m_feedIsSelected = true;
-
 		} else { // savedInstanceState != null
 
-			m_feedIsSelected = savedInstanceState.getBoolean("m_feedIsSelected");
+			m_activeFeed = savedInstanceState.getParcelable("m_activeFeed");
 
-			if (m_drawerLayout != null && !m_feedIsSelected) {
+			if (m_drawerLayout != null && m_activeFeed == null) {
 				m_drawerLayout.openDrawer(GravityCompat.START);
 			}
 		}
@@ -238,6 +236,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 	protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
         // Sync the toggle state after onRestoreInstanceState has occurred.
         if (m_drawerToggle != null) m_drawerToggle.syncState();
     }
@@ -256,6 +255,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	public void onFeedSelected(Feed feed) {
+
+		m_activeFeed = feed;
 
 		if (isSmallScreen())
 			setTitle(feed.title);
@@ -298,46 +299,9 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 				ft.commit();
 			}
-
-			/* FragmentTransaction ft = getSupportFragmentManager()
-					.beginTransaction();
-
-			HeadlinesFragment hf = new HeadlinesFragment();
-			hf.initialize(feed);
-			hf.refresh(false);
-
-			ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
-
-			ft.commit();
-
-			m_feedIsSelected = true;
-
-			Date date = new Date();
-
-			if (date.getTime() - m_lastRefresh > 30 * 1000) {
-				m_lastRefresh = date.getTime();
-				refresh(false);
-			} */
 		}
 	}
-	
-	/* public void onCatSelected(Feed cat) {
-		FeedCategoriesFragment fc = (FeedCategoriesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_CATS);
 
-		if (fc != null) {
-			fc.setSelectedCategory(null);
-		}
-
-		FragmentTransaction ft = getSupportFragmentManager()
-				.beginTransaction();
-
-		FeedsFragment ff = new FeedsFragment();
-		ff.initialize(, true);
-		ft.replace(R.id.feeds_fragment, ff, FRAG_FEEDS);
-
-		ft.addToBackStack(null);
-		ft.commit();
-	} */
 
     @Override
     public void logout() {
@@ -428,7 +392,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);	
 
-		out.putBoolean("m_feedIsSelected", m_feedIsSelected);
+		out.putParcelable("m_activeFeed", m_activeFeed);
 
 		Application.getInstance().save(out);
 	}
@@ -470,10 +434,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				intent.putExtra("searchQuery", hf.getSearchQuery());
 				intent.putExtra("openedArticleId", article.id);
 
-				// we use shared article list, but detail activity does not use special footers
-				// we will append those back (if needed) in onActivityResult()
-				// Application.getArticles().stripFooters();
-
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 			}
@@ -507,10 +467,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	@Override
-	public void onHeadlinesLoaded(boolean appended) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onHeadlinesLoaded(boolean appended) { }
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -547,6 +504,10 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		
 		req.execute(map);
 
+	}
+
+	public Feed getActiveFeed() {
+		return m_activeFeed;
 	}
 
 }

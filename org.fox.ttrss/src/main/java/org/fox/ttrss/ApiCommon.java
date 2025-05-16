@@ -19,6 +19,7 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Credentials;
 import okhttp3.MediaType;
@@ -137,9 +138,13 @@ public class ApiCommon {
 
             Request request = requestBuilder.build();
 
-            Response response = new OkHttpClient()
-                    .newCall(request)
-                    .execute();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
+
+            Response response = client.newCall(request).execute();
 
             if (response.isSuccessful()) {
                 String payloadReceived = response.body().string();

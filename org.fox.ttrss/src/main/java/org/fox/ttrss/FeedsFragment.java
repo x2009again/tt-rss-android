@@ -101,56 +101,13 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 					List<Feed> feeds = new ArrayList<>();
 
-					// int catUnread = 0;
-
-					/* for (Feed f : feeds)
-						if (f.id > -10 || m_catId != -4) { // skip labels for flat feedlist for now
-							if (m_activeCategory != null || f.id >= 0) {
-								m_feeds.add(f);
-								catUnread += f.unread;
-							}
-
-							if (m_activeCategory != null && m_activeCategory.id == -1)
-								f.title = Feed.getSpecialFeedTitleById(m_activity, f.id);
-						}
-
-					sortFeeds();
-
-					if (m_activeCategory == null) {
-						Feed feed = new Feed(-1, "Special", true);
-						feed.unread = catUnread;
-
-						m_feeds.add(0, feed);
-
-					}
-
-					if (m_enableParentBtn && m_activeCategory != null && m_activeCategory.id >= 0 && !m_feeds.isEmpty()) {
-						Feed feed = new Feed(m_activeCategory.id, m_activeCategory.title, true);
-						feed.unread = catUnread;
-						feed.always_display_as_feed = true;
-						feed.display_title = getString(R.string.feed_all_articles);
-
-						m_feeds.add(0, feed);
-					}
-
-					m_adapter.notifyDataSetChanged(); */
-
-					// m_adapter.sortFeeds(feedsJson);
-
-					//List<Feed> feedsJsonFiltered = feedsJson.stream().filter(a -> a.id >= -10).collect(Collectors.toList());
-
-					if (m_feed.id == Feed.ALL_ARTICLES)
-						feedsJson = feedsJson.stream().filter(a -> a.id > -10).collect(Collectors.toList());
-
 					sortFeeds(feedsJson, m_feed);
-
-					// feeds.add(new Feed(Feed.TYPE_HEADER));
 
 					if (m_enableParentBtn) {
 						feeds.add(0, new Feed(Feed.TYPE_GOBACK));
 
 						if (m_feed.id >= 0 && !feedsJson.isEmpty()) {
-							Feed feed = new Feed(m_feed.id, m_feed.title, true);
+							Feed feed = new Feed(m_feed.id, getString(R.string.feed_all_articles), true);
 
 							feed.unread = feedsJson.stream().map(a -> a.unread).reduce(0, Integer::sum);
 							feed.always_open_headlines = true;
@@ -282,7 +239,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			return true;
 		} else if (itemId == R.id.browse_feeds) {
 			m_activity.onFeedSelected(feed);
-			//m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
 			return true;
 		} else if (itemId == R.id.unsubscribe_feed) {
 			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
