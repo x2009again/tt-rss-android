@@ -305,7 +305,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		m_swipeLayout = view.findViewById(R.id.headlines_swipe_container);
 
-	    m_swipeLayout.setOnRefreshListener(() -> refresh(false));
+		// see below re: viewpager2
+		if (!(m_activity instanceof DetailActivity))
+	    	m_swipeLayout.setOnRefreshListener(() -> refresh(false));
+		else
+			m_swipeLayout.setEnabled(false);
 
 		m_list = view.findViewById(R.id.headlines_list);
 		registerForContextMenu(m_list);
@@ -321,7 +325,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			refresh(false);
 		}
 
-		if (m_prefs.getBoolean("headlines_swipe_to_dismiss", true) /*&& !m_prefs.getBoolean("headlines_mark_read_scroll", false) */) {
+		// we disable this because default implementationof viewpager2 does not support removing/reordering/changing items
+		// https://stackoverflow.com/questions/69368198/delete-item-in-android-viewpager2
+		if (m_prefs.getBoolean("headlines_swipe_to_dismiss", true) && !(m_activity instanceof DetailActivity)) {
 
 			ItemTouchHelper swipeHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 
@@ -562,6 +568,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	public void refresh(final boolean append) {
 		ArticleModel model = Application.getArticlesModel();
+
+		// we do not support non-append refreshes while in DetailActivity because of viewpager2
+		if (m_activity instanceof DetailActivity && !append)
+			return;
 
 		if (!append)
 			m_activeArticleId = -1;
