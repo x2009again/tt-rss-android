@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RootCategoriesFragment extends FeedsFragment {
 	private final String TAG = this.getClass().getSimpleName();
@@ -86,7 +85,7 @@ public class RootCategoriesFragment extends FeedsFragment {
 
 					List<Feed> feeds = new ArrayList<>();
 
-					sortFeeds(feedsJson, m_feed);
+					sortFeeds(feedsJson, m_rootFeed);
 
 					// virtual cats implemented in getCategories since api level 1
 					if (m_activity.getApiLevel() == 0) {

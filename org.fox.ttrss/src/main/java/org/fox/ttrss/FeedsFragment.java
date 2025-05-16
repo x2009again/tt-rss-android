@@ -48,14 +48,14 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeListener,
 		LoaderManager.LoaderCallbacks<JsonElement> {
 	private final String TAG = this.getClass().getSimpleName();
 	protected SharedPreferences m_prefs;
 	protected MasterActivity m_activity;
-	protected Feed m_feed;
+	protected Feed m_rootFeed;
 	private Feed m_selectedFeed;
 	protected SwipeRefreshLayout m_swipeLayout;
     private boolean m_enableParentBtn = false;
@@ -63,10 +63,10 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 	private RecyclerView m_list;
 	private RecyclerView.LayoutManager m_layoutManager;
 
-	public void initialize(@NonNull Feed feed, boolean enableParentBtn) {
-		Log.d(TAG, "initialize, feed=" + feed);
+	public void initialize(@NonNull Feed rootFeed, boolean enableParentBtn) {
+		Log.d(TAG, "initialize, feed=" + rootFeed);
 
-        m_feed = feed;
+        m_rootFeed = rootFeed;
 		m_enableParentBtn = enableParentBtn;
 	}
 
@@ -78,10 +78,10 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		params.put("op", "getFeeds");
 		params.put("sid", m_activity.getSessionId());
 		params.put("include_nested", "true");
-		params.put("cat_id", String.valueOf(m_feed.id));
+		params.put("cat_id", String.valueOf(m_rootFeed.id));
 
 		/* except marked */
-		if (m_activity.getUnreadOnly() && m_feed.id != -1)
+		if (m_activity.getUnreadOnly() && m_rootFeed.id != -1)
 			params.put("unread_only", "true");
 
 		return new ApiLoader(getContext(), params);
@@ -101,13 +101,13 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 					List<Feed> feeds = new ArrayList<>();
 
-					sortFeeds(feedsJson, m_feed);
+					sortFeeds(feedsJson, m_rootFeed);
 
 					if (m_enableParentBtn) {
 						feeds.add(0, new Feed(Feed.TYPE_GOBACK));
 
-						if (m_feed.id >= 0 && !feedsJson.isEmpty()) {
-							Feed feed = new Feed(m_feed.id, getString(R.string.feed_all_articles), true);
+						if (m_rootFeed.id >= 0 && !feedsJson.isEmpty()) {
+							Feed feed = new Feed(m_rootFeed.id, m_rootFeed.title, true);
 
 							feed.unread = feedsJson.stream().map(a -> a.unread).reduce(0, Integer::sum);
 							feed.always_open_headlines = true;
@@ -232,10 +232,12 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 		int itemId = item.getItemId();
 		if (itemId == R.id.browse_headlines) {
-			Feed forceFeed = new Feed(feed);
-			forceFeed.always_open_headlines = true;
+			Feed tmpFeed = new Feed(feed);
 
-			m_activity.onFeedSelected(forceFeed);
+			if (neverOpenHeadlines(feed))
+				tmpFeed.always_open_headlines = true;
+
+			m_activity.onFeedSelected(tmpFeed);
 			return true;
 		} else if (itemId == R.id.browse_feeds) {
 			m_activity.onFeedSelected(feed);
@@ -275,13 +277,14 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		
 		menu.setHeaderTitle(feed.title);
 
-		if (!feed.is_cat) {
+		if (!feed.is_cat)
 			menu.findItem(R.id.browse_feeds).setVisible(false);
-		}
 
-		if (feed.id <= 0) {
+		if (neverOpenHeadlines(feed))
+			menu.findItem(R.id.browse_headlines).setVisible(false);
+
+		if (feed.id <= 0 || feed.is_cat)
 			menu.findItem(R.id.unsubscribe_feed).setVisible(false);
-		}
 
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
@@ -292,7 +295,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		super.onCreate(savedInstanceState);
 
 		if (savedInstanceState != null) {
-			m_feed = savedInstanceState.getParcelable("m_feed");
+			m_rootFeed = savedInstanceState.getParcelable("m_feed");
 			m_selectedFeed = savedInstanceState.getParcelable("m_selectedFeed");
 			m_enableParentBtn = savedInstanceState.getBoolean("m_enableParentBtn");
 		}
@@ -302,7 +305,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 
-		out.putParcelable("m_feed", m_feed);
+		out.putParcelable("m_feed", m_rootFeed);
 		out.putParcelable("m_selectedFeed", m_selectedFeed);
 		out.putBoolean("m_enableParentBtn", m_enableParentBtn);
 	}
@@ -376,6 +379,8 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		super.onResume();
 
 		Log.d(TAG, "onResume");
+
+		setSelectedFeed(m_activity.getActiveFeed());
 
 		refresh();
 
@@ -503,26 +508,19 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				return true;
 			});
 
+			// default open handler (i.e. tap)
 			holder.view.setOnClickListener(view -> {
 				if (feed.id == Feed.TYPE_GOBACK) {
 					m_activity.getSupportFragmentManager().popBackStack();
 				} else if (feed.id == Feed.TYPE_TOGGLE_UNREAD || feed.id == Feed.TYPE_DIVIDER) {
 					//
 				} else {
+					Feed tmpFeed = new Feed(feed);
 
-				/* if (feed.is_cat) {
-					if (feed.always_display_as_feed) {
-						//m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), true);
-					} else if (feed.id < 0) {
-						//m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread), false);
-					} else {
-						//m_activity.onCatSelected(new FeedCategory(feed.id, feed.title, feed.unread));
-					}
-				} else {
-					m_activity.onFeedSelected(feed);
-				} */
+					if (neverOpenHeadlines(feed))
+						tmpFeed.always_open_headlines = m_prefs.getBoolean("browse_cats_like_feeds", false);
 
-					m_activity.onFeedSelected(feed);
+					m_activity.onFeedSelected(tmpFeed);
 				}
 			});
 		}
@@ -537,12 +535,32 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				return VIEW_DIVIDER;
 			} else if (feed.id == Feed.TYPE_TOGGLE_UNREAD) {
 				return VIEW_TOGGLE_UNREAD;
-			} else if (m_selectedFeed != null && feed.id == m_selectedFeed.id && feed.is_cat && m_selectedFeed.is_cat) {
+			} else if (m_selectedFeed != null && feed.id == m_selectedFeed.id && feed.is_cat == m_selectedFeed.is_cat) {
 				return VIEW_SELECTED;
 			} else {
 				return VIEW_NORMAL;
 			}
 		}
+
+		/** TODO there has to be a better way -- Feed.equals()? */
+		public int getPositionOf(Feed feed) {
+			List<Feed> feeds = getCurrentList();
+
+			Optional<Feed> maybeFeed = feeds.stream().filter(a -> a.id == feed.id && a.is_cat == feed.is_cat).findFirst();
+
+			if (maybeFeed.isPresent()) {
+				Feed foundFeed = maybeFeed.get();
+
+				return feeds.indexOf(foundFeed);
+			}
+
+			return -1;
+		}
+	}
+
+	/**  we always show Labels and Special contents, regardless of the setting */
+	private boolean neverOpenHeadlines(Feed feed) {
+		return feed.id != Feed.CAT_SPECIAL && feed.id != Feed.CAT_LABELS;
 	}
 
 	protected void sortFeeds(List<Feed> feeds, Feed feed) {
@@ -604,13 +622,24 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			refresh();
 	}
 
-
 	public void setSelectedFeed(Feed feed) {
         if (m_adapter != null) {
+
+			int oldPosition = -1;
+
+			if (m_selectedFeed != null)
+				oldPosition = m_adapter.getPositionOf(m_selectedFeed);
+
+			int newPosition = m_adapter.getPositionOf(feed);
+
 			m_selectedFeed = feed;
 
-			// TODO handle properly
-			m_adapter.notifyDataSetChanged();
+			if (oldPosition != -1)
+				m_adapter.notifyItemChanged(oldPosition);
+
+			if (newPosition != -1)
+				m_adapter.notifyItemChanged(newPosition);
+
         }
     }
 }

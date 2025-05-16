@@ -256,11 +256,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 	public void onFeedSelected(Feed feed) {
 
-		m_activeFeed = feed;
-
-		if (isSmallScreen())
-			setTitle(feed.title);
-
+		// show subfolder of feeds below current level
 		if (feed.is_cat && !feed.always_open_headlines) {
 			FragmentTransaction ft = getSupportFragmentManager()
 					.beginTransaction();
@@ -273,11 +269,9 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			ft.commit();
 
 		} else {
-			FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
+			// actualy open the feed (i.e. show headlines)
 
-			if (ff != null) {
-				ff.setSelectedFeed(feed);
-			}
+			setActiveFeed(feed);
 
 			if (m_drawerLayout != null) {
 				m_drawerLayout.closeDrawers();
@@ -508,6 +502,19 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 	public Feed getActiveFeed() {
 		return m_activeFeed;
+	}
+
+	public void setActiveFeed(Feed feed) {
+		m_activeFeed = feed;
+
+		setTitle(feed.title);
+
+		FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
+
+		if (ff != null) {
+			ff.setSelectedFeed(feed);
+		}
+
 	}
 
 }
