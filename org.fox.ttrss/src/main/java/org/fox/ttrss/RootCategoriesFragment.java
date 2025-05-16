@@ -67,6 +67,10 @@ public class RootCategoriesFragment extends FeedsFragment {
 	protected int getIconForFeed(Feed feed) {
 		if (feed.id == Feed.TYPE_TOGGLE_UNREAD)
 			return super.getIconForFeed(feed);
+		else if (feed.id == Feed.CAT_LABELS)
+			return R.drawable.outline_label_24;
+		else if (feed.id == Feed.CAT_SPECIAL)
+			return R.drawable.baseline_folder_special_24;
 		else
 			return R.drawable.baseline_folder_open_24;
 	}
