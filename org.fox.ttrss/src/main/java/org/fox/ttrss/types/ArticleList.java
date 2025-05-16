@@ -1,6 +1,5 @@
 package org.fox.ttrss.types;
 
-import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 

@@ -1,5 +1,6 @@
 package org.fox.ttrss.share;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,16 +22,15 @@ import com.google.gson.reflect.TypeToken;
 import org.fox.ttrss.ApiCommon;
 import org.fox.ttrss.ApiRequest;
 import org.fox.ttrss.R;
-import org.fox.ttrss.types.FeedCategory;
-import org.fox.ttrss.types.FeedCategoryList;
+import org.fox.ttrss.types.Feed;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SubscribeActivity extends CommonShareActivity {
 	private final String TAG = this.getClass().getSimpleName();
@@ -39,17 +39,17 @@ public class SubscribeActivity extends CommonShareActivity {
 	private Button m_catButton;
 	private CatListAdapter m_catAdapter;
 	private FeedListAdapter m_feedAdapter;
-	private final FeedCategoryList m_cats = new FeedCategoryList();
+	private final List<Feed> m_cats = new ArrayList<>();
 	private final ArrayList<Map.Entry<String, JsonElement>> m_feeds = new ArrayList<>();
 	private ProgressBar m_progressBar;
 
 	private static final int REQ_CATS = 1;
 	private static final int REQ_POST = 2;
 	
-	static class CatTitleComparator implements Comparator<FeedCategory> {
+	static class TitleComparator implements Comparator<Feed> {
 
 		@Override
-		public int compare(FeedCategory a, FeedCategory b) {
+		public int compare(Feed a, Feed b) {
 			if (a.id >= 0 && b.id >= 0)
 				return a.title.compareTo(b.title);
 			else
@@ -59,13 +59,10 @@ public class SubscribeActivity extends CommonShareActivity {
 	}
 	
 	public void sortCats() {
-		Comparator<FeedCategory> cmp = new CatTitleComparator();
-		
-		Collections.sort(m_cats, cmp);
-		try {
+
+		if (m_catAdapter != null) {
+			m_cats.sort(new TitleComparator());
 			m_catAdapter.notifyDataSetChanged();
-		} catch (NullPointerException e) {
-			// adapter missing
 		}
 	}
 	
@@ -82,30 +79,26 @@ public class SubscribeActivity extends CommonShareActivity {
 		
 		if (savedInstanceState != null) {
 			urlValue = savedInstanceState.getString("url");
-			
-			ArrayList<FeedCategory> list = savedInstanceState.getParcelableArrayList("cats");
-
-			m_cats.addAll(list);
 		}
 
 		setContentView(R.layout.activity_subscribe);
 		
 		setSmallScreen(false);
 
-		m_progressBar = (ProgressBar) findViewById(R.id.subscribe_progress);
-		Spinner catList = (Spinner) findViewById(R.id.category_spinner);
+		m_progressBar = findViewById(R.id.subscribe_progress);
+		Spinner catList = findViewById(R.id.category_spinner);
 
-		if (m_cats.isEmpty()) m_cats.add(new FeedCategory(0, "Uncategorized", 0));
+		if (m_cats.isEmpty()) m_cats.add(new Feed(0, "Uncategorized", true));
 		
 		m_catAdapter = new CatListAdapter(this, android.R.layout.simple_spinner_dropdown_item, m_cats);
 		catList.setAdapter(m_catAdapter);
 
-		final Spinner feedList = (Spinner) findViewById(R.id.feed_spinner);
+		final Spinner feedList = findViewById(R.id.feed_spinner);
 		feedList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				String feed = m_feedAdapter.getItemURL(position);
-				EditText feedUrl = (EditText) findViewById(R.id.feed_url);
+				EditText feedUrl = findViewById(R.id.feed_url);
 
 				if (feed != null && feedUrl != null) {
 					feedUrl.setText(feed);
@@ -140,24 +133,22 @@ public class SubscribeActivity extends CommonShareActivity {
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 
-		EditText url = (EditText) findViewById(R.id.url);
+		EditText url = findViewById(R.id.url);
 
 		if (url != null) {
 			out.putString("url", url.getText().toString());
 		}
-		
-		out.putParcelableArrayList("cats", m_cats);
 
 	}
 	
 	private void subscribeToFeed() {
 		m_postButton.setEnabled(false);
 		
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
+		@SuppressLint("StaticFieldLeak") ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
 				m_progressBar.setVisibility(View.INVISIBLE);
 
-				if (m_lastError != ApiCommon.ApiError.UNKNOWN_ERROR) {
+				if (m_lastError != null && m_lastError != ApiCommon.ApiError.SUCCESS) {
 					toast(getErrorMessage());
 				} else {
 					try {
@@ -166,7 +157,7 @@ public class SubscribeActivity extends CommonShareActivity {
 						try {
 							rc = result.getAsJsonObject().get("status").getAsJsonObject().get("code").getAsInt();
 						} catch (Exception e) {
-							e.printStackTrace();
+							toast(e.getMessage());
 						}
 
 						switch (rc) {
@@ -212,8 +203,7 @@ public class SubscribeActivity extends CommonShareActivity {
 						}
 						
 					} catch (Exception e) {
-						toast(R.string.error_while_subscribing);
-						e.printStackTrace();
+						toast(e.getMessage());
 					}
 				}
 				
@@ -221,10 +211,10 @@ public class SubscribeActivity extends CommonShareActivity {
 			}
 		};
 		
-		Spinner catSpinner = (Spinner) findViewById(R.id.category_spinner);
+		Spinner catSpinner = findViewById(R.id.category_spinner);
 		
-		final FeedCategory cat = (FeedCategory) m_catAdapter.getCategory(catSpinner.getSelectedItemPosition());
-		final EditText feedUrl = (EditText) findViewById(R.id.feed_url);
+		final Feed cat = m_catAdapter.getCategory(catSpinner.getSelectedItemPosition());
+		final EditText feedUrl = findViewById(R.id.feed_url);
 
 		if (feedUrl != null ) {
 			HashMap<String, String> map = new HashMap<>();
@@ -255,29 +245,25 @@ public class SubscribeActivity extends CommonShareActivity {
 	}
 	
 	private void updateCats() {
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
+		@SuppressLint("StaticFieldLeak") ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
 				m_progressBar.setVisibility(View.INVISIBLE);
 
-				if (m_lastError != ApiCommon.ApiError.UNKNOWN_ERROR) {
+				if (m_lastError != null && m_lastError != ApiCommon.ApiError.SUCCESS) {
 					toast(getErrorMessage());
 				} else {
 					JsonArray content = result.getAsJsonArray();
 					
 					if (content != null) {
-						Type listType = new TypeToken<List<FeedCategory>>() {}.getType();
-						final List<FeedCategory> cats = new Gson().fromJson(content, listType);
-						
+						Type listType = new TypeToken<List<Feed>>() {}.getType();
+						final List<Feed> catsJson = new Gson().fromJson(content, listType);
+
 						m_cats.clear();
-												
-						for (FeedCategory c : cats) {
-							if (c.id > 0)
-								m_cats.add(c);							
-						}
-						
+						m_cats.addAll(catsJson.stream().filter(f -> f.id > 0).collect(Collectors.toList()));
+
 						sortCats();
 						
-						m_cats.add(0, new FeedCategory(0, "Uncategorized", 0));
+						m_cats.add(0, new Feed(0, "Uncategorized", true));
 						
 						m_catAdapter.notifyDataSetChanged();
 												
@@ -316,10 +302,10 @@ public class SubscribeActivity extends CommonShareActivity {
 	}
 
 	private static class CatListAdapter extends ArrayAdapter<String> {
-		private final List<FeedCategory> m_items;
+		private final List<Feed> m_items;
 		
 		public CatListAdapter(Context context, int resource,
-				List<FeedCategory> items) {
+				List<Feed> items) {
 			super(context, resource);
 			
 			m_items = items;
@@ -330,7 +316,7 @@ public class SubscribeActivity extends CommonShareActivity {
 			return m_items.get(item).title;
 		}
 		
-		public FeedCategory getCategory(int item) {
+		public Feed getCategory(int item) {
 			try {
 				return m_items.get(item);
 			} catch (ArrayIndexOutOfBoundsException e) {

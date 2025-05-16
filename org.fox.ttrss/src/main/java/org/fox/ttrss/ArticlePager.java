@@ -15,8 +15,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.DiffFragmentStateAdapter;
 import org.fox.ttrss.util.ArticleDiffItemCallback;
+import org.fox.ttrss.util.DiffFragmentStateAdapter;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 

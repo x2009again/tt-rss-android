@@ -19,7 +19,6 @@ import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 
 public class DetailActivity extends OnlineActivity implements HeadlinesEventListener {

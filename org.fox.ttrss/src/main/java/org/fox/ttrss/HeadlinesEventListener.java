@@ -1,7 +1,6 @@
 package org.fox.ttrss;
 
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 
 public interface HeadlinesEventListener {
 	void onArticleListSelectionChange();

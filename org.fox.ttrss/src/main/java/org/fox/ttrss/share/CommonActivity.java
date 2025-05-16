@@ -1,7 +1,6 @@
 package org.fox.ttrss.share;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
