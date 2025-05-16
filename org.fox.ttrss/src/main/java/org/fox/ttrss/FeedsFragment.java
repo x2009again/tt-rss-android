@@ -235,7 +235,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		if (itemId == R.id.browse_headlines) {
 			Feed tmpFeed = new Feed(feed);
 
-			if (neverOpenHeadlines(feed) && !tmpFeed.always_open_headlines)
+			if (!neverOpenHeadlines(feed))
 				tmpFeed.always_open_headlines = true;
 
 			m_activity.onFeedSelected(tmpFeed);
@@ -518,7 +518,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				} else {
 					Feed tmpFeed = new Feed(feed);
 
-					if (neverOpenHeadlines(feed) && !tmpFeed.always_open_headlines)
+					if (!neverOpenHeadlines(feed))
 						tmpFeed.always_open_headlines = m_prefs.getBoolean("browse_cats_like_feeds", false);
 
 					m_activity.onFeedSelected(tmpFeed);
@@ -560,7 +560,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 	/**  we always show Labels and Special contents, regardless of the setting */
 	private boolean neverOpenHeadlines(Feed feed) {
-		return feed.id != Feed.CAT_SPECIAL && feed.id != Feed.CAT_LABELS;
+		return feed.id == Feed.CAT_SPECIAL || feed.id == Feed.CAT_LABELS;
 	}
 
 	protected void sortFeeds(List<Feed> feeds, Feed feed) {
