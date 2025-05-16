@@ -1,5 +1,7 @@
 package org.fox.ttrss;
 
+import static org.fox.ttrss.glide.OkHttpProgressGlideModule.createInterceptor;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -16,12 +18,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.fox.ttrss.glide.OkHttpProgressGlideModule;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Credentials;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -40,10 +45,11 @@ public class ApiCommon {
         void setStatusCode(int statusCode);
         void setLastError(ApiError lastError);
         void setLastErrorMessage(String message);
+        void notifyProgress(int progress);
     }
 
     public enum ApiError {
-        SUCCESS, UNKNOWN_ERROR, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND,
+        SUCCESS, UNKNOWN_ERROR, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_BAD_REQUEST,
         HTTP_SERVER_ERROR, HTTP_OTHER_ERROR, SSL_REJECTED, SSL_HOSTNAME_REJECTED, PARSE_ERROR, IO_ERROR, OTHER_ERROR, API_DISABLED,
         API_UNKNOWN, LOGIN_FAILED, INVALID_URL, API_INCORRECT_USAGE, NETWORK_UNAVAILABLE, API_UNKNOWN_METHOD }
 
@@ -55,6 +61,8 @@ public class ApiCommon {
                 return R.string.error_unknown;
             case HTTP_UNAUTHORIZED:
                 return R.string.error_http_unauthorized;
+            case HTTP_BAD_REQUEST:
+                return R.string.error_bad_request;
             case HTTP_FORBIDDEN:
                 return R.string.error_http_forbidden;
             case HTTP_NOT_FOUND:
@@ -138,10 +146,22 @@ public class ApiCommon {
 
             Request request = requestBuilder.build();
 
+            OkHttpProgressGlideModule.ResponseProgressListener listener = new OkHttpProgressGlideModule.ResponseProgressListener() {
+                @Override
+                public void update(HttpUrl url, long bytesRead, long contentLength) {
+
+                    if (contentLength > 0)
+                        caller.notifyProgress((int) (bytesRead * 100f / contentLength));
+                }
+            };
+
+            /* lets shamelessly hijack OkHttpProgressGlideModule */
+
             OkHttpClient client = new OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
+                    .addNetworkInterceptor(createInterceptor(listener))
                     .build();
 
             Response response = client.newCall(request).execute();
@@ -184,6 +204,7 @@ public class ApiCommon {
                                 break;
                             default:
                                 Log.d(TAG, "Unknown API error: " + error);
+                                caller.setLastErrorMessage(error);
                                 caller.setLastError(ApiError.API_UNKNOWN);
                                 break;
                         }
@@ -191,6 +212,9 @@ public class ApiCommon {
 
             } else {
                 switch (response.code()) {
+                    case 400:
+                        caller.setLastError(ApiError.HTTP_BAD_REQUEST);
+                        break;
                     case 401:
                         caller.setLastError(ApiError.HTTP_UNAUTHORIZED);
                         break;
@@ -206,6 +230,7 @@ public class ApiCommon {
                         break;
                     default:
                         Log.d(TAG, "HTTP response code: " + response.code());
+                        caller.setLastErrorMessage("HTTP response code: " + response.code());
                         caller.setLastError(ApiError.HTTP_OTHER_ERROR);
                         break;
                 }

@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class ApiRequest extends AsyncTask<HashMap<String,String>, Integer, JsonElement> implements ApiCommon.ApiCaller {
 
-	private int m_apiStatusCode = 0;
+	protected int m_apiStatusCode = 0;
 
 	private final Context m_context;
 	protected String m_lastErrorMessage;
@@ -52,5 +52,10 @@ public class ApiRequest extends AsyncTask<HashMap<String,String>, Integer, JsonE
 	@Override
 	public void setLastErrorMessage(String message) {
 		m_lastErrorMessage = message;
+	}
+
+	@Override
+	public void notifyProgress(int progress) {
+		publishProgress(progress);
 	}
 }

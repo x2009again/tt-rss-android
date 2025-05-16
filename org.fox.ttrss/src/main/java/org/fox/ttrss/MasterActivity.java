@@ -74,7 +74,9 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 		m_lastWidgetRefresh = new Date().getTime();
 
-        m_drawerLayout = findViewById(R.id.headlines_drawer);
+		m_loadingProgress = findViewById(R.id.loading_progress);
+
+		m_drawerLayout = findViewById(R.id.headlines_drawer);
 
         if (m_drawerLayout != null) {
 
@@ -461,7 +463,15 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	@Override
-	public void onHeadlinesLoaded(boolean appended) { }
+	public void onHeadlinesLoaded(boolean appended) {
+		setLoadingVisible(false);
+	}
+
+	@Override
+	public void onHeadlinesLoadingProgress(int progress) {
+		setLoadingVisible(progress < 100);
+		setLoadingProgress(progress);
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

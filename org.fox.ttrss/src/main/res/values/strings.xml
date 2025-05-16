@@ -304,4 +304,5 @@
     <string name="dont_open_anything">Nothing</string>
     <string name="open_on_startup">Open on startup</string>
     <string name="error_success">Operation completed successfully</string>
+    <string name="error_bad_request">Error: 400 bad request</string>
 </resources>

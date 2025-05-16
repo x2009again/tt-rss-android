@@ -51,6 +51,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     private ExecutorService m_executor;
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
     private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(Long.valueOf(0));
+    private MutableLiveData<Integer> m_loadingProgress = new MutableLiveData<>(Integer.valueOf(0));
 
     public ArticleModel(@NonNull Application application) {
         super(application);
@@ -273,6 +274,11 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         m_lastErrorMessage = message;
     }
 
+    @Override
+    public void notifyProgress(int progress) {
+        m_loadingProgress.postValue(progress);
+    }
+
     public boolean getFirstIdChanged() {
         return m_firstIdChanged;
     }
@@ -311,5 +317,9 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
 
     public boolean isLoading() {
         return m_loadingInProgress;
+    }
+
+    public LiveData<Integer> getLoadingProgress() {
+        return m_loadingProgress;
     }
 }

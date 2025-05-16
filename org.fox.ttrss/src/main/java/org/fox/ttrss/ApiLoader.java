@@ -78,4 +78,7 @@ public class ApiLoader extends AsyncTaskLoader<JsonElement> implements ApiCommon
 	public void setLastErrorMessage(String message) {
 		m_lastErrorMessage = message;
 	}
+
+	@Override
+	public void notifyProgress(int progress) {	}
 }

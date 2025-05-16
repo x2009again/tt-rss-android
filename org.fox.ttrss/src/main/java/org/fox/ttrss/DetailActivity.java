@@ -58,6 +58,8 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (headlines != null)
 			headlines.setVisibility(isPortrait() ? View.GONE : View.VISIBLE);
 
+		m_loadingProgress = findViewById(R.id.loading_progress);
+
 		m_bottomAppBar = findViewById(R.id.detail_bottom_appbar);
 
 		if (m_bottomAppBar != null) {
@@ -295,6 +297,8 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 	@Override
 	public void onHeadlinesLoaded(boolean appended) {
+		setLoadingVisible(false);
+
 		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
@@ -322,7 +326,13 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			}
 		} */
 	}
-	
+
+	@Override
+	public void onHeadlinesLoadingProgress(int progress) {
+		setLoadingVisible(progress < 100);
+		setLoadingProgress(progress);
+	}
+
 	@Override
 	public void onBackPressed() {
         Intent resultIntent = new Intent();

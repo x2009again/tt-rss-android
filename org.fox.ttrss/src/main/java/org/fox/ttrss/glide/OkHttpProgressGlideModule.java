@@ -39,7 +39,7 @@ public class OkHttpProgressGlideModule implements GlideModule {
         glide.register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
     }
 
-    private static Interceptor createInterceptor(final ResponseProgressListener listener) {
+    public static Interceptor createInterceptor(final ResponseProgressListener listener) {
         return chain -> {
             Request request = chain.request();
             Response response = chain.proceed(request);
@@ -65,7 +65,7 @@ public class OkHttpProgressGlideModule implements GlideModule {
         DispatchingProgressListener.expect(url, listener);
     }
 
-    private interface ResponseProgressListener {
+    public interface ResponseProgressListener {
         void update(HttpUrl url, long bytesRead, long contentLength);
     }
 
@@ -119,14 +119,14 @@ public class OkHttpProgressGlideModule implements GlideModule {
         }
     }
 
-    private static class OkHttpProgressResponseBody extends ResponseBody {
+    public static class OkHttpProgressResponseBody extends ResponseBody {
         private final HttpUrl url;
         private final ResponseBody responseBody;
         private final ResponseProgressListener progressListener;
         private BufferedSource bufferedSource;
 
-        OkHttpProgressResponseBody(HttpUrl url, ResponseBody responseBody,
-                                   ResponseProgressListener progressListener) {
+        public OkHttpProgressResponseBody(HttpUrl url, ResponseBody responseBody,
+                                          ResponseProgressListener progressListener) {
 
             this.url = url;
             this.responseBody = responseBody;

@@ -474,6 +474,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		ArticleModel model = Application.getArticlesModel();
 
+		// this gets notified on loading %
+		model.getLoadingProgress().observe(getActivity(), progress -> {
+			m_listener.onHeadlinesLoadingProgress(progress);
+		});
+
 		// this gets notified on network update
 		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
 			if (lastUpdate > 0) {
@@ -514,6 +519,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						m_activity.login();
 						return;
 					}
+
+					m_listener.onHeadlinesLoaded(appended);
 
 					if (model.getLastErrorMessage() != null) {
 						m_activity.toast(m_activity.getString(model.getErrorMessage()) + "\n" + model.getLastErrorMessage());

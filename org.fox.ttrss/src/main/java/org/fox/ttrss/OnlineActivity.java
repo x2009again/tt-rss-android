@@ -18,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -61,6 +63,7 @@ public class OnlineActivity extends CommonActivity {
 
 	private String m_lastImageHitTestUrl;
 	private ConnectivityManager m_cmgr;
+    protected LinearProgressIndicator m_loadingProgress;
 
 	public void catchupDialog(final Feed feed) {
 
@@ -1286,8 +1289,6 @@ article.score = Integer.parseInt(edit.getText().toString());
 								Map<String, String> customSortTypes = new Gson().fromJson(config.get("custom_sort_types"), hashType);
 
 								setCustomSortModes(customSortTypes);
-
-								Log.d(TAG, "test");
 							}
 							
 							if (m_listener != null) {
@@ -1356,7 +1357,7 @@ article.score = Integer.parseInt(edit.getText().toString());
 			if (m_lastErrorMessage != null) {
 				setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_lastErrorMessage);
 			} else {
-				setLoadingStatus(getErrorMessage());
+				setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_apiStatusCode);
 			}
 			
 			loginFailure();
@@ -1417,4 +1418,16 @@ article.score = Integer.parseInt(edit.getText().toString());
 
 		return size.x > size.y ? (int)(size.y * 0.75) : (int)(size.x * 0.75);
 	}
+
+
+    public void setLoadingProgress(int progress) {
+        if (m_loadingProgress != null)
+            m_loadingProgress.setProgress(progress);
+    }
+
+    public void setLoadingVisible(boolean visible) {
+        if (m_loadingProgress != null)
+            m_loadingProgress.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
 }
