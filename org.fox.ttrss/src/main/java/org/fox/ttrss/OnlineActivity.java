@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -1231,12 +1230,6 @@ article.score = Integer.parseInt(edit.getText().toString());
 	}
 	
 	protected void refresh(boolean includeHeadlines) {
-		FeedCategoriesFragment cf = (FeedCategoriesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_CATS);
-		
-		if (cf != null) {
-			cf.refresh();
-		}
-
 		FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
 		
 		if (ff != null) {

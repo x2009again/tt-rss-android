@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,9 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonElement;
 
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.types.FeedCategory;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -45,8 +42,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	protected long m_lastRefresh = 0;
 	protected long m_lastWidgetRefresh = 0;
 	
-	protected boolean m_feedIsSelected = false;
-    protected boolean m_userFeedSelected = false;
+	protected Feed m_activeFeed;
 
     private ActionBarDrawerToggle m_drawerToggle;
     private DrawerLayout m_drawerLayout;
@@ -139,11 +135,11 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 						// app shortcuts are not allowed to pass string extras
 						if (feedTitle == null)
-							feedTitle = Feed.getSpecialFeedTitleById(MasterActivity.this, feedId);
+							feedTitle = getString(Feed.getSpecialFeedTitleId(feedId, isCat));
 
 						Feed tmpFeed = new Feed(feedId, feedTitle, isCat);
 						
-						onFeedSelected(tmpFeed, false);
+						onFeedSelected(tmpFeed);
 					}
 					
 					@Override
@@ -159,16 +155,13 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 				lr.execute(map);
 			}
-			
-			//m_pullToRefreshAttacher.setRefreshing(true);
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+			RootCategoriesFragment fc = new RootCategoriesFragment();
 
-			if (m_prefs.getBoolean("enable_cats", true)) {
-				ft.replace(R.id.feeds_fragment, new FeedCategoriesFragment(), FRAG_CATS);
-			} else {
-				ft.replace(R.id.feeds_fragment, new FeedsFragment(), FRAG_FEEDS);
-			}
+			// it doesn't matter which feed is used here
+			fc.initialize(new Feed(-1, getString(R.string.cat_special), true), false);
+			ft.replace(R.id.feeds_fragment, fc, FRAG_FEEDS);
 
 			// allow overriding feed to open on startup in non-shortcut mode, default to
 			// open_on_startup prefs setting and not-category
@@ -180,26 +173,23 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			String openFeedTitle = i.getStringExtra("feed_title");
 
 			if (openFeedTitle == null)
-				openFeedTitle = Feed.getSpecialFeedTitleById(this, openFeedId);
+				openFeedTitle = getString(Feed.getSpecialFeedTitleId(openFeedId, openFeedIsCat));
 
 			if (!shortcutMode && openFeedId != 0) {
 				Log.d(TAG, "opening feed id: " + openFeedId);
 
-				onFeedSelected(new Feed(openFeedId, openFeedTitle, openFeedIsCat), false);
+				onFeedSelected(new Feed(openFeedId, openFeedTitle, openFeedIsCat));
             } else if (m_drawerLayout != null) {
                 m_drawerLayout.openDrawer(GravityCompat.START);
             }
 
 			ft.commit();
 
-            m_feedIsSelected = true;
-
 		} else { // savedInstanceState != null
 
-			m_feedIsSelected = savedInstanceState.getBoolean("m_feedIsSelected");
-			m_userFeedSelected = savedInstanceState.getBoolean("m_userFeedSelected");
+			m_activeFeed = savedInstanceState.getParcelable("m_activeFeed");
 
-			if (m_drawerLayout != null && !m_feedIsSelected) {
+			if (m_drawerLayout != null && m_activeFeed == null) {
 				m_drawerLayout.openDrawer(GravityCompat.START);
 			}
 		}
@@ -246,6 +236,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 	protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
         // Sync the toggle state after onRestoreInstanceState has occurred.
         if (m_drawerToggle != null) m_drawerToggle.syncState();
     }
@@ -256,91 +247,55 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		
 		if (m_menu != null && getSessionId() != null) {
 			Fragment ff = getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
-			Fragment cf = getSupportFragmentManager().findFragmentByTag(FRAG_CATS);
 			HeadlinesFragment hf = (HeadlinesFragment)getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-			m_menu.setGroupVisible(R.id.menu_group_feeds, (ff != null && ff.isAdded()) || (cf != null && cf.isAdded()));
+			m_menu.setGroupVisible(R.id.menu_group_feeds, ff != null && ff.isAdded());
 			m_menu.setGroupVisible(R.id.menu_group_headlines, hf != null && hf.isAdded());
 		}
 	}
 
-    public void onFeedSelected(Feed feed) {
-        onFeedSelected(feed, true);
-    }
+	public void onFeedSelected(Feed feed) {
 
-	public void onFeedSelected(final Feed feed, final boolean selectedByUser) {
-
-		FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
-
-		if (ff != null && ff.isAdded()) {
-			ff.setSelectedfeed(feed);
-		}
-
-		if (m_drawerLayout != null) {
-			m_drawerLayout.closeDrawers();
-		}
-
-		Application.getArticles().clear();
-
-		new Handler().postDelayed(() -> {
-            FragmentTransaction ft = getSupportFragmentManager()
-                    .beginTransaction();
-
-            HeadlinesFragment hf = new HeadlinesFragment();
-            hf.initialize(feed);
-
-            ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
-
-            ft.commit();
-
-            m_feedIsSelected = true;
-            m_userFeedSelected = selectedByUser;
-
-        }, 250);
-
-        Date date = new Date();
-
-        if (date.getTime() - m_lastRefresh > 30*1000) {
-            m_lastRefresh = date.getTime();
-            refresh(false);
-        }
-	}
-	
-	public void onCatSelected(FeedCategory cat, boolean openAsFeed) {
-		FeedCategoriesFragment fc = (FeedCategoriesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_CATS);
-		
-		//m_pullToRefreshAttacher.setRefreshing(true);
-		
-		if (!openAsFeed) {
-			
-			if (fc != null && fc.isAdded()) {
-				fc.setSelectedCategory(null);
-			}
-
+		// show subfolder of feeds below current level
+		if (feed.is_cat && !feed.always_open_headlines) {
 			FragmentTransaction ft = getSupportFragmentManager()
 					.beginTransaction();
 
 			FeedsFragment ff = new FeedsFragment();
-			ff.initialize(cat, true);
+			ff.initialize(feed, true);
 			ft.replace(R.id.feeds_fragment, ff, FRAG_FEEDS);
 
 			ft.addToBackStack(null);
 			ft.commit();
 
 		} else {
-			
-			if (fc != null) {
-				fc.setSelectedCategory(cat);
+			// actualy open the feed (i.e. show headlines)
+
+			setActiveFeed(feed);
+
+			if (m_drawerLayout != null) {
+				m_drawerLayout.closeDrawers();
 			}
 
-			Feed feed = new Feed(cat.id, cat.title, true);
-			onFeedSelected(feed);
+			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+
+			if (hf != null) {
+				hf.initialize(feed);
+				hf.refresh(false);
+			} else {
+				FragmentTransaction ft = getSupportFragmentManager()
+						.beginTransaction();
+
+				hf = new HeadlinesFragment();
+				hf.initialize(feed);
+
+				ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
+
+				ft.commit();
+			}
 		}
 	}
-	
-	public void onCatSelected(FeedCategory cat) {
-		onCatSelected(cat, m_prefs.getBoolean("browse_cats_like_feeds", false));		
-	}
+
 
     @Override
     public void logout() {
@@ -407,7 +362,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
     @Override
     public void onBackPressed() {
         if (m_drawerLayout != null && !m_drawerLayout.isDrawerOpen(GravityCompat.START) &&
-                (getSupportFragmentManager().getBackStackEntryCount() > 0 || m_userFeedSelected)) {
+                (getSupportFragmentManager().getBackStackEntryCount() > 0)) {
 
             m_drawerLayout.openDrawer(GravityCompat.START);
         } else {
@@ -431,8 +386,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);	
 
-		out.putBoolean("m_feedIsSelected", m_feedIsSelected);
-		out.putBoolean("m_userFeedSelected", m_userFeedSelected);
+		out.putParcelable("m_activeFeed", m_activeFeed);
 
 		Application.getInstance().save(out);
 	}
@@ -474,10 +428,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 				intent.putExtra("searchQuery", hf.getSearchQuery());
 				intent.putExtra("openedArticleId", article.id);
 
-				// we use shared article list, but detail activity does not use special footers
-				// we will append those back (if needed) in onActivityResult()
-				// Application.getArticles().stripFooters();
-
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 			}
@@ -511,10 +461,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	@Override
-	public void onHeadlinesLoaded(boolean appended) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onHeadlinesLoaded(boolean appended) { }
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -550,6 +497,23 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		map.put("feed_id", String.valueOf(feed.id));
 		
 		req.execute(map);
+
+	}
+
+	public Feed getActiveFeed() {
+		return m_activeFeed;
+	}
+
+	public void setActiveFeed(Feed feed) {
+		m_activeFeed = feed;
+
+		setTitle(feed.title);
+
+		FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
+
+		if (ff != null) {
+			ff.setSelectedFeed(feed);
+		}
 
 	}
 

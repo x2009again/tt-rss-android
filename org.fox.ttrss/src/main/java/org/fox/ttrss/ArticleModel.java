@@ -80,7 +80,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     }
 
     public void startLoading(boolean append, @NonNull Feed feed, int resizeWidth) {
-        Log.d(TAG, "startLoading append=" + append);
+        Log.d(TAG, "startLoading append=" + append + " feed id=" + feed.id + " cat=" + feed.is_cat);
 
         m_resizeWidth = resizeWidth;
 

@@ -3,6 +3,7 @@ package org.fox.ttrss.types;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Deprecated
 public class FeedCategory implements Parcelable {
 	public int id;
 	public String title;
