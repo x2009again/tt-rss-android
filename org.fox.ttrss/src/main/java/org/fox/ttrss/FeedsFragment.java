@@ -22,8 +22,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DiffUtil;
@@ -35,20 +33,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
 
 import org.fox.ttrss.types.Feed;
 
-import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -150,7 +142,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				.getMenuInfo();
 
 		// all onContextItemSelected are invoked in sequence so we might get a context menu for headlines, etc
-		// TODO context menu ids defined here should be unique to feedsfragment
 		try {
 			if (info != null) {
 				final Feed feed = m_adapter.getCurrentList().get(info.position);
@@ -158,7 +149,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				Log.d(TAG, "context for feed=" + feed.id);
 
 				int itemId = item.getItemId();
-				if (itemId == R.id.browse_headlines) {
+				if (itemId == R.id.feed_browse_headlines) {
 					Feed tmpFeed = new Feed(feed);
 
 					if (!neverOpenHeadlines(feed))
@@ -166,10 +157,10 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 					m_activity.onFeedSelected(tmpFeed);
 					return true;
-				} else if (itemId == R.id.browse_feeds) {
+				} else if (itemId == R.id.feed_browse_feeds) {
 					m_activity.onFeedSelected(feed);
 					return true;
-				} else if (itemId == R.id.unsubscribe_feed) {
+				} else if (itemId == R.id.feed_unsubscribe) {
 					MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
 							.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
 							.setPositiveButton(R.string.unsubscribe,
@@ -183,7 +174,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 					dlg.show();
 
 					return true;
-				} else if (itemId == R.id.catchup_feed) {
+				} else if (itemId == R.id.feed_catchup) {
 					m_activity.catchupDialog(feed);
 					return true;
 				}
@@ -210,13 +201,13 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		menu.setHeaderTitle(feed.title);
 
 		if (!feed.is_cat)
-			menu.findItem(R.id.browse_feeds).setVisible(false);
+			menu.findItem(R.id.feed_browse_feeds).setVisible(false);
 
 		if (neverOpenHeadlines(feed))
-			menu.findItem(R.id.browse_headlines).setVisible(false);
+			menu.findItem(R.id.feed_browse_headlines).setVisible(false);
 
 		if (feed.id <= 0 || feed.is_cat)
-			menu.findItem(R.id.unsubscribe_feed).setVisible(false);
+			menu.findItem(R.id.feed_unsubscribe).setVisible(false);
 
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
