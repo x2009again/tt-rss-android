@@ -494,8 +494,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 				holder.title.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(m_activity, tv.resourceId)));
 
-				Log.d(TAG, feed.update_interval + " " + feed.title);
-
 				holder.title.setAlpha(feed.update_interval == -1 ? 0.5f : 1f);
 			}
 
