@@ -368,7 +368,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
     @Override
     public void onBackPressed() {
         if (m_drawerLayout != null && !m_drawerLayout.isDrawerOpen(GravityCompat.START) &&
-                (getSupportFragmentManager().getBackStackEntryCount() > 0)) {
+                (getSupportFragmentManager().getBackStackEntryCount() > 0 || m_activeFeed != null)) {
 
             m_drawerLayout.openDrawer(GravityCompat.START);
         } else {
