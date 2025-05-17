@@ -47,7 +47,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     private int m_resizeWidth;
     private boolean m_append;
     private boolean m_lazyLoadEnabled = true;
-    private boolean m_loadingInProgress;
+    private MutableLiveData<Boolean> m_isLoading = new MutableLiveData<>(Boolean.valueOf(false));
     private ExecutorService m_executor;
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
     private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(Long.valueOf(0));
@@ -91,7 +91,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             m_feed = feed;
 
             loadInBackground();
-        } else if (feed != m_feed || m_lazyLoadEnabled && !m_loadingInProgress) {
+        } else if (feed != m_feed || m_lazyLoadEnabled || !m_isLoading.getValue()) {
             m_append = true;
             m_feed = feed;
 
@@ -106,7 +106,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
 
         ArticleList articlesWork = new ArticleList(m_articles.getValue());
 
-        m_loadingInProgress = true;
+        m_isLoading.postValue(true);
 
         final int skip = getSkip(m_append, articlesWork);
         final boolean allowForceUpdate = org.fox.ttrss.Application.getInstance().getApiLevel() >= 9 &&
@@ -212,23 +212,21 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
                         }
 
                         m_offset += m_amountLoaded;
-                        m_loadingInProgress = false;
 
                         Log.d(TAG, this + " loaded headlines=" + m_amountLoaded + " resultingLocalSize=" + articlesWork.size());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
 
             m_mainHandler.post(() -> {
                 m_articles.setValue(articlesWork);
                 m_lastUpdate.setValue(System.currentTimeMillis());
+                m_isLoading.postValue(false);
             });
         });
-
-        m_loadingInProgress = false;
-
     }
 
     private int getSkip(boolean append, ArticleList articles) {
@@ -299,7 +297,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         return m_offset;
     }
 
-    public boolean lazyLoadEnabled() {
+    public boolean isLazyLoadEnabled() {
         return m_lazyLoadEnabled;
     }
 
@@ -316,7 +314,11 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     }
 
     public boolean isLoading() {
-        return m_loadingInProgress;
+        return m_isLoading.getValue();
+    }
+
+    public LiveData<Boolean> getIsLoading() {
+        return m_isLoading;
     }
 
     public LiveData<Integer> getLoadingProgress() {

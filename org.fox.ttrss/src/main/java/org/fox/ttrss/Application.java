@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class Application extends android.app.Application {
-	public static final int LOADER_HEADLINES = 0;
-	public static final int LOADER_FEEDS = 1;
-	public static final int LOADER_CATS = 2;
 
 	private static Application m_singleton;
 

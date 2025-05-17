@@ -1,23 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/browse_headlines"
+        android:id="@+id/feed_browse_headlines"
         android:title="@string/category_browse_headlines"/>
-    
-    <!-- <item
-        android:id="@+id/browse_articles"
-        android:title="@string/category_browse_articles"/> -->
-    
+
      <item
-        android:id="@+id/browse_feeds"
+        android:id="@+id/feed_browse_feeds"
         android:title="@string/category_browse_feeds"/>
     
     <item
-        android:id="@+id/catchup_feed"
+        android:id="@+id/feed_catchup"
         android:title="@string/catchup"/>
 
     <item
-     	android:id="@+id/unsubscribe_feed"
+     	android:id="@+id/feed_unsubscribe"
         android:title="@string/unsubscribe"/>
     
 </menu>

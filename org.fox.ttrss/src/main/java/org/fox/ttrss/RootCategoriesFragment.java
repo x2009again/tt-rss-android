@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.content.Loader;
 
 import com.google.gson.Gson;
@@ -22,19 +23,6 @@ import java.util.stream.Collectors;
 
 public class RootCategoriesFragment extends FeedsFragment {
 	private final String TAG = this.getClass().getSimpleName();
-
-	@Override
-	@NonNull
-	public Loader<JsonElement> onCreateLoader(int id, Bundle args) {
-		HashMap<String, String> params = new HashMap<>();
-		params.put("op", "getCategories");
-		params.put("sid", m_activity.getSessionId());
-
-		// this confusingly named option means "return top level categories only"
-		params.put("enable_nested", "true");
-
-		return new ApiLoader(getContext(), params);
-	}
 
 	@SuppressLint("DefaultLocale")
 	static class CatOrderComparator implements Comparator<Feed> {
@@ -74,65 +62,43 @@ public class RootCategoriesFragment extends FeedsFragment {
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<JsonElement> loader, JsonElement result) {
-		if (m_swipeLayout != null) m_swipeLayout.setRefreshing(false);
+	public void refresh() {
+		if (!isAdded())
+			return;
 
-		if (result != null) {
-			try {
-				JsonArray content = result.getAsJsonArray();
-				if (content != null) {
+		FeedsModel model = new ViewModelProvider(this).get(FeedsModel.class);
+		model.startLoading(m_rootFeed, true);
+	}
 
-					Type listType = new TypeToken<List<Feed>>() {}.getType();
-					List<Feed> feedsJson = new Gson().fromJson(content, listType);
+	@Override
+	protected void onFeedsLoaded(List<Feed> loadedFeeds) {
+		List<Feed> feedsWork = new ArrayList<>();
 
-					List<Feed> feeds = new ArrayList<>();
+		sortFeeds(loadedFeeds, m_rootFeed);
 
-					sortFeeds(feedsJson, m_rootFeed);
-
-					// virtual cats implemented in getCategories since api level 1
-					if (m_activity.getApiLevel() == 0) {
-						feeds.add(0, new Feed(-2, getString(R.string.cat_labels), true));
-						feeds.add(1, new Feed(-1, getString(R.string.cat_special), true));
-						feeds.add(new Feed(0, getString(R.string.cat_uncategorized), true));
-					}
-
-					if (m_activity.getUnreadOnly())
-						feedsJson = feedsJson.stream()
-								.filter(f -> f.id == Feed.CAT_SPECIAL || f.unread > 0)
-								.collect(Collectors.toList());
-
-					feedsJson = feedsJson.stream()
-							.peek(f -> f.is_cat = true)
-							.collect(Collectors.toList());
-
-					feeds.addAll(feedsJson);
-
-					feeds.add(new Feed(Feed.TYPE_DIVIDER));
-					feeds.add(new Feed(Feed.TYPE_TOGGLE_UNREAD, getString(R.string.unread_only), true));
-
-					m_adapter.submitList(feeds);
-
-					return;
-				}
-
-			} catch (Exception e) {
-				m_activity.toast(e.getMessage());
-			}
+		// virtual cats implemented in getCategories since api level 1
+		if (m_activity.getApiLevel() == 0) {
+			feedsWork.add(0, new Feed(-2, getString(R.string.cat_labels), true));
+			feedsWork.add(1, new Feed(-1, getString(R.string.cat_special), true));
+			feedsWork.add(new Feed(0, getString(R.string.cat_uncategorized), true));
 		}
 
-		ApiLoader apiLoader = (ApiLoader) loader;
+		if (m_activity.getUnreadOnly())
+			loadedFeeds = loadedFeeds.stream()
+					.filter(f -> f.id == Feed.CAT_SPECIAL || f.unread > 0)
+					.collect(Collectors.toList());
 
-		if (apiLoader.getLastError() != null && apiLoader.getLastError() != ApiCommon.ApiError.SUCCESS) {
-			if (apiLoader.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
-				m_activity.login(true);
-			} else {
-				if (apiLoader.getLastErrorMessage() != null) {
-					m_activity.toast(getString(apiLoader.getErrorMessage()) + "\n" + apiLoader.getLastErrorMessage());
-				} else {
-					m_activity.toast(apiLoader.getErrorMessage());
-				}
-			}
-		}
+		loadedFeeds = loadedFeeds.stream()
+				.peek(f -> f.is_cat = true)
+				.collect(Collectors.toList());
+
+		feedsWork.addAll(loadedFeeds);
+
+		feedsWork.add(new Feed(Feed.TYPE_DIVIDER));
+		feedsWork.add(new Feed(Feed.TYPE_TOGGLE_UNREAD, getString(R.string.unread_only), true));
+
+		m_adapter.submitList(feedsWork);
+
 	}
 }
 
