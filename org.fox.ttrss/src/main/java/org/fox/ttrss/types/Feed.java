@@ -18,19 +18,23 @@ public class Feed implements Comparable<Feed>, Parcelable {
 	public int cat_id;
 	public int last_updated;
 	public int order_id;
+	public String last_error;
 	public boolean is_cat;
+	public int update_interval;
     transient public boolean always_open_headlines;
 
 	public Feed(int id) {
 		this.id = id;
 		this.title = "ID:" + id;
 		this.is_cat = false;
+		this.last_error = "";
 	}
 
 	public Feed(int id, String title, boolean is_cat) {
 		this.id = id;
 		this.title = title;
 		this.is_cat = is_cat;
+		this.last_error = "";
 	}
 
 	public Feed(Feed feed) {
@@ -44,6 +48,8 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		order_id = feed.order_id;
 		is_cat = feed.is_cat;
 		always_open_headlines = feed.always_open_headlines;
+		last_error = feed.last_error;
+		update_interval = feed.update_interval;
 	}
 
 	public static final int MARKED = -1;
@@ -116,6 +122,12 @@ public class Feed implements Comparable<Feed>, Parcelable {
 			return this.title.compareTo(feed.title);
 	}
 
+	public void fixNullFields() {
+		if (feed_url == null) feed_url = "";
+		if (title == null) title = "";
+		if (last_error == null) last_error = "";
+	}
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -133,6 +145,8 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		out.writeInt(is_cat ? 1 : 0);
 		out.writeInt(order_id);
         out.writeInt(always_open_headlines ? 1 : 0);
+		out.writeString(last_error);
+		out.writeInt(update_interval);
 	}
 	
 	public void readFromParcel(Parcel in) {
@@ -146,6 +160,8 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		is_cat = in.readInt() == 1;
 		order_id = in.readInt();
         always_open_headlines = in.readInt() == 1;
+		last_error = in.readString();
+		update_interval = in.readInt();
 	}
 	
 	@SuppressWarnings("rawtypes")

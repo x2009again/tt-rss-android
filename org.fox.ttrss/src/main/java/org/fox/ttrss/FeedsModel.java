@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private final String TAG = this.getClass().getSimpleName();
@@ -117,9 +118,11 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
                 JsonArray content = result.getAsJsonArray();
                 if (content != null) {
 
-                    Type listType = new TypeToken<List<Feed>>() {
-                    }.getType();
+                    Type listType = new TypeToken<List<Feed>>() {}.getType();
+
                     List<Feed> feeds = new Gson().fromJson(content, listType);
+
+                    feeds = feeds.stream().peek(Feed::fixNullFields).collect(Collectors.toList());
 
                     m_feeds.postValue(feeds);
                 }

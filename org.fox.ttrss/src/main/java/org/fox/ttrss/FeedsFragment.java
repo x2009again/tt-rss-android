@@ -6,9 +6,11 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -20,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -429,7 +432,9 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			return oldItem.id == newItem.id &&
 					oldItem.is_cat == newItem.is_cat &&
 					oldItem.title.equals(newItem.title) &&
-					oldItem.unread == newItem.unread;
+					oldItem.unread == newItem.unread &&
+					oldItem.update_interval != newItem.update_interval &&
+					oldItem.last_error.equals(newItem.last_error);
 		}
 	}
 
@@ -484,6 +489,14 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 					holder.title.setTypeface(null, Typeface.NORMAL);
 				}
 
+				TypedValue tv = new TypedValue();
+				m_activity.getTheme().resolveAttribute(feed.last_error.isEmpty() ? R.attr.colorOnSurface : R.attr.colorError, tv, true);
+
+				holder.title.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(m_activity, tv.resourceId)));
+
+				Log.d(TAG, feed.update_interval + " " + feed.title);
+
+				holder.title.setAlpha(feed.update_interval == -1 ? 0.5f : 1f);
 			}
 
 			if (holder.unreadCounter != null) {
