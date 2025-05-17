@@ -26,7 +26,6 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
     String m_url;
     String m_coverUrl;
     MediaPlayer m_mediaPlayer;
-    private boolean m_userVisibleHint = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,60 +57,34 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
         registerForContextMenu(imgView);
 
         ActivityCompat.startPostponedEnterTransition(m_activity);
+
+        view.findViewById(R.id.flavor_image_progress).setVisibility(View.VISIBLE);
+
         initializeVideoPlayer(view);
 
         return view;
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        m_userVisibleHint = isVisibleToUser;
-
-        Log.d(TAG, "setUserVisibleHint: " + isVisibleToUser);
-
-        if (getView() == null) return;
-
-        try {
-
-            if (isVisibleToUser) {
-                if (m_mediaPlayer != null && !m_mediaPlayer.isPlaying()) {
-                    m_mediaPlayer.start();
-                }
-
-            } else {
-                if (m_mediaPlayer != null && m_mediaPlayer.isPlaying()) {
-                    m_mediaPlayer.pause();
-                }
-            }
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     private void initializeVideoPlayer(final View view) {
-
-        //Log.d(TAG, "initializeVideoPlayer: " + m_activity + " " + view);
-
-
-        final MediaController m_mediaController = new MediaController(m_activity);
+        final MediaController mediaController = new MediaController(m_activity);
         final TextureView textureView = view.findViewById(R.id.flavor_video);
 
         registerForContextMenu(textureView);
 
         textureView.setOnClickListener(v -> {
             try {
-                if (!m_mediaController.isShowing())
-                    m_mediaController.show(5000);
+
+                if (mediaController.isShowing())
+                    mediaController.hide();
                 else
-                    m_mediaController.hide();
+                    mediaController.show();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
 
-        m_mediaController.setAnchorView(textureView);
+        mediaController.setAnchorView(textureView);
 
         textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
@@ -120,7 +93,7 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
 
                 m_mediaPlayer = new MediaPlayer();
 
-                m_mediaController.setMediaPlayer(new MediaController.MediaPlayerControl() {
+                mediaController.setMediaPlayer(new MediaController.MediaPlayerControl() {
                     @Override
                     public void start() {
                         m_mediaPlayer.start();
@@ -187,16 +160,13 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
                 }
 
                 m_mediaPlayer.setOnPreparedListener(mp -> {
-                    getView().findViewById(R.id.flavor_image).setVisibility(View.GONE);
-                    getView().findViewById(R.id.flavor_image_progress).setVisibility(View.GONE);
+                    view.findViewById(R.id.flavor_image_progress).setVisibility(View.GONE);
 
                     try {
                         resizeSurface(textureView);
                         mp.setLooping(true);
 
-                        if (m_userVisibleHint) {
-                            mp.start();
-                        }
+                        mp.start();
                     } catch (IllegalStateException e) {
                         e.printStackTrace();
                     }
