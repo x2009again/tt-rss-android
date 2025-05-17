@@ -559,17 +559,21 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		}
 
 		public int getPositionOf(Feed feed) {
-			List<Feed> feeds = getCurrentList();
+			if (feed != null) {
+				List<Feed> feeds = getCurrentList();
 
-			return IntStream.range(0, feeds.size())
-					.sequential()
-					.filter(i -> {
-						Feed f = feeds.get(i);
+				return IntStream.range(0, feeds.size())
+						.sequential()
+						.filter(i -> {
+							Feed f = feeds.get(i);
 
-						return f.id == feed.id && f.is_cat == feed.is_cat;
-					})
-					.findFirst()
-					.orElse(-1);
+							return f.id == feed.id && f.is_cat == feed.is_cat;
+						})
+						.findFirst()
+						.orElse(-1);
+			}
+
+			return -1;
 		}
 	}
 
