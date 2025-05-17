@@ -61,7 +61,7 @@ public class GalleryImageFragment extends GalleryBaseFragment {
 
         // final GlideDrawableImageViewTarget glideImage = new GlideDrawableImageViewTarget(imgView);
 
-        Glide.with(m_activity)
+        Glide.with(this)
                 .load(m_url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
@@ -71,7 +71,7 @@ public class GalleryImageFragment extends GalleryBaseFragment {
                         progressBar.setVisibility(View.GONE);
                         errorMessage.setVisibility(View.VISIBLE);
 
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
+                        // ActivityCompat.startPostponedEnterTransition(m_activity);
 
                         return false;
                     }
@@ -81,7 +81,7 @@ public class GalleryImageFragment extends GalleryBaseFragment {
                         progressBar.setVisibility(View.GONE);
                         errorMessage.setVisibility(View.GONE);
 
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
+                        // ActivityCompat.startPostponedEnterTransition(m_activity);
 
                         return false;
                     }

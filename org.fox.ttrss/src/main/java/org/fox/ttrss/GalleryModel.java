@@ -79,6 +79,7 @@ public class GalleryModel extends AndroidViewModel {
             m_itemsToCheck.postValue(elems.size());
 
             int currentItem = 0;
+            boolean firstFound = false;
 
             for (Element elem : elems) {
                 ++currentItem;
@@ -94,6 +95,8 @@ public class GalleryModel extends AndroidViewModel {
 
                         if (src != null && src.equals(srcFirst)) {
                             Log.d(TAG, "first item found, vid=" + src);
+
+                            firstFound = true;
 
                             GalleryEntry item = new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_VIDEO, poster);
 
@@ -114,6 +117,8 @@ public class GalleryModel extends AndroidViewModel {
 
                     if (src != null && src.equals(srcFirst)) {
                         Log.d(TAG, "first item found, img=" + src);
+
+                        firstFound = true;
 
                         GalleryEntry item = new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null);
 
@@ -147,6 +152,13 @@ public class GalleryModel extends AndroidViewModel {
                 }
 
                 m_checkProgress.postValue(currentItem);
+            }
+
+            // if we didn't find it in the document, let's add insert to the list anyway so shared transition
+            // would hopefully work
+            if (!firstFound) {
+                checkList.add(0, new GalleryEntry(srcFirst, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
+                m_items.postValue(checkList);
             }
         });
     }

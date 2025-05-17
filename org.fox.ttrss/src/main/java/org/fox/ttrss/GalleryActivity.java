@@ -131,7 +131,7 @@ public class GalleryActivity extends CommonActivity {
                 Log.d(TAG, "observed items to check=" + itemsToCheck);
 
                 m_checkProgress.setMax(itemsToCheck);
-                m_checkProgress.setVisibility(View.VISIBLE);
+                m_checkProgress.setVisibility(itemsToCheck > 0 ? View.VISIBLE : View.GONE);
                 m_checkProgress.setProgress(0);
             });
 
