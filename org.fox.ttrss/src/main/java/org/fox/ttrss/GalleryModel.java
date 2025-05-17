@@ -1,7 +1,10 @@
 package org.fox.ttrss;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,14 +12,21 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import org.fox.ttrss.types.GalleryEntry;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class GalleryModel extends AndroidViewModel {
     private final String TAG = this.getClass().getSimpleName();
@@ -31,67 +41,47 @@ public class GalleryModel extends AndroidViewModel {
         return m_items;
     }
 
+    private ExecutorService m_executor = Executors.newSingleThreadExecutor();
+    private Handler m_mainHandler = new Handler(Looper.getMainLooper());
+
     public void collectItems(String articleText, String srcFirst) {
         Document doc = Jsoup.parse(articleText);
 
-        /* look for srcFirst and post an update */
+        List<GalleryEntry> checkList = new ArrayList<>();
+
+        /* look for srcFirst quickly and post an update */
+
+        Log.d(TAG, "looking for srcFirst=" + srcFirst);
 
         Elements elems = doc.select("img,video");
 
         for (Element elem : elems) {
-            GalleryEntry item = new GalleryEntry();
-
             if ("video".equalsIgnoreCase(elem.tagName())) {
-
-
-            } else {
-                String src = elem.attr("abs:src");
-
-
-            }
-        }
-    }
-
-    List<GalleryEntry> collectGalleryContents(String imgSrcFirst, String articleText, List<GalleryEntry> uncheckedItems ) {
-        List<GalleryEntry> items = new ArrayList<>();
-
-        Document doc = Jsoup.parse(articleText);
-
-        Elements elems = doc.select("img,video");
-
-        boolean firstFound = false;
-
-        for (Element elem : elems) {
-
-            GalleryEntry item = new GalleryEntry();
-
-            if ("video".equalsIgnoreCase(elem.tagName())) {
-                String cover = elem.attr("poster");
-
                 Element source = elem.select("source").first();
+                String poster = elem.attr("abs:poster");
 
                 if (source != null) {
-                    String src = source.attr("src");
+                    String src = source.attr("abs:src");
 
-                    if (!src.isEmpty()) {
-                        //Log.d(TAG, "vid/src=" + src);
+                    Log.d(TAG, "checking vid src=" + src + " poster=" + poster);
 
-                        if (src.startsWith("//")) {
-                            src = "https:" + src;
-                        }
+                    if (poster != null && poster.equals(srcFirst) || src != null && src.equals(srcFirst)) {
+                        Log.d(TAG, "first item found, vid=" + src);
 
-                        if (imgSrcFirst.equals(src))
-                            firstFound = true;
+                        GalleryEntry item = new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_VIDEO, poster);
 
+                        checkList.add(item);
+
+                        m_items.postValue(checkList);
+                    } else {
                         try {
                             Uri checkUri = Uri.parse(src);
 
                             if (!"data".equalsIgnoreCase(checkUri.getScheme())) {
-                                item.url = src;
-                                item.coverUrl = cover;
-                                item.type = GalleryEntry.GalleryEntryType.TYPE_VIDEO;
-                            }
+                                checkList.add(new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_VIDEO, poster));
 
+                                m_items.postValue(checkList);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -99,41 +89,52 @@ public class GalleryModel extends AndroidViewModel {
                 }
 
             } else {
-                String src = elem.attr("src");
+                String src = elem.attr("abs:src");
 
-                if (!src.isEmpty()) {
-                    if (src.startsWith("//")) {
-                        src = "https:" + src;
-                    }
+                Log.d(TAG, "checking img src=" + src);
 
-                    if (imgSrcFirst.equals(src))
-                        firstFound = true;
+                if (src != null && src.equals(srcFirst)) {
+                    Log.d(TAG, "first item found, img=" + src);
 
-                    Log.d(TAG, "img/fir=" + imgSrcFirst + ";");
-                    Log.d(TAG, "img/src=" + src + "; ff=" + firstFound);
+                    GalleryEntry item = new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null);
 
+                    checkList.add(item);
+
+                    m_items.postValue(checkList);
+                } else {
                     try {
                         Uri checkUri = Uri.parse(src);
 
                         if (!"data".equalsIgnoreCase(checkUri.getScheme())) {
-                            item.url = src;
-                            item.type = GalleryEntry.GalleryEntryType.TYPE_IMAGE;
-                        }
 
+                            m_executor.execute(() -> {
+                                Log.d(TAG, "checking image with glide: " + src);
+
+                                try {
+                                    Bitmap bmp = Glide.with(getApplication().getApplicationContext())
+                                            .load(src)
+                                            .asBitmap()
+                                            .skipMemoryCache(false)
+                                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                            .into(HeadlinesFragment.FLAVOR_IMG_MIN_SIZE, HeadlinesFragment.FLAVOR_IMG_MIN_SIZE)
+                                            .get();
+
+                                    if (bmp != null && bmp.getWidth() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE && bmp.getHeight() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE) {
+                                        Log.d(TAG, "image matches gallery criteria, adding...");
+
+                                        checkList.add(new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
+                                        m_items.postValue(checkList);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
-
-            if ((firstFound || imgSrcFirst.isEmpty()) && item.url != null) {
-                if (m_items.isEmpty())
-                    m_items.add(item);
-                else
-                    uncheckedItems.add(item);
-            }
         }
-
-        return firstFound;
     }
 }
