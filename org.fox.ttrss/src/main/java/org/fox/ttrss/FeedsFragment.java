@@ -300,7 +300,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		});
 
 		model.getFeeds().observe(getActivity(), feeds -> {
-			Log.d(TAG, "observed feeds=" + feeds);
+			Log.d(TAG, "observed feeds size=" + feeds.size());
 
 			if (isAdded()) {
 				onFeedsLoaded(feeds);

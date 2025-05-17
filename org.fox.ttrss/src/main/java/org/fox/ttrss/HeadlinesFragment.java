@@ -475,8 +475,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		ArticleModel model = Application.getArticlesModel();
 
+		model.getIsLoading().observe(getActivity(), isLoading -> {
+			Log.d(TAG, "observed headlines isLoading=" + isLoading);
+
+			if (m_swipeLayout != null)
+				m_swipeLayout.setRefreshing(isLoading);
+		});
+
 		// this gets notified on loading %
 		model.getLoadingProgress().observe(getActivity(), progress -> {
+			Log.d(TAG, "observed headlines loading progress=" + progress);
+
 			m_listener.onHeadlinesLoadingProgress(progress);
 		});
 
@@ -485,7 +494,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			if (lastUpdate > 0) {
 				ArticleList tmp = new ArticleList(model.getArticles().getValue());
 
-				Log.d(TAG, "observed last update=" + lastUpdate + " article count=" + tmp.size());
+				Log.d(TAG, "observed headlines last update=" + lastUpdate + " article count=" + tmp.size());
 
 				if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
 					tmp.add(new Article(Article.TYPE_AMR_FOOTER));
@@ -495,9 +504,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				m_adapter.submitList(tmp, () -> {
 					if (!appended)
 						m_list.scrollToPosition(0);
-
-					if (m_swipeLayout != null)
-						m_swipeLayout.setRefreshing(false);
 
 					m_isLazyLoading = false;
 
@@ -510,9 +516,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							.setAction(R.string.reload, v -> refresh(false)).show();
 
 				if (model.getLastError() != null && model.getLastError() != ApiCommon.ApiError.SUCCESS) {
-
-					if (m_swipeLayout != null)
-						m_swipeLayout.setRefreshing(false);
 
 					m_isLazyLoading = false;
 
@@ -534,7 +537,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		// loaded articles might get modified for all sorts of reasons
 		model.getArticles().observe(getActivity(), articles -> {
-			Log.d(TAG, "observed article list size=" + articles.size());
+			Log.d(TAG, "observed headlines article list size=" + articles.size());
 
 			ArticleList tmp = new ArticleList(articles);
 
@@ -583,9 +586,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (!append)
 			m_activeArticleId = -1;
-
-		if (m_swipeLayout != null)
-			m_swipeLayout.setRefreshing(true);
 
 		model.setSearchQuery(getSearchQuery());
 		model.startLoading(append, m_feed, m_activity.getResizeWidth());

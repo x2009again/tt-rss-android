@@ -212,23 +212,21 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
                         }
 
                         m_offset += m_amountLoaded;
-                        m_isLoading.postValue(false);
 
                         Log.d(TAG, this + " loaded headlines=" + m_amountLoaded + " resultingLocalSize=" + articlesWork.size());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
 
             m_mainHandler.post(() -> {
                 m_articles.setValue(articlesWork);
                 m_lastUpdate.setValue(System.currentTimeMillis());
+                m_isLoading.postValue(false);
             });
         });
-
-        m_isLoading.postValue(false);
-
     }
 
     private int getSkip(boolean append, ArticleList articles) {
