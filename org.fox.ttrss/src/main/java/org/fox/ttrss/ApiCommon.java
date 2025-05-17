@@ -149,6 +149,7 @@ public class ApiCommon {
             OkHttpProgressGlideModule.ResponseProgressListener listener = new OkHttpProgressGlideModule.ResponseProgressListener() {
                 @Override
                 public void update(HttpUrl url, long bytesRead, long contentLength) {
+                    // Log.d(TAG, "[progress] " + url + " " + bytesRead + " of " + contentLength);
 
                     if (contentLength > 0)
                         caller.notifyProgress((int) (bytesRead * 100f / contentLength));

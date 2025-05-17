@@ -34,6 +34,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -63,6 +64,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 	protected FeedsAdapter m_adapter;
 	private RecyclerView m_list;
 	private RecyclerView.LayoutManager m_layoutManager;
+	private LinearProgressIndicator m_loadingProgress;
 
 	public void initialize(@NonNull Feed rootFeed, boolean enableParentBtn) {
 		Log.d(TAG, "initialize, feed=" + rootFeed);
@@ -249,6 +251,8 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 	    m_swipeLayout.setOnRefreshListener(this::refresh);
 
+		m_loadingProgress = view.findViewById(R.id.loading_progress);
+
 		m_list = view.findViewById(R.id.feeds);
 		registerForContextMenu(m_list);
 
@@ -288,15 +292,29 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 		FeedsModel model = new ViewModelProvider(this).get(FeedsModel.class);
 
-		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
+		model.getUpdatesData().observe(m_activity, lastUpdate -> {
 			Log.d(TAG, "observed update=" + lastUpdate);
 		});
 
-		model.getIsLoading().observe(getActivity(), isLoading -> {
+		model.getLoadingProgress().observe(m_activity, progress -> {
+			Log.d(TAG, "observed feeds loading progress=" + progress);
+
+			if (isAdded() && m_loadingProgress != null) {
+				m_loadingProgress.setVisibility(progress < 100 ? View.VISIBLE : View.GONE);
+				m_loadingProgress.setProgress(progress);
+			}
+		});
+
+		model.getIsLoading().observe(m_activity, isLoading -> {
 			Log.d(TAG, "observed isLoading=" + isLoading);
 
-			if (isAdded() && m_swipeLayout != null)
-				m_swipeLayout.setRefreshing(isLoading);
+			if (isAdded()) {
+				if (m_swipeLayout != null)
+					m_swipeLayout.setRefreshing(isLoading);
+
+				if (m_loadingProgress != null && !isLoading)
+					m_loadingProgress.setVisibility(View.GONE);
+			}
 		});
 
 		model.getFeeds().observe(getActivity(), feeds -> {
