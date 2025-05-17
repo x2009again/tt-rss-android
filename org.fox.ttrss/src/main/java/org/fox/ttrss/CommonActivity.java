@@ -27,6 +27,8 @@ import android.view.View;
 import android.widget.CheckBox;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsCallback;
@@ -40,8 +42,8 @@ import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -348,13 +350,13 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 	protected void shareImageFromUri(String url) {
 		Glide.with(this)
-				.load(url)
 				.asBitmap()
+				.load(url)
 				.skipMemoryCache(false)
 				.diskCacheStrategy(DiskCacheStrategy.ALL)
 				.into(new SimpleTarget<Bitmap>() {
 					@Override
-					public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+					public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
 						Log.d(TAG, "image resource ready: " + resource);
 
 						if (resource != null) {

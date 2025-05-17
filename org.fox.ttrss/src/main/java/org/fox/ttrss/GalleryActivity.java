@@ -66,8 +66,6 @@ public class GalleryActivity extends CommonActivity {
         @Override
         public Fragment createFragment(int position) {
 
-            //Log.d(TAG, "getItem: " + position + " " + m_urls.get(position));
-
             GalleryEntry item = getItem(position);
 
             switch (item.type) {
@@ -88,151 +86,6 @@ public class GalleryActivity extends CommonActivity {
         }
     }
 
-    private static class MediaProgressResult {
-        GalleryEntry item;
-        int position;
-        int count;
-
-        public MediaProgressResult(GalleryEntry item, int position, int count) {
-            this.item = item;
-            this.position = position;
-            this.count = count;
-        }
-    }
-
-    private class MediaCheckTask extends AsyncTask<List<GalleryEntry>, MediaProgressResult, List<GalleryEntry>> {
-
-        private final List<GalleryEntry> m_checkedItems = new ArrayList<>();
-
-        @Override
-        protected List<GalleryEntry> doInBackground(List<GalleryEntry>... params) {
-
-            ArrayList<GalleryEntry> items = new ArrayList<>(params[0]);
-            int position = 0;
-
-            for (GalleryEntry item : items) {
-                if (!isCancelled()) {
-                    ++position;
-
-                    Log.d(TAG, "checking: " + item.url + " " + item.coverUrl);
-
-                    if (item.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE) {
-                        try {
-                            Bitmap bmp = Glide.with(GalleryActivity.this)
-                                    .load(item.url)
-                                    .asBitmap()
-                                    .skipMemoryCache(false)
-                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                    //.dontTransform()
-                                    .into(HeadlinesFragment.FLAVOR_IMG_MIN_SIZE, HeadlinesFragment.FLAVOR_IMG_MIN_SIZE)
-                                    .get();
-
-                            if (bmp.getWidth() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE && bmp.getHeight() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE) {
-                                m_checkedItems.add(item);
-                                publishProgress(new MediaProgressResult(item, position, items.size()));
-                            }
-
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        } catch (OutOfMemoryError e) {
-                            e.printStackTrace();
-                        }
-
-                    } else {
-                        m_checkedItems.add(item);
-                        publishProgress(new MediaProgressResult(item, position, items.size()));
-                    }
-                }
-            }
-
-            return m_checkedItems;
-        }
-    }
-
-    /*
-    boolean collectGalleryContents(String imgSrcFirst, Document doc, List<GalleryEntry> uncheckedItems ) {
-        Elements elems = doc.select("img,video");
-
-        boolean firstFound = false;
-
-        for (Element elem : elems) {
-
-            GalleryEntry item = new GalleryEntry();
-
-            if ("video".equalsIgnoreCase(elem.tagName())) {
-                String cover = elem.attr("poster");
-
-                Element source = elem.select("source").first();
-
-                if (source != null) {
-                    String src = source.attr("src");
-
-                    if (!src.isEmpty()) {
-                        //Log.d(TAG, "vid/src=" + src);
-
-                        if (src.startsWith("//")) {
-                            src = "https:" + src;
-                        }
-
-                        if (imgSrcFirst.equals(src))
-                            firstFound = true;
-
-                        try {
-                            Uri checkUri = Uri.parse(src);
-
-                            if (!"data".equalsIgnoreCase(checkUri.getScheme())) {
-                                item.url = src;
-                                item.coverUrl = cover;
-                                item.type = GalleryEntry.GalleryEntryType.TYPE_VIDEO;
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-            } else {
-                String src = elem.attr("src");
-
-                if (!src.isEmpty()) {
-                    if (src.startsWith("//")) {
-                        src = "https:" + src;
-                    }
-
-                    if (imgSrcFirst.equals(src))
-                        firstFound = true;
-
-                    Log.d(TAG, "img/fir=" + imgSrcFirst + ";");
-                    Log.d(TAG, "img/src=" + src + "; ff=" + firstFound);
-
-                    try {
-                        Uri checkUri = Uri.parse(src);
-
-                        if (!"data".equalsIgnoreCase(checkUri.getScheme())) {
-                            item.url = src;
-                            item.type = GalleryEntry.GalleryEntryType.TYPE_IMAGE;
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            if ((firstFound || imgSrcFirst.isEmpty()) && item.url != null) {
-                if (m_items.isEmpty())
-                    m_items.add(item);
-                else
-                    uncheckedItems.add(item);
-            }
-        }
-
-        return firstFound;
-    } */
-
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
 
@@ -242,7 +95,7 @@ public class GalleryActivity extends CommonActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        ActivityCompat.postponeEnterTransition(this);
+        // ActivityCompat.postponeEnterTransition(this);
 
         // we use that before parent onCreate so let's init locally
         m_prefs = PreferenceManager

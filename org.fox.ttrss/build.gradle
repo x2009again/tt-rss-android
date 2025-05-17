@@ -136,13 +136,10 @@ def getVersion() {
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.12.5'
-    implementation('com.github.bumptech.glide:okhttp3-integration:1.5.0') {
-        exclude group: 'glide-parent'
-    }
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'com.bogdwellers:pinchtozoom:0.1'
-    implementation 'com.github.bumptech.glide:glide:3.8.0'
-    implementation files('libs/glide-transformations-2.0.2.jar')
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'jp.wasabeef:glide-transformations:4.3.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.activity:activity:1.10.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

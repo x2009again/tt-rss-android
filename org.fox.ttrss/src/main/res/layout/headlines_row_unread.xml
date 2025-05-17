@@ -124,7 +124,7 @@
                     android:adjustViewBounds="true"
                     android:background="@android:color/transparent"
                     android:cropToPadding="true"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitCenter"
                     tools:src="@drawable/ic_launcher_background"
                     android:visibility="visible" />
 

@@ -1,6 +1,5 @@
 package org.fox.ttrss;
 
-import static org.fox.ttrss.glide.OkHttpProgressGlideModule.createInterceptor;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,8 +16,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import org.fox.ttrss.glide.OkHttpProgressGlideModule;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -146,7 +143,7 @@ public class ApiCommon {
 
             Request request = requestBuilder.build();
 
-            OkHttpProgressGlideModule.ResponseProgressListener listener = new OkHttpProgressGlideModule.ResponseProgressListener() {
+            /* OkHttpProgressGlideModule.ResponseProgressListener listener = new OkHttpProgressGlideModule.ResponseProgressListener() {
                 @Override
                 public void update(HttpUrl url, long bytesRead, long contentLength) {
                     // Log.d(TAG, "[progress] " + url + " " + bytesRead + " of " + contentLength);
@@ -154,7 +151,7 @@ public class ApiCommon {
                     if (contentLength > 0)
                         caller.notifyProgress((int) (bytesRead * 100f / contentLength));
                 }
-            };
+            }; */
 
             /* lets shamelessly hijack OkHttpProgressGlideModule */
 
@@ -162,7 +159,7 @@ public class ApiCommon {
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
-                    .addNetworkInterceptor(createInterceptor(listener))
+//                    .addNetworkInterceptor(createInterceptor(listener))
                     .build();
 
             Response response = client.newCall(request).execute();

@@ -45,6 +45,7 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
@@ -60,16 +61,16 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.fox.ttrss.glide.ProgressTarget;
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Attachment;
@@ -615,7 +616,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public View flavorImageOverflow;
 		public TextureView flavorVideoView;
 		public MaterialButton attachmentsView;
-		public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
+		//public ProgressTarget<String, GlideDrawable> flavorProgressTarget;
 		int articleId;
 		public TextView linkHost;
 
@@ -657,10 +658,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			attachmentsView = v.findViewById(R.id.attachments);
 			linkHost = v.findViewById(R.id.link_host);
 
-			if (flavorImageView != null && flavorImageLoadingBar != null) {
+			/* if (flavorImageView != null && flavorImageLoadingBar != null) {
 				flavorProgressTarget = new FlavorProgressTarget<>(new GlideDrawableImageViewTarget(flavorImageView), flavorImageLoadingBar);
-			}
-
+			} */
 		}
 
 		public void clearAnimation() {
@@ -668,7 +668,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		}
 	}
 
-	private static class FlavorProgressTarget<Z> extends ProgressTarget<String, Z> {
+	/* private static class FlavorProgressTarget<Z> extends ProgressTarget<String, Z> {
 		private final ProgressBar progress;
 		public FlavorProgressTarget(Target<Z> target, ProgressBar progress) {
 			super(target);
@@ -693,7 +693,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		@Override protected void onDelivered() {
 			progress.setVisibility(View.INVISIBLE);
 		}
-	}
+	} */
 
 	private class ArticleListAdapter extends ListAdapter<Article, ArticleViewHolder> {
 		public static final int VIEW_NORMAL = 0;
@@ -1014,7 +1014,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.flavorVideoView.setVisibility(View.GONE);
 				holder.flavorImageHolder.setVisibility(View.GONE);
 
-				Glide.clear(holder.flavorImageView);
+				Glide.with(m_activity).clear(holder.flavorImageView);
 
 				// this is needed if our flavor image goes behind base listview element
 				holder.headlineHeader.setOnClickListener(v -> {
@@ -1083,18 +1083,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						}
 					}
 
-					holder.flavorProgressTarget.setModel(article.flavorImageUri);
+					// holder.flavorProgressTarget.setModel(article.flavorImageUri);
 
 					try {
 
-						Glide.with(getContext())
+						Glide.with(m_activity)
 								.load(article.flavorImageUri)
-								//.dontTransform()
 								.diskCacheStrategy(DiskCacheStrategy.ALL)
 								.skipMemoryCache(false)
-								.listener(new RequestListener<String, GlideDrawable>() {
+								.listener(new RequestListener<Drawable>() {
 									@Override
-									public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+									public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
 
 										holder.flavorImageLoadingBar.setVisibility(View.GONE);
 										holder.flavorImageView.setVisibility(View.GONE);
@@ -1103,7 +1102,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 									}
 
 									@Override
-									public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+									public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
 
 										holder.flavorImageLoadingBar.setVisibility(View.GONE);
 
@@ -1124,7 +1123,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 										}
 									}
 								})
-								.into(holder.flavorProgressTarget);
+								.into(new DrawableImageViewTarget(holder.flavorImageView));
 					} catch (OutOfMemoryError e) {
 						e.printStackTrace();
 					}
@@ -1338,22 +1337,21 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.textImage.setImageDrawable(textDrawable);
 
 				} else {
-					Glide.with(getContext())
+					Glide.with(m_activity)
 							.load(article.flavorImageUri)
 							.placeholder(textDrawable)
 							.thumbnail(0.5f)
-							.bitmapTransform(new CropCircleTransformation(getActivity()))
+							.transform(new CropCircleTransformation())
 							.diskCacheStrategy(DiskCacheStrategy.ALL)
 							.skipMemoryCache(false)
-							.listener(new RequestListener<String, GlideDrawable>() {
+							.listener(new RequestListener<Drawable>() {
 								@Override
-								public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+								public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
 									return false;
 								}
 
 								@Override
-								public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-
+								public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
 									return resource.getIntrinsicWidth() < THUMB_IMG_MIN_SIZE || resource.getIntrinsicHeight() < THUMB_IMG_MIN_SIZE;
 								}
 							})

@@ -126,8 +126,8 @@ public class GalleryModel extends AndroidViewModel {
 
                             try {
                                 Bitmap bmp = Glide.with(getApplication().getApplicationContext())
-                                        .load(src)
                                         .asBitmap()
+                                        .load(src)
                                         .skipMemoryCache(false)
                                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                                         .into(HeadlinesFragment.FLAVOR_IMG_MIN_SIZE, HeadlinesFragment.FLAVOR_IMG_MIN_SIZE)
