@@ -53,6 +53,7 @@ public class GalleryActivity extends CommonActivity {
     public String m_content;
     private ViewPager2 m_pager; // TODO replace with viewpager2
     private ProgressBar m_checkProgress;
+    private boolean m_firstWasSelected;
 
     private static class GalleryEntryDiffItemCallback extends DiffUtil.ItemCallback<GalleryEntry> {
 
@@ -287,14 +288,17 @@ public class GalleryActivity extends CommonActivity {
                 Log.d(TAG, "observed gallery entries=" + galleryEntries + " firstSrc=" + firstSrc);
 
                 m_adapter.submitList(galleryEntries, () -> {
-                    for (GalleryEntry entry : galleryEntries) {
-                        if (entry.url.equals(firstSrc)) {
-                            int position = galleryEntries.indexOf(entry);
+                    if (!m_firstWasSelected) {
+                        for (GalleryEntry entry : galleryEntries) {
+                            if (entry.url.equals(firstSrc)) {
+                                int position = galleryEntries.indexOf(entry);
 
-                            Log.d(TAG, "selecting first src=" + firstSrc + " pos=" + position);
-                            m_pager.setCurrentItem(position);
+                                Log.d(TAG, "selecting first src=" + firstSrc + " pos=" + position);
+                                m_pager.setCurrentItem(position);
 
-                            break;
+                                m_firstWasSelected = true;
+                                break;
+                            }
                         }
                     }
                 });
