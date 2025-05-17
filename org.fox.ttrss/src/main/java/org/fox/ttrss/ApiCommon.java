@@ -24,11 +24,18 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
 
 public class ApiCommon {
     public static final String TAG = "ApiCommon";
@@ -143,7 +150,7 @@ public class ApiCommon {
 
             Request request = requestBuilder.build();
 
-            /* OkHttpProgressGlideModule.ResponseProgressListener listener = new OkHttpProgressGlideModule.ResponseProgressListener() {
+            ResponseProgressListener listener = new ResponseProgressListener() {
                 @Override
                 public void update(HttpUrl url, long bytesRead, long contentLength) {
                     // Log.d(TAG, "[progress] " + url + " " + bytesRead + " of " + contentLength);
@@ -151,7 +158,7 @@ public class ApiCommon {
                     if (contentLength > 0)
                         caller.notifyProgress((int) (bytesRead * 100f / contentLength));
                 }
-            }; */
+            };
 
             /* lets shamelessly hijack OkHttpProgressGlideModule */
 
@@ -159,7 +166,7 @@ public class ApiCommon {
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
-//                    .addNetworkInterceptor(createInterceptor(listener))
+                    .addNetworkInterceptor(createInterceptor(listener))
                     .build();
 
             Response response = client.newCall(request).execute();
@@ -261,6 +268,67 @@ public class ApiCommon {
         }
 
         return null;
+    }
+
+    private interface ResponseProgressListener {
+        void update(HttpUrl url, long bytesRead, long contentLength);
+    }
+
+    private static Interceptor createInterceptor(final ResponseProgressListener listener) {
+        return chain -> {
+            Request request = chain.request();
+            Response response = chain.proceed(request);
+            return response.newBuilder()
+                    .body(new ProgressResponseBody(request.url(), response.body(), listener))
+                    .build();
+        };
+    }
+
+    private static class ProgressResponseBody extends ResponseBody {
+        private final HttpUrl url;
+        private final ResponseBody responseBody;
+        private final ResponseProgressListener progressListener;
+        private BufferedSource bufferedSource;
+
+        public ProgressResponseBody(HttpUrl url, ResponseBody responseBody,
+                                    ResponseProgressListener progressListener) {
+
+            this.url = url;
+            this.responseBody = responseBody;
+            this.progressListener = progressListener;
+        }
+
+        @Override public MediaType contentType() {
+            return responseBody.contentType();
+        }
+
+        @Override public long contentLength() {
+            return responseBody.contentLength();
+        }
+
+        @Override public BufferedSource source() {
+            if (bufferedSource == null) {
+                bufferedSource = Okio.buffer(source(responseBody.source()));
+            }
+            return bufferedSource;
+        }
+
+        private Source source(Source source) {
+            return new ForwardingSource(source) {
+                long totalBytesRead = 0L;
+                @Override public long read(Buffer sink, long byteCount) throws IOException {
+                    long bytesRead = super.read(sink, byteCount);
+                    long fullLength = responseBody.contentLength();
+                    if (bytesRead == -1) { // this source is exhausted
+                        totalBytesRead = fullLength;
+                    } else {
+                        totalBytesRead += bytesRead;
+                    }
+                    progressListener.update(url, totalBytesRead, fullLength);
+                    return bytesRead;
+                }
+            };
+        }
     }
 
     private static String getUserAgent(Context context) {
