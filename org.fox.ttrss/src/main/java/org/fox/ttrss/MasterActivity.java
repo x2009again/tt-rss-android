@@ -159,10 +159,17 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			}
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-			RootCategoriesFragment fc = new RootCategoriesFragment();
+			FeedsFragment fc;
 
-			// it doesn't matter which feed is used here
-			fc.initialize(new Feed(-1, getString(R.string.cat_special), true), false);
+			if (m_prefs.getBoolean("enable_cats", true)) {
+				fc = new RootCategoriesFragment();
+				// it doesn't matter which feed is used here
+				fc.initialize(new Feed(Feed.CAT_SPECIAL, getString(R.string.cat_special), true), false);
+			} else {
+				fc = new FeedsFragment();
+				fc.initialize(new Feed(Feed.ALL_ARTICLES, getString(R.string.feed_all_articles), true), false);
+			}
+
 			ft.replace(R.id.feeds_fragment, fc, FRAG_FEEDS);
 
 			/* FeedsFragment ff = new FeedsFragment();

@@ -355,6 +355,12 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
 				feedsWork.add(1, feed);
 			}
+		} else if (m_rootFeed.id == Feed.ALL_ARTICLES) {
+			// if all articles feed is requested as a root element (no parent button) let's filter
+			// labels out so this is at least somewhat readable, instead we'll insert a link to this category to the top
+			loadedFeeds = loadedFeeds.stream().filter(a -> a.id >= -10).collect(Collectors.toList());
+
+			loadedFeeds.add(0, new Feed(Feed.CAT_LABELS, getString(R.string.cat_labels), true));
 		}
 
 		feedsWork.addAll(loadedFeeds);
