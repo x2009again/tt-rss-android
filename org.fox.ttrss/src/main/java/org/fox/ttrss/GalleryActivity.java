@@ -20,30 +20,20 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.ToxicBakery.viewpager.transforms.DepthPageTransformer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.fox.ttrss.types.GalleryEntry;
 import org.fox.ttrss.util.DiffFragmentStateAdapter;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import me.relex.circleindicator.CircleIndicator;
 
 public class GalleryActivity extends CommonActivity {
     private final String TAG = this.getClass().getSimpleName();
@@ -283,6 +273,21 @@ public class GalleryActivity extends CommonActivity {
 
             GalleryModel model = new ViewModelProvider(this).get(GalleryModel.class);
             model.collectItems(m_content, firstSrc);
+
+            model.getItemsToCheck().observe(this, itemsToCheck -> {
+                Log.d(TAG, "observed items to check=" + itemsToCheck);
+
+                m_checkProgress.setMax(itemsToCheck);
+                m_checkProgress.setVisibility(View.VISIBLE);
+                m_checkProgress.setProgress(0);
+            });
+
+            model.getCheckProgress().observe(this, progress -> {
+                Log.d(TAG, "observed item check progress=" + progress);
+
+                m_checkProgress.setProgress(progress);
+                m_checkProgress.setVisibility(progress < m_checkProgress.getMax() ? View.VISIBLE : View.GONE);
+            });
 
             model.getItems().observe(this, galleryEntries -> {
                 Log.d(TAG, "observed gallery entries=" + galleryEntries + " firstSrc=" + firstSrc);

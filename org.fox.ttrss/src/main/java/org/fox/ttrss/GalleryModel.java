@@ -21,8 +21,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +30,8 @@ public class GalleryModel extends AndroidViewModel {
     private final String TAG = this.getClass().getSimpleName();
 
     private MutableLiveData<List<GalleryEntry>> m_items = new MutableLiveData<>(new ArrayList<>());
+    private MutableLiveData<Integer> m_checkProgress = new MutableLiveData<>(Integer.valueOf(0));
+    private MutableLiveData<Integer> m_itemsToCheck = new MutableLiveData<Integer>(Integer.valueOf(0));
 
     public GalleryModel(@NonNull Application application) {
         super(application);
@@ -44,6 +44,14 @@ public class GalleryModel extends AndroidViewModel {
     private ExecutorService m_executor = Executors.newSingleThreadExecutor();
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
 
+    public LiveData<Integer> getItemsToCheck() {
+        return m_itemsToCheck;
+    }
+
+    public LiveData<Integer> getCheckProgress() {
+        return m_checkProgress;
+    }
+
     public void collectItems(String articleText, String srcFirst) {
         Document doc = Jsoup.parse(articleText);
 
@@ -55,7 +63,13 @@ public class GalleryModel extends AndroidViewModel {
 
         Elements elems = doc.select("img,video");
 
+        m_itemsToCheck.postValue(elems.size());
+
+        int currentItem = 0;
+
         for (Element elem : elems) {
+            ++currentItem;
+
             if ("video".equalsIgnoreCase(elem.tagName())) {
                 Element source = elem.select("source").first();
                 String poster = elem.attr("abs:poster");
@@ -87,7 +101,6 @@ public class GalleryModel extends AndroidViewModel {
                         }
                     }
                 }
-
             } else {
                 String src = elem.attr("abs:src");
 
@@ -122,8 +135,10 @@ public class GalleryModel extends AndroidViewModel {
                                     if (bmp != null && bmp.getWidth() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE && bmp.getHeight() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE) {
                                         Log.d(TAG, "image matches gallery criteria, adding...");
 
-                                        checkList.add(new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
-                                        m_items.postValue(checkList);
+                                        m_mainHandler.post(() -> {
+                                            checkList.add(new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
+                                            m_items.postValue(checkList);
+                                        });
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -135,6 +150,8 @@ public class GalleryModel extends AndroidViewModel {
                     }
                 }
             }
+
+            m_checkProgress.postValue(currentItem);
         }
     }
 }
