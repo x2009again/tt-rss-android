@@ -57,32 +57,6 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
 
         registerForContextMenu(imgView);
 
-        /*final GlideDrawableImageViewTarget glideImage = new GlideDrawableImageViewTarget(imgView);
-
-        Glide.with(this)
-                .load(m_coverUrl)
-                //.dontAnimate()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .skipMemoryCache(false)
-                .listener(new RequestListener<String, GlideDrawable>() {
-                    @Override
-                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
-
-                        initializeVideoPlayer(view);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
-
-                        initializeVideoPlayer(view);
-                        return false;
-                    }
-                })
-                .into(glideImage); */
-
         ActivityCompat.startPostponedEnterTransition(m_activity);
         initializeVideoPlayer(view);
 

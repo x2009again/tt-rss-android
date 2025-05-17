@@ -251,7 +251,7 @@ public class GalleryActivity extends CommonActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // ActivityCompat.postponeEnterTransition(this);
+        ActivityCompat.postponeEnterTransition(this);
 
         // we use that before parent onCreate so let's init locally
         m_prefs = PreferenceManager
@@ -277,16 +277,8 @@ public class GalleryActivity extends CommonActivity {
             m_title = getIntent().getStringExtra("title");
             m_content = getIntent().getStringExtra("content");
 
-            // this should be returned first so that transition completes properly
+            // this should be dealt with first so that transition completes properly
             String firstSrc = getIntent().getStringExtra("firstSrc");
-
-            // Document doc = Jsoup.parse(m_content);
-
-            // if we were unable to find first image, try again for all media content so that
-            // gallery doesn't lock up because of a pending shared transition
-            /* if (!collectGalleryContents(imgSrcFirst, doc, uncheckedItems))
-                if (!collectGalleryContents("", doc, uncheckedItems))
-                    m_items.add(new GalleryEntry(imgSrcFirst, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null)); */
 
             GalleryModel model = new ViewModelProvider(this).get(GalleryModel.class);
             model.collectItems(m_content, firstSrc);
@@ -295,7 +287,16 @@ public class GalleryActivity extends CommonActivity {
                 Log.d(TAG, "observed gallery entries=" + galleryEntries + " firstSrc=" + firstSrc);
 
                 m_adapter.submitList(galleryEntries, () -> {
-                    Log.d(TAG, "selecting first src=" + firstSrc);
+                    for (GalleryEntry entry : galleryEntries) {
+                        if (entry.url.equals(firstSrc)) {
+                            int position = galleryEntries.indexOf(entry);
+
+                            Log.d(TAG, "selecting first src=" + firstSrc + " pos=" + position);
+                            m_pager.setCurrentItem(position);
+
+                            break;
+                        }
+                    }
                 });
             });
 

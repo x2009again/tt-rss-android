@@ -65,7 +65,7 @@ public class GalleryModel extends AndroidViewModel {
 
                     Log.d(TAG, "checking vid src=" + src + " poster=" + poster);
 
-                    if (poster != null && poster.equals(srcFirst) || src != null && src.equals(srcFirst)) {
+                    if (src != null && src.equals(srcFirst)) {
                         Log.d(TAG, "first item found, vid=" + src);
 
                         GalleryEntry item = new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_VIDEO, poster);
