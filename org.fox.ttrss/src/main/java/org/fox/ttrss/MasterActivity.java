@@ -165,6 +165,10 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			fc.initialize(new Feed(-1, getString(R.string.cat_special), true), false);
 			ft.replace(R.id.feeds_fragment, fc, FRAG_FEEDS);
 
+			/* FeedsFragment ff = new FeedsFragment();
+			ff.initialize(new Feed(12, "Technology", true), true);
+			ft.replace(R.id.feeds_fragment, ff, FRAG_FEEDS); */
+
 			// allow overriding feed to open on startup in non-shortcut mode, default to
 			// open_on_startup prefs setting and not-category
 

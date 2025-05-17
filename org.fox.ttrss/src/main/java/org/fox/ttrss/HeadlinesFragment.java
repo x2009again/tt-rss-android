@@ -217,12 +217,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
 	}
 
+	// all onContextItemSelected are invoked in sequence so we might get a context menu for headlines, etc
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
 
 		if (info != null) {
-
 			try {
 				Article article = Application.getArticles().get(info.position);
 
@@ -233,6 +233,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
+		Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
 		return super.onContextItemSelected(item);
 	}
 
@@ -459,7 +460,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				ArticleModel model = Application.getArticlesModel();
 
-				if (dy > 0 && !m_isLazyLoading && !model.isLoading() && model.lazyLoadEnabled() &&
+				if (dy > 0 && !m_isLazyLoading && !model.isLoading() && model.isLazyLoadEnabled() &&
 						lastVisibleItem >= Application.getArticles().size() - 5) {
 
 					Log.d(TAG, "attempting to lazy load more articles...");

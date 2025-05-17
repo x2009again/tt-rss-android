@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.preference.PreferenceManager;
@@ -51,8 +52,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeListener,
-		LoaderManager.LoaderCallbacks<JsonElement> {
+public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeListener {
 	private final String TAG = this.getClass().getSimpleName();
 	protected SharedPreferences m_prefs;
 	protected MasterActivity m_activity;
@@ -71,88 +71,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		m_enableParentBtn = enableParentBtn;
 	}
 
-	@NonNull
-	@Override
-	public Loader<JsonElement> onCreateLoader(int id, Bundle args) {
-
-		if (m_swipeLayout != null)
-			m_swipeLayout.setRefreshing(true);
-
-		HashMap<String,String> params = new HashMap<>();
-		params.put("op", "getFeeds");
-		params.put("sid", m_activity.getSessionId());
-		params.put("include_nested", "true");
-		params.put("cat_id", String.valueOf(m_rootFeed.id));
-
-		return new ApiLoader(getContext(), params);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<JsonElement> loader, JsonElement result) {
-		if (m_swipeLayout != null) m_swipeLayout.setRefreshing(false);
-
-		if (result != null) {
-			try {
-				JsonArray content = result.getAsJsonArray();
-				if (content != null) {
-
-					Type listType = new TypeToken<List<Feed>>() {}.getType();
-					List<Feed> feedsJson = new Gson().fromJson(content, listType);
-					List<Feed> feeds = new ArrayList<>();
-
-					if (m_activity.getUnreadOnly() && m_rootFeed.id != Feed.CAT_SPECIAL)
-						feedsJson = feedsJson.stream()
-								.filter(f -> f.unread > 0)
-								.collect(Collectors.toList());
-
-					sortFeeds(feedsJson, m_rootFeed);
-
-					if (m_enableParentBtn) {
-						feeds.add(0, new Feed(Feed.TYPE_GOBACK));
-
-						if (m_rootFeed.id >= 0 && !feedsJson.isEmpty()) {
-							Feed feed = new Feed(m_rootFeed.id, m_rootFeed.title, true);
-
-							feed.unread = feedsJson.stream().map(a -> a.unread).reduce(0, Integer::sum);
-							feed.always_open_headlines = true;
-
-							feeds.add(1, feed);
-						}
-					}
-
-					feeds.addAll(feedsJson);
-
-					feeds.add(new Feed(Feed.TYPE_DIVIDER));
-					feeds.add(new Feed(Feed.TYPE_TOGGLE_UNREAD, getString(R.string.unread_only), true));
-
-					m_adapter.submitList(feeds);
-
-					return;
-				}
-
-			} catch (Exception e) {
-				m_activity.toast(e.getMessage());
-			}
-		}
-
-		ApiLoader apiLoader = (ApiLoader) loader;
-
-		if (apiLoader.getLastError() != null && apiLoader.getLastError() != ApiCommon.ApiError.SUCCESS) {
-			if (apiLoader.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
-				m_activity.login(true);
-			} else {
-				if (apiLoader.getLastErrorMessage() != null) {
-					m_activity.toast(getString(apiLoader.getErrorMessage()) + "\n" + apiLoader.getLastErrorMessage());
-				} else {
-					m_activity.toast(apiLoader.getErrorMessage());
-				}
-			}
-		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<JsonElement> loader) { }
-
 	@SuppressLint("DefaultLocale")
 	static class FeedUnreadComparator implements Comparator<Feed> {
 
@@ -165,7 +83,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			}
 
 	}
-	
 
 	@SuppressLint("DefaultLocale")
 	static class FeedTitleComparator implements Comparator<Feed> {
@@ -230,39 +147,48 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
 				.getMenuInfo();
 
-		final Feed feed = m_adapter.getCurrentList().get(info.position);
+		// all onContextItemSelected are invoked in sequence so we might get a context menu for headlines, etc
+		// TODO context menu ids defined here should be unique to feedsfragment
+		try {
+			if (info != null) {
+				final Feed feed = m_adapter.getCurrentList().get(info.position);
 
-		Log.d(TAG, "context for feed=" + feed.id);
+				Log.d(TAG, "context for feed=" + feed.id);
 
-		int itemId = item.getItemId();
-		if (itemId == R.id.browse_headlines) {
-			Feed tmpFeed = new Feed(feed);
+				int itemId = item.getItemId();
+				if (itemId == R.id.browse_headlines) {
+					Feed tmpFeed = new Feed(feed);
 
-			if (!neverOpenHeadlines(feed))
-				tmpFeed.always_open_headlines = true;
+					if (!neverOpenHeadlines(feed))
+						tmpFeed.always_open_headlines = true;
 
-			m_activity.onFeedSelected(tmpFeed);
-			return true;
-		} else if (itemId == R.id.browse_feeds) {
-			m_activity.onFeedSelected(feed);
-			return true;
-		} else if (itemId == R.id.unsubscribe_feed) {
-			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-					.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
-					.setPositiveButton(R.string.unsubscribe,
-							(dialog, which) -> m_activity.unsubscribeFeed(feed))
-					.setNegativeButton(R.string.dialog_cancel,
-							(dialog, which) -> {
+					m_activity.onFeedSelected(tmpFeed);
+					return true;
+				} else if (itemId == R.id.browse_feeds) {
+					m_activity.onFeedSelected(feed);
+					return true;
+				} else if (itemId == R.id.unsubscribe_feed) {
+					MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+							.setMessage(getString(R.string.unsubscribe_from_prompt, feed.title))
+							.setPositiveButton(R.string.unsubscribe,
+									(dialog, which) -> m_activity.unsubscribeFeed(feed))
+							.setNegativeButton(R.string.dialog_cancel,
+									(dialog, which) -> {
 
-							});
+									});
 
-			Dialog dlg = builder.create();
-			dlg.show();
+					Dialog dlg = builder.create();
+					dlg.show();
 
-			return true;
-		} else if (itemId == R.id.catchup_feed) {
-			m_activity.catchupDialog(feed);
-			return true;
+					return true;
+				} else if (itemId == R.id.catchup_feed) {
+					m_activity.catchupDialog(feed);
+					return true;
+				}
+			}
+
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
 		}
 
 		Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
@@ -360,7 +286,71 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			});
 		}
 
+		FeedsModel model = new ViewModelProvider(this).get(FeedsModel.class);
+
+		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
+			Log.d(TAG, "observed update=" + lastUpdate);
+		});
+
+		model.getIsLoading().observe(getActivity(), isLoading -> {
+			Log.d(TAG, "observed isLoading=" + isLoading);
+
+			if (isAdded() && m_swipeLayout != null)
+				m_swipeLayout.setRefreshing(isLoading);
+		});
+
+		model.getFeeds().observe(getActivity(), feeds -> {
+			Log.d(TAG, "observed feeds=" + feeds);
+
+			if (isAdded()) {
+				onFeedsLoaded(feeds);
+
+				if (model.getLastError() != null && model.getLastError() != ApiCommon.ApiError.SUCCESS) {
+					if (model.getLastError() == ApiCommon.ApiError.LOGIN_FAILED) {
+						m_activity.login(true);
+					} else {
+						if (model.getLastErrorMessage() != null) {
+							m_activity.toast(getString(model.getErrorMessage()) + "\n" + model.getLastErrorMessage());
+						} else {
+							m_activity.toast(model.getErrorMessage());
+						}
+					}
+				}
+			}
+		});
+
 		return view;    	
+	}
+
+	protected void onFeedsLoaded(List<Feed> loadedFeeds) {
+		List<Feed> feedsWork = new ArrayList<>();
+
+		if (m_activity.getUnreadOnly() && m_rootFeed.id != Feed.CAT_SPECIAL)
+			loadedFeeds = loadedFeeds.stream()
+					.filter(f -> f.unread > 0)
+					.collect(Collectors.toList());
+
+		sortFeeds(loadedFeeds, m_rootFeed);
+
+		if (m_enableParentBtn) {
+			feedsWork.add(0, new Feed(Feed.TYPE_GOBACK));
+
+			if (m_rootFeed.id >= 0 && !loadedFeeds.isEmpty()) {
+				Feed feed = new Feed(m_rootFeed.id, m_rootFeed.title, true);
+
+				feed.unread = loadedFeeds.stream().map(a -> a.unread).reduce(0, Integer::sum);
+				feed.always_open_headlines = true;
+
+				feedsWork.add(1, feed);
+			}
+		}
+
+		feedsWork.addAll(loadedFeeds);
+
+		feedsWork.add(new Feed(Feed.TYPE_DIVIDER));
+		feedsWork.add(new Feed(Feed.TYPE_TOGGLE_UNREAD, getString(R.string.unread_only), true));
+
+		m_adapter.submitList(feedsWork);
 	}
 
 	@Override
@@ -395,11 +385,8 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		if (!isAdded())
 			return;
 
-		if (m_swipeLayout != null) {
-            m_swipeLayout.setRefreshing(true);
-        }
-
-		LoaderManager.getInstance(this).restartLoader(Application.LOADER_FEEDS, null, this).forceLoad();
+		FeedsModel model = new ViewModelProvider(this).get(FeedsModel.class);
+		model.startLoading(m_rootFeed, false);
 	}
 
 	private class FeedViewHolder extends RecyclerView.ViewHolder {
