@@ -64,6 +64,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
@@ -1089,6 +1090,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 						Glide.with(m_activity)
 								.load(article.flavorImageUri)
+								.transition(DrawableTransitionOptions.withCrossFade())
 								.diskCacheStrategy(DiskCacheStrategy.ALL)
 								.skipMemoryCache(false)
 								.listener(new RequestListener<Drawable>() {
@@ -1339,6 +1341,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				} else {
 					Glide.with(m_activity)
 							.load(article.flavorImageUri)
+							.transition(DrawableTransitionOptions.withCrossFade())
 							.placeholder(textDrawable)
 							.thumbnail(0.5f)
 							.transform(new CropCircleTransformation())
