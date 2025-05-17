@@ -1,78 +1,74 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:id="@+id/menu_group_feeds" >
+        <item
+            android:id="@+id/subscribe_to_feed"
+            android:orderInCategory="1"
+            app:showAsAction=""
+            android:title="@string/subscribe_to_feed"/> <!-- iRroom -->
+    </group>
+    <group android:id="@+id/menu_group_headlines" >
+        <item
+            android:id="@+id/search"
+            android:icon="@drawable/baseline_search_24"
+            app:iconTint="?attr/colorControlNormal"
+            app:showAsAction="ifRoom"
+            android:title="@string/search"/>
+        <item
+            android:id="@+id/headlines_mark_as_read"
+            app:showAsAction=""
+            app:iconTint="?attr/colorControlNormal"
+            android:icon="@drawable/baseline_mark_email_read_24"
+            android:title="@string/headlines_mark_as_read"/>
+        <item
+            android:id="@+id/headlines_select"
+            app:showAsAction="ifRoom"
+            app:iconTint="?attr/colorControlNormal"
+            android:icon="@drawable/baseline_select_all_24"
+            android:title="@string/headlines_select"/>
 
-    <group android:id="@+id/menu_group_logged_in" >
-        <group android:id="@+id/menu_group_feeds" >
+        <item
+            android:id="@+id/headlines_toggle_sort_order"
+            app:iconTint="?attr/colorControlNormal"
+            android:icon="@drawable/baseline_sort_by_alpha_24"
+            app:showAsAction="ifRoom"
+            android:title="@string/toggle_sort_order"/>
 
-            <item
-                android:id="@+id/subscribe_to_feed"
-                android:orderInCategory="1"
-                app:showAsAction=""
-                android:title="@string/subscribe_to_feed"/> <!-- iRroom -->
-        </group>
-        <group android:id="@+id/menu_group_headlines" >
-            <item
-                android:id="@+id/search"
-                android:icon="@drawable/baseline_search_24"
-                app:iconTint="?attr/colorControlNormal"
-                app:showAsAction="ifRoom"
-                android:title="@string/search"/>
-            <item
-                android:id="@+id/headlines_mark_as_read"
-                app:showAsAction=""
-                app:iconTint="?attr/colorControlNormal"
-                android:icon="@drawable/baseline_mark_email_read_24"
-                android:title="@string/headlines_mark_as_read"/>
-            <item
-                android:id="@+id/headlines_select"
-                app:showAsAction="ifRoom"
-                app:iconTint="?attr/colorControlNormal"
-                android:icon="@drawable/baseline_select_all_24"
-                android:title="@string/headlines_select"/>
+        <item
+            android:id="@+id/headlines_view_mode"
+            app:showAsAction=""
+            android:title="@string/headlines_view_mode"/>
 
-            <item
-                android:id="@+id/headlines_toggle_sort_order"
-                app:iconTint="?attr/colorControlNormal"
-                android:icon="@drawable/baseline_sort_by_alpha_24"
-                app:showAsAction="ifRoom"
-                android:title="@string/toggle_sort_order"/>
-
-            <item
-                android:id="@+id/headlines_view_mode"
-                app:showAsAction=""
-                android:title="@string/headlines_view_mode"/>
-
-            <item
-                android:id="@+id/headlines_display_mode"
-                app:showAsAction=""
-                android:title="@string/headlines_display_mode"/>
-
-        </group>
-        <group android:id="@+id/menu_group_article" >
-            <item
-                android:id="@+id/toggle_marked"
-                android:icon="@drawable/baseline_star_outline_24"
-                app:iconTint="?attr/colorControlNormal"
-                app:showAsAction="ifRoom"
-                android:title="@string/article_toggle_marked"/>
-            <item
-                android:id="@+id/toggle_published"
-                android:icon="@drawable/baseline_rss_feed_24"
-                app:iconTint="?attr/colorControlNormal"
-                app:showAsAction="ifRoom"
-                android:title="@string/article_toggle_published"/>
-            <item
-                android:id="@+id/share_article"
-                android:icon="@drawable/baseline_share_24"
-                app:iconTint="?attr/colorControlNormal"
-                app:showAsAction="ifRoom"
-                android:title="@string/share_article"/>
-            <item
-                android:id="@+id/catchup_above"
-                app:showAsAction=""
-                android:title="@string/article_mark_read_above"/>
-        </group>
+        <item
+            android:id="@+id/headlines_display_mode"
+            app:showAsAction=""
+            android:title="@string/headlines_display_mode"/>
 
     </group>
+    <group android:id="@+id/menu_group_article" >
+        <item
+            android:id="@+id/toggle_marked"
+            android:icon="@drawable/baseline_star_outline_24"
+            app:iconTint="?attr/colorControlNormal"
+            app:showAsAction="ifRoom"
+            android:title="@string/article_toggle_marked"/>
+        <item
+            android:id="@+id/toggle_published"
+            android:icon="@drawable/baseline_rss_feed_24"
+            app:iconTint="?attr/colorControlNormal"
+            app:showAsAction="ifRoom"
+            android:title="@string/article_toggle_published"/>
+        <item
+            android:id="@+id/share_article"
+            android:icon="@drawable/baseline_share_24"
+            app:iconTint="?attr/colorControlNormal"
+            app:showAsAction="ifRoom"
+            android:title="@string/share_article"/>
+        <item
+            android:id="@+id/catchup_above"
+            app:showAsAction=""
+            android:title="@string/article_mark_read_above"/>
+    </group>
+
 
     <group android:id="@+id/menu_group_logged_out" >
         <item

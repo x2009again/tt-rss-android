@@ -1165,10 +1165,14 @@ article.score = Integer.parseInt(edit.getText().toString());
 	protected void initMenu() {
 		if (m_menu != null) {
 			if (getSessionId() != null) {
-				m_menu.setGroupVisible(R.id.menu_group_logged_in, true);
+				m_menu.setGroupVisible(R.id.menu_group_feeds, true);
+                m_menu.setGroupVisible(R.id.menu_group_headlines, true);
+                m_menu.setGroupVisible(R.id.menu_group_article, true);
 				m_menu.setGroupVisible(R.id.menu_group_logged_out, false);
 			} else {
-				m_menu.setGroupVisible(R.id.menu_group_logged_in, false);
+                m_menu.setGroupVisible(R.id.menu_group_feeds, false);
+                m_menu.setGroupVisible(R.id.menu_group_headlines, false);
+                m_menu.setGroupVisible(R.id.menu_group_article, false);
 				m_menu.setGroupVisible(R.id.menu_group_logged_out, true);
 			}
 
