@@ -592,8 +592,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			return;
 
 		if (!append) {
-			m_activeArticleId = -1;
-			Application.getArticlesModel().update(new ArticleList());
+			setActiveArticleId(-1);
+			//Application.getArticlesModel().update(new ArticleList());
 		}
 
 		model.setSearchQuery(getSearchQuery());
@@ -1562,12 +1562,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			if (oldPosition != -1)
 				m_adapter.notifyItemChanged(oldPosition);
 
-			m_adapter.notifyItemChanged(newPosition);
+			if (newPosition != -1) {
+				m_adapter.notifyItemChanged(newPosition);
 
-			scrollToArticleId(articleId);
+				scrollToArticleId(articleId);
 
-			if (newPosition >= articles.size() - 5)
-				new Handler().postDelayed(() -> refresh(true), 0);
+				if (newPosition >= articles.size() - 5)
+					new Handler().postDelayed(() -> refresh(true), 0);
+			}
 		}
 	}
 
