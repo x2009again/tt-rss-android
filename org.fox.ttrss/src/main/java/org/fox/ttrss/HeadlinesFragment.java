@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -69,6 +69,7 @@ import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -81,6 +82,7 @@ import org.fox.ttrss.util.ArticleDiffItemCallback;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -104,6 +106,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private final String TAG = this.getClass().getSimpleName();
 
 	private Feed m_feed;
+
+	/** TODO this should be stored in model, either as an observable or a field - article.active or something */
+	@Deprecated
 	private int m_activeArticleId;
 	private String m_searchQuery = "";
 
@@ -155,9 +160,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             m_activity.editArticleNote(article);
             return true;
         } else if (itemId == R.id.headlines_article_unread) {
-            article.unread = !article.unread;
-            m_activity.saveArticleUnread(article);
-            m_adapter.notifyItemChanged(position);
+			Article articleClone = new Article(article);
+            articleClone.unread = !articleClone.unread;
+
+            m_activity.saveArticleUnread(articleClone);
+
+			Application.getArticlesModel().update(position, articleClone);
+
             return true;
         } else if (itemId == R.id.headlines_article_link_copy) {
             m_activity.copyToClipboard(article.link);
@@ -166,11 +175,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             m_activity.openUri(Uri.parse(article.link));
 
             if (article.unread) {
-                article.unread = false;
-                m_activity.saveArticleUnread(article);
+				Article articleClone = new Article(article);
+				articleClone.unread = !articleClone.unread;
 
-                m_adapter.notifyItemChanged(position);
-            }
+				m_activity.saveArticleUnread(articleClone);
+
+				Application.getArticlesModel().update(position, articleClone);
+			}
             return true;
         } else if (itemId == R.id.headlines_share_article) {
             m_activity.shareArticle(article);
@@ -194,20 +205,24 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     }
 
 	private void catchupAbove(Article article) {
+
 		ArticleList tmp = new ArticleList();
 		ArticleList articles = Application.getArticles();
+
 		for (Article a : articles) {
             if (article.equalsById(a))
                 break;
 
             if (a.unread) {
-                a.unread = false;
-                tmp.add(a);
+				Article articleClone = new Article(a);
 
-				int position = articles.getPositionById(a.id);
+                articleClone.unread = false;
+                tmp.add(articleClone);
+
+				int position = articles.getPositionById(articleClone.id);
 
 				if (position != -1)
-					m_adapter.notifyItemChanged(position);
+					Application.getArticlesModel().update(position, articleClone);
             }
         }
 
@@ -419,12 +434,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						m_activity.setArticlesUnread(m_readArticles, Article.UPDATE_SET_FALSE);
 
 						for (Article a : m_readArticles) {
-							a.unread = false;
+							Article articleClone = new Article(a);
+
+							articleClone.unread = false;
 
 							int position = Application.getArticles().getPositionById(a.id);
 
 							if (position != -1)
-								m_adapter.notifyItemChanged(position);
+								Application.getArticlesModel().update(position, articleClone);
 						}
 
 						m_readArticles.clear();
@@ -691,19 +708,20 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	private class ArticleListAdapter extends ListAdapter<Article, ArticleViewHolder> {
 		public static final int VIEW_NORMAL = 0;
-		public static final int VIEW_UNREAD = 1;
-		public static final int VIEW_ACTIVE = 2;
-		public static final int VIEW_ACTIVE_UNREAD = 3;
-		public static final int VIEW_AMR_FOOTER = 4;
-
-		public static final int VIEW_COUNT = VIEW_AMR_FOOTER + 1;
-
-		private final Integer[] origTitleColors = new Integer[VIEW_COUNT];
+		public static final int VIEW_AMR_FOOTER = 1;
 
         private final ColorGenerator m_colorGenerator = ColorGenerator.DEFAULT;
         private final TextDrawable.IBuilder m_drawableBuilder = TextDrawable.builder().round();
-		private final ColorStateList m_colorTertiary;
-		private final ColorStateList m_colorPrimary;
+		private final ColorStateList m_cslTertiary;
+		private final ColorStateList m_cslPrimary;
+		private final int m_colorSurfaceContainerLowest;
+		private final int m_colorSurface;
+		private final int m_colorPrimary;
+		private final int m_colorTertiary;
+		private final int m_colorSecondary;
+		private final int m_colorOnSurface;
+		private final int m_colorTertiaryContainer;
+		private final int m_colorOnTertiaryContainer;
 
 		boolean m_flavorImageEnabled;
 		private final int m_screenWidth;
@@ -728,6 +746,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			return false;
 		}
 
+		private int colorFromAttr(int attr) {
+			TypedValue tv = new TypedValue();
+			m_activity.getTheme().resolveAttribute(attr, tv, true);
+			return ContextCompat.getColor(m_activity, tv.resourceId);
+		}
+
 		public ArticleListAdapter() {
 			super(new ArticleDiffItemCallback());
 
@@ -740,15 +764,19 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 			m_flavorImageEnabled = "HL_DEFAULT".equals(headlineMode) || "HL_COMPACT".equals(headlineMode);
 
-			TypedValue tvTertiary = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
+			m_colorPrimary = colorFromAttr(R.attr.colorPrimary);
+			m_colorSecondary = colorFromAttr(R.attr.colorSecondary);
+			m_colorTertiary = colorFromAttr(R.attr.colorTertiary);
 
-			m_colorTertiary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvTertiary.resourceId));
+			m_cslTertiary = ColorStateList.valueOf(m_colorTertiary);
+			m_cslPrimary = ColorStateList.valueOf(m_colorPrimary);
 
-			TypedValue tvPrimary = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
+			m_colorSurfaceContainerLowest = colorFromAttr(R.attr.colorSurfaceContainerLowest);
+			m_colorSurface = colorFromAttr(R.attr.colorSurface);
+			m_colorOnSurface = colorFromAttr(R.attr.colorOnSurface);
 
-			m_colorPrimary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvPrimary.resourceId));
+			m_colorTertiaryContainer = colorFromAttr(R.attr.colorTertiaryContainer);
+			m_colorOnTertiaryContainer = colorFromAttr(R.attr.colorOnTertiaryContainer);
 
 			m_cmgr = (ConnectivityManager) m_activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		}
@@ -758,20 +786,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			int layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact : R.layout.headlines_row;
 
-			switch (viewType) {
-				case VIEW_AMR_FOOTER:
-					layoutId = R.layout.headlines_footer;
-					break;
-				case VIEW_UNREAD:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_unread : R.layout.headlines_row_unread;
-					break;
-				case VIEW_ACTIVE:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_active : R.layout.headlines_row;
-					break;
-				case VIEW_ACTIVE_UNREAD:
-					layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact_active_unread : R.layout.headlines_row_unread;
-					break;
-			}
+            if (viewType == VIEW_AMR_FOOTER) {
+                layoutId = R.layout.headlines_footer;
+            }
 
 			View v = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
 
@@ -798,6 +815,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					switch (payload) {
 						case UNREAD:
+							updateUnreadView(article, holder);
 							break;
 						case MARKED:
 							updateMarkedView(article, holder, position);
@@ -810,7 +828,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							updatePublishedView(article, holder, position);
 							break;
 						case SCORE:
-							updateScoreView(article, holder);
+							updateScoreView(article, holder, position);
 							break;
 					}
 				}
@@ -818,6 +836,43 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				super.onBindViewHolder(holder, position, payloads);
 			}
 		}
+
+		private void updateUnreadView(final Article article, ArticleViewHolder holder) {
+			if (m_compactLayoutMode) {
+				holder.view.setBackgroundColor(article.unread ? m_colorSurfaceContainerLowest : 0);
+			} else {
+				MaterialCardView card = (MaterialCardView) holder.view;
+
+				card.setCardBackgroundColor(article.unread ? m_colorSurfaceContainerLowest : m_colorSurface);
+			}
+
+			if (holder.titleView != null) {
+				holder.titleView.setTypeface(null, article.unread ? Typeface.BOLD : Typeface.NORMAL);
+				holder.titleView.setTextColor(article.unread ? m_colorOnSurface : m_colorPrimary);
+			}
+
+			updateActiveView(article, holder);
+		}
+
+		private void updateActiveView(final Article article, ArticleViewHolder holder) {
+			if (article.id == m_activeArticleId) {
+				holder.view.setBackgroundColor(m_colorTertiaryContainer);
+
+				if (holder.titleView != null) {
+					holder.titleView.setTextColor(m_colorOnTertiaryContainer);
+				}
+			}
+
+			if (holder.excerptView != null) {
+				holder.excerptView.setTextColor(article.id == m_activeArticleId ? m_colorOnTertiaryContainer : m_colorOnSurface);
+			}
+
+			if (holder.feedTitleView != null) {
+				holder.feedTitleView.setTextColor(article.id == m_activeArticleId ? m_colorOnTertiaryContainer : m_colorSecondary);
+			}
+
+		}
+
 		@Override
 		public void onBindViewHolder(final ArticleViewHolder holder, int position) {
 			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
@@ -837,6 +892,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			// nothing else of interest for those below anyway
 			if (article.id < 0) return;
+
+			updateUnreadView(article, holder);
 
 			holder.view.setOnLongClickListener(v -> {
                 m_list.showContextMenuForChild(v);
@@ -866,8 +923,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			if (holder.titleView != null) {
 				holder.titleView.setText(Html.fromHtml(article.title));
 				holder.titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, Math.min(21, headlineFontSize + 3));
-
-				adjustTitleTextView(article.score, holder.titleView, position);
 			}
 
 			if (holder.feedTitleView != null) {
@@ -890,7 +945,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			updateMarkedView(article, holder, position);
-			updateScoreView(article, holder);
+			updateScoreView(article, holder, position);
 			updatePublishedView(article, holder, position);
 
 			if (holder.attachmentsView != null) {
@@ -1177,7 +1232,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		private void updateMarkedView(Article article, ArticleViewHolder holder, int position) {
 			if (holder.markedView != null) {
 				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
-				holder.markedView.setIconTint(article.marked ? m_colorTertiary : m_colorPrimary);
+				holder.markedView.setIconTint(article.marked ? m_cslTertiary : m_cslPrimary);
 
 				holder.markedView.setOnClickListener(v -> {
 					Article selectedArticle = new Article(getItem(position));
@@ -1224,20 +1279,22 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			if (holder.selectionBoxView != null) {
 				holder.selectionBoxView.setChecked(article.selected);
 				holder.selectionBoxView.setOnClickListener(view -> {
-					Article currentArticle = getItem(position);
+					Article selectedArticle = new Article(getItem(position));
 
 					Log.d(TAG, "selectionCb onClick pos=" + position + " article=" + article);
 
 					CheckBox cb = (CheckBox)view;
 
-					currentArticle.selected = cb.isChecked();
+					selectedArticle.selected = cb.isChecked();
+
+					Application.getArticlesModel().update(position, selectedArticle);
 
 					m_listener.onArticleListSelectionChange();
 				});
 			}
 		}
 
-		private void updateScoreView(Article article, ArticleViewHolder holder) {
+		private void updateScoreView(Article article, ArticleViewHolder holder, int position) {
 			if (holder.scoreView != null) {
 				int scoreDrawable = R.drawable.baseline_trending_flat_24;
 
@@ -1249,23 +1306,27 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.scoreView.setIconResource(scoreDrawable);
 
 				if (article.score > Article.SCORE_HIGH)
-					holder.scoreView.setIconTint(m_colorTertiary);
+					holder.scoreView.setIconTint(m_cslTertiary);
 				else
-					holder.scoreView.setIconTint(m_colorPrimary);
+					holder.scoreView.setIconTint(m_cslPrimary);
 
 				if (m_activity.getApiLevel() >= 16) {
 					holder.scoreView.setOnClickListener(v -> {
+						Article selectedArticle = new Article(getItem(position));
+
 						final EditText edit = new EditText(getActivity());
-						edit.setText(String.valueOf(article.score));
+						edit.setText(String.valueOf(selectedArticle.score));
 
 						MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
 								.setTitle(R.string.score_for_this_article)
 								.setPositiveButton(R.string.set_score,
 										(dialog, which) -> {
 											try {
-												article.score = Integer.parseInt(edit.getText().toString());
+												selectedArticle.score = Integer.parseInt(edit.getText().toString());
 												m_activity.saveArticleScore(article);
-												m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
+
+												Application.getArticlesModel().update(position, selectedArticle);
+
 											} catch (NumberFormatException e) {
 												m_activity.toast(R.string.score_invalid);
 												e.printStackTrace();
@@ -1288,7 +1349,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
 				}
 
-				holder.publishedView.setIconTint(article.published ? m_colorTertiary : m_colorPrimary);
+				holder.publishedView.setIconTint(article.published ? m_cslTertiary : m_cslPrimary);
 
 				holder.publishedView.setOnClickListener(v -> {
 					Article selectedArticle = new Article(getItem(position));
@@ -1370,12 +1431,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			if (a.id == Article.TYPE_AMR_FOOTER) {
 				return VIEW_AMR_FOOTER;
-			} else if (a.id == m_activeArticleId && a.unread) {
-				return VIEW_ACTIVE_UNREAD;
-			} else if (a.id == m_activeArticleId) {
-				return VIEW_ACTIVE;
-			} else if (a.unread) {
-				return VIEW_UNREAD;
 			} else {
 				return VIEW_NORMAL;
 			}
@@ -1475,20 +1530,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.flavorVideoKindView.setVisibility(View.INVISIBLE);
 			}
 		}
-
-		private void adjustTitleTextView(int score, TextView tv, int position) {
-			int viewType = getItemViewType(position);
-			if (origTitleColors[viewType] == null)
-				// store original color
-				origTitleColors[viewType] = tv.getCurrentTextColor();
-
-			if (score < Article.SCORE_LOW) {
-				tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-			} else {
-				tv.setTextColor(origTitleColors[viewType]);
-				tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-			}
-		}
 	}
 
 	private void releaseSurface() {
@@ -1543,26 +1584,22 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void setSelection(ArticlesSelection select) {
-		ArticleList articlesWithoutFooters = Application.getArticles().getWithoutFooters();
+		ArticleList articles = Application.getArticles();
+		ArticleList tmp = new ArticleList();
 
-		for (Article a : articlesWithoutFooters) {
+		for (Article a : articles) {
+			Article articleClone = new Article(a);
+
 			if (select == ArticlesSelection.ALL || select == ArticlesSelection.UNREAD && a.unread) {
-				a.selected = true;
-
-				int position = Application.getArticles().getPositionById(a.id);
-
-				if (position != -1)
-					m_adapter.notifyItemChanged(position);
-
-			} else if (a.selected) {
-				a.selected = false;
-
-				int position = Application.getArticles().getPositionById(a.id);
-
-				if (position != -1)
-					m_adapter.notifyItemChanged(position);
+				articleClone.selected = true;
+			} else {
+				articleClone.selected = false;
 			}
+
+			tmp.add(articleClone);
 		}
+
+		Application.getArticlesModel().update(tmp);
 	}
 
 	public String getSearchQuery() {
