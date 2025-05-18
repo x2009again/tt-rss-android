@@ -48,10 +48,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -104,7 +103,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public enum ArticlesSelection { ALL, NONE, UNREAD }
 
     public static final int FLAVOR_IMG_MIN_SIZE = 128;
-	public static final int THUMB_IMG_MIN_SIZE = 32;
 
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -122,11 +120,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     private boolean m_compactLayoutMode = false;
     private RecyclerView m_list;
 	private LinearLayoutManager m_layoutManager;
+	private HeadlinesFragmentModel m_headlinesFragmentModel;
 
 	private MediaPlayer m_mediaPlayer;
 	private TextureView m_activeTexture;
-
-	protected static HashMap<Integer, Integer> m_flavorMeasuredHeightsCache = new HashMap<>();
 
 	public ArticleList getSelectedArticles() {
 		return Application.getArticles()
@@ -298,6 +295,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Log.d(TAG, "onCreateView");
+
+		m_headlinesFragmentModel = new ViewModelProvider(this).get(HeadlinesFragmentModel.class);
 
 		String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 
@@ -620,7 +619,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public View flavorImageOverflow;
 		public TextureView flavorVideoView;
 		public MaterialButton attachmentsView;
-		// public ProgressTarget<String, Size> flavorProgressTarget;
 		int articleId;
 		public TextView linkHost;
 
@@ -628,16 +626,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			super(v);
 
 			view = v;
-
-			view.getViewTreeObserver().addOnPreDrawListener(() -> {
-                View flavorImage = view.findViewById(R.id.flavor_image);
-
-                if (flavorImage != null) {
-					HeadlinesFragment.m_flavorMeasuredHeightsCache.put(articleId, flavorImage.getMeasuredHeight());
-                }
-
-                return true;
-            });
 
 			titleView = v.findViewById(R.id.title);
 
@@ -779,6 +767,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			View v = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
 
 			return new ArticleViewHolder(v);
+		}
+
+		@Override public void onViewRecycled(ArticleViewHolder holder){
+			super.onViewRecycled(holder);
+
+			if (holder.flavorImageView != null)
+				Glide.with(HeadlinesFragment.this).clear(holder.flavorImageView);
 		}
 
 		@Override
@@ -1006,16 +1001,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			if (!m_compactLayoutMode && holder.flavorImageHolder != null) {
 
-				/* reset to default in case of convertview */
+				// reset our view to default in case of recycling
 				holder.flavorImageLoadingBar.setVisibility(View.GONE);
 				holder.flavorImageLoadingBar.setIndeterminate(false);
+
 				holder.flavorImageView.setVisibility(View.GONE);
 				holder.flavorVideoKindView.setVisibility(View.GONE);
 				holder.flavorImageOverflow.setVisibility(View.GONE);
 				holder.flavorVideoView.setVisibility(View.GONE);
-				holder.flavorImageHolder.setVisibility(View.GONE);
-
-				Glide.with(HeadlinesFragment.this).clear(holder.flavorImageView);
 
 				// this is needed if our flavor image goes behind base listview element
 				holder.headlineHeader.setOnClickListener(v -> {
@@ -1029,6 +1022,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 });
 
 				if (canShowFlavorImage() && article.flavorImageUri != null && holder.flavorImageView != null) {
+
+					holder.flavorImageView.setOnClickListener(view -> openGalleryForType(article, holder, holder.flavorImageView));
+
 					if (holder.flavorImageOverflow != null) {
 						holder.flavorImageOverflow.setOnClickListener(v -> {
                             PopupMenu popup = new PopupMenu(getActivity(), holder.flavorImageOverflow);
@@ -1068,86 +1064,28 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                         });
 					}
 
-					int maxImageSize = (int) (m_screenHeight * 0.5f);
+					int maxImageHeight = (int) (m_screenHeight * 0.5f);
 
 					// we also downsample below using glide to save RAM
-					holder.flavorImageView.setMaxHeight(maxImageSize);
+					holder.flavorImageView.setMaxHeight(maxImageHeight);
 
-					// prevent lower listiew entries from jumping around if this row is modified
-					if (m_flavorMeasuredHeightsCache.containsKey(article.id)) {
-						int cachedHeight = m_flavorMeasuredHeightsCache.get(article.id);
+					if (m_headlinesFragmentModel.getFlavorImageSizes().containsKey(article.flavorImageUri)) {
+						Size size = m_headlinesFragmentModel.getFlavorImageSizes().get(article.flavorImageUri);
 
-						if (cachedHeight > 0) {
-							FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
-							lp.height = cachedHeight;
+						Log.d(TAG, "using cached resource size for " + article.flavorImageUri + " " + size.getWidth() + "x" + size.getHeight());
+
+						if (size.getWidth() > FLAVOR_IMG_MIN_SIZE && size.getHeight() > FLAVOR_IMG_MIN_SIZE) {
+							loadFlavorImage(article, holder, maxImageHeight);
 						}
+
+					} else {
+						Log.d(TAG, "checking resource size for " + article.flavorImageUri);
+						checkImageAndLoad(article, holder, maxImageHeight);
 					}
-
-					Log.d(TAG, "checking resource size for " + article.flavorImageUri);
-
-					FlavorProgressTarget<Size> flavorProgressTarget = new FlavorProgressTarget<>(new SimpleTarget<Size>() {
-						@Override
-						public void onResourceReady(@NonNull Size resource, @Nullable com.bumptech.glide.request.transition.Transition<? super Size> transition) {
-							Log.d(TAG, "got resource of " + resource.getWidth() + "x" + resource.getHeight());
-
-							if (resource.getWidth() > FLAVOR_IMG_MIN_SIZE && resource.getHeight() > FLAVOR_IMG_MIN_SIZE) {
-
-								// now we can actually load the image into our drawable
-								Glide.with(HeadlinesFragment.this)
-										.load(article.flavorImageUri)
-										.transition(DrawableTransitionOptions.withCrossFade())
-										.override(maxImageSize)
-										.diskCacheStrategy(DiskCacheStrategy.DATA)
-										.skipMemoryCache(true)
-										.listener(new RequestListener<Drawable>() {
-											@Override
-											public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-												holder.flavorImageHolder.setVisibility(View.GONE);
-
-												holder.flavorImageView.setVisibility(View.GONE);
-												holder.flavorImageOverflow.setVisibility(View.VISIBLE);
-
-												return false;
-											}
-
-											@Override
-											public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-												holder.flavorImageHolder.setVisibility(View.VISIBLE);
-
-												holder.flavorImageView.setVisibility(View.VISIBLE);
-												holder.flavorImageOverflow.setVisibility(View.VISIBLE);
-
-												adjustVideoKindView(holder, article);
-
-												return false;
-											}
-										})
-										.into(new DrawableImageViewTarget(holder.flavorImageView));
-							} else {
-								holder.flavorImageHolder.setVisibility(View.GONE);
-
-								holder.flavorImageView.setVisibility(View.VISIBLE);
-								holder.flavorImageOverflow.setVisibility(View.VISIBLE);
-							}
-						}
-					}, article.flavorImageUri, holder);
-
-					Glide.with(HeadlinesFragment.this)
-							.as(Size.class)
-							.load(article.flavorImageUri)
-							.diskCacheStrategy(DiskCacheStrategy.DATA)
-							.skipMemoryCache(true)
-							.into(flavorProgressTarget);
 				}
 
-				if (m_prefs.getBoolean("inline_video_player", false) && article.flavorImage != null &&
+				/* if (m_prefs.getBoolean("inline_video_player", false) && article.flavorImage != null &&
 						"video".equalsIgnoreCase(article.flavorImage.tagName()) && article.flavorStreamUri != null) {
-
-					holder.flavorImageView.setOnLongClickListener(v -> {
-                        releaseSurface();
-                        openGalleryForType(article, holder, holder.flavorImageView);
-                        return true;
-                    });
 
 					holder.flavorVideoView.setOnLongClickListener(v -> {
                         releaseSurface();
@@ -1243,7 +1181,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				} else {
 					holder.flavorImageView.setOnClickListener(view -> openGalleryForType(article, holder, holder.flavorImageView));
-				}
+				} */
 			}
 
 			String articleAuthor = article.author != null ? article.author : "";
@@ -1314,6 +1252,69 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
+		private void loadFlavorImage(Article article, ArticleViewHolder holder, int maxImageHeight) {
+			Glide.with(HeadlinesFragment.this)
+					.load(article.flavorImageUri)
+					.transition(DrawableTransitionOptions.withCrossFade())
+					.override(m_screenWidth, maxImageHeight)
+					.diskCacheStrategy(DiskCacheStrategy.DATA)
+					.skipMemoryCache(false)
+					.listener(new RequestListener<Drawable>() {
+						@Override
+						public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+							holder.flavorImageHolder.setVisibility(View.GONE);
+
+							holder.flavorImageView.setVisibility(View.GONE);
+							holder.flavorImageOverflow.setVisibility(View.VISIBLE);
+
+							return false;
+						}
+
+						@Override
+						public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+							holder.flavorImageHolder.setVisibility(View.VISIBLE);
+
+							holder.flavorImageView.setVisibility(View.VISIBLE);
+							holder.flavorImageOverflow.setVisibility(View.VISIBLE);
+
+							adjustVideoKindView(holder, article);
+
+							return false;
+						}
+					})
+					.into(new DrawableImageViewTarget(holder.flavorImageView));
+		}
+
+		private void checkImageAndLoad(Article article, ArticleViewHolder holder, int maxImageHeight) {
+			FlavorProgressTarget<Size> flavorProgressTarget = new FlavorProgressTarget<>(new SimpleTarget<Size>() {
+				@Override
+				public void onResourceReady(@NonNull Size resource, @Nullable com.bumptech.glide.request.transition.Transition<? super Size> transition) {
+					Log.d(TAG, "got resource of " + resource.getWidth() + "x" + resource.getHeight());
+
+					m_headlinesFragmentModel.getFlavorImageSizes().put(article.flavorImageUri, resource);
+
+					if (resource.getWidth() > FLAVOR_IMG_MIN_SIZE && resource.getHeight() > FLAVOR_IMG_MIN_SIZE) {
+
+						// now we can actually load the image into our drawable
+						loadFlavorImage(article, holder, maxImageHeight);
+
+					} else {
+						holder.flavorImageHolder.setVisibility(View.GONE);
+
+						holder.flavorImageView.setVisibility(View.VISIBLE);
+						holder.flavorImageOverflow.setVisibility(View.VISIBLE);
+					}
+				}
+			}, article.flavorImageUri, holder);
+
+			Glide.with(HeadlinesFragment.this)
+					.as(Size.class)
+					.load(article.flavorImageUri)
+					.diskCacheStrategy(DiskCacheStrategy.DATA)
+					.skipMemoryCache(true)
+					.into(flavorProgressTarget);
+		}
+
 		@Override
 		public int getItemViewType(int position) {
 			Article a = getItem(position);
@@ -1356,17 +1357,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							.apply(RequestOptions.circleCropTransform())
 							.diskCacheStrategy(DiskCacheStrategy.ALL)
 							.skipMemoryCache(false)
-							.listener(new RequestListener<Drawable>() {
-								@Override
-								public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-									return false;
-								}
-
-								@Override
-								public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-									return resource.getIntrinsicWidth() < THUMB_IMG_MIN_SIZE || resource.getIntrinsicHeight() < THUMB_IMG_MIN_SIZE;
-								}
-							})
 							.into(holder.textImage);
 				}
 

@@ -134,6 +134,7 @@
             android:summary="@string/prefs_always_downsample_images_long" />
 
         <SwitchPreferenceCompat
+            android:enabled="false"
             android:defaultValue="false"
             android:key="inline_video_player"
             android:summary="@string/prefs_inline_video_player"
