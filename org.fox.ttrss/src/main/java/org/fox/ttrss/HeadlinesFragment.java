@@ -134,11 +134,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void initialize(Feed feed) {
-
-		// clear loaded headlines before switching feed
-		if (m_feed == null || feed.id != m_feed.id || feed.is_cat != m_feed.is_cat)
-			Application.getArticlesModel().update(new ArticleList());
-
 		m_feed = feed;
 	}
 
@@ -219,10 +214,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 articleClone.unread = false;
                 tmp.add(articleClone);
 
-				int position = articles.getPositionById(articleClone.id);
-
-				if (position != -1)
-					Application.getArticlesModel().update(position, articleClone);
+				Application.getArticlesModel().updateById(articleClone);
             }
         }
 
@@ -438,10 +430,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 							articleClone.unread = false;
 
-							int position = Application.getArticles().getPositionById(a.id);
-
-							if (position != -1)
-								Application.getArticlesModel().update(position, articleClone);
+							Application.getArticlesModel().updateById(articleClone);
 						}
 
 						m_readArticles.clear();
@@ -602,8 +591,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		if (m_activity instanceof DetailActivity && !append)
 			return;
 
-		if (!append)
+		if (!append) {
 			m_activeArticleId = -1;
+			Application.getArticlesModel().update(new ArticleList());
+		}
 
 		model.setSearchQuery(getSearchQuery());
 		model.startLoading(append, m_feed, m_activity.getResizeWidth());
@@ -663,10 +654,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			flavorVideoView = v.findViewById(R.id.flavor_video);
 			attachmentsView = v.findViewById(R.id.attachments);
 			linkHost = v.findViewById(R.id.link_host);
-		}
-
-		public void clearAnimation() {
-			view.clearAnimation();
 		}
 	}
 

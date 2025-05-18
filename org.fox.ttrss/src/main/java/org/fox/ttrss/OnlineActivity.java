@@ -570,8 +570,6 @@ public class OnlineActivity extends CommonActivity {
 
                 if (selectedArticle != null) {
                     setArticleScore(selectedArticle);
-
-                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
                 }
 			}
 			return true;
@@ -580,11 +578,13 @@ public class OnlineActivity extends CommonActivity {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
                 if (selectedArticle != null) {
-                    selectedArticle.marked = !selectedArticle.marked;
+                    Article articleClone = new Article(selectedArticle);
+
+                    articleClone.marked = !articleClone.marked;
 
                     saveArticleMarked(selectedArticle);
 
-                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                    Application.getArticlesModel().updateById(articleClone);
                 }
             }
             return true;
@@ -593,11 +593,13 @@ public class OnlineActivity extends CommonActivity {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
                 if (selectedArticle != null) {
-                    selectedArticle.unread = !selectedArticle.unread;
+                    Article articleClone = new Article(selectedArticle);
+
+                    articleClone.unread = !articleClone.unread;
 
                     saveArticleUnread(selectedArticle);
 
-                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                    Application.getArticlesModel().updateById(articleClone);
                 }
             }
             return true;
@@ -607,9 +609,11 @@ public class OnlineActivity extends CommonActivity {
 
                 if (!selected.isEmpty()) {
                     for (Article a : selected) {
-                        a.unread = !a.unread;
+                        Article articleClone = new Article(a);
 
-                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                        articleClone.unread = !articleClone.unread;
+
+                        Application.getArticlesModel().updateById(articleClone);
                     }
 
                     toggleArticlesUnread(selected);
@@ -623,9 +627,11 @@ public class OnlineActivity extends CommonActivity {
 
                 if (!selected.isEmpty()) {
                     for (Article a : selected) {
-                        a.marked = !a.marked;
+                        Article articleClone = new Article(a);
 
-                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                        articleClone.marked = !articleClone.marked;
+
+                        Application.getArticlesModel().updateById(articleClone);
                     }
 
                     toggleArticlesMarked(selected);
@@ -639,9 +645,11 @@ public class OnlineActivity extends CommonActivity {
 
                 if (!selected.isEmpty()) {
                     for (Article a : selected) {
-                        a.published = !a.published;
+                        Article articleClone = new Article(a);
 
-                        hf.notifyItemChanged(Application.getArticles().indexOf(a));
+                        articleClone.published = !articleClone.published;
+
+                        Application.getArticlesModel().updateById(articleClone);
                     }
 
                     toggleArticlesPublished(selected);
@@ -654,10 +662,12 @@ public class OnlineActivity extends CommonActivity {
                 Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
 
                 if (selectedArticle != null) {
-                    selectedArticle.published = !selectedArticle.published;
-                    saveArticlePublished(selectedArticle);
+                    Article articleClone = new Article(selectedArticle);
 
-                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
+                    articleClone.published = !articleClone.published;
+                    saveArticlePublished(articleClone);
+
+                    Application.getArticlesModel().updateById(articleClone);
                 }
             }
             return true;
@@ -707,15 +717,14 @@ public class OnlineActivity extends CommonActivity {
                     if (a.id == selectedArticleId)
                         break;
 
-                    if (a.unread) {
-                        a.unread = false;
-                        tmp.add(a);
+                    Article articleClone = new Article(a);
 
-                        if (hf != null) {
-                            int position = Application.getArticles().indexOf(a);
+                    if (articleClone.unread) {
+                        articleClone.unread = false;
 
-                            hf.notifyItemChanged(position);
-                        }
+                        tmp.add(articleClone);
+
+                        Application.getArticlesModel().updateById(articleClone);
                     }
                 }
 
@@ -739,16 +748,6 @@ public class OnlineActivity extends CommonActivity {
             String note = topicEdit.getText().toString().trim();
 
             saveArticleNote(article, note);
-
-            int position = Application.getArticles().getPositionById(article.id);
-
-            if (position != -1) {
-                HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-                if (hf != null) hf.notifyItemChanged(position);
-
-                ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-                if (ap != null) ap.notifyItemChanged(position);
-            }
         });
 		
 		builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
@@ -952,7 +951,11 @@ public class OnlineActivity extends CommonActivity {
 	public void saveArticleNote(final Article article, final String note) {
 		ApiRequest req = new ApiRequest(getApplicationContext()) {
 			protected void onPostExecute(JsonElement result) {
-				article.note = note;
+                Article articleClone = new Article(article);
+
+				articleClone.note = note;
+
+                Application.getArticlesModel().updateById(articleClone);
 			}
 		};
 
@@ -983,9 +986,17 @@ public class OnlineActivity extends CommonActivity {
                         (dialog, which) -> {
 
                             try {
-article.score = Integer.parseInt(edit.getText().toString());
+                                Article articleClone = new Article(article);
 
-                                saveArticleScore(article);
+                                articleClone.score = Integer.parseInt(edit.getText().toString());
+
+                                saveArticleScore(articleClone);
+
+                                int position = Application.getArticles().getPositionById(articleClone.id);
+
+                                if (position != -1)
+                                    Application.getArticlesModel().update(position, articleClone);
+
                             } catch (NumberFormatException e) {
                                 toast(R.string.score_invalid);
                                 e.printStackTrace();
