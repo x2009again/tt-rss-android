@@ -93,7 +93,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						Article articleClone = new Article(article);
 
 						articleClone.unread = !articleClone.unread;
-						saveArticleUnread(article);
+						saveArticleUnread(articleClone);
 
 						Application.getArticlesModel().updateById(articleClone);
 					}
@@ -272,9 +272,13 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onArticleSelected(Article article, boolean open) {
 
-		if (article.unread) {
-			article.unread = false;
-			saveArticleUnread(article);
+		Article articleClone = new Article(article);
+
+		if (articleClone.unread) {
+			articleClone.unread = false;
+			saveArticleUnread(articleClone);
+
+			Application.getArticlesModel().updateById(articleClone);
 		}
 
 		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();
