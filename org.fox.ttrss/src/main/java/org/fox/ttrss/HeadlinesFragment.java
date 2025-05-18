@@ -136,7 +136,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public void initialize(Feed feed) {
 
 		// clear loaded headlines before switching feed
-		if (feed != m_feed)
+		if (m_feed == null || feed.id != m_feed.id || feed.is_cat != m_feed.is_cat)
 			Application.getArticlesModel().update(new ArticleList());
 
 		m_feed = feed;

@@ -27,6 +27,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -439,7 +440,7 @@ public class OnlineActivity extends CommonActivity {
                 int selectedIndex = Arrays.asList(headlineModeValues).indexOf(headlineMode);
 
 				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.headlines_set_view_mode)
+                        .setTitle(R.string.headlines_set_display_mode)
                         .setSingleChoiceItems(headlineModeNames,
                                 selectedIndex, (dialog2, which) -> {
                                     dialog2.cancel();
@@ -448,20 +449,19 @@ public class OnlineActivity extends CommonActivity {
                                     editor.putString("headline_mode", headlineModeValues[which]);
                                     editor.apply();
 
-                                    Intent intent = getIntent();
+                                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
-                                    Feed feed = hf.getFeed();
+                                    HeadlinesFragment hfnew = new HeadlinesFragment();
 
-                                    if (feed != null) {
-                                        intent.putExtra("feed_id", feed.id);
-                                        intent.putExtra("feed_is_cat", feed.is_cat);
-                                        intent.putExtra("feed_title", feed.title);
-                                    }
+                                    hfnew.initialize(hf.getFeed());
+                                    hfnew.setSearchQuery(hf.getSearchQuery());
 
-                                    finish();
+                                    ft.replace(R.id.headlines_fragment, hfnew, FRAG_HEADLINES);
 
-                                    startActivity(intent);
-                                    overridePendingTransition(0, 0);
+                                    ft.commit();
+
+                                    invalidateOptionsMenu();
+
                                 });
 
                 Dialog dialog = builder.create();
