@@ -24,6 +24,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 
 import androidx.activity.EdgeToEdge;
@@ -236,6 +237,9 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 		m_prefs.registerOnSharedPreferenceChangeListener(this);
 
+		if (m_prefs.getBoolean("window_secure_mode", false))
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
 		setupWidgetUpdates(this);
 
         if (savedInstanceState == null) {
@@ -314,7 +318,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
 		String[] filter = new String[] { "enable_cats", "widget_update_interval",
 				"headlines_swipe_to_dismiss", "headlines_mark_read_scroll", "headlines_request_size",
-				"force_phone_layout", "open_on_startup"};
+				"force_phone_layout", "open_on_startup", "window_secure_mode" };
 
 		m_needRestart = Arrays.asList(filter).contains(key);
 	}
