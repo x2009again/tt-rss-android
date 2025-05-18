@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -30,7 +29,6 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +37,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -87,7 +84,7 @@ import org.jsoup.nodes.Element;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -705,15 +702,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         private final ColorGenerator m_colorGenerator = ColorGenerator.DEFAULT;
         private final TextDrawable.IBuilder m_drawableBuilder = TextDrawable.builder().round();
+		private final ColorStateList m_colorTertiary;
+		private final ColorStateList m_colorPrimary;
 
-		boolean flavorImageEnabled;
+		boolean m_flavorImageEnabled;
 		private final int m_screenWidth;
 		private final int m_screenHeight;
 
 		private final ConnectivityManager m_cmgr;
 
 		private boolean canShowFlavorImage() {
-			if (flavorImageEnabled) {
+			if (m_flavorImageEnabled) {
 				if (m_prefs.getBoolean("headline_images_wifi_only", false)) {
 					// why do i have to get this service every time instead of using a member variable :(
 					NetworkInfo wifi = m_cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -739,7 +738,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_screenWidth = size.x;
 
 			String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
-			flavorImageEnabled = "HL_DEFAULT".equals(headlineMode) || "HL_COMPACT".equals(headlineMode);
+			m_flavorImageEnabled = "HL_DEFAULT".equals(headlineMode) || "HL_COMPACT".equals(headlineMode);
+
+			TypedValue tvTertiary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
+
+			m_colorTertiary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvTertiary.resourceId));
+
+			TypedValue tvPrimary = new TypedValue();
+			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
+
+			m_colorPrimary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvPrimary.resourceId));
 
 			m_cmgr = (ConnectivityManager) m_activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		}
@@ -776,6 +785,39 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				Glide.with(HeadlinesFragment.this).clear(holder.flavorImageView);
 		}
 
+		@Override
+		// https://stackoverflow.com/questions/33176336/need-an-example-about-recyclerview-adapter-notifyitemchangedint-position-objec/50085835#50085835
+		public void onBindViewHolder(final ArticleViewHolder holder, final int position, final List<Object> payloads) {
+			if (!payloads.isEmpty()) {
+				Log.d(TAG, "onBindViewHolder, payloads: " + payloads);
+
+				final Article article = getItem(position);
+
+				for (final Object pobject : payloads) {
+					ArticleDiffItemCallback.ChangePayload payload = (ArticleDiffItemCallback.ChangePayload) pobject;
+
+					switch (payload) {
+						case UNREAD:
+							break;
+						case MARKED:
+							updateMarkedView(article, holder, position);
+							break;
+						case SELECTED:
+							updateSelectedView(article, holder, position);
+							updateTextImage(article, holder, position);
+							break;
+						case PUBLISHED:
+							updatePublishedView(article, holder, position);
+							break;
+						case SCORE:
+							updateScoreView(article, holder);
+							break;
+					}
+				}
+			} else {
+				super.onBindViewHolder(holder, position, payloads);
+			}
+		}
 		@Override
 		public void onBindViewHolder(final ArticleViewHolder holder, int position) {
 			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
@@ -819,33 +861,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 });
 			}
 
-			if (holder.textImage != null) {
-				updateTextCheckedState(holder, position);
-
-				holder.textImage.setOnClickListener(view -> {
-					Article selectedArticle = getItem(position);
-
-					Log.d(TAG, "textImage onClick pos=" + position + " article=" + article);
-
-                    selectedArticle.selected = !selectedArticle.selected;
-
-                    updateTextCheckedState(holder, position);
-
-                    m_listener.onArticleListSelectionChange();
-                });
-				ViewCompat.setTransitionName(holder.textImage, "gallery:" + article.flavorImageUri);
-
-				if (article.flavorImage != null) {
-
-					holder.textImage.setOnLongClickListener(v -> {
-
-                        openGalleryForType(article, holder, holder.textImage);
-
-                        return true;
-                    });
-
-				}
-			}
+			updateTextImage(article, holder, position);
 
 			if (holder.titleView != null) {
 				holder.titleView.setText(Html.fromHtml(article.title));
@@ -873,89 +889,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				}
 			}
 
-			TypedValue tvTertiary = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
-
-			ColorStateList colorTertiary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvTertiary.resourceId));
-
-			TypedValue tvPrimary = new TypedValue();
-			m_activity.getTheme().resolveAttribute(R.attr.colorPrimary, tvPrimary, true);
-
-			ColorStateList colorPrimary = ColorStateList.valueOf(ContextCompat.getColor(m_activity, tvPrimary.resourceId));
-
-			if (holder.markedView != null) {
-				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
-				holder.markedView.setIconTint(article.marked ? colorTertiary : colorPrimary);
-
-				holder.markedView.setOnClickListener(v -> {
-					Article selectedArticle = new Article(getItem(position));
-					selectedArticle.marked = !selectedArticle.marked;
-
-                    m_activity.saveArticleMarked(selectedArticle);
-					Application.getArticlesModel().update(position, selectedArticle);
-                });
-			}
-
-			if (holder.scoreView != null) {
-				int scoreDrawable = R.drawable.baseline_trending_flat_24;
-
-				if (article.score > 0)
-					scoreDrawable = R.drawable.baseline_trending_up_24;
-				else if (article.score < 0)
-					scoreDrawable = R.drawable.baseline_trending_down_24;
-
-				holder.scoreView.setIconResource(scoreDrawable);
-
-				if (article.score > Article.SCORE_HIGH)
-					holder.scoreView.setIconTint(colorTertiary);
-				else
-					holder.scoreView.setIconTint(colorPrimary);
-
-				if (m_activity.getApiLevel() >= 16) {
-					holder.scoreView.setOnClickListener(v -> {
-                        final EditText edit = new EditText(getActivity());
-                        edit.setText(String.valueOf(article.score));
-
-                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-                                .setTitle(R.string.score_for_this_article)
-                                .setPositiveButton(R.string.set_score,
-									(dialog, which) -> {
-										try {
-                                            article.score = Integer.parseInt(edit.getText().toString());
-											m_activity.saveArticleScore(article);
-											m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
-										} catch (NumberFormatException e) {
-											m_activity.toast(R.string.score_invalid);
-											e.printStackTrace();
-										}
-									})
-								.setNegativeButton(getString(R.string.cancel),
-									(dialog, which) -> { }).setView(edit);
-
-                        Dialog dialog = builder.create();
-                        dialog.show();
-                    });
-				}
-			}
-
-			if (holder.publishedView != null) {
-
-				// otherwise we just use tinting in actionbar
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-					holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
-				}
-
-				holder.publishedView.setIconTint(article.published ? colorTertiary : colorPrimary);
-
-				holder.publishedView.setOnClickListener(v -> {
-					Article selectedArticle = new Article(getItem(position));
-					selectedArticle.published = !selectedArticle.published;
-
-					m_activity.saveArticlePublished(selectedArticle);
-
-					Application.getArticlesModel().update(position, selectedArticle);
-                });
-			}
+			updateMarkedView(article, holder, position);
+			updateScoreView(article, holder);
+			updatePublishedView(article, holder, position);
 
 			if (holder.attachmentsView != null) {
 				if (article.attachments != null && !article.attachments.isEmpty()) {
@@ -1217,21 +1153,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.dateView.setText(df.format(d));
 			}
 
-
-			if (holder.selectionBoxView != null) {
-				holder.selectionBoxView.setChecked(article.selected);
-				holder.selectionBoxView.setOnClickListener(view -> {
-					Article currentArticle = getItem(position);
-
-					Log.d(TAG, "selectionCb onClick pos=" + position + " article=" + article);
-
-                    CheckBox cb = (CheckBox)view;
-
-                    currentArticle.selected = cb.isChecked();
-
-                    m_listener.onArticleListSelectionChange();
-                });
-			}
+			updateSelectedView(article, holder, position);
 
 			if (holder.menuButtonView != null) {
 				holder.menuButtonView.setOnClickListener(v -> {
@@ -1252,7 +1174,134 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		private void loadFlavorImage(Article article, ArticleViewHolder holder, int maxImageHeight) {
+		private void updateMarkedView(Article article, ArticleViewHolder holder, int position) {
+			if (holder.markedView != null) {
+				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
+				holder.markedView.setIconTint(article.marked ? m_colorTertiary : m_colorPrimary);
+
+				holder.markedView.setOnClickListener(v -> {
+					Article selectedArticle = new Article(getItem(position));
+					selectedArticle.marked = !selectedArticle.marked;
+
+					m_activity.saveArticleMarked(selectedArticle);
+					Application.getArticlesModel().update(position, selectedArticle);
+				});
+			}
+		}
+
+		private void updateTextImage(Article article, ArticleViewHolder holder, int position) {
+			if (holder.textImage != null) {
+				updateTextCheckedState(holder, position);
+
+				holder.textImage.setOnClickListener(view -> {
+					Article selectedArticle = getItem(position);
+
+					Log.d(TAG, "textImage onClick pos=" + position + " article=" + article);
+
+					selectedArticle.selected = !selectedArticle.selected;
+
+					updateTextCheckedState(holder, position);
+
+					m_listener.onArticleListSelectionChange();
+				});
+
+				ViewCompat.setTransitionName(holder.textImage, "gallery:" + article.flavorImageUri);
+
+				if (article.flavorImage != null) {
+
+					holder.textImage.setOnLongClickListener(v -> {
+
+						openGalleryForType(article, holder, holder.textImage);
+
+						return true;
+					});
+
+				}
+			}
+		}
+
+		private void updateSelectedView(Article article, ArticleViewHolder holder, int position) {
+			if (holder.selectionBoxView != null) {
+				holder.selectionBoxView.setChecked(article.selected);
+				holder.selectionBoxView.setOnClickListener(view -> {
+					Article currentArticle = getItem(position);
+
+					Log.d(TAG, "selectionCb onClick pos=" + position + " article=" + article);
+
+					CheckBox cb = (CheckBox)view;
+
+					currentArticle.selected = cb.isChecked();
+
+					m_listener.onArticleListSelectionChange();
+				});
+			}
+		}
+
+		private void updateScoreView(Article article, ArticleViewHolder holder) {
+			if (holder.scoreView != null) {
+				int scoreDrawable = R.drawable.baseline_trending_flat_24;
+
+				if (article.score > 0)
+					scoreDrawable = R.drawable.baseline_trending_up_24;
+				else if (article.score < 0)
+					scoreDrawable = R.drawable.baseline_trending_down_24;
+
+				holder.scoreView.setIconResource(scoreDrawable);
+
+				if (article.score > Article.SCORE_HIGH)
+					holder.scoreView.setIconTint(m_colorTertiary);
+				else
+					holder.scoreView.setIconTint(m_colorPrimary);
+
+				if (m_activity.getApiLevel() >= 16) {
+					holder.scoreView.setOnClickListener(v -> {
+						final EditText edit = new EditText(getActivity());
+						edit.setText(String.valueOf(article.score));
+
+						MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+								.setTitle(R.string.score_for_this_article)
+								.setPositiveButton(R.string.set_score,
+										(dialog, which) -> {
+											try {
+												article.score = Integer.parseInt(edit.getText().toString());
+												m_activity.saveArticleScore(article);
+												m_adapter.notifyItemChanged(m_list.getChildAdapterPosition(holder.view));
+											} catch (NumberFormatException e) {
+												m_activity.toast(R.string.score_invalid);
+												e.printStackTrace();
+											}
+										})
+								.setNegativeButton(getString(R.string.cancel),
+										(dialog, which) -> { }).setView(edit);
+
+						Dialog dialog = builder.create();
+						dialog.show();
+					});
+				}
+			}
+		}
+
+		private void updatePublishedView(final Article article, ArticleViewHolder holder, int position) {
+			if (holder.publishedView != null) {
+				// otherwise we just use tinting in actionbar
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+					holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
+				}
+
+				holder.publishedView.setIconTint(article.published ? m_colorTertiary : m_colorPrimary);
+
+				holder.publishedView.setOnClickListener(v -> {
+					Article selectedArticle = new Article(getItem(position));
+					selectedArticle.published = !selectedArticle.published;
+
+					m_activity.saveArticlePublished(selectedArticle);
+
+					Application.getArticlesModel().update(position, selectedArticle);
+				});
+			}
+		}
+
+		private void loadFlavorImage(final Article article, ArticleViewHolder holder, int maxImageHeight) {
 			Glide.with(HeadlinesFragment.this)
 					.load(article.flavorImageUri)
 					.transition(DrawableTransitionOptions.withCrossFade())
