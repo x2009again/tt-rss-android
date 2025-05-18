@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -34,6 +35,9 @@ import org.fox.ttrss.util.DiffFragmentStateAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import me.relex.circleindicator.CircleIndicator2;
+import me.relex.circleindicator.CircleIndicator3;
 
 public class GalleryActivity extends CommonActivity {
     private final String TAG = this.getClass().getSimpleName();
@@ -185,6 +189,11 @@ public class GalleryActivity extends CommonActivity {
                     }
                 });
             });
+
+            CircleIndicator3 indicator = findViewById(R.id.gallery_pager_indicator);
+            indicator.setViewPager(m_pager);
+
+            m_adapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
 
         } else {
             // ArrayList<GalleryEntry> list = savedInstanceState.getParcelableArrayList("m_items");

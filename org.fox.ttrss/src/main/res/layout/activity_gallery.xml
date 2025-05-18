@@ -38,7 +38,7 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin" />
 
-    <me.relex.circleindicator.CircleIndicator
+    <me.relex.circleindicator.CircleIndicator3
         android:id="@+id/gallery_pager_indicator"
         android:layout_width="fill_parent"
         android:layout_height="32dp"
