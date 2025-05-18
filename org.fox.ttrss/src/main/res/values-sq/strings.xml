@@ -263,4 +263,6 @@
     <string name="dont_open_anything">Asgjë</string>
     <string name="open_on_startup">Haper gjatë nisjes</string>
     <string name="article_edit_note">Përpunoni shënim</string>
+    <string name="error_bad_request">Gabim: 400 kërkesë e gabuar</string>
+    <string name="error_success">Veprimi u plotësua me sukses</string>
 </resources>
