@@ -995,7 +995,7 @@ public class OnlineActivity extends CommonActivity {
                                 int position = Application.getArticles().getPositionById(articleClone.id);
 
                                 if (position != -1)
-                                    Application.getArticlesModel().update(position, articleClone);
+                                    Application.getArticlesModel().updateById(articleClone);
 
                             } catch (NumberFormatException e) {
                                 toast(R.string.score_invalid);

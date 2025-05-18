@@ -25,7 +25,6 @@
                 android:id="@+id/headline_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
                 android:layout_span="2"
                 android:padding="16dp">
 

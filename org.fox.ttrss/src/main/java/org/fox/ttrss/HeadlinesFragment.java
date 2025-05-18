@@ -160,7 +160,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
             m_activity.saveArticleUnread(articleClone);
 
-			Application.getArticlesModel().update(position, articleClone);
+			Application.getArticlesModel().updateById(articleClone);
 
             return true;
         } else if (itemId == R.id.headlines_article_link_copy) {
@@ -175,7 +175,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				m_activity.saveArticleUnread(articleClone);
 
-				Application.getArticlesModel().update(position, articleClone);
+				Application.getArticlesModel().updateById(articleClone);
 			}
             return true;
         } else if (itemId == R.id.headlines_share_article) {
@@ -591,10 +591,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		if (m_activity instanceof DetailActivity && !append)
 			return;
 
-		if (!append) {
+		if (!append)
 			setActiveArticleId(-1);
-			Application.getArticlesModel().update(new ArticleList());
-		}
 
 		model.setSearchQuery(getSearchQuery());
 		model.startLoading(append, m_feed, m_activity.getResizeWidth());
@@ -768,8 +766,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_cmgr = (ConnectivityManager) m_activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		}
 
+		@NonNull
 		@Override
-		public ArticleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
 			int layoutId = m_compactLayoutMode ? R.layout.headlines_row_compact : R.layout.headlines_row;
 
@@ -779,7 +778,247 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			View v = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
 
-			return new ArticleViewHolder(v);
+			ArticleViewHolder holder = new ArticleViewHolder(v);
+
+			// set on click handlers once when view is created
+
+			holder.view.setOnClickListener(view -> {
+				int position = m_list.getChildAdapterPosition(view);
+
+				if (position != -1) {
+					Article article = m_adapter.getItem(position);
+
+					m_listener.onArticleSelected(article);
+
+					// only set active article when it makes sense (in DetailActivity)
+					if (getActivity() instanceof DetailActivity) {
+						m_activeArticleId = article.id;
+
+						m_adapter.notifyItemChanged(position);
+					}
+				}
+			});
+
+			holder.view.setOnLongClickListener(view -> {
+				m_list.showContextMenuForChild(view);
+				return true;
+			});
+
+			// block footer clicks to make button/selection clicking easier
+			if (holder.headlineFooter != null) {
+				holder.headlineFooter.setOnClickListener(view -> {
+					//
+				});
+			}
+
+			if (holder.attachmentsView != null) {
+				holder.attachmentsView.setOnClickListener(view -> {
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = m_adapter.getItem(position);
+						m_activity.displayAttachments(article);
+					}
+				});
+			}
+
+			if (holder.flavorImageView != null) {
+				holder.flavorImageView.setOnClickListener(view -> {
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = m_adapter.getItem(position);
+						openGalleryForType(article, holder, holder.flavorImageView);
+					}
+				});
+			}
+
+			if (holder.flavorImageOverflow != null) {
+				holder.flavorImageOverflow.setOnClickListener(view -> {
+					PopupMenu popup = new PopupMenu(getContext(), holder.flavorImageOverflow);
+					MenuInflater inflater = popup.getMenuInflater();
+					inflater.inflate(R.menu.content_gallery_entry, popup.getMenu());
+
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = m_adapter.getItem(position);
+
+						popup.setOnMenuItemClickListener(item -> {
+
+							Uri mediaUri = Uri.parse(article.flavorStreamUri != null ? article.flavorStreamUri :
+									article.flavorImageUri);
+
+							int itemId = item.getItemId();
+							if (itemId == R.id.article_img_open) {
+								m_activity.openUri(mediaUri);
+								return true;
+							} else if (itemId == R.id.article_img_copy) {
+								m_activity.copyToClipboard(mediaUri.toString());
+								return true;
+							} else if (itemId == R.id.article_img_share) {
+								m_activity.shareImageFromUri(mediaUri.toString());
+								return true;
+							} else if (itemId == R.id.article_img_share_url) {
+								m_activity.shareText(mediaUri.toString());
+								return true;
+							} else if (itemId == R.id.article_img_view_caption) {
+								m_activity.displayImageCaption(article.flavorImageUri, article.content);
+								return true;
+							}
+							return false;
+						});
+
+						popup.show();
+					}
+				});
+
+				holder.flavorImageView.setOnLongClickListener(view -> {
+					m_list.showContextMenuForChild(view);
+					return true;
+				});
+			}
+
+			if (holder.menuButtonView != null) {
+				holder.menuButtonView.setOnClickListener(view -> {
+
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						PopupMenu popup = new PopupMenu(getContext(), view);
+						MenuInflater inflater = popup.getMenuInflater();
+						inflater.inflate(R.menu.context_headlines, popup.getMenu());
+
+						popup.getMenu().findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
+						popup.getMenu().findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
+
+						popup.setOnMenuItemClickListener(item -> onArticleMenuItemSelected(item,
+								getItem(position),
+								m_list.getChildAdapterPosition(holder.view)));
+
+						popup.show();
+					}
+				});
+			}
+
+			if (holder.markedView != null) {
+				holder.markedView.setOnClickListener(view -> {
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = new Article(getItem(position));
+						article.marked = !article.marked;
+
+						m_activity.saveArticleMarked(article);
+
+						Application.getArticlesModel().updateById(article);
+					}
+				});
+			}
+
+			if (holder.selectionBoxView != null) {
+				holder.selectionBoxView.setOnClickListener(view -> {
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = new Article(getItem(position));
+
+						CheckBox cb = (CheckBox) view;
+
+						article.selected = cb.isChecked();
+
+						Application.getArticlesModel().updateById(article);
+
+						m_listener.onArticleListSelectionChange();
+					}
+				});
+			}
+
+			if (holder.publishedView != null) {
+				holder.publishedView.setOnClickListener(view -> {
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = new Article(getItem(position));
+						article.published = !article.published;
+
+						m_activity.saveArticlePublished(article);
+
+						Application.getArticlesModel().updateById(article);
+					}
+				});
+			}
+
+			if (holder.textImage != null) {
+				holder.textImage.setOnClickListener(view -> {
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = new Article(getItem(position));
+						article.selected = !article.selected;
+
+						Application.getArticlesModel().updateById(article);
+
+						// updateTextCheckedState(holder, position);
+
+						m_listener.onArticleListSelectionChange();
+					}
+				});
+
+				holder.textImage.setOnLongClickListener(view -> {
+					int position = m_list.getChildAdapterPosition(holder.view);
+
+					if (position != -1) {
+						Article article = getItem(position);
+
+						openGalleryForType(article, holder, holder.textImage);
+					}
+
+					return true;
+				});
+			}
+
+			if (holder.scoreView != null) {
+				if (m_activity.getApiLevel() >= 16) {
+					holder.scoreView.setOnClickListener(view -> {
+						int position = m_list.getChildAdapterPosition(holder.view);
+
+						if (position != -1) {
+
+							Article article = new Article(getItem(position));
+
+							final EditText edit = new EditText(getActivity());
+							edit.setText(String.valueOf(article.score));
+
+							MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+									.setTitle(R.string.score_for_this_article)
+									.setPositiveButton(R.string.set_score,
+											(dialog, which) -> {
+												try {
+													article.score = Integer.parseInt(edit.getText().toString());
+													m_activity.saveArticleScore(article);
+
+													Application.getArticlesModel().updateById(article);
+
+												} catch (NumberFormatException e) {
+													m_activity.toast(R.string.score_invalid);
+													e.printStackTrace();
+												}
+											})
+									.setNegativeButton(getString(R.string.cancel),
+											(dialog, which) -> {
+											}).setView(edit);
+
+							Dialog dialog = builder.create();
+							dialog.show();
+						}
+					});
+				} else {
+					holder.scoreView.setVisibility(View.GONE);
+				}
+			}
+
+			return holder;
 		}
 
 		@Override public void onViewRecycled(ArticleViewHolder holder){
@@ -805,17 +1044,17 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							updateUnreadView(article, holder);
 							break;
 						case MARKED:
-							updateMarkedView(article, holder, position);
+							updateMarkedView(article, holder);
 							break;
 						case SELECTED:
-							updateSelectedView(article, holder, position);
-							updateTextImage(article, holder, position);
+							updateSelectedView(article, holder);
+							updateTextImage(article, holder);
 							break;
 						case PUBLISHED:
-							updatePublishedView(article, holder, position);
+							updatePublishedView(article, holder);
 							break;
 						case SCORE:
-							updateScoreView(article, holder, position);
+							updateScoreView(article, holder);
 							break;
 					}
 				}
@@ -881,31 +1120,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			if (article.id < 0) return;
 
 			updateUnreadView(article, holder);
-
-			holder.view.setOnLongClickListener(v -> {
-                m_list.showContextMenuForChild(v);
-                return true;
-            });
-
-			holder.view.setOnClickListener(v -> {
-                m_listener.onArticleSelected(article);
-
-                // only set active article when it makes sense (in DetailActivity)
-                if (getActivity() instanceof DetailActivity) {
-					m_activeArticleId = article.id;
-
-					m_adapter.notifyItemChanged(position);
-				}
-            });
-
-			// block footer clicks to make button/selection clicking easier
-			if (holder.headlineFooter != null) {
-				holder.headlineFooter.setOnClickListener(view -> {
-                    //
-                });
-			}
-
-			updateTextImage(article, holder, position);
+			updateTextImage(article, holder);
 
 			if (holder.titleView != null) {
 				holder.titleView.setText(Html.fromHtml(article.title));
@@ -931,16 +1146,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				}
 			}
 
-			updateMarkedView(article, holder, position);
-			updateScoreView(article, holder, position);
-			updatePublishedView(article, holder, position);
+			updateMarkedView(article, holder);
+			updateScoreView(article, holder);
+			updatePublishedView(article, holder);
 
 			if (holder.attachmentsView != null) {
 				if (article.attachments != null && !article.attachments.isEmpty()) {
 					holder.attachmentsView.setVisibility(View.VISIBLE);
-
-					holder.attachmentsView.setOnClickListener(v -> m_activity.displayAttachments(article));
-
 				} else {
 					holder.attachmentsView.setVisibility(View.GONE);
 				}
@@ -989,60 +1201,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.flavorVideoView.setVisibility(View.GONE);
 				holder.flavorImageHolder.setVisibility(View.GONE);
 
-				// this is needed if our flavor image goes behind base listview element
-				holder.headlineHeader.setOnClickListener(v -> {
-                    m_listener.onArticleSelected(article);
-                });
-
-				holder.headlineHeader.setOnLongClickListener(v -> {
-                    m_list.showContextMenuForChild(holder.view);
-
-                    return true;
-                });
-
 				if (canShowFlavorImage() && article.flavorImageUri != null && holder.flavorImageView != null) {
-
-					holder.flavorImageView.setOnClickListener(view -> openGalleryForType(article, holder, holder.flavorImageView));
-
-					if (holder.flavorImageOverflow != null) {
-						holder.flavorImageOverflow.setOnClickListener(v -> {
-                            PopupMenu popup = new PopupMenu(getActivity(), holder.flavorImageOverflow);
-                            MenuInflater inflater = popup.getMenuInflater();
-                            inflater.inflate(R.menu.content_gallery_entry, popup.getMenu());
-
-                            popup.setOnMenuItemClickListener(item -> {
-
-                                Uri mediaUri = Uri.parse(article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri);
-
-                                int itemId = item.getItemId();
-                                if (itemId == R.id.article_img_open) {
-                                    m_activity.openUri(mediaUri);
-                                    return true;
-                                } else if (itemId == R.id.article_img_copy) {
-                                    m_activity.copyToClipboard(mediaUri.toString());
-                                    return true;
-                                } else if (itemId == R.id.article_img_share) {
-                                    m_activity.shareImageFromUri(mediaUri.toString());
-                                    return true;
-                                } else if (itemId == R.id.article_img_share_url) {
-                                    m_activity.shareText(mediaUri.toString());
-                                    return true;
-                                } else if (itemId == R.id.article_img_view_caption) {
-                                    m_activity.displayImageCaption(article.flavorImageUri, article.content);
-                                    return true;
-                                }
-                                return false;
-                            });
-
-                            popup.show();
-                        });
-
-						holder.flavorImageView.setOnLongClickListener(v -> {
-                            m_list.showContextMenuForChild(holder.view);
-                            return true;
-                        });
-					}
-
 					int maxImageHeight = (int) (m_screenHeight * 0.5f);
 
 					// we also downsample below using glide to save RAM
@@ -1196,93 +1355,35 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.dateView.setText(df.format(d));
 			}
 
-			updateSelectedView(article, holder, position);
+			updateSelectedView(article, holder);
 
-			if (holder.menuButtonView != null) {
-				holder.menuButtonView.setOnClickListener(v -> {
 
-                    PopupMenu popup = new PopupMenu(getActivity(), v);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    inflater.inflate(R.menu.context_headlines, popup.getMenu());
-
-                    popup.getMenu().findItem(R.id.article_set_labels).setEnabled(m_activity.getApiLevel() >= 1);
-                    popup.getMenu().findItem(R.id.article_edit_note).setEnabled(m_activity.getApiLevel() >= 1);
-
-                    popup.setOnMenuItemClickListener(item -> onArticleMenuItemSelected(item,
-							getItem(position),
-							m_list.getChildAdapterPosition(holder.view)));
-
-                    popup.show();
-                });
-			}
 		}
 
-		private void updateMarkedView(Article article, ArticleViewHolder holder, int position) {
+		private void updateMarkedView(Article article, ArticleViewHolder holder) {
 			if (holder.markedView != null) {
 				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
 				holder.markedView.setIconTint(article.marked ? m_cslTertiary : m_cslPrimary);
-
-				holder.markedView.setOnClickListener(v -> {
-					Article selectedArticle = new Article(getItem(position));
-					selectedArticle.marked = !selectedArticle.marked;
-
-					m_activity.saveArticleMarked(selectedArticle);
-					Application.getArticlesModel().update(position, selectedArticle);
-				});
 			}
 		}
 
-		private void updateTextImage(Article article, ArticleViewHolder holder, int position) {
+		private void updateTextImage(Article article, ArticleViewHolder holder) {
 			if (holder.textImage != null) {
-				updateTextCheckedState(holder, position);
+				updateTextCheckedState(article, holder);
 
-				holder.textImage.setOnClickListener(view -> {
-					Article selectedArticle = getItem(position);
-
-					Log.d(TAG, "textImage onClick pos=" + position + " article=" + article);
-
-					selectedArticle.selected = !selectedArticle.selected;
-
-					updateTextCheckedState(holder, position);
-
-					m_listener.onArticleListSelectionChange();
-				});
-
-				ViewCompat.setTransitionName(holder.textImage, "gallery:" + article.flavorImageUri);
-
-				if (article.flavorImage != null) {
-
-					holder.textImage.setOnLongClickListener(v -> {
-
-						openGalleryForType(article, holder, holder.textImage);
-
-						return true;
-					});
-
-				}
+				ViewCompat.setTransitionName(holder.textImage,
+						"gallery:" + article.flavorImageUri);
 			}
 		}
 
-		private void updateSelectedView(Article article, ArticleViewHolder holder, int position) {
+		private void updateSelectedView(Article article, ArticleViewHolder holder) {
 			if (holder.selectionBoxView != null) {
 				holder.selectionBoxView.setChecked(article.selected);
-				holder.selectionBoxView.setOnClickListener(view -> {
-					Article selectedArticle = new Article(getItem(position));
 
-					Log.d(TAG, "selectionCb onClick pos=" + position + " article=" + article);
-
-					CheckBox cb = (CheckBox)view;
-
-					selectedArticle.selected = cb.isChecked();
-
-					Application.getArticlesModel().update(position, selectedArticle);
-
-					m_listener.onArticleListSelectionChange();
-				});
 			}
 		}
 
-		private void updateScoreView(Article article, ArticleViewHolder holder, int position) {
+		private void updateScoreView(Article article, ArticleViewHolder holder) {
 			if (holder.scoreView != null) {
 				int scoreDrawable = R.drawable.baseline_trending_flat_24;
 
@@ -1297,40 +1398,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.scoreView.setIconTint(m_cslTertiary);
 				else
 					holder.scoreView.setIconTint(m_cslPrimary);
-
-				if (m_activity.getApiLevel() >= 16) {
-					holder.scoreView.setOnClickListener(v -> {
-						Article selectedArticle = new Article(getItem(position));
-
-						final EditText edit = new EditText(getActivity());
-						edit.setText(String.valueOf(selectedArticle.score));
-
-						MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-								.setTitle(R.string.score_for_this_article)
-								.setPositiveButton(R.string.set_score,
-										(dialog, which) -> {
-											try {
-												selectedArticle.score = Integer.parseInt(edit.getText().toString());
-												m_activity.saveArticleScore(article);
-
-												Application.getArticlesModel().update(position, selectedArticle);
-
-											} catch (NumberFormatException e) {
-												m_activity.toast(R.string.score_invalid);
-												e.printStackTrace();
-											}
-										})
-								.setNegativeButton(getString(R.string.cancel),
-										(dialog, which) -> { }).setView(edit);
-
-						Dialog dialog = builder.create();
-						dialog.show();
-					});
-				}
 			}
 		}
 
-		private void updatePublishedView(final Article article, ArticleViewHolder holder, int position) {
+		private void updatePublishedView(final Article article, ArticleViewHolder holder) {
 			if (holder.publishedView != null) {
 				// otherwise we just use tinting in actionbar
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -1338,15 +1409,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				}
 
 				holder.publishedView.setIconTint(article.published ? m_cslTertiary : m_cslPrimary);
-
-				holder.publishedView.setOnClickListener(v -> {
-					Article selectedArticle = new Article(getItem(position));
-					selectedArticle.published = !selectedArticle.published;
-
-					m_activity.saveArticlePublished(selectedArticle);
-
-					Application.getArticlesModel().update(position, selectedArticle);
-				});
 			}
 		}
 
@@ -1424,9 +1486,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		private void updateTextCheckedState(final ArticleViewHolder holder, int position) {
-			Article article = getItem(position);
-
+		private void updateTextCheckedState(final Article article, final ArticleViewHolder holder) {
             String tmp = !article.title.isEmpty() ? article.title.substring(0, 1).toUpperCase() : "?";
 
             if (article.selected) {
@@ -1439,7 +1499,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				if (!canShowFlavorImage() || article.flavorImage == null) {
 					holder.textImage.setImageDrawable(textDrawable);
-
 				} else {
 					Glide.with(HeadlinesFragment.this)
 							.load(article.flavorImageUri)
