@@ -133,11 +133,16 @@ public class GalleryActivity extends CommonActivity {
         if (savedInstanceState == null) {
             m_title = getIntent().getStringExtra("title");
             m_content = getIntent().getStringExtra("content");
+        } else {
+            // ArrayList<GalleryEntry> list = savedInstanceState.getParcelableArrayList("m_items");
+            m_title = savedInstanceState.getString("m_title");
+            m_content = savedInstanceState.getString("m_content");
+        }
 
-            GalleryModel model = new ViewModelProvider(this).get(GalleryModel.class);
+        GalleryModel model = new ViewModelProvider(this).get(GalleryModel.class);
 
-            // this should be dealt with first so that transition completes properly
-            String firstSrc = getIntent().getStringExtra("firstSrc");
+        // this should be dealt with first so that transition completes properly
+        String firstSrc = getIntent().getStringExtra("firstSrc");
 
             /* but what about videos? if (firstSrc != null) {
                 List<GalleryEntry> initialItems = new ArrayList<GalleryEntry>();
@@ -149,57 +154,52 @@ public class GalleryActivity extends CommonActivity {
                 model.update(initialItems);
             } */
 
-            model.collectItems(m_content, firstSrc);
+        model.collectItems(m_content, firstSrc);
 
-            model.getItemsToCheck().observe(this, itemsToCheck -> {
-                Log.d(TAG, "observed items to check=" + itemsToCheck);
+        model.getItemsToCheck().observe(this, itemsToCheck -> {
+            Log.d(TAG, "observed items to check=" + itemsToCheck);
 
-                m_checkProgress.setMax(itemsToCheck);
-                m_checkProgress.setProgress(0);
-            });
+            m_checkProgress.setMax(itemsToCheck);
+            m_checkProgress.setProgress(0);
+        });
 
-            model.getIsChecking().observe(this, isChecking -> {
-                Log.d(TAG, "observed isChecking=" + isChecking);
+        model.getIsChecking().observe(this, isChecking -> {
+            Log.d(TAG, "observed isChecking=" + isChecking);
 
-                m_checkProgress.setVisibility(isChecking ? View.VISIBLE : View.GONE);
-            });
+            m_checkProgress.setVisibility(isChecking ? View.VISIBLE : View.GONE);
+        });
 
-            model.getCheckProgress().observe(this, progress -> {
-                Log.d(TAG, "observed item check progress=" + progress);
+        model.getCheckProgress().observe(this, progress -> {
+            Log.d(TAG, "observed item check progress=" + progress);
 
-                m_checkProgress.setProgress(progress);
-            });
+            m_checkProgress.setProgress(progress);
+        });
 
-            model.getItems().observe(this, galleryEntries -> {
-                Log.d(TAG, "observed gallery entries=" + galleryEntries + " firstSrc=" + firstSrc);
+        model.getItems().observe(this, galleryEntries -> {
+            Log.d(TAG, "observed gallery entries=" + galleryEntries + " firstSrc=" + firstSrc);
 
-                m_adapter.submitList(galleryEntries, () -> {
-                    if (!m_firstWasSelected) {
-                        for (GalleryEntry entry : galleryEntries) {
-                            if (entry.url.equals(firstSrc)) {
-                                int position = galleryEntries.indexOf(entry);
+            m_adapter.submitList(galleryEntries, () -> {
+                if (!m_firstWasSelected) {
+                    for (GalleryEntry entry : galleryEntries) {
+                        if (entry.url.equals(firstSrc)) {
+                            int position = galleryEntries.indexOf(entry);
 
-                                Log.d(TAG, "selecting first src=" + firstSrc + " pos=" + position);
-                                m_pager.setCurrentItem(position);
+                            Log.d(TAG, "selecting first src=" + firstSrc + " pos=" + position);
+                            m_pager.setCurrentItem(position);
 
-                                m_firstWasSelected = true;
-                                break;
-                            }
+                            m_firstWasSelected = true;
+                            break;
                         }
                     }
-                });
+                }
             });
+        });
 
-            CircleIndicator3 indicator = findViewById(R.id.gallery_pager_indicator);
-            indicator.setViewPager(m_pager);
+        CircleIndicator3 indicator = findViewById(R.id.gallery_pager_indicator);
+        indicator.setViewPager(m_pager);
 
-            m_adapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
+        m_adapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
 
-        } else {
-            // ArrayList<GalleryEntry> list = savedInstanceState.getParcelableArrayList("m_items");
-            m_title = savedInstanceState.getString("m_title");
-            m_content = savedInstanceState.getString("m_content");
-        }
 
         findViewById(R.id.gallery_overflow).setOnClickListener(v -> {
             try {
