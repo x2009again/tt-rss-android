@@ -593,7 +593,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (!append) {
 			setActiveArticleId(-1);
-			//Application.getArticlesModel().update(new ArticleList());
+			Application.getArticlesModel().update(new ArticleList());
 		}
 
 		model.setSearchQuery(getSearchQuery());
@@ -793,7 +793,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		// https://stackoverflow.com/questions/33176336/need-an-example-about-recyclerview-adapter-notifyitemchangedint-position-objec/50085835#50085835
 		public void onBindViewHolder(final ArticleViewHolder holder, final int position, final List<Object> payloads) {
 			if (!payloads.isEmpty()) {
-				Log.d(TAG, "onBindViewHolder, payloads: " + payloads);
+				Log.d(TAG, "onBindViewHolder, payloads=" + payloads + " position=" + position);
 
 				final Article article = getItem(position);
 
