@@ -99,18 +99,20 @@
             android:layout_height="match_parent" >
 
             <FrameLayout
-                android:id="@+id/flavorImageHolder"
+                android:id="@+id/flavor_image_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:layout_span="2">
 
                 <ProgressBar
-                    android:id="@+id/flavorImageLoadingBar"
+                    android:id="@+id/flavor_image_progressbar"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     android:indeterminate="false"
                     android:max="100"
                     android:visibility="visible" />

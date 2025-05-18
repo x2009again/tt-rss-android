@@ -641,8 +641,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			dateView = v.findViewById(R.id.date);
 			selectionBoxView = v.findViewById(R.id.selected);
 			menuButtonView = v.findViewById(R.id.article_menu_button);
-			flavorImageHolder = v.findViewById(R.id.flavorImageHolder);
-			flavorImageLoadingBar = v.findViewById(R.id.flavorImageLoadingBar);
+			flavorImageHolder = v.findViewById(R.id.flavor_image_holder);
+			flavorImageLoadingBar = v.findViewById(R.id.flavor_image_progressbar);
 			textImage = v.findViewById(R.id.text_image);
 			textChecked = v.findViewById(R.id.text_checked);
 			headlineHeader = v.findViewById(R.id.headline_header);
