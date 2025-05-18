@@ -104,6 +104,7 @@
                 android:id="@+id/flavorImageHolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:layout_span="2">
 
                 <ProgressBar
@@ -122,9 +123,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
-                    android:background="@android:color/transparent"
-                    android:cropToPadding="true"
-                    android:scaleType="fitCenter"
+                    android:background="@null"
+                    android:scaleType="centerCrop"
                     tools:src="@drawable/ic_launcher_background"
                     android:visibility="visible" />
 
@@ -178,7 +178,8 @@
                 android:textAlignment="viewStart"
                 android:lineSpacingExtra="2sp"
                 android:maxLines="5"
-                android:padding="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 tools:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                 android:textSize="13sp" />
         </TableRow>
@@ -193,8 +194,7 @@
                 android:layout_height="wrap_content"
                 android:layout_span="2"
                 android:gravity="center_vertical"
-                android:paddingBottom="8dp"
-                android:paddingLeft="8dp">
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/selected"

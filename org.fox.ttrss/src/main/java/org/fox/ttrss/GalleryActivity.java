@@ -95,7 +95,7 @@ public class GalleryActivity extends CommonActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // ActivityCompat.postponeEnterTransition(this);
+        ActivityCompat.postponeEnterTransition(this);
 
         // we use that before parent onCreate so let's init locally
         m_prefs = PreferenceManager

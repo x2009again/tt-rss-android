@@ -22,6 +22,7 @@ import android.transition.Fade;
 import android.transition.Transition;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Size;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -45,6 +46,7 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -64,11 +66,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -124,7 +126,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private MediaPlayer m_mediaPlayer;
 	private TextureView m_activeTexture;
 
-	protected static HashMap<Integer, Integer> m_flavorHeightsCache = new HashMap<>();
+	protected static HashMap<Integer, Integer> m_flavorMeasuredHeightsCache = new HashMap<>();
 
 	public ArticleList getSelectedArticles() {
 		return Application.getArticles()
@@ -618,7 +620,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public View flavorImageOverflow;
 		public TextureView flavorVideoView;
 		public MaterialButton attachmentsView;
-		public ProgressTarget<String, Drawable> flavorProgressTarget;
+		// public ProgressTarget<String, Size> flavorProgressTarget;
 		int articleId;
 		public TextView linkHost;
 
@@ -631,7 +633,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 View flavorImage = view.findViewById(R.id.flavor_image);
 
                 if (flavorImage != null) {
-					HeadlinesFragment.m_flavorHeightsCache.put(articleId, flavorImage.getMeasuredHeight());
+					HeadlinesFragment.m_flavorMeasuredHeightsCache.put(articleId, flavorImage.getMeasuredHeight());
                 }
 
                 return true;
@@ -659,11 +661,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			flavorVideoView = v.findViewById(R.id.flavor_video);
 			attachmentsView = v.findViewById(R.id.attachments);
 			linkHost = v.findViewById(R.id.link_host);
-
-			 if (flavorImageView != null && flavorImageLoadingBar != null) {
-				flavorProgressTarget = new FlavorProgressTarget<>(new DrawableImageViewTarget(flavorImageView),
-						flavorImageLoadingBar);
-			}
 		}
 
 		public void clearAnimation() {
@@ -672,10 +669,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	private static class FlavorProgressTarget<Z> extends ProgressTarget<String, Z> {
-		private final ProgressBar progress;
-		public FlavorProgressTarget(Target<Z> target, ProgressBar progress) {
+		private final ArticleViewHolder holder;
+		public FlavorProgressTarget(Target<Z> target, String model, ArticleViewHolder holder) {
 			super(target);
-			this.progress = progress;
+			setModel(model);
+			this.holder = holder;
 		}
 
 		@Override public float getGranualityPercentage() {
@@ -683,18 +681,26 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		}
 
 		@Override protected void onConnecting() {
-			progress.setIndeterminate(true);
-			progress.setVisibility(View.VISIBLE);
+			holder.flavorImageHolder.setVisibility(View.VISIBLE);
+
+			holder.flavorImageLoadingBar.setIndeterminate(true);
+			holder.flavorImageLoadingBar.setVisibility(View.VISIBLE);
 		}
 		@Override protected void onDownloading(long bytesRead, long expectedLength) {
-			progress.setIndeterminate(false);
-			progress.setProgress((int)(100 * bytesRead / expectedLength));
+			holder.flavorImageHolder.setVisibility(View.VISIBLE);
+
+			holder.flavorImageLoadingBar.setIndeterminate(false);
+			holder.flavorImageLoadingBar.setProgress((int)(100 * bytesRead / expectedLength));
 		}
 		@Override protected void onDownloaded() {
-			progress.setIndeterminate(true);
+			holder.flavorImageHolder.setVisibility(View.VISIBLE);
+
+			holder.flavorImageLoadingBar.setIndeterminate(true);
 		}
 		@Override protected void onDelivered() {
-			progress.setVisibility(View.INVISIBLE);
+			holder.flavorImageHolder.setVisibility(View.VISIBLE);
+
+			holder.flavorImageLoadingBar.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -771,8 +777,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			View v = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
-
-			//registerForContextMenu(v);
 
 			return new ArticleViewHolder(v);
 		}
@@ -997,13 +1001,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					} else {
 						holder.excerptView.setVisibility(View.GONE);
 					}
-
-					if (!canShowFlavorImage()) {
-						holder.excerptView.setPadding(holder.excerptView.getPaddingLeft(),
-								0,
-								holder.excerptView.getPaddingRight(),
-								holder.excerptView.getPaddingBottom());
-					}
 				}
 			}
 
@@ -1071,67 +1068,76 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                         });
 					}
 
-					holder.flavorImageView.setVisibility(View.VISIBLE);
-
 					int maxImageSize = (int) (m_screenHeight * 0.5f);
 
 					// we also downsample below using glide to save RAM
-					// holder.flavorImageView.setMaxHeight(maxImageSize);
-
-					// only show holder if we're about to display a picture
-					holder.flavorImageHolder.setVisibility(View.VISIBLE);
+					holder.flavorImageView.setMaxHeight(maxImageSize);
 
 					// prevent lower listiew entries from jumping around if this row is modified
-					/* if (m_flavorHeightsCache.containsKey(article.id)) {
-						int cachedHeight = m_flavorHeightsCache.get(article.id);
+					if (m_flavorMeasuredHeightsCache.containsKey(article.id)) {
+						int cachedHeight = m_flavorMeasuredHeightsCache.get(article.id);
 
 						if (cachedHeight > 0) {
 							FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) holder.flavorImageView.getLayoutParams();
 							lp.height = cachedHeight;
 						}
-					}  */
+					}
 
-					holder.flavorProgressTarget.setModel(article.flavorImageUri);
+					Log.d(TAG, "checking resource size for " + article.flavorImageUri);
+
+					FlavorProgressTarget<Size> flavorProgressTarget = new FlavorProgressTarget<>(new SimpleTarget<Size>() {
+						@Override
+						public void onResourceReady(@NonNull Size resource, @Nullable com.bumptech.glide.request.transition.Transition<? super Size> transition) {
+							Log.d(TAG, "got resource of " + resource.getWidth() + "x" + resource.getHeight());
+
+							if (resource.getWidth() > FLAVOR_IMG_MIN_SIZE && resource.getHeight() > FLAVOR_IMG_MIN_SIZE) {
+
+								// now we can actually load the image into our drawable
+								Glide.with(HeadlinesFragment.this)
+										.load(article.flavorImageUri)
+										.transition(DrawableTransitionOptions.withCrossFade())
+										.override(maxImageSize)
+										.diskCacheStrategy(DiskCacheStrategy.DATA)
+										.skipMemoryCache(true)
+										.listener(new RequestListener<Drawable>() {
+											@Override
+											public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+												holder.flavorImageHolder.setVisibility(View.GONE);
+
+												holder.flavorImageView.setVisibility(View.GONE);
+												holder.flavorImageOverflow.setVisibility(View.VISIBLE);
+
+												return false;
+											}
+
+											@Override
+											public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+												holder.flavorImageHolder.setVisibility(View.VISIBLE);
+
+												holder.flavorImageView.setVisibility(View.VISIBLE);
+												holder.flavorImageOverflow.setVisibility(View.VISIBLE);
+
+												adjustVideoKindView(holder, article);
+
+												return false;
+											}
+										})
+										.into(new DrawableImageViewTarget(holder.flavorImageView));
+							} else {
+								holder.flavorImageHolder.setVisibility(View.GONE);
+
+								holder.flavorImageView.setVisibility(View.VISIBLE);
+								holder.flavorImageOverflow.setVisibility(View.VISIBLE);
+							}
+						}
+					}, article.flavorImageUri, holder);
 
 					Glide.with(HeadlinesFragment.this)
+							.as(Size.class)
 							.load(article.flavorImageUri)
-							.transition(DrawableTransitionOptions.withCrossFade())
-							.diskCacheStrategy(DiskCacheStrategy.ALL)
-							.skipMemoryCache(false)
-							.listener(new RequestListener<Drawable>() {
-								@Override
-								public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-
-									holder.flavorImageLoadingBar.setVisibility(View.GONE);
-									holder.flavorImageView.setVisibility(View.GONE);
-
-									return false;
-								}
-
-								@Override
-								public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-
-									holder.flavorImageLoadingBar.setVisibility(View.GONE);
-
-									if (resource.getIntrinsicWidth() > FLAVOR_IMG_MIN_SIZE && resource.getIntrinsicHeight() > FLAVOR_IMG_MIN_SIZE) {
-
-										holder.flavorImageView.setVisibility(View.VISIBLE);
-										holder.flavorImageOverflow.setVisibility(View.VISIBLE);
-
-										adjustVideoKindView(holder, article);
-
-										return false;
-									} else {
-
-										holder.flavorImageOverflow.setVisibility(View.GONE);
-										holder.flavorImageView.setVisibility(View.GONE);
-
-										return true;
-									}
-								}
-							})
-							.into(holder.flavorProgressTarget);
-
+							.diskCacheStrategy(DiskCacheStrategy.DATA)
+							.skipMemoryCache(true)
+							.into(flavorProgressTarget);
 				}
 
 				if (m_prefs.getBoolean("inline_video_player", false) && article.flavorImage != null &&
@@ -1403,14 +1409,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				intent.putExtra("content", tempContent);
 
-				/* ActivityOptionsCompat options =
+				ActivityOptionsCompat options =
 						ActivityOptionsCompat.makeSceneTransitionAnimation(m_activity,
 								transitionView != null ? transitionView : holder.flavorImageView,
-								"gallery:" + (article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri)); */
+								"gallery:" + (article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri));
 
-				// ActivityCompat.startActivity(m_activity, intent, options.toBundle())
+			 	ActivityCompat.startActivity(m_activity, intent, options.toBundle());
 
-				startActivity(intent);
+				// startActivity(intent);
 			}
 
 		}

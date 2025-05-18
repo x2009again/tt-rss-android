@@ -1,9 +1,11 @@
 package org.fox.ttrss.glide;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Size;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
@@ -13,6 +15,7 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -40,6 +43,9 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
 
         // registry.append() doesn't work...
         registry.prepend(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
+
+        registry.prepend(File.class, BitmapFactory.Options.class, new BitmapSizeDecoder());
+        registry.register(BitmapFactory.Options.class, Size.class, new OptionsSizeResourceTranscoder());
     }
 
     public static Interceptor createInterceptor(final ResponseProgressListener listener) {
@@ -92,6 +98,7 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
 
         @Override public void update(HttpUrl url, final long bytesRead, final long contentLength) {
             //System.out.printf("%s: %d/%d = %.2f%%%n", url, bytesRead, contentLength, (100f * bytesRead) / contentLength);
+            //Log.d("resource progress", "url=" + url + " bytesRead="+ bytesRead + " of " + contentLength);
 
             String key = url.toString();
             final UIProgressListener listener = LISTENERS.get(key);
