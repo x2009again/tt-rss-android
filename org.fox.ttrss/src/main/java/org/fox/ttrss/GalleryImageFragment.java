@@ -71,7 +71,7 @@ public class GalleryImageFragment extends GalleryBaseFragment {
                         progressBar.setVisibility(View.GONE);
                         errorMessage.setVisibility(View.VISIBLE);
 
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
+                        // ActivityCompat.startPostponedEnterTransition(m_activity);
 
                         return false;
                     }
@@ -81,7 +81,7 @@ public class GalleryImageFragment extends GalleryBaseFragment {
                         progressBar.setVisibility(View.GONE);
                         errorMessage.setVisibility(View.GONE);
 
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
+                        // ActivityCompat.startPostponedEnterTransition(m_activity);
 
                         return false;
                     }

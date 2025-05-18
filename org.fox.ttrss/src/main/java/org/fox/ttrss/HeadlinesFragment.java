@@ -1409,14 +1409,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				intent.putExtra("content", tempContent);
 
-				ActivityOptionsCompat options =
+				/* ActivityOptionsCompat options =
 						ActivityOptionsCompat.makeSceneTransitionAnimation(m_activity,
 								transitionView != null ? transitionView : holder.flavorImageView,
 								"gallery:" + (article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri));
 
-			 	ActivityCompat.startActivity(m_activity, intent, options.toBundle());
+			 	ActivityCompat.startActivity(m_activity, intent, options.toBundle()); */
 
-				// startActivity(intent);
+				startActivity(intent);
 			}
 
 		}

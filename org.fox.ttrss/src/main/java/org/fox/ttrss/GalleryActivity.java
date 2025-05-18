@@ -95,7 +95,7 @@ public class GalleryActivity extends CommonActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        ActivityCompat.postponeEnterTransition(this);
+        // ActivityCompat.postponeEnterTransition(this);
 
         // we use that before parent onCreate so let's init locally
         m_prefs = PreferenceManager
@@ -117,29 +117,53 @@ public class GalleryActivity extends CommonActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().hide();
 
+        setTitle(m_title);
+
+        m_adapter = new ArticleImagesPagerAdapter(this, new GalleryEntryDiffItemCallback());
+
+        m_pager = findViewById(R.id.gallery_pager);
+        m_pager.setAdapter(m_adapter);
+
+        m_checkProgress = findViewById(R.id.gallery_check_progress);
+
         if (savedInstanceState == null) {
             m_title = getIntent().getStringExtra("title");
             m_content = getIntent().getStringExtra("content");
 
+            GalleryModel model = new ViewModelProvider(this).get(GalleryModel.class);
+
             // this should be dealt with first so that transition completes properly
             String firstSrc = getIntent().getStringExtra("firstSrc");
 
-            GalleryModel model = new ViewModelProvider(this).get(GalleryModel.class);
+            /* but what about videos? if (firstSrc != null) {
+                List<GalleryEntry> initialItems = new ArrayList<GalleryEntry>();
+
+                initialItems.add(0, new GalleryEntry(firstSrc, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
+
+                m_adapter.submitList(initialItems);
+
+                model.update(initialItems);
+            } */
+
             model.collectItems(m_content, firstSrc);
 
             model.getItemsToCheck().observe(this, itemsToCheck -> {
                 Log.d(TAG, "observed items to check=" + itemsToCheck);
 
                 m_checkProgress.setMax(itemsToCheck);
-                m_checkProgress.setVisibility(itemsToCheck > 0 ? View.VISIBLE : View.GONE);
                 m_checkProgress.setProgress(0);
+            });
+
+            model.getIsChecking().observe(this, isChecking -> {
+                Log.d(TAG, "observed isChecking=" + isChecking);
+
+                m_checkProgress.setVisibility(isChecking ? View.VISIBLE : View.GONE);
             });
 
             model.getCheckProgress().observe(this, progress -> {
                 Log.d(TAG, "observed item check progress=" + progress);
 
                 m_checkProgress.setProgress(progress);
-                m_checkProgress.setVisibility(progress < m_checkProgress.getMax() ? View.VISIBLE : View.GONE);
             });
 
             model.getItems().observe(this, galleryEntries -> {
@@ -187,41 +211,6 @@ public class GalleryActivity extends CommonActivity {
                 e.printStackTrace();
             }
         });
-
-        setTitle(m_title);
-
-        m_adapter = new ArticleImagesPagerAdapter(this, new GalleryEntryDiffItemCallback());
-
-        m_pager = findViewById(R.id.gallery_pager);
-        m_pager.setAdapter(m_adapter);
-
-        m_checkProgress = findViewById(R.id.gallery_check_progress);
-
-        /* Log.d(TAG, "items to check:" + uncheckedItems.size());
-
-        MediaCheckTask mct = new MediaCheckTask() {
-            @Override
-            protected void onProgressUpdate(MediaProgressResult... result) {
-                //m_items.add(result[0].item);
-                m_adapter.notifyDataSetChanged();
-
-                if (result[0].position < result[0].count) {
-                    m_checkProgress.setVisibility(View.VISIBLE);
-                    m_checkProgress.setMax(result[0].count);
-                    m_checkProgress.setProgress(result[0].position);
-                } else {
-                    m_checkProgress.setVisibility(View.GONE);
-                }
-
-            }
-
-            @Override
-            protected void onPostExecute(List<GalleryEntry> result) {
-                m_items.addAll(result);
-            }
-        };
-
-        mct.execute(uncheckedItems); */
     }
 
     @Override

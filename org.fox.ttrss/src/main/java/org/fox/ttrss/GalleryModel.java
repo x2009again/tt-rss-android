@@ -32,6 +32,7 @@ public class GalleryModel extends AndroidViewModel {
     private MutableLiveData<List<GalleryEntry>> m_items = new MutableLiveData<>(new ArrayList<>());
     private MutableLiveData<Integer> m_checkProgress = new MutableLiveData<>(Integer.valueOf(0));
     private MutableLiveData<Integer> m_itemsToCheck = new MutableLiveData<>(Integer.valueOf(0));
+    private MutableLiveData<Boolean> m_isChecking = new MutableLiveData<>(Boolean.valueOf(false));
 
     public GalleryModel(@NonNull Application application) {
         super(application);
@@ -65,6 +66,14 @@ public class GalleryModel extends AndroidViewModel {
         return false;
     }
 
+    public void update(List<GalleryEntry> items) {
+        m_items.postValue(items);
+    }
+
+    public LiveData<Boolean> getIsChecking() {
+        return m_isChecking;
+    }
+
     public void collectItems(String articleText, String srcFirst) {
         m_executor.execute(() -> {
 
@@ -80,6 +89,8 @@ public class GalleryModel extends AndroidViewModel {
 
             int currentItem = 0;
             boolean firstFound = false;
+
+            m_isChecking.postValue(true);
 
             for (Element elem : elems) {
                 ++currentItem;
@@ -160,6 +171,8 @@ public class GalleryModel extends AndroidViewModel {
                 checkList.add(0, new GalleryEntry(srcFirst, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
                 m_items.postValue(checkList);
             }
+
+            m_isChecking.postValue(false);
         });
     }
 }

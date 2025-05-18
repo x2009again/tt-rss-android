@@ -56,7 +56,7 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
 
         registerForContextMenu(imgView);
 
-        ActivityCompat.startPostponedEnterTransition(m_activity);
+        // ActivityCompat.startPostponedEnterTransition(m_activity);
 
         view.findViewById(R.id.flavor_image_progress).setVisibility(View.VISIBLE);
 
