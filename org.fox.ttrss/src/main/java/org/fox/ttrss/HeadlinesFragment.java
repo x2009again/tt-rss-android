@@ -987,6 +987,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				holder.flavorVideoKindView.setVisibility(View.GONE);
 				holder.flavorImageOverflow.setVisibility(View.GONE);
 				holder.flavorVideoView.setVisibility(View.GONE);
+				holder.flavorImageHolder.setVisibility(View.GONE);
 
 				// this is needed if our flavor image goes behind base listview element
 				holder.headlineHeader.setOnClickListener(v -> {
