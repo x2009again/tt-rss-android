@@ -262,4 +262,5 @@
     <string name="check_for_updates">Kontrollo për përditësime</string>
     <string name="dont_open_anything">Asgjë</string>
     <string name="open_on_startup">Haper gjatë nisjes</string>
+    <string name="article_edit_note">Përpunoni shënim</string>
 </resources>
