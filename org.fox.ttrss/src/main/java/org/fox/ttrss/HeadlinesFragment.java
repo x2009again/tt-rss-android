@@ -82,7 +82,6 @@ import org.fox.ttrss.util.ArticleDiffItemCallback;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -622,7 +621,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		public View flavorImageOverflow;
 		public TextureView flavorVideoView;
 		public MaterialButton attachmentsView;
-		int articleId;
 		public TextView linkHost;
 
 		public ArticleViewHolder(View v) {
@@ -712,6 +710,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		private final int m_screenWidth;
 		private final int m_screenHeight;
 
+		private final int m_headlineSmallFontSize;
+		private final int m_headlineFontSize;
+
 		private final ConnectivityManager m_cmgr;
 
 		private boolean canShowFlavorImage() {
@@ -762,6 +763,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			m_colorTertiaryContainer = colorFromAttr(R.attr.colorTertiaryContainer);
 			m_colorOnTertiaryContainer = colorFromAttr(R.attr.colorOnTertiaryContainer);
+
+			m_headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
+			m_headlineSmallFontSize = Math.max(10, Math.min(18, m_headlineFontSize - 2));
 
 			m_cmgr = (ConnectivityManager) m_activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		}
@@ -1021,7 +1025,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			return holder;
 		}
 
-		@Override public void onViewRecycled(ArticleViewHolder holder){
+		@Override public void onViewRecycled(@NonNull ArticleViewHolder holder){
 			super.onViewRecycled(holder);
 
 			if (holder.flavorImageView != null)
@@ -1030,7 +1034,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		@Override
 		// https://stackoverflow.com/questions/33176336/need-an-example-about-recyclerview-adapter-notifyitemchangedint-position-objec/50085835#50085835
-		public void onBindViewHolder(final ArticleViewHolder holder, final int position, final List<Object> payloads) {
+		public void onBindViewHolder(@NonNull final ArticleViewHolder holder, final int position, final List<Object> payloads) {
 			if (!payloads.isEmpty()) {
 				Log.d(TAG, "onBindViewHolder, payloads=" + payloads + " position=" + position);
 
@@ -1063,7 +1067,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		private void updateUnreadView(final Article article, ArticleViewHolder holder) {
+		private void updateUnreadView(final Article article, final ArticleViewHolder holder) {
 			if (m_compactLayoutMode) {
 				holder.view.setBackgroundColor(article.unread ? m_colorSurfaceContainerLowest : 0);
 			} else {
@@ -1080,7 +1084,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			updateActiveView(article, holder);
 		}
 
-		private void updateActiveView(final Article article, ArticleViewHolder holder) {
+		private void updateActiveView(final Article article, final ArticleViewHolder holder) {
 			if (article.id == m_activeArticleId) {
 				holder.view.setBackgroundColor(m_colorTertiaryContainer);
 
@@ -1100,13 +1104,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		}
 
 		@Override
-		public void onBindViewHolder(final ArticleViewHolder holder, int position) {
-			int headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
-			int headlineSmallFontSize = Math.max(10, Math.min(18, headlineFontSize - 2));
-
+		public void onBindViewHolder(@NonNull final ArticleViewHolder holder, int position) {
 			Article article = getItem(position);
-
-			holder.articleId = article.id;
 
 			if (article.id == Article.TYPE_AMR_FOOTER && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 				WindowManager wm = (WindowManager) m_activity.getSystemService(Context.WINDOW_SERVICE);
@@ -1121,73 +1120,16 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			updateUnreadView(article, holder);
 			updateTextImage(article, holder);
-
-			if (holder.titleView != null) {
-				holder.titleView.setText(Html.fromHtml(article.title));
-				holder.titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, Math.min(21, headlineFontSize + 3));
-			}
-
-			if (holder.feedTitleView != null) {
-				if (article.feed_title != null && m_feed != null && (m_feed.is_cat || m_feed.id < 0)) {
-					holder.feedTitleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineSmallFontSize);
-					holder.feedTitleView.setText(article.feed_title);
-				} else {
-					holder.feedTitleView.setVisibility(View.GONE);
-				}
-			}
-
-			if (holder.linkHost != null) {
-				if (article.isHostDistinct()) {
-					holder.linkHost.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineSmallFontSize);
-					holder.linkHost.setText(article.getLinkHost());
-					holder.linkHost.setVisibility(View.VISIBLE);
-				} else {
-					holder.linkHost.setVisibility(View.GONE);
-				}
-			}
-
+			updateTitleView(article, holder);
 			updateMarkedView(article, holder);
 			updateScoreView(article, holder);
 			updatePublishedView(article, holder);
-
-			if (holder.attachmentsView != null) {
-				if (article.attachments != null && !article.attachments.isEmpty()) {
-					holder.attachmentsView.setVisibility(View.VISIBLE);
-				} else {
-					holder.attachmentsView.setVisibility(View.GONE);
-				}
-			}
-
-			if (holder.excerptView != null) {
-				if (!m_prefs.getBoolean("headlines_show_content", true)) {
-					holder.excerptView.setVisibility(View.GONE);
-				} else {
-					String excerpt = "";
-
-					try {
-						if (article.excerpt != null) {
-							excerpt = article.excerpt;
-						} else if (article.articleDoc != null) {
-							excerpt = article.articleDoc.text();
-
-							if (excerpt.length() > CommonActivity.EXCERPT_MAX_LENGTH)
-								excerpt = excerpt.substring(0, CommonActivity.EXCERPT_MAX_LENGTH) + "…";
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						excerpt = "";
-					}
-
-					holder.excerptView.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineFontSize);
-					holder.excerptView.setText(excerpt);
-
-					if (!excerpt.isEmpty()) {
-						holder.excerptView.setVisibility(View.VISIBLE);
-					} else {
-						holder.excerptView.setVisibility(View.GONE);
-					}
-				}
-			}
+			updateAttachmentsView(article, holder);
+			updateLinkHost(article, holder);
+			updateExcerptView(article, holder);
+			updateAuthorView(article, holder);
+			updateDateView(article, holder);
+			updateSelectedView(article, holder);
 
 			if (!m_compactLayoutMode && holder.flavorImageHolder != null) {
 
@@ -1321,21 +1263,27 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					holder.flavorImageView.setOnClickListener(view -> openGalleryForType(article, holder, holder.flavorImageView));
 				} */
 			}
+		}
 
-			String articleAuthor = article.author != null ? article.author : "";
-
-			if (holder.authorView != null) {
-				holder.authorView.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineSmallFontSize);
-
-				if (!articleAuthor.isEmpty()) {
-					holder.authorView.setText(getString(R.string.author_formatted, articleAuthor));
-				} else {
-					holder.authorView.setText("");
-				}
+		private void updateTitleView(final Article article, final ArticleViewHolder holder) {
+			if (holder.titleView != null) {
+				holder.titleView.setText(Html.fromHtml(article.title));
+				holder.titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, Math.min(21, m_headlineFontSize + 3));
 			}
 
+			if (holder.feedTitleView != null) {
+				if (article.feed_title != null && m_feed != null && (m_feed.is_cat || m_feed.id < 0)) {
+					holder.feedTitleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_headlineSmallFontSize);
+					holder.feedTitleView.setText(article.feed_title);
+				} else {
+					holder.feedTitleView.setVisibility(View.GONE);
+				}
+			}
+		}
+
+		private void updateDateView(final Article article, final ArticleViewHolder holder) {
 			if (holder.dateView != null) {
-				holder.dateView.setTextSize(TypedValue.COMPLEX_UNIT_SP, headlineSmallFontSize);
+				holder.dateView.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_headlineSmallFontSize);
 
 				Date d = new Date((long)article.updated * 1000);
 				Date now = new Date();
@@ -1354,20 +1302,85 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				df.setTimeZone(TimeZone.getDefault());
 				holder.dateView.setText(df.format(d));
 			}
-
-			updateSelectedView(article, holder);
-
-
 		}
 
-		private void updateMarkedView(Article article, ArticleViewHolder holder) {
+		private void updateAuthorView(final Article article, final ArticleViewHolder holder) {
+			String articleAuthor = article.author != null ? article.author : "";
+
+			if (holder.authorView != null) {
+				holder.authorView.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_headlineSmallFontSize);
+
+				if (!articleAuthor.isEmpty()) {
+					holder.authorView.setText(getString(R.string.author_formatted, articleAuthor));
+				} else {
+					holder.authorView.setText("");
+				}
+			}
+		}
+
+		private void updateExcerptView(final Article article, final ArticleViewHolder holder) {
+			if (holder.excerptView != null) {
+				if (!m_prefs.getBoolean("headlines_show_content", true)) {
+					holder.excerptView.setVisibility(View.GONE);
+				} else {
+					String excerpt = "";
+
+					try {
+						if (article.excerpt != null) {
+							excerpt = article.excerpt;
+						} else if (article.articleDoc != null) {
+							excerpt = article.articleDoc.text();
+
+							if (excerpt.length() > CommonActivity.EXCERPT_MAX_LENGTH)
+								excerpt = excerpt.substring(0, CommonActivity.EXCERPT_MAX_LENGTH) + "…";
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						excerpt = "";
+					}
+
+					holder.excerptView.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_headlineFontSize);
+					holder.excerptView.setText(excerpt);
+
+					if (!excerpt.isEmpty()) {
+						holder.excerptView.setVisibility(View.VISIBLE);
+					} else {
+						holder.excerptView.setVisibility(View.GONE);
+					}
+				}
+			}
+		}
+
+		private void updateLinkHost(final Article article, final ArticleViewHolder holder) {
+			if (holder.linkHost != null) {
+				if (article.isHostDistinct()) {
+					holder.linkHost.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_headlineSmallFontSize);
+					holder.linkHost.setText(article.getLinkHost());
+					holder.linkHost.setVisibility(View.VISIBLE);
+				} else {
+					holder.linkHost.setVisibility(View.GONE);
+				}
+			}
+		}
+
+		private void updateAttachmentsView(final Article article, final ArticleViewHolder holder) {
+			if (holder.attachmentsView != null) {
+				if (article.attachments != null && !article.attachments.isEmpty()) {
+					holder.attachmentsView.setVisibility(View.VISIBLE);
+				} else {
+					holder.attachmentsView.setVisibility(View.GONE);
+				}
+			}
+		}
+
+		private void updateMarkedView(final Article article, final ArticleViewHolder holder) {
 			if (holder.markedView != null) {
 				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
 				holder.markedView.setIconTint(article.marked ? m_cslTertiary : m_cslPrimary);
 			}
 		}
 
-		private void updateTextImage(Article article, ArticleViewHolder holder) {
+		private void updateTextImage(final Article article, final ArticleViewHolder holder) {
 			if (holder.textImage != null) {
 				updateTextCheckedState(article, holder);
 
@@ -1376,14 +1389,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		private void updateSelectedView(Article article, ArticleViewHolder holder) {
+		private void updateSelectedView(final Article article, final ArticleViewHolder holder) {
 			if (holder.selectionBoxView != null) {
 				holder.selectionBoxView.setChecked(article.selected);
-
 			}
 		}
 
-		private void updateScoreView(Article article, ArticleViewHolder holder) {
+		private void updateScoreView(final Article article, final ArticleViewHolder holder) {
 			if (holder.scoreView != null) {
 				int scoreDrawable = R.drawable.baseline_trending_flat_24;
 
@@ -1401,7 +1413,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		private void updatePublishedView(final Article article, ArticleViewHolder holder) {
+		private void updatePublishedView(final Article article, final ArticleViewHolder holder) {
 			if (holder.publishedView != null) {
 				// otherwise we just use tinting in actionbar
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -1412,7 +1424,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 		}
 
-		private void loadFlavorImage(final Article article, ArticleViewHolder holder, int maxImageHeight) {
+		private void loadFlavorImage(final Article article, final ArticleViewHolder holder, final int maxImageHeight) {
 			Glide.with(HeadlinesFragment.this)
 					.load(article.flavorImageUri)
 					.transition(DrawableTransitionOptions.withCrossFade())
@@ -1445,7 +1457,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					.into(new DrawableImageViewTarget(holder.flavorImageView));
 		}
 
-		private void checkImageAndLoad(Article article, ArticleViewHolder holder, int maxImageHeight) {
+		private void checkImageAndLoad(final Article article, final ArticleViewHolder holder, final int maxImageHeight) {
 			FlavorProgressTarget<Size> flavorProgressTarget = new FlavorProgressTarget<>(new SimpleTarget<Size>() {
 				@Override
 				public void onResourceReady(@NonNull Size resource, @Nullable com.bumptech.glide.request.transition.Transition<? super Size> transition) {
@@ -1515,7 +1527,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             }
         }
 
-		private void openGalleryForType(Article article, ArticleViewHolder holder, View transitionView) {
+		private void openGalleryForType(final Article article, final ArticleViewHolder holder, final View transitionView) {
 			//Log.d(TAG, "openGalleryForType: " + article + " " + holder + " " + transitionView);
 
 			if ("iframe".equalsIgnoreCase(article.flavorImage.tagName())) {
@@ -1562,7 +1574,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		}
 
-		private void adjustVideoKindView(ArticleViewHolder holder, Article article) {
+		private void adjustVideoKindView(final ArticleViewHolder holder, final Article article) {
 			if (article.flavorImage != null) {
 				if (article.flavor_kind == Article.FLAVOR_KIND_YOUTUBE || "iframe".equalsIgnoreCase(article.flavorImage.tagName())) {
 					holder.flavorVideoKindView.setImageResource(R.drawable.baseline_play_circle_outline_24);
