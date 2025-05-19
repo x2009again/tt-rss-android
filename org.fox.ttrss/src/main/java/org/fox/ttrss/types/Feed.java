@@ -119,7 +119,7 @@ public class Feed implements Comparable<Feed>, Parcelable {
 	@NonNull
 	@Override
 	public String toString() {
-		return "{" + this.id + "," + this.is_cat + "}";
+		return "{id:" + this.id + ",is_cat:" + this.is_cat + "}";
 	}
 
 		@Override

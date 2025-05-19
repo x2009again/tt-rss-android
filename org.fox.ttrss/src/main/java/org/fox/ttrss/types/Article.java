@@ -324,6 +324,24 @@ public class Article implements Parcelable {
 		if (comments_link == null) comments_link = "";
 	}
 
+	public boolean equals(Article article) {
+		if (article == this)
+			return true;
+
+		if (article == null)
+			return false;
+
+		return article.id == id;
+	}
+
+	@NonNull
+	@Override
+	public String toString() {
+		return "{id:" + this.id + ",unread:" + this.unread +
+				",marked:" + this.marked + ",published:" + this.published + ",score:" + this.score +
+				",selected:" + this.selected + "}";
+	}
+
 	public boolean isHostDistinct() {
 		try {
 			String siteDomain = new URL(site_url).getHost().replace("www.", "");
