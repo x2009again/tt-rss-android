@@ -175,10 +175,16 @@ public class GalleryActivity extends CommonActivity {
             m_checkProgress.setProgress(progress);
         });
 
+
+        CircleIndicator3 indicator = findViewById(R.id.gallery_pager_indicator);
+        indicator.setViewPager(m_pager);
+
         model.getItems().observe(this, galleryEntries -> {
             Log.d(TAG, "observed gallery entries=" + galleryEntries + " firstSrc=" + firstSrc);
 
             m_adapter.submitList(galleryEntries, () -> {
+                indicator.setViewPager(m_pager);
+
                 if (!m_firstWasSelected) {
                     for (GalleryEntry entry : galleryEntries) {
                         if (entry.url.equals(firstSrc)) {
@@ -194,12 +200,6 @@ public class GalleryActivity extends CommonActivity {
                 }
             });
         });
-
-        CircleIndicator3 indicator = findViewById(R.id.gallery_pager_indicator);
-        indicator.setViewPager(m_pager);
-
-        m_adapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
-
 
         findViewById(R.id.gallery_overflow).setOnClickListener(v -> {
             try {
