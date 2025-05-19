@@ -88,7 +88,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     }
 
     public void startLoading(boolean append, @NonNull Feed feed, int resizeWidth) {
-        Log.d(TAG, "startLoading append=" + append + " feed id=" + feed.id + " cat=" + feed.is_cat);
+        Log.d(TAG, "startLoading append=" + append + " feed id=" + feed.id + " cat=" + feed.is_cat + " lazyLoadEnabled=" + m_lazyLoadEnabled + " isLoading=" + m_isLoading.getValue());
 
         m_resizeWidth = resizeWidth;
 
@@ -98,7 +98,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             m_feed = feed;
 
             loadInBackground();
-        } else if (feed != m_feed || m_lazyLoadEnabled || !m_isLoading.getValue()) {
+        } else if (!m_isLoading.getValue() && (feed != m_feed || m_lazyLoadEnabled)) {
             m_append = true;
             m_feed = feed;
 
@@ -127,7 +127,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     }
 
     private void loadInBackground() {
-        Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset);
+        Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset + " lazyLoadEnabled=" + m_lazyLoadEnabled);
 
         ArticleList articlesWork = new ArticleList(m_articles.getValue());
 

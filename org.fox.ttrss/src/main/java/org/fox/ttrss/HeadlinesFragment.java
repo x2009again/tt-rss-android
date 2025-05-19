@@ -474,7 +474,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		ArticleModel model = Application.getArticlesModel();
 
 		model.getIsLoading().observe(getActivity(), isLoading -> {
-			Log.d(TAG, "observed headlines isLoading=" + isLoading);
+			Log.d(TAG, "observed headlines isLoading=" + isLoading + " lazyLoadEnabled=" + model.isLazyLoadEnabled());
 
 			if (m_swipeLayout != null)
 				m_swipeLayout.setRefreshing(isLoading);
