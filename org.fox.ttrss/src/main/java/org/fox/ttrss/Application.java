@@ -5,6 +5,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
+import org.acra.ACRA;
+import org.acra.config.CoreConfigurationBuilder;
+import org.acra.config.DialogConfigurationBuilder;
+import org.acra.config.MailSenderConfigurationBuilder;
+import org.acra.data.StringFormat;
 import org.fox.ttrss.types.ArticleList;
 
 import java.util.HashMap;
@@ -85,5 +90,26 @@ public class Application extends android.app.Application {
 			return wifi.isConnected();
 
 		return false;
+	}
+
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+
+		ACRA.init(this, new CoreConfigurationBuilder()
+				.withBuildConfigClass(BuildConfig.class)
+				.withReportFormat(StringFormat.JSON)
+				.withPluginConfigurations(
+						new DialogConfigurationBuilder()
+								.withText(getString(R.string.crash_dialog_text_email))
+								.withResTheme(R.style.Theme_AppCompat_Dialog)
+								.build(),
+						new MailSenderConfigurationBuilder()
+								.withMailTo("cthulhoo+ttrss-acra@gmail.com")
+								.withReportAsFile(true)
+								.withReportFileName("crash.txt")
+								.build()
+				)
+				.build());
 	}
 }

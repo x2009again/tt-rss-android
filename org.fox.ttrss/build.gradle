@@ -155,6 +155,8 @@ dependencies {
     implementation 'com.github.amulyakhare:TextDrawable:558677ea31'
     implementation 'com.telefonica:nestedscrollwebview:0.1.6'
     implementation 'androidx.preference:preference:1.2.1'
+    implementation 'ch.acra:acra-mail:5.12.0'
+    implementation 'ch.acra:acra-dialog:5.12.0'
 }
 java {
     toolchain {
