@@ -417,26 +417,28 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 	}
 
 	public void onArticleSelected(Article article, boolean open) {
+		Article articleClone = new Article(article);
+
+		if (articleClone.unread) {
+			articleClone.unread = false;
+			saveArticleUnread(articleClone);
+
+			Application.getArticlesModel().updateById(articleClone);
+		}
+
 		if (open) {
-			boolean alwaysOpenUri = m_prefs.getBoolean("always_open_uri", false);
-			if (alwaysOpenUri) {
-				if (article.unread) {
-					article.unread = false;
-					saveArticleUnread(article);
-				}
+            HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-				HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+            if (m_prefs.getBoolean("always_open_uri", false)) {
 
-				if (hf != null) {
+                if (hf != null) {
 					hf.setActiveArticleId(article.id);
 				}
 
 				openUri(Uri.parse(article.link));
-			}
-			else {
-				HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+			} else if (hf != null) {
 
-				Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
+                Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
 				intent.putExtra("feed", hf.getFeed());
 				intent.putExtra("searchQuery", hf.getSearchQuery());
 				intent.putExtra("openedArticleId", article.id);
@@ -446,12 +448,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			}
 		} else {
 			invalidateOptionsMenu();
-
-            if (article.unread) {
-			    article.unread = false;
-			    saveArticleUnread(article);
-		    }
-        }
+	    }
 	}
 
     @Override

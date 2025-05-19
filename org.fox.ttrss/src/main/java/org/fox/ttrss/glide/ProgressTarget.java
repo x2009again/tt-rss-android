@@ -2,10 +2,15 @@ package org.fox.ttrss.glide;
 
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 
 public abstract class ProgressTarget<T, Z> extends WrappingTarget<Z> implements OkHttpProgressGlideModule.UIProgressListener {
     private T model;
@@ -22,7 +27,6 @@ public abstract class ProgressTarget<T, Z> extends WrappingTarget<Z> implements 
         return model;
     }
     public final void setModel(T model) {
-        Glide.clear(this); // indirectly calls cleanup
         this.model = model;
     }
     /**
@@ -95,13 +99,14 @@ public abstract class ProgressTarget<T, Z> extends WrappingTarget<Z> implements 
         super.onLoadStarted(placeholder);
         start();
     }
-    @Override public void onResourceReady(Z resource, GlideAnimation<? super Z> animation) {
+    /** @noinspection unchecked*/
+    public void onResourceReady(@NonNull Z resource, @Nullable Transition<? super Z> transition) {
         cleanup();
-        super.onResourceReady(resource, animation);
+        super.onResourceReady(resource, (Transition)transition);
     }
-    @Override public void onLoadFailed(Exception e, Drawable errorDrawable) {
+    @Override public void onLoadFailed(Drawable errorDrawable) {
         cleanup();
-        super.onLoadFailed(e, errorDrawable);
+        super.onLoadFailed(errorDrawable);
     }
     @Override public void onLoadCleared(Drawable placeholder) {
         cleanup();

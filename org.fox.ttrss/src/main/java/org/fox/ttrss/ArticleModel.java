@@ -70,6 +70,12 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         return m_articles;
     }
 
+    public void updateById(@NonNull Article article) {
+        int position = m_articles.getValue().getPositionById(article.id);
+
+        if (position != -1)
+            update(position, article);
+    }
 
     public void update(int position, Article article) {
         m_articles.getValue().set(position, article);

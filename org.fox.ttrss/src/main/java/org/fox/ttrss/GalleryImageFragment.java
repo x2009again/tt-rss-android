@@ -1,5 +1,6 @@
 package org.fox.ttrss;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,15 +9,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
 
 import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 
 public class GalleryImageFragment extends GalleryBaseFragment {
@@ -56,33 +59,34 @@ public class GalleryImageFragment extends GalleryBaseFragment {
         final ProgressBar progressBar = view.findViewById(R.id.flavor_image_progress);
         final View errorMessage = view.findViewById(R.id.flavor_image_error);
 
-        final GlideDrawableImageViewTarget glideImage = new GlideDrawableImageViewTarget(imgView);
+        // final GlideDrawableImageViewTarget glideImage = new GlideDrawableImageViewTarget(imgView);
 
-        Glide.with(getContext())
+        Glide.with(this)
                 .load(m_url)
-                //.dontAnimate()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
-                .listener(new RequestListener<String, GlideDrawable>() {
+                .listener(new RequestListener<Drawable>() {
                     @Override
-                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         progressBar.setVisibility(View.GONE);
                         errorMessage.setVisibility(View.VISIBLE);
 
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
+                        // ActivityCompat.startPostponedEnterTransition(m_activity);
+
                         return false;
                     }
 
                     @Override
-                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                         progressBar.setVisibility(View.GONE);
                         errorMessage.setVisibility(View.GONE);
 
-                        ActivityCompat.startPostponedEnterTransition(m_activity);
+                        // ActivityCompat.startPostponedEnterTransition(m_activity);
+
                         return false;
                     }
                 })
-                .into(glideImage);
+                .into(new DrawableImageViewTarget(imgView));
 
         return view;
     }

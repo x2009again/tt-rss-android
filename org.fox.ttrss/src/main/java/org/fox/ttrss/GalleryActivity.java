@@ -12,62 +12,65 @@ import android.view.Window;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-import androidx.viewpager.widget.ViewPager;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.ToxicBakery.viewpager.transforms.DepthPageTransformer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.fox.ttrss.types.GalleryEntry;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.fox.ttrss.util.DiffFragmentStateAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import me.relex.circleindicator.CircleIndicator;
+import me.relex.circleindicator.CircleIndicator2;
+import me.relex.circleindicator.CircleIndicator3;
 
 public class GalleryActivity extends CommonActivity {
     private final String TAG = this.getClass().getSimpleName();
 
-    protected ArrayList<GalleryEntry> m_items = new ArrayList<>();
     protected String m_title;
     private ArticleImagesPagerAdapter m_adapter;
     public String m_content;
-    private ViewPager m_pager; // TODO replace with viewpager2
+    private ViewPager2 m_pager; // TODO replace with viewpager2
     private ProgressBar m_checkProgress;
+    private boolean m_firstWasSelected;
 
-    private static class ArticleImagesPagerAdapter extends FragmentStatePagerAdapter {
-        private final List<GalleryEntry> m_items;
+    private static class GalleryEntryDiffItemCallback extends DiffUtil.ItemCallback<GalleryEntry> {
 
-        public ArticleImagesPagerAdapter(FragmentManager fm, List<GalleryEntry> items) {
-            super(fm);
-            m_items = items;
+        @Override
+        public boolean areItemsTheSame(@NonNull GalleryEntry oldItem, @NonNull GalleryEntry newItem) {
+            return oldItem.url.equals(newItem.url);
         }
 
         @Override
-        public int getCount() {
-            return m_items.size();
+        public boolean areContentsTheSame(@NonNull GalleryEntry oldItem, @NonNull GalleryEntry newItem) {
+            return oldItem.url.equals(newItem.url) && oldItem.type.equals(newItem.type);
+        }
+    }
+
+    private static class ArticleImagesPagerAdapter extends DiffFragmentStateAdapter<GalleryEntry> {
+        protected ArticleImagesPagerAdapter(FragmentActivity fragmentActivity, DiffUtil.ItemCallback<GalleryEntry> diffCallback) {
+            super(fragmentActivity, diffCallback);
         }
 
         @Override
-        public Fragment getItem(int position) {
+        public Fragment createFragment(int position) {
 
-            //Log.d(TAG, "getItem: " + position + " " + m_urls.get(position));
-
-            GalleryEntry item = m_items.get(position);
+            GalleryEntry item = getItem(position);
 
             switch (item.type) {
                 case TYPE_IMAGE: {
@@ -87,161 +90,16 @@ public class GalleryActivity extends CommonActivity {
         }
     }
 
-    private static class MediaProgressResult {
-        GalleryEntry item;
-        int position;
-        int count;
-
-        public MediaProgressResult(GalleryEntry item, int position, int count) {
-            this.item = item;
-            this.position = position;
-            this.count = count;
-        }
-    }
-
-    private class MediaCheckTask extends AsyncTask<List<GalleryEntry>, MediaProgressResult, List<GalleryEntry>> {
-
-        private final List<GalleryEntry> m_checkedItems = new ArrayList<>();
-
-        @Override
-        protected List<GalleryEntry> doInBackground(List<GalleryEntry>... params) {
-
-            ArrayList<GalleryEntry> items = new ArrayList<>(params[0]);
-            int position = 0;
-
-            for (GalleryEntry item : items) {
-                if (!isCancelled()) {
-                    ++position;
-
-                    Log.d(TAG, "checking: " + item.url + " " + item.coverUrl);
-
-                    if (item.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE) {
-                        try {
-                            Bitmap bmp = Glide.with(GalleryActivity.this)
-                                    .load(item.url)
-                                    .asBitmap()
-                                    .skipMemoryCache(false)
-                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                    //.dontTransform()
-                                    .into(HeadlinesFragment.FLAVOR_IMG_MIN_SIZE, HeadlinesFragment.FLAVOR_IMG_MIN_SIZE)
-                                    .get();
-
-                            if (bmp.getWidth() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE && bmp.getHeight() >= HeadlinesFragment.FLAVOR_IMG_MIN_SIZE) {
-                                m_checkedItems.add(item);
-                                publishProgress(new MediaProgressResult(item, position, items.size()));
-                            }
-
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        } catch (OutOfMemoryError e) {
-                            e.printStackTrace();
-                        }
-
-                    } else {
-                        m_checkedItems.add(item);
-                        publishProgress(new MediaProgressResult(item, position, items.size()));
-                    }
-                }
-            }
-
-            return m_checkedItems;
-        }
-    }
-
-    boolean collectGalleryContents(String imgSrcFirst, Document doc, List<GalleryEntry> uncheckedItems ) {
-        Elements elems = doc.select("img,video");
-
-        boolean firstFound = false;
-
-        for (Element elem : elems) {
-
-            GalleryEntry item = new GalleryEntry();
-
-            if ("video".equalsIgnoreCase(elem.tagName())) {
-                String cover = elem.attr("poster");
-
-                Element source = elem.select("source").first();
-
-                if (source != null) {
-                    String src = source.attr("src");
-
-                    if (!src.isEmpty()) {
-                        //Log.d(TAG, "vid/src=" + src);
-
-                        if (src.startsWith("//")) {
-                            src = "https:" + src;
-                        }
-
-                        if (imgSrcFirst.equals(src))
-                            firstFound = true;
-
-                        try {
-                            Uri checkUri = Uri.parse(src);
-
-                            if (!"data".equalsIgnoreCase(checkUri.getScheme())) {
-                                item.url = src;
-                                item.coverUrl = cover;
-                                item.type = GalleryEntry.GalleryEntryType.TYPE_VIDEO;
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-            } else {
-                String src = elem.attr("src");
-
-                if (!src.isEmpty()) {
-                    if (src.startsWith("//")) {
-                        src = "https:" + src;
-                    }
-
-                    if (imgSrcFirst.equals(src))
-                        firstFound = true;
-
-                    Log.d(TAG, "img/fir=" + imgSrcFirst + ";");
-                    Log.d(TAG, "img/src=" + src + "; ff=" + firstFound);
-
-                    try {
-                        Uri checkUri = Uri.parse(src);
-
-                        if (!"data".equalsIgnoreCase(checkUri.getScheme())) {
-                            item.url = src;
-                            item.type = GalleryEntry.GalleryEntryType.TYPE_IMAGE;
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            if ((firstFound || imgSrcFirst.isEmpty()) && item.url != null) {
-                if (m_items.isEmpty())
-                    m_items.add(item);
-                else
-                    uncheckedItems.add(item);
-            }
-        }
-
-        return firstFound;
-    }
-
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
 
-        out.putParcelableArrayList("m_items", m_items);
         out.putString("m_title", m_title);
         out.putString("m_content", m_content);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        ActivityCompat.postponeEnterTransition(this);
+        // ActivityCompat.postponeEnterTransition(this);
 
         // we use that before parent onCreate so let's init locally
         m_prefs = PreferenceManager
@@ -263,102 +121,120 @@ public class GalleryActivity extends CommonActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().hide();
 
-        ArrayList<GalleryEntry> uncheckedItems = new ArrayList<>();
+        setTitle(m_title);
+
+        m_adapter = new ArticleImagesPagerAdapter(this, new GalleryEntryDiffItemCallback());
+
+        m_pager = findViewById(R.id.gallery_pager);
+        m_pager.setAdapter(m_adapter);
+
+        m_checkProgress = findViewById(R.id.gallery_check_progress);
 
         if (savedInstanceState == null) {
             m_title = getIntent().getStringExtra("title");
             m_content = getIntent().getStringExtra("content");
-
-            String imgSrcFirst = getIntent().getStringExtra("firstSrc");
-
-            Document doc = Jsoup.parse(m_content);
-
-            // if we were unable to find first image, try again for all media content so that
-            // gallery doesn't lock up because of a pending shared transition
-            if (!collectGalleryContents(imgSrcFirst, doc, uncheckedItems))
-                if (!collectGalleryContents("", doc, uncheckedItems))
-                    m_items.add(new GalleryEntry(imgSrcFirst, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
         } else {
-            ArrayList<GalleryEntry> list = savedInstanceState.getParcelableArrayList("m_items");
-
-            m_items.clear();
-            m_items.addAll(list);
-
+            // ArrayList<GalleryEntry> list = savedInstanceState.getParcelableArrayList("m_items");
             m_title = savedInstanceState.getString("m_title");
             m_content = savedInstanceState.getString("m_content");
         }
 
-        findViewById(R.id.gallery_overflow).setOnClickListener(v -> {
-            PopupMenu popup = new PopupMenu(GalleryActivity.this, v);
-            MenuInflater inflater = popup.getMenuInflater();
-            inflater.inflate(R.menu.content_gallery_entry, popup.getMenu());
+        GalleryModel model = new ViewModelProvider(this).get(GalleryModel.class);
 
-            final GalleryEntry entry = m_items.get(m_pager.getCurrentItem());
+        // this should be dealt with first so that transition completes properly
+        String firstSrc = getIntent().getStringExtra("firstSrc");
 
-            popup.getMenu().findItem(R.id.article_img_share)
-                    .setVisible(entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE);
+            /* but what about videos? if (firstSrc != null) {
+                List<GalleryEntry> initialItems = new ArrayList<GalleryEntry>();
 
-            popup.setOnMenuItemClickListener(item -> onImageMenuItemSelected(item, entry));
+                initialItems.add(0, new GalleryEntry(firstSrc, GalleryEntry.GalleryEntryType.TYPE_IMAGE, null));
 
-            popup.show();
+                m_adapter.submitList(initialItems);
 
+                model.update(initialItems);
+            } */
+
+        model.collectItems(m_content, firstSrc);
+
+        model.getItemsToCheck().observe(this, itemsToCheck -> {
+            Log.d(TAG, "observed items to check=" + itemsToCheck);
+
+            m_checkProgress.setMax(itemsToCheck);
+            m_checkProgress.setProgress(0);
         });
 
-        setTitle(m_title);
+        model.getIsChecking().observe(this, isChecking -> {
+            Log.d(TAG, "observed isChecking=" + isChecking);
 
-        m_adapter = new ArticleImagesPagerAdapter(getSupportFragmentManager(), m_items);
+            m_checkProgress.setVisibility(isChecking ? View.VISIBLE : View.GONE);
+        });
 
-        m_pager = findViewById(R.id.gallery_pager);
-        m_pager.setAdapter(m_adapter);
-        m_pager.setPageTransformer(true, new DepthPageTransformer());
+        model.getCheckProgress().observe(this, progress -> {
+            Log.d(TAG, "observed item check progress=" + progress);
 
-        CircleIndicator indicator = findViewById(R.id.gallery_pager_indicator);
-        indicator.setViewPager(m_pager);
-        m_adapter.registerDataSetObserver(indicator.getDataSetObserver());
+            m_checkProgress.setProgress(progress);
+        });
 
-        m_checkProgress = findViewById(R.id.gallery_check_progress);
+        model.getItems().observe(this, galleryEntries -> {
+            Log.d(TAG, "observed gallery entries=" + galleryEntries + " firstSrc=" + firstSrc);
 
-        Log.d(TAG, "items to check:" + uncheckedItems.size());
+            m_adapter.submitList(galleryEntries, () -> {
+                if (!m_firstWasSelected) {
+                    for (GalleryEntry entry : galleryEntries) {
+                        if (entry.url.equals(firstSrc)) {
+                            int position = galleryEntries.indexOf(entry);
 
-        MediaCheckTask mct = new MediaCheckTask() {
-            @Override
-            protected void onProgressUpdate(MediaProgressResult... result) {
-                //m_items.add(result[0].item);
-                m_adapter.notifyDataSetChanged();
+                            Log.d(TAG, "selecting first src=" + firstSrc + " pos=" + position);
+                            m_pager.setCurrentItem(position);
 
-                if (result[0].position < result[0].count) {
-                    m_checkProgress.setVisibility(View.VISIBLE);
-                    m_checkProgress.setMax(result[0].count);
-                    m_checkProgress.setProgress(result[0].position);
-                } else {
-                    m_checkProgress.setVisibility(View.GONE);
+                            m_firstWasSelected = true;
+                            break;
+                        }
+                    }
                 }
+            });
+        });
 
+        CircleIndicator3 indicator = findViewById(R.id.gallery_pager_indicator);
+        indicator.setViewPager(m_pager);
+
+        m_adapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
+
+
+        findViewById(R.id.gallery_overflow).setOnClickListener(v -> {
+            try {
+                GalleryEntry entry = m_adapter.getCurrentList().get(m_pager.getCurrentItem());
+
+                PopupMenu popup = new PopupMenu(GalleryActivity.this, v);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.content_gallery_entry, popup.getMenu());
+
+                popup.getMenu().findItem(R.id.article_img_share)
+                        .setVisible(entry.type == GalleryEntry.GalleryEntryType.TYPE_IMAGE);
+
+                popup.setOnMenuItemClickListener(item -> onImageMenuItemSelected(item, entry));
+
+                popup.show();
+
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            protected void onPostExecute(List<GalleryEntry> result) {
-                m_items.addAll(result);
-                m_adapter.notifyDataSetChanged();
-            }
-        };
-
-        mct.execute(uncheckedItems);
-
+        });
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         int position = m_pager.getCurrentItem();
 
-        GalleryEntry entry = m_items.get(position);
+        try {
+            GalleryEntry entry = m_adapter.getCurrentList().get(position);
 
-        //String url = m_items.get(position).url;
+            if (onImageMenuItemSelected(item, entry))
+                return true;
 
-
-
-        if (onImageMenuItemSelected(item, entry))
-            return true;
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
 
         return super.onContextItemSelected(item);
     }

@@ -90,12 +90,12 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 						return true;
 					} else if (itemId == R.id.toggle_unread) {
-						article.unread = !article.unread;
-						saveArticleUnread(article);
+						Article articleClone = new Article(article);
 
-						if (hf != null) {
-							hf.notifyItemChanged(Application.getArticles().indexOf(article));
-						}
+						articleClone.unread = !articleClone.unread;
+						saveArticleUnread(articleClone);
+
+						Application.getArticlesModel().updateById(articleClone);
 					}
 				}
 
@@ -272,9 +272,13 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onArticleSelected(Article article, boolean open) {
 
-		if (article.unread) {
-			article.unread = false;
-			saveArticleUnread(article);
+		Article articleClone = new Article(article);
+
+		if (articleClone.unread) {
+			articleClone.unread = false;
+			saveArticleUnread(articleClone);
+
+			Application.getArticlesModel().updateById(articleClone);
 		}
 
 		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();

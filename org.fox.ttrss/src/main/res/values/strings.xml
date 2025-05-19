@@ -305,4 +305,7 @@
     <string name="open_on_startup">Open on startup</string>
     <string name="error_success">Operation completed successfully</string>
     <string name="error_bad_request">Error: 400 bad request</string>
+    <string name="headlines_set_display_mode">Set display mode</string>
+    <string name="window_secure_mode_summary">Disables screenshots and hides window contents on non-secure displays</string>
+    <string name="window_secure_mode">Secure window mode</string>
 </resources>

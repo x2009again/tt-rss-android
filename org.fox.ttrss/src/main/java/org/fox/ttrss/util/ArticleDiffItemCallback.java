@@ -7,15 +7,37 @@ import org.fox.ttrss.types.Article;
 
 public class ArticleDiffItemCallback extends DiffUtil.ItemCallback<Article> {
     private final String TAG = this.getClass().getSimpleName();
+
+    public enum ChangePayload { UNREAD, MARKED, SELECTED, PUBLISHED, NOTE, SCORE };
+
     @Override
-    public boolean areItemsTheSame(@NonNull Article a1, @NonNull Article a2) {
-        return a1.id == a2.id;
+    public boolean areItemsTheSame(@NonNull Article oldItem, @NonNull Article newItem) {
+        return oldItem.id == newItem.id;
     }
 
     @Override
-    public boolean areContentsTheSame(@NonNull Article a1, @NonNull Article a2) {
-        return a1.id == a2.id && a1.unread == a2.unread && a1.marked == a2.marked
-                && a1.selected == a2.selected && a1.published == a2.published
-                && a1.note.equals(a2.note);
+    public Object getChangePayload(@NonNull Article oldItem, @NonNull Article newItem) {
+
+        if (oldItem.unread != newItem.unread)
+            return ChangePayload.UNREAD;
+        else if (oldItem.marked != newItem.marked)
+            return ChangePayload.MARKED;
+        else if (oldItem.selected != newItem.selected)
+            return ChangePayload.SELECTED;
+        else if (oldItem.published != newItem.published)
+            return ChangePayload.PUBLISHED;
+        else if (!oldItem.note.equals(newItem.note))
+            return ChangePayload.NOTE;
+        else if (oldItem.score != newItem.score)
+            return ChangePayload.SCORE;
+
+        return null;
+    }
+
+    @Override
+    public boolean areContentsTheSame(@NonNull Article oldItem, @NonNull Article newItem) {
+        return oldItem.id == newItem.id && oldItem.unread == newItem.unread && oldItem.marked == newItem.marked
+                && oldItem.selected == newItem.selected && oldItem.published == newItem.published
+                && oldItem.score == newItem.score && oldItem.note.equals(newItem.note);
     }
 }
