@@ -609,19 +609,23 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 	protected int getIconForFeed(Feed feed) {
 		if (feed.id == Feed.TYPE_GOBACK) {
 			return R.drawable.baseline_arrow_back_24;
+		} else if (feed.id == Feed.CAT_LABELS && feed.is_cat) {
+			return R.drawable.outline_label_24;
+		} else if (feed.id == Feed.CAT_SPECIAL && feed.is_cat) {
+			return R.drawable.baseline_folder_special_24;
 		} else if (feed.id == Feed.TYPE_TOGGLE_UNREAD) {
 			return R.drawable.baseline_filter_alt_24;
-		} else if (feed.id == 0 && !feed.is_cat) {
+		} else if (feed.id == Feed.ARCHIVED && !feed.is_cat) {
 			return R.drawable.baseline_archive_24;
-		} else if (feed.id == -1 && !feed.is_cat) {
+		} else if (feed.id == Feed.MARKED && !feed.is_cat) {
 			return R.drawable.baseline_star_24;
-		} else if (feed.id == -2 && !feed.is_cat) {
+		} else if (feed.id == Feed.PUBLISHED && !feed.is_cat) {
 			return R.drawable.rss;
-		} else if (feed.id == -3 && !feed.is_cat) {
+		} else if (feed.id == Feed.FRESH && !feed.is_cat) {
 			return R.drawable.baseline_local_fire_department_24;
-		} else if (feed.id == -4 && !feed.is_cat) {
+		} else if (feed.id == Feed.ALL_ARTICLES && !feed.is_cat) {
 			return R.drawable.baseline_inbox_24;
-		} else if (feed.id == -6 && !feed.is_cat) {
+		} else if (feed.id == Feed.RECENTLY_READ && !feed.is_cat) {
 			return R.drawable.baseline_restore_24;
 		} else if (feed.is_cat) {
 			return R.drawable.baseline_folder_open_24;

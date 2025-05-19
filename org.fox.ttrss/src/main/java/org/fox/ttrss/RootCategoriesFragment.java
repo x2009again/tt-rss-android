@@ -50,18 +50,6 @@ public class RootCategoriesFragment extends FeedsFragment {
 	}
 
 	@Override
-	protected int getIconForFeed(Feed feed) {
-		if (feed.id == Feed.TYPE_TOGGLE_UNREAD)
-			return super.getIconForFeed(feed);
-		else if (feed.id == Feed.CAT_LABELS)
-			return R.drawable.outline_label_24;
-		else if (feed.id == Feed.CAT_SPECIAL)
-			return R.drawable.baseline_folder_special_24;
-		else
-			return R.drawable.baseline_folder_open_24;
-	}
-
-	@Override
 	public void refresh() {
 		if (!isAdded())
 			return;
@@ -91,6 +79,12 @@ public class RootCategoriesFragment extends FeedsFragment {
 		loadedFeeds = loadedFeeds.stream()
 				.peek(f -> f.is_cat = true)
 				.collect(Collectors.toList());
+
+		/* if (m_prefs.getBoolean("expand_special_cat", true)) {
+			loadedFeeds = loadedFeeds.stream()
+					.filter(f -> f.id != Feed.CAT_SPECIAL && f.id != Feed.CAT_LABELS)
+					.collect(Collectors.toList());
+		} */
 
 		feedsWork.addAll(loadedFeeds);
 

@@ -313,4 +313,5 @@
     <string name="enable_dynamic_colors">Dynamic colors</string>
     <string name="enable_icon_tinting">Enable icon tinting</string>
     <string name="enable_icon_tinting_summary">Disable if you have trouble distinguishing icons because of their color</string>
+    <string name="expand_special_cat">Expand Special category</string>
 </resources>
