@@ -1631,10 +1631,14 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		}
 	}
 
+	/** move to model? */
+	@Deprecated
 	public String getSearchQuery() {
 		return m_searchQuery;
 	}
 
+	/** move to model? */
+	@Deprecated
 	public void setSearchQuery(String query) {
 		if (!m_searchQuery.equals(query)) {
 			m_searchQuery = query;
