@@ -5,6 +5,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
+import com.google.android.material.color.DynamicColors;
+
 import org.acra.ACRA;
 import org.acra.config.CoreConfigurationBuilder;
 import org.acra.config.DialogConfigurationBuilder;
@@ -40,6 +42,8 @@ public class Application extends android.app.Application {
 	@Override
 	public final void onCreate() {
 		super.onCreate();
+
+		DynamicColors.applyToActivitiesIfAvailable(this);
 
 		m_singleton = this;
 		m_cmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

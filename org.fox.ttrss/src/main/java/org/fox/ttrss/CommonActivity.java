@@ -305,7 +305,10 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 			AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
 		}
 
-		setTheme(R.style.AppTheme);
+		if (prefs.getBoolean("enable_dynamic_colors", false))
+			setTheme(R.style.AppTheme_Dynamic);
+		else
+			setTheme(R.style.AppTheme);
 	}
 
 	@Override
@@ -316,7 +319,7 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 			setAppTheme(sharedPreferences);
 		}
 
-		String[] filter = new String[] { "enable_cats", "widget_update_interval",
+		String[] filter = new String[] { "enable_dynamic_colors", "enable_cats", "widget_update_interval",
 				"headlines_swipe_to_dismiss", "headlines_mark_read_scroll", "headlines_request_size",
 				"force_phone_layout", "open_on_startup", "window_secure_mode" };
 
