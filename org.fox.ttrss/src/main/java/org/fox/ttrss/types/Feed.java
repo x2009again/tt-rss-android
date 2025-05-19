@@ -106,13 +106,19 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		
 	}
 
-	public boolean equals(Feed feed) {
-		if (feed == this) 
-			return true;
-		
-		if (feed == null)
+	@Override
+	public boolean equals(Object other) {
+		if (other == null)
 			return false;
-		
+
+		if (other == this)
+			return true;
+
+		if (this.getClass() != other.getClass())
+			return false;
+
+		Feed feed = (Feed) other;
+
 		return feed.id == this.id && this.is_cat == feed.is_cat;
 	}
 

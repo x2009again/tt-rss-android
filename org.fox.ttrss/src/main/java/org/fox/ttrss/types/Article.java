@@ -324,14 +324,21 @@ public class Article implements Parcelable {
 		if (comments_link == null) comments_link = "";
 	}
 
-	public boolean equals(Article article) {
-		if (article == this)
-			return true;
-
-		if (article == null)
+	/** compares by id only */
+	@Override
+	public boolean equals(Object other) {
+		if (other == null)
 			return false;
 
-		return article.id == id;
+		if (other == this)
+			return true;
+
+		if (this.getClass() != other.getClass())
+			return false;
+
+		Article article = (Article) other;
+
+		return article.id == this.id;
 	}
 
 	@NonNull
