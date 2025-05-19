@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.color.DynamicColors;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,6 +31,8 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
             startActivity(intent);
             return false;
         });
+
+        findPreference("enable_dynamic_colors").setEnabled(DynamicColors.isDynamicColorAvailable());
 
         findPreference("network_settings").setOnPreferenceClickListener(preference -> {
             getActivity().getSupportFragmentManager()
