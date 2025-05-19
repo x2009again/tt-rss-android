@@ -705,6 +705,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		private final int m_headlineSmallFontSize;
 		private final int m_headlineFontSize;
+		private final boolean m_enableIconTinting;
 
 		private final ConnectivityManager m_cmgr;
 
@@ -759,6 +760,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 			m_headlineFontSize = m_prefs.getInt("headlines_font_size_sp_int", 13);
 			m_headlineSmallFontSize = Math.max(10, Math.min(18, m_headlineFontSize - 2));
+
+			m_enableIconTinting = m_prefs.getBoolean("enable_icon_tinting", true);
 
 			m_cmgr = (ConnectivityManager) m_activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		}
@@ -1363,7 +1366,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		private void updateMarkedView(final Article article, final ArticleViewHolder holder) {
 			if (holder.markedView != null) {
 				holder.markedView.setIconResource(article.marked ? R.drawable.baseline_star_24 : R.drawable.baseline_star_outline_24);
-				holder.markedView.setIconTint(article.marked ? m_cslTertiary : m_cslPrimary);
+
+				if (m_enableIconTinting)
+					holder.markedView.setIconTint(article.marked ? m_cslTertiary : m_cslPrimary);
 			}
 		}
 
@@ -1393,21 +1398,24 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 				holder.scoreView.setIconResource(scoreDrawable);
 
-				if (article.score > Article.SCORE_HIGH)
-					holder.scoreView.setIconTint(m_cslTertiary);
-				else
-					holder.scoreView.setIconTint(m_cslPrimary);
+				if (m_enableIconTinting) {
+					if (article.score > Article.SCORE_HIGH)
+						holder.scoreView.setIconTint(m_cslTertiary);
+					else
+						holder.scoreView.setIconTint(m_cslPrimary);
+				}
 			}
 		}
 
 		private void updatePublishedView(final Article article, final ArticleViewHolder holder) {
 			if (holder.publishedView != null) {
 				// otherwise we just use tinting in actionbar
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !m_prefs.getBoolean("enable_icon_tinting", true)) {
 					holder.publishedView.setIconResource(article.published ? R.drawable.rss_box : R.drawable.rss);
 				}
 
-				holder.publishedView.setIconTint(article.published ? m_cslTertiary : m_cslPrimary);
+				if (m_enableIconTinting)
+					holder.publishedView.setIconTint(article.published ? m_cslTertiary : m_cslPrimary);
 			}
 		}
 

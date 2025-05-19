@@ -80,6 +80,13 @@
             android:key="window_secure_mode"
             android:summary="@string/window_secure_mode_summary"
             android:title="@string/window_secure_mode" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="enable_icon_tinting"
+            android:summary="@string/enable_icon_tinting_summary"
+            android:title="@string/enable_icon_tinting" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -1193,7 +1193,7 @@ public class OnlineActivity extends CommonActivity {
 							R.drawable.baseline_star_outline_24);
 
                     // TODO we probably shouldn't do this all the time
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && m_prefs.getBoolean("enable_icon_tinting", true)) {
                         TypedValue tvTertiary = new TypedValue();
                         getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
 

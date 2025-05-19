@@ -311,5 +311,6 @@
     <string name="window_secure_mode">Secure window mode</string>
     <string name="enable_dynamic_colors_summary">Tints the UI according to color settings of your device</string>
     <string name="enable_dynamic_colors">Dynamic colors</string>
-
+    <string name="enable_icon_tinting">Enable icon tinting</string>
+    <string name="enable_icon_tinting_summary">Disable if you have trouble distinguishing icons because of their color</string>
 </resources>
