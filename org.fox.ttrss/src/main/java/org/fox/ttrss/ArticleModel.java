@@ -98,9 +98,12 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             m_feed = feed;
 
             loadInBackground();
-        } else if (!m_isLoading.getValue() && (feed != m_feed || m_lazyLoadEnabled)) {
+        } else if (!m_isLoading.getValue() && m_lazyLoadEnabled) {
             m_append = true;
-            m_feed = feed;
+
+            if (m_feed != feed) {
+                throw new IllegalArgumentException("Attempted append request for a feed not maching original request: " + m_feed + " vs " + feed);
+            }
 
             loadInBackground();
         } else {

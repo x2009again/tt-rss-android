@@ -3,6 +3,8 @@ package org.fox.ttrss.types;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import org.fox.ttrss.R;
 
 public class Feed implements Comparable<Feed>, Parcelable {
@@ -103,7 +105,7 @@ public class Feed implements Comparable<Feed>, Parcelable {
 	public Feed() {
 		
 	}
-	
+
 	public boolean equals(Feed feed) {
 		if (feed == this) 
 			return true;
@@ -111,10 +113,16 @@ public class Feed implements Comparable<Feed>, Parcelable {
 		if (feed == null)
 			return false;
 		
-		return feed.id == this.id && (this.title == null || this.title.equals(feed.title)) && this.is_cat == feed.is_cat;
+		return feed.id == this.id && this.is_cat == feed.is_cat;
 	}
-	
+
+	@NonNull
 	@Override
+	public String toString() {
+		return "{" + this.id + "," + this.is_cat + "}";
+	}
+
+		@Override
 	public int compareTo(Feed feed) {
 		if (feed.unread != this.unread)
 			return feed.unread - this.unread;
