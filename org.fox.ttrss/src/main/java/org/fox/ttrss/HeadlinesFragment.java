@@ -98,8 +98,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_adapter.notifyItemChanged(position);
 	}
 
-	public enum ArticlesSelection { ALL, NONE, UNREAD }
-
     public static final int FLAVOR_IMG_MIN_SIZE = 128;
 
 	private final String TAG = this.getClass().getSimpleName();
@@ -125,12 +123,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	private MediaPlayer m_mediaPlayer;
 	private TextureView m_activeTexture;
-
-	public ArticleList getSelectedArticles() {
-		return Application.getArticles()
-				.stream()
-				.filter(a -> a.selected).collect(Collectors.toCollection(ArticleList::new));
-	}
 
 	public void initialize(Feed feed) {
 		m_feed = feed;
@@ -514,7 +506,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					m_isLazyLoading = false;
 
 					m_listener.onHeadlinesLoaded(appended);
-					m_listener.onArticleListSelectionChange();
 				});
 
 				if (model.getFirstIdChanged())
@@ -590,8 +581,10 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		if (m_activity instanceof DetailActivity && !append)
 			return;
 
-		if (!append)
+		if (!append) {
 			setActiveArticleId(-1);
+			model.setSelection(ArticleModel.ArticlesSelection.NONE);
+		}
 
 		model.setSearchQuery(getSearchQuery());
 		model.startLoading(append, m_feed, m_activity.getResizeWidth());
@@ -932,8 +925,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						article.selected = cb.isChecked();
 
 						Application.getArticlesModel().updateById(article);
-
-						m_listener.onArticleListSelectionChange();
 					}
 				});
 			}
@@ -962,10 +953,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						article.selected = !article.selected;
 
 						Application.getArticlesModel().updateById(article);
-
-						// updateTextCheckedState(holder, position);
-
-						m_listener.onArticleListSelectionChange();
 					}
 				});
 
@@ -1642,25 +1629,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					new Handler().postDelayed(() -> refresh(true), 0);
 			}
 		}
-	}
-
-	public void setSelection(ArticlesSelection select) {
-		ArticleList articles = Application.getArticles();
-		ArticleList tmp = new ArticleList();
-
-		for (Article a : articles) {
-			Article articleClone = new Article(a);
-
-			if (select == ArticlesSelection.ALL || select == ArticlesSelection.UNREAD && a.unread) {
-				articleClone.selected = true;
-			} else {
-				articleClone.selected = false;
-			}
-
-			tmp.add(articleClone);
-		}
-
-		Application.getArticlesModel().update(tmp);
 	}
 
 	public String getSearchQuery() {

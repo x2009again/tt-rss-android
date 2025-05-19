@@ -27,10 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private final String TAG = this.getClass().getSimpleName();
-    private final MutableLiveData<ArticleList> m_articles = new MutableLiveData<>(new ArticleList());
+    @NonNull private final MutableLiveData<ArticleList> m_articles = new MutableLiveData<>(new ArticleList());
     private SharedPreferences m_prefs;
     private final int m_responseCode = 0;
     protected String m_responseMessage;
@@ -77,12 +78,12 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             update(position, article);
     }
 
-    public void update(int position, Article article) {
+    public void update(int position, @NonNull Article article) {
         m_articles.getValue().set(position, article);
         m_articles.postValue(m_articles.getValue());
     }
 
-    public void update(ArticleList articles) {
+    public void update(@NonNull ArticleList articles) {
         m_articles.postValue(articles);
     }
 
@@ -104,6 +105,24 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             loadInBackground();
         } else {
             m_articles.postValue(m_articles.getValue());
+        }
+    }
+
+    public enum ArticlesSelection { ALL, NONE, UNREAD }
+
+    public void setSelection(@NonNull ArticlesSelection select) {
+        ArticleList articles = m_articles.getValue();
+
+        for (int i = 0; i < articles.size(); i++) {
+            Article articleClone = new Article(articles.get(i));
+
+            if (select == ArticlesSelection.ALL || select == ArticlesSelection.UNREAD && articleClone.unread) {
+                articleClone.selected = true;
+            } else {
+                articleClone.selected = false;
+            }
+
+            update(i, articleClone);
         }
     }
 
@@ -235,7 +254,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         });
     }
 
-    private int getSkip(boolean append, ArticleList articles) {
+    private int getSkip(boolean append, @NonNull ArticleList articles) {
         int skip = 0;
 
         if (append) {

@@ -26,12 +26,20 @@ public class ArticleList extends CopyOnWriteArrayList<Article> {
 		this.addAll(clone);
 	}
 
-	public ArticleList getWithoutFooters() {
-		return this.stream().filter(a -> { return a.id > 0; }).collect(Collectors.toCollection(ArticleList::new));
+	public int getUnreadCount() {
+		return getUnread().size();
 	}
 
-	public long getUnreadCount() {
-		return this.stream().filter(a -> { return a.unread; }).count();
+	public ArticleList getUnread() {
+		return this.stream().filter(a -> { return a.unread; }).collect(Collectors.toCollection(ArticleList::new));
+	}
+
+	public ArticleList getSelected() {
+		return this.stream().filter(a -> { return a.selected; }).collect(Collectors.toCollection(ArticleList::new));
+	}
+
+	public int getSelectedCount() {
+		return getSelected().size();
 	}
 
 	public int getPositionById(int id) {

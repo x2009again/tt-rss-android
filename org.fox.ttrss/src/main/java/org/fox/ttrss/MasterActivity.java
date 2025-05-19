@@ -72,13 +72,17 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 		Application.getInstance().load(savedInstanceState);
 
+		enableActionModeObserver();
+
 		m_lastWidgetRefresh = new Date().getTime();
 
 		m_loadingProgress = findViewById(R.id.loading_progress);
 
 		m_drawerLayout = findViewById(R.id.headlines_drawer);
 
-        if (m_drawerLayout != null) {
+		Log.d(TAG, "LPP="+ m_loadingProgress + " DR=" + m_drawerLayout);
+
+		if (m_drawerLayout != null) {
 
 			m_drawerToggle = new ActionBarDrawerToggle(this, m_drawerLayout, R.string.blank, R.string.blank) {
                 @Override
@@ -409,11 +413,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		super.onResume();
 		invalidateOptionsMenu();
 
-	}
-
-	@Override
-	public void onArticleListSelectionChange() {
-		invalidateOptionsMenu();
 	}
 
 	public void onArticleSelected(Article article, boolean open) {

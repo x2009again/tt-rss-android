@@ -58,6 +58,10 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (headlines != null)
 			headlines.setVisibility(isPortrait() ? View.GONE : View.VISIBLE);
 
+		if (!isPortrait() && !isSmallScreen()) {
+			enableActionModeObserver();
+		}
+
 		m_loadingProgress = findViewById(R.id.loading_progress);
 
 		m_bottomAppBar = findViewById(R.id.detail_bottom_appbar);
@@ -236,8 +240,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onResume() {
 		super.onResume();
-
-		m_forceDisableActionMode = isPortrait() || isSmallScreen();
 	}
 
 	@Override
@@ -259,11 +261,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		}		
 	}
 	
-	@Override
-	public void onArticleListSelectionChange() {
-		invalidateOptionsMenu();
-	}
-
 	@Override
 	public void onArticleSelected(Article article) {
 		onArticleSelected(article, true);
@@ -303,32 +300,11 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	public void onHeadlinesLoaded(boolean appended) {
 		setLoadingVisible(false);
 
-		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 
 		if (ap != null) {
             ap.syncToSharedArticles();
         }
-
-		/* if (hf != null) {
-			Article article = Application.getArticles().getById(hf.getActiveArticleId());
-						
-			if (article == null && !Application.getArticles().isEmpty()) {
-
-				article = Application.getArticles().get(0);
-
-				hf.setActiveArticleId(article.id);
-
-				FragmentTransaction ft = getSupportFragmentManager()
-						.beginTransaction();
-
-				ArticlePager af = new ArticlePager();
-				af.initialize(article.id, hf.getFeed());
-
-				ft.replace(R.id.article_fragment, af, FRAG_ARTICLE);
-				ft.commitAllowingStateLoss();
-			}
-		} */
 	}
 
 	@Override
