@@ -68,77 +68,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		m_enableParentBtn = enableParentBtn;
 	}
 
-	@SuppressLint("DefaultLocale")
-	static class FeedUnreadComparator implements Comparator<Feed> {
-
-		@Override
-		public int compare(Feed a, Feed b) {
-			if (a.unread != b.unread)
-					return b.unread - a.unread;
-				else
-					return a.title.toUpperCase().compareTo(b.title.toUpperCase());
-			}
-
-	}
-
-	@SuppressLint("DefaultLocale")
-	static class FeedTitleComparator implements Comparator<Feed> {
-
-		@Override
-		public int compare(Feed a, Feed b) {
-			if (a.is_cat && b.is_cat)
-				return a.title.toUpperCase().compareTo(b.title.toUpperCase());
-			else if (a.is_cat && !b.is_cat)
-				return -1;
-			else if (!a.is_cat && b.is_cat)
-				return 1;
-			else if (a.id >= 0 && b.id >= 0)
-				return a.title.toUpperCase().compareTo(b.title.toUpperCase());
-			else
-				return a.id - b.id;			
-		}
-		
-	}
-
-	@SuppressLint("DefaultLocale")
-	static class SpecialOrderComparator implements Comparator<Feed> {
-		static List<Integer> order = Arrays.asList(Feed.ALL_ARTICLES, Feed.FRESH, Feed.MARKED,
-				Feed.PUBLISHED, Feed.ARCHIVED, Feed.RECENTLY_READ);
-
-		@Override
-		public int compare(Feed a, Feed b) {
-			return Integer.valueOf(order.indexOf(a.id)).compareTo(order.indexOf(b.id));
-		}
-	}
-
-	@SuppressLint("DefaultLocale")
-	static class FeedOrderComparator implements Comparator<Feed> {
-
-		@Override
-		public int compare(Feed a, Feed b) {
-			if (a.id >= 0 && b.id >= 0)
-				if (a.is_cat && b.is_cat)
-					if (a.order_id != 0 && b.order_id != 0)
-						return a.order_id - b.order_id;
-					else
-						return a.title.toUpperCase().compareTo(b.title.toUpperCase());
-				else if (a.is_cat)
-					return -1;
-				else if (b.is_cat)
-					return 1;
-				else if (a.order_id != 0 && b.order_id != 0)
-					return a.order_id - b.order_id;
-				else
-					return a.title.toUpperCase().compareTo(b.title.toUpperCase());
-			else
-				if (a.id < CommonActivity.LABEL_BASE_INDEX && b.id < CommonActivity.LABEL_BASE_INDEX)
-					return a.title.toUpperCase().compareTo(b.title.toUpperCase());
-				else
-					return a.id - b.id;
-		}
-		
-	}
-	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
@@ -284,7 +213,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 			});
 		}
 
-		FeedsModel model = new ViewModelProvider(this).get(FeedsModel.class);
+		FeedsModel model = getModel();
 
 		model.getUpdatesData().observe(m_activity, lastUpdate -> {
 			Log.d(TAG, "observed update=" + lastUpdate);
@@ -334,15 +263,12 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		return view;    	
 	}
 
+	protected FeedsModel getModel() {
+		return new ViewModelProvider(this).get(FeedsModel.class);
+	}
+
 	protected void onFeedsLoaded(List<Feed> loadedFeeds) {
 		List<Feed> feedsWork = new ArrayList<>();
-
-		if (m_activity.getUnreadOnly() && m_rootFeed.id != Feed.CAT_SPECIAL)
-			loadedFeeds = loadedFeeds.stream()
-					.filter(f -> f.unread > 0)
-					.collect(Collectors.toList());
-
-		sortFeeds(loadedFeeds, m_rootFeed);
 
 		if (m_enableParentBtn) {
 			feedsWork.add(0, new Feed(Feed.TYPE_GOBACK));
@@ -403,8 +329,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		if (!isAdded())
 			return;
 
-		FeedsModel model = new ViewModelProvider(this).get(FeedsModel.class);
-		model.startLoading(m_rootFeed, false);
+		getModel().startLoading(m_rootFeed);
 	}
 
 	private class FeedViewHolder extends RecyclerView.ViewHolder {
@@ -582,35 +507,11 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		return feed.id == Feed.CAT_SPECIAL || feed.id == Feed.CAT_LABELS;
 	}
 
-	protected void sortFeeds(List<Feed> feeds, Feed feed) {
-		Comparator<Feed> cmp;
-
-		if (feed.id == -1) {
-			cmp = new SpecialOrderComparator();
-		} else {
-			if (m_prefs.getBoolean("sort_feeds_by_unread", false)) {
-				cmp = new FeedUnreadComparator();
-			} else {
-				if (m_activity.getApiLevel() >= 3) {
-					cmp = new FeedOrderComparator();
-				} else {
-					cmp = new FeedTitleComparator();
-				}
-			}
-		}
-
-		try {
-			feeds.sort(cmp);
-		} catch (IllegalArgumentException e) {
-			//
-		}
-	}
-
 	protected int getIconForFeed(Feed feed) {
 		if (feed.id == Feed.TYPE_GOBACK) {
 			return R.drawable.baseline_arrow_back_24;
 		} else if (feed.id == Feed.CAT_LABELS && feed.is_cat) {
-			return R.drawable.outline_label_24;
+			return R.drawable.baseline_label_24;
 		} else if (feed.id == Feed.CAT_SPECIAL && feed.is_cat) {
 			return R.drawable.baseline_folder_special_24;
 		} else if (feed.id == Feed.TYPE_TOGGLE_UNREAD) {

@@ -62,12 +62,11 @@
             android:summary="@string/browse_cats_like_feeds_summary"
             android:title="@string/browse_cats_like_feeds" />
 
-        <!--
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:dependency="@string/enable_cats"
+            android:dependency="enable_cats"
             android:key="expand_special_cat"
-            android:title="@string/expand_special_cat" /> -->
+            android:title="@string/expand_special_cat" />
 
         <ListPreference
             android:defaultValue="0"

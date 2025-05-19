@@ -65,7 +65,7 @@ public class Application extends android.app.Application {
 	public void setApiLevel(int apiLevel) {
 		m_apiLevel = apiLevel;
 	}
-	
+
 	public void save(Bundle out) {
 		
 		out.setClassLoader(getClass().getClassLoader());
@@ -100,20 +100,21 @@ public class Application extends android.app.Application {
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
 
-		ACRA.init(this, new CoreConfigurationBuilder()
-				.withBuildConfigClass(BuildConfig.class)
-				.withReportFormat(StringFormat.JSON)
-				.withPluginConfigurations(
-						new DialogConfigurationBuilder()
-								.withText(getString(R.string.crash_dialog_text_email))
-								.withResTheme(R.style.Theme_AppCompat_Dialog)
-								.build(),
-						new MailSenderConfigurationBuilder()
-								.withMailTo("cthulhoo+ttrss-acra@gmail.com")
-								.withReportAsFile(true)
-								.withReportFileName("crash.txt")
-								.build()
-				)
-				.build());
+		if (!BuildConfig.DEBUG)
+			ACRA.init(this, new CoreConfigurationBuilder()
+					.withBuildConfigClass(BuildConfig.class)
+					.withReportFormat(StringFormat.JSON)
+					.withPluginConfigurations(
+							new DialogConfigurationBuilder()
+									.withText(getString(R.string.crash_dialog_text_email))
+									.withResTheme(R.style.Theme_AppCompat_Dialog)
+									.build(),
+							new MailSenderConfigurationBuilder()
+									.withMailTo("cthulhoo+ttrss-acra@gmail.com")
+									.withReportAsFile(true)
+									.withReportFileName("crash.txt")
+									.build()
+					)
+					.build());
 	}
 }
