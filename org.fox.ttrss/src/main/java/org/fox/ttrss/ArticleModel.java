@@ -92,7 +92,14 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     }
 
     public Article getActiveArticle() {
-        return m_activeArticle.getValue();
+        ArticleList articles = m_articles.getValue();
+
+        try {
+            // always get uptodate item from model list
+            return articles.get(articles.indexOf(m_activeArticle.getValue()));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
     }
 
     // we store .active flag in articleview for UI update and a separate observable for easy access
