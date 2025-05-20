@@ -69,6 +69,9 @@ public class RootCategoriesModel extends FeedsModel {
                         feedsCombined.addAll(feedsJson);
                     }
                 } catch (Exception e) {
+                    setLastError(ApiCommon.ApiError.OTHER_ERROR);
+                    setLastErrorMessage(e.getMessage());
+
                     e.printStackTrace();
                 }
             }
