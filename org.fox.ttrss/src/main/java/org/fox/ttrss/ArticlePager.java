@@ -130,6 +130,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
 		m_activity.invalidateOptionsMenu();
 	}
 

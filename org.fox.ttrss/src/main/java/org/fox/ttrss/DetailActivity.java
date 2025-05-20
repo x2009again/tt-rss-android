@@ -261,28 +261,11 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		if (articleClone.unread) {
 			articleClone.unread = false;
 			saveArticleUnread(articleClone);
-
-			Application.getArticlesModel().updateById(articleClone);
 		}
 
 		Application.getArticlesModel().setActive(articleClone);
 
 		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();
-
-		/* ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-
-		if (open) {
-			if (ap != null) {
-				ap.setActiveArticleId(article.id);
-			}
-		} else {
-			if (hf != null) {
-				hf.setActiveArticleId(article.id);
-			}
-		} */
-
-		invalidateOptionsMenu();
 	}
 
 	@Override

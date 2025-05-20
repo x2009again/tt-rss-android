@@ -319,8 +319,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 		setSelectedFeed(m_activity.getActiveFeed());
 
 		refresh();
-
-		m_activity.invalidateOptionsMenu();
 	}
 
 	public void refresh() {

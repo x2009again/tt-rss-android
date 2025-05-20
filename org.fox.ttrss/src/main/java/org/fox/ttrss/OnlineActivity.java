@@ -427,9 +427,6 @@ public class OnlineActivity extends CommonActivity {
                                     ft.replace(R.id.headlines_fragment, hfnew, FRAG_HEADLINES);
 
                                     ft.commit();
-
-                                    invalidateOptionsMenu();
-
                                 });
 
                 Dialog dialog = builder.create();
@@ -520,7 +517,6 @@ public class OnlineActivity extends CommonActivity {
                                         break;
                                 }
                                 dialog.cancel();
-                                invalidateOptionsMenu();
                             });
 
             Dialog dialog = builder.create();
@@ -539,23 +535,17 @@ public class OnlineActivity extends CommonActivity {
         } else if (itemId == R.id.toggle_marked) {
             if (activeArticle != null) {
                 Article articleClone = new Article(activeArticle);
-
                 articleClone.marked = !articleClone.marked;
 
                 saveArticleMarked(activeArticle);
-
-                Application.getArticlesModel().updateById(articleClone);
             }
             return true;
         } else if (itemId == R.id.toggle_unread) {
             if (activeArticle != null) {
                 Article articleClone = new Article(activeArticle);
-
                 articleClone.unread = !articleClone.unread;
 
                 saveArticleUnread(activeArticle);
-
-                Application.getArticlesModel().updateById(articleClone);
             }
             return true;
         } else if (itemId == R.id.selection_toggle_unread) {
@@ -564,14 +554,10 @@ public class OnlineActivity extends CommonActivity {
             if (!selected.isEmpty()) {
                 for (Article a : selected) {
                     Article articleClone = new Article(a);
-
                     articleClone.unread = !articleClone.unread;
-
-                    Application.getArticlesModel().updateById(articleClone);
                 }
 
                 toggleArticlesUnread(selected);
-                invalidateOptionsMenu();
             }
             return true;
         } else if (itemId == R.id.selection_toggle_marked) {
@@ -580,14 +566,10 @@ public class OnlineActivity extends CommonActivity {
             if (!selected.isEmpty()) {
                 for (Article a : selected) {
                     Article articleClone = new Article(a);
-
                     articleClone.marked = !articleClone.marked;
-
-                    Application.getArticlesModel().updateById(articleClone);
                 }
 
                 toggleArticlesMarked(selected);
-                invalidateOptionsMenu();
             }
             return true;
         } else if (itemId == R.id.selection_toggle_published) {
@@ -596,24 +578,18 @@ public class OnlineActivity extends CommonActivity {
             if (!selected.isEmpty()) {
                 for (Article a : selected) {
                     Article articleClone = new Article(a);
-
                     articleClone.published = !articleClone.published;
-
-                    Application.getArticlesModel().updateById(articleClone);
                 }
 
                 toggleArticlesPublished(selected);
-                invalidateOptionsMenu();
             }
             return true;
         } else if (itemId == R.id.toggle_published) {
             if (activeArticle != null) {
                 Article articleClone = new Article(activeArticle);
-
                 articleClone.published = !articleClone.published;
-                saveArticlePublished(articleClone);
 
-                Application.getArticlesModel().updateById(articleClone);
+                saveArticlePublished(articleClone);
             }
             return true;
         } else if (itemId == R.id.catchup_above) {
@@ -667,7 +643,6 @@ public class OnlineActivity extends CommonActivity {
 
             if (!tmp.isEmpty()) {
                 setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
-                invalidateOptionsMenu();
             }
         }
 	}
@@ -806,106 +781,6 @@ public class OnlineActivity extends CommonActivity {
 		Application.getInstance().setApiLevel(apiLevel);
 	}
 
-    // TODO switch to setArticleField()
-	public void saveArticleUnread(final Article article) {
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			protected void onPostExecute(JsonElement result) {
-				//toast(R.string.article_set_unread);
-				invalidateOptionsMenu();
-			}
-		};
-
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
-		map.put("article_ids", String.valueOf(article.id));
-		map.put("mode", article.unread ? "1" : "0");
-        map.put("field", String.valueOf(Article.UPDATE_FIELD_UNREAD));
-
-		req.execute(map);
-	}
-
-    // TODO switch to setArticleField()
-	public void saveArticleScore(final Article article) {
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			protected void onPostExecute(JsonElement result) {
-				//toast(article.marked ? R.string.notify_article_marked : R.string.notify_article_unmarked);
-				invalidateOptionsMenu();
-			}
-		};
-
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
-		map.put("article_ids", String.valueOf(article.id));
-		map.put("data", String.valueOf(article.score));
-        map.put("field", String.valueOf(Article.UPDATE_FIELD_SCORE));
-
-		req.execute(map);
-	}
-
-    // TODO switch to setArticleField()
-	public void saveArticleMarked(final Article article) {
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			protected void onPostExecute(JsonElement result) {
-				//toast(article.marked ? R.string.notify_article_marked : R.string.notify_article_unmarked);
-				invalidateOptionsMenu();
-			}
-		};
-
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
-		map.put("article_ids", String.valueOf(article.id));
-		map.put("mode", article.marked ? "1" : "0");
-        map.put("field", String.valueOf(Article.UPDATE_FIELD_MARKED));
-		
-		req.execute(map);
-	}
-
-    // TODO switch to setArticleField()
-	public void saveArticlePublished(final Article article) {
-
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			protected void onPostExecute(JsonElement result) {
-				//toast(article.published ? R.string.notify_article_published : R.string.notify_article_unpublished);
-				invalidateOptionsMenu();
-			}
-		};
-
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
-		map.put("article_ids", String.valueOf(article.id));
-		map.put("mode", article.published ? "1" : "0");
-		map.put("field", String.valueOf(Article.UPDATE_FIELD_PUBLISHED));
-
-		req.execute(map);
-	}
-
-    // TODO switch to setArticleField()
-	public void saveArticleNote(final Article article, final String note) {
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			protected void onPostExecute(JsonElement result) {
-                Article articleClone = new Article(article);
-
-				articleClone.note = note;
-
-                Application.getArticlesModel().updateById(articleClone);
-			}
-		};
-
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "updateArticle");
-		map.put("article_ids", String.valueOf(article.id));
-		map.put("mode", "1");
-		map.put("data", note);
-        map.put("field", String.valueOf(Article.UPDATE_FIELD_NOTE));
-
-		req.execute(map);
-	}
-
 	public void shareArticle(Article article) {
 		if (article != null) {
 			shareText(article.link, article.title);
@@ -923,15 +798,9 @@ public class OnlineActivity extends CommonActivity {
 
                             try {
                                 Article articleClone = new Article(article);
-
                                 articleClone.score = Integer.parseInt(edit.getText().toString());
 
                                 saveArticleScore(articleClone);
-
-                                int position = Application.getArticles().getPositionById(articleClone.id);
-
-                                if (position != -1)
-                                    Application.getArticlesModel().updateById(articleClone);
 
                             } catch (NumberFormatException e) {
                                 toast(R.string.score_invalid);
@@ -988,8 +857,6 @@ public class OnlineActivity extends CommonActivity {
                 if (selectedArticle != null) {
                     selectedArticle.unread = !selectedArticle.unread;
                     saveArticleUnread(selectedArticle);
-
-                    hf.notifyItemChanged(Application.getArticles().indexOf(selectedArticle));
                 }
 			}
 			return true;
@@ -1050,14 +917,35 @@ public class OnlineActivity extends CommonActivity {
 		req.execute(map);
 	}
 
+    public void saveArticleUnread(final Article article) {
+        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_UNREAD,
+                article.unread ? Article.UPDATE_SET_TRUE : Article.UPDATE_SET_FALSE);
+    }
+
+    public void saveArticleScore(final Article article) {
+        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_SCORE, Article.UPDATE_SET_TRUE);
+    }
+
+    public void saveArticleMarked(final Article article) {
+        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_MARKED,
+                article.marked ? Article.UPDATE_SET_TRUE : Article.UPDATE_SET_FALSE);
+    }
+
+    public void saveArticlePublished(final Article article) {
+        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_PUBLISHED,
+                article.published ? Article.UPDATE_SET_TRUE : Article.UPDATE_SET_FALSE);
+    }
+
+    public void saveArticleNote(final Article article, final String note) {
+        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_NOTE, Article.UPDATE_SET_TRUE);
+    }
+
     public void toggleArticlesMarked(final ArticleList articles) {
         setArticlesMarked(articles, Article.UPDATE_TOGGLE);
     }
 
 	public void setArticlesMarked(final ArticleList articles, int mode) {
-		ApiRequest req = new ApiRequest(getApplicationContext());
-
-        setArticleField(articles, Article.UPDATE_FIELD_MARKED, mode);
+        setArticlesField(articles, Article.UPDATE_FIELD_MARKED, mode);
 	}
 
     public void toggleArticlesUnread(final ArticleList articles) {
@@ -1065,7 +953,7 @@ public class OnlineActivity extends CommonActivity {
     }
 
 	public void setArticlesUnread(final ArticleList articles, int mode) {
-        setArticleField(articles, Article.UPDATE_FIELD_UNREAD, mode);
+        setArticlesField(articles, Article.UPDATE_FIELD_UNREAD, mode);
 	}
 
     public void toggleArticlesPublished(final ArticleList articles) {
@@ -1073,27 +961,85 @@ public class OnlineActivity extends CommonActivity {
     }
 
 	public void setArticlesPublished(final ArticleList articles, int mode) {
-        setArticleField(articles, Article.UPDATE_FIELD_PUBLISHED, mode);
+        setArticlesField(articles, Article.UPDATE_FIELD_PUBLISHED, mode);
 	}
 
-    public void setArticleField(final ArticleList articles, int field, int mode) {
+    public void setArticlesField(final ArticleList articles, int field, int mode) {
         ApiRequest req = new ApiRequest(getApplicationContext()) {
             protected void onPostExecute(JsonElement result) {
-                Log.d(TAG, "setArticleField operation complete");
+                if (m_lastError == ApiCommon.ApiError.SUCCESS) {
 
-                // currently this is generally handled before operation completes (but after POJO is modified)
+                    if (BuildConfig.DEBUG)
+                        Log.d(TAG, "setArticleField operation complete");
 
-                /* HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-                ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+                    ArticleModel model = Application.getArticlesModel();
 
-                for (Article a : articles) {
-                    int position = Application.getArticles().getPositionById(a.id);
+                    for (Article a : articles) {
+                        Article articleClone = new Article(a);
 
-                    if (position != -1) {
-                        if (hf != null) hf.notifyItemChanged(position);
-                        if (ap != null) ap.notifyItemChanged(position);
+                        switch (mode) {
+                            case Article.UPDATE_SET_FALSE:
+                                switch (field) {
+                                    case Article.UPDATE_FIELD_MARKED:
+                                        articleClone.marked = false;
+                                        break;
+                                    case Article.UPDATE_FIELD_PUBLISHED:
+                                        articleClone.published = false;
+                                        break;
+                                    case Article.UPDATE_FIELD_UNREAD:
+                                        articleClone.unread = false;
+                                        break;
+                                }
+                                break;
+                            case Article.UPDATE_SET_TRUE:
+                                switch (field) {
+                                    case Article.UPDATE_FIELD_MARKED:
+                                        articleClone.marked = true;
+                                        break;
+                                    case Article.UPDATE_FIELD_PUBLISHED:
+                                        articleClone.published = true;
+                                        break;
+                                    case Article.UPDATE_FIELD_UNREAD:
+                                        articleClone.unread = true;
+                                        break;
+                                }
+                                break;
+                            case Article.UPDATE_TOGGLE:
+                                switch (field) {
+                                    case Article.UPDATE_FIELD_MARKED:
+                                        articleClone.marked = !articleClone.marked;
+                                        break;
+                                    case Article.UPDATE_FIELD_PUBLISHED:
+                                        articleClone.published = !articleClone.published;
+                                        break;
+                                    case Article.UPDATE_FIELD_UNREAD:
+                                        articleClone.unread = !articleClone.unread;
+                                        break;
+                                }
+                                break;
+                        }
+
+
+                        if (BuildConfig.DEBUG)
+                            Log.d(TAG, "updating article: " + articleClone);
+
+                        model.updateById(articleClone);
                     }
-                } */
+
+                    invalidateOptionsMenu();
+
+                    return;
+                }
+
+                if (m_lastError != null && m_lastError == ApiCommon.ApiError.LOGIN_FAILED) {
+                    login(true);
+                } else {
+                    if (m_lastErrorMessage != null) {
+                        toast(getString(getErrorMessage()) + "\n" + m_lastErrorMessage);
+                    } else {
+                        toast(getErrorMessage());
+                    }
+                }
             }
         };
 
@@ -1375,9 +1321,6 @@ public class OnlineActivity extends CommonActivity {
                 m_headlinesActionMode.setTitle(String.valueOf(selectedCount));
             } else if (m_headlinesActionMode != null) {
                 m_headlinesActionMode.finish();
-
-                // is this needed?
-                invalidateOptionsMenu();
             }
         }));
     }

@@ -146,8 +146,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
             m_activity.saveArticleUnread(articleClone);
 
-			Application.getArticlesModel().updateById(articleClone);
-
             return true;
         } else if (itemId == R.id.headlines_article_link_copy) {
             m_activity.copyToClipboard(article.link);
@@ -160,8 +158,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				articleClone.unread = !articleClone.unread;
 
 				m_activity.saveArticleUnread(articleClone);
-
-				Application.getArticlesModel().updateById(articleClone);
 			}
             return true;
         } else if (itemId == R.id.headlines_share_article) {
@@ -901,8 +897,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						article.marked = !article.marked;
 
 						m_activity.saveArticleMarked(article);
-
-						Application.getArticlesModel().updateById(article);
 					}
 				});
 			}
@@ -932,8 +926,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						article.published = !article.published;
 
 						m_activity.saveArticlePublished(article);
-
-						Application.getArticlesModel().updateById(article);
 					}
 				});
 			}
@@ -970,20 +962,18 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 						if (position != -1) {
 
-							Article article = new Article(getItem(position));
-
+							final Article articleClone = new Article(getItem(position));
 							final EditText edit = new EditText(getActivity());
-							edit.setText(String.valueOf(article.score));
+
+							edit.setText(String.valueOf(articleClone.score));
 
 							MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
 									.setTitle(R.string.score_for_this_article)
 									.setPositiveButton(R.string.set_score,
 											(dialog, which) -> {
 												try {
-													article.score = Integer.parseInt(edit.getText().toString());
-													m_activity.saveArticleScore(article);
-
-													Application.getArticlesModel().updateById(article);
+													articleClone.score = Integer.parseInt(edit.getText().toString());
+													m_activity.saveArticleScore(articleClone);
 
 												} catch (NumberFormatException e) {
 													m_activity.toast(R.string.score_invalid);

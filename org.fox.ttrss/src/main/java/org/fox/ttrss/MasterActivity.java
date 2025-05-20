@@ -421,8 +421,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		if (articleClone.unread) {
 			articleClone.unread = false;
 			saveArticleUnread(articleClone);
-
-			Application.getArticlesModel().updateById(articleClone);
 		}
 
 		if (open) {

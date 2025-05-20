@@ -1,5 +1,7 @@
 package org.fox.ttrss.types;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,12 @@ public class ArticleList extends CopyOnWriteArrayList<Article> {
 				return a;			
 		}			
 		return null;
+	}
+
+	public ArticleList(Article... articles) {
+		super();
+
+		addAll(Arrays.asList(articles));
 	}
 
 	public ArticleList() { }
