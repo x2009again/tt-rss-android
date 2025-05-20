@@ -537,7 +537,7 @@ public class OnlineActivity extends CommonActivity {
                 Article articleClone = new Article(activeArticle);
                 articleClone.marked = !articleClone.marked;
 
-                saveArticleMarked(activeArticle);
+                saveArticleMarked(articleClone);
             }
             return true;
         } else if (itemId == R.id.toggle_unread) {
@@ -545,7 +545,7 @@ public class OnlineActivity extends CommonActivity {
                 Article articleClone = new Article(activeArticle);
                 articleClone.unread = !articleClone.unread;
 
-                saveArticleUnread(activeArticle);
+                saveArticleUnread(articleClone);
             }
             return true;
         } else if (itemId == R.id.selection_toggle_unread) {
@@ -970,7 +970,7 @@ public class OnlineActivity extends CommonActivity {
                 if (m_lastError == ApiCommon.ApiError.SUCCESS) {
 
                     if (BuildConfig.DEBUG)
-                        Log.d(TAG, "setArticleField operation complete");
+                        Log.d(TAG, "setArticleField operation complete, field=" + field + " mode=" + mode);
 
                     ArticleModel model = Application.getArticlesModel();
 

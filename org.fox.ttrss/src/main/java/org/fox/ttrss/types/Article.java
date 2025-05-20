@@ -325,7 +325,7 @@ public class Article implements Parcelable {
 		if (comments_link == null) comments_link = "";
 	}
 
-	/** compares by id only */
+	/** compares by id only, we need this to skip manual lookup by id */
 	@Override
 	public boolean equals(Object other) {
 		if (other == null)
