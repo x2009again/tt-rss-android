@@ -245,14 +245,9 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			m_menu.findItem(R.id.search).setVisible(false);
 		}		
 	}
-	
-	@Override
-	public void onArticleSelected(Article article) {
-		onArticleSelected(article, true);
-	}
 
 	@Override
-	public void onArticleSelected(Article article, boolean open) {
+	public void onArticleSelected(Article article) {
 
 		Article articleClone = new Article(article);
 
@@ -262,8 +257,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 		}
 
 		Application.getArticlesModel().setActive(articleClone);
-
-		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();
 	}
 
 	@Override

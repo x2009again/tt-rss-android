@@ -4,7 +4,6 @@ import org.fox.ttrss.types.Article;
 
 public interface HeadlinesEventListener {
 	void onArticleSelected(Article article);
-	void onArticleSelected(Article article, boolean open);
 	void onHeadlinesLoaded(boolean appended);
 	void onHeadlinesLoadingProgress(int progress);
 }

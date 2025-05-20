@@ -89,9 +89,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
                 public void onDrawerOpened(View drawerView) {
                     super.onDrawerOpened(drawerView);
 
-                    getSupportActionBar().show();
-                    invalidateOptionsMenu();
-
 					Date date = new Date();
 					if (date.getTime() - m_lastRefresh > 60*1000) {
 						m_lastRefresh = date.getTime();
@@ -415,7 +412,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 	}
 
-	public void onArticleSelected(Article article, boolean open) {
+	public void onArticleSelected(Article article) {
 		Article articleClone = new Article(article);
 
 		if (articleClone.unread) {
@@ -423,19 +420,17 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			saveArticleUnread(articleClone);
 		}
 
-		if (open) {
-			Application.getArticlesModel().setActive(articleClone);
+		Application.getArticlesModel().setActive(articleClone);
 
-            if (m_prefs.getBoolean("always_open_uri", false)) {
-				openUri(Uri.parse(article.link));
-			} else {
-                Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
-				intent.putExtra("feed", m_activeFeed);
+		if (m_prefs.getBoolean("always_open_uri", false)) {
+			openUri(Uri.parse(article.link));
+		} else {
+			Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
+			intent.putExtra("feed", m_activeFeed);
 
-				startActivityForResult(intent, HEADLINES_REQUEST);
-				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-			}
-	    }
+			startActivityForResult(intent, HEADLINES_REQUEST);
+			overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+		}
 	}
 
     @Override
@@ -451,11 +446,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		}
 
     }
-
-    @Override
-	public void onArticleSelected(Article article) {
-		onArticleSelected(article, true);		
-	}
 
 	@Override
 	public void onHeadlinesLoaded(boolean appended) {
