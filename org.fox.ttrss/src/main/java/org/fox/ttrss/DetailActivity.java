@@ -146,8 +146,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
                 HeadlinesFragment hf = new HeadlinesFragment();
-                hf.initialize(feed, openedArticleId, true);
-                hf.setSearchQuery(searchQuery);
+                hf.initialize(feed, true);
 
                 ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 

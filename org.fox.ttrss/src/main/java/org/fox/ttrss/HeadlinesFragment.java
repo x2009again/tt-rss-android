@@ -124,7 +124,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		m_feed = feed;
 	}
 
-	public void initialize(Feed feed, int activeArticleId, boolean compactMode) {
+	public void initialize(Feed feed, boolean compactMode) {
 		m_feed = feed;
 		m_compactLayoutMode = compactMode;
 	}
@@ -580,7 +580,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			model.setSelection(ArticleModel.ArticlesSelection.NONE);
 		}
 
-		model.setSearchQuery(getSearchQuery());
 		model.startLoading(append, m_feed, m_activity.getResizeWidth());
 	}
 
@@ -1607,22 +1606,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (position != -1)
 			m_list.scrollToPosition(position);
-	}
-
-	/** move to model? */
-	@Deprecated
-	public String getSearchQuery() {
-		return m_searchQuery;
-	}
-
-	/** move to model? */
-	@Deprecated
-	public void setSearchQuery(String query) {
-		if (!m_searchQuery.equals(query)) {
-			m_searchQuery = query;
-
-			refresh(false);
-		}
 	}
 
 	public Feed getFeed() {

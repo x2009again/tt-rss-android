@@ -68,19 +68,7 @@ public class OnlineActivity extends CommonActivity {
 
 			int selectedIndex = 0;
 
-			final String searchQuery;
-
-			if (getApiLevel() >= 22) {
-				HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-
-				if (hf != null) {
-					searchQuery = hf.getSearchQuery();
-				} else {
-					searchQuery = "";
-				}
-			} else {
-				searchQuery = "";
-			}
+			final String searchQuery = Application.getArticlesModel().getSearchQuery();
 
 			int titleStringId = !searchQuery.isEmpty() ? R.string.catchup_dialog_title_search : R.string.catchup_dialog_title;
 
@@ -380,30 +368,28 @@ public class OnlineActivity extends CommonActivity {
             startActivityForResult(intent, 0);
             return true;
         } else if (itemId == R.id.search) {
-            if (hf != null) {
-                final EditText edit = new EditText(this);
-                edit.setText(hf.getSearchQuery());
+            final EditText edit = new EditText(this);
+            edit.setText(Application.getArticlesModel().getSearchQuery());
 
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.search)
-                        .setPositiveButton(getString(R.string.search),
-                                (dialog4, which) -> {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.search)
+                    .setPositiveButton(getString(R.string.search),
+                            (dialog4, which) -> {
 
-                                    String query = edit.getText().toString().trim();
+                                String query = edit.getText().toString().trim();
 
-                                    hf.setSearchQuery(query);
+                                Application.getArticlesModel().setSearchQuery(query);
 
-                                })
-                        .setNegativeButton(getString(R.string.cancel),
-                                (dialog3, which) -> {
+                            })
+                    .setNegativeButton(getString(R.string.cancel),
+                            (dialog3, which) -> {
 
-                                    //
+                                //
 
-                                }).setView(edit);
+                            }).setView(edit);
 
-                Dialog dialog = builder.create();
-                dialog.show();
-            }
+            Dialog dialog = builder.create();
+            dialog.show();
             return true;
         } else if (itemId == R.id.headlines_mark_as_read) {
             if (hf != null) {
@@ -437,7 +423,6 @@ public class OnlineActivity extends CommonActivity {
                                     HeadlinesFragment hfnew = new HeadlinesFragment();
 
                                     hfnew.initialize(hf.getFeed());
-                                    hfnew.setSearchQuery(hf.getSearchQuery());
 
                                     ft.replace(R.id.headlines_fragment, hfnew, FRAG_HEADLINES);
 

@@ -129,6 +129,11 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         m_resizeWidth = resizeWidth;
 
         if (!append) {
+
+            // reset search for a different feed
+            if (m_feed != null && !m_feed.equals(feed))
+                m_searchQuery = "";
+
             m_append = false;
             m_lazyLoadEnabled = true;
             m_feed = feed;
@@ -349,14 +354,6 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         return m_append;
     }
 
-    public void setSearchQuery(String searchQuery) {
-        m_searchQuery = searchQuery;
-    }
-
-    public String getSearchQuery() {
-        return m_searchQuery;
-    }
-
     public int getOffset() {
         return m_offset;
     }
@@ -387,5 +384,18 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
 
     public LiveData<Integer> getLoadingProgress() {
         return m_loadingProgress;
+    }
+
+
+    public String getSearchQuery() {
+        return m_searchQuery;
+    }
+
+    public void setSearchQuery(@NonNull String query) {
+        if (!m_searchQuery.equals(query)) {
+            m_searchQuery = query;
+
+            startLoading(false, m_feed, m_resizeWidth);
+        }
     }
 }
