@@ -3,6 +3,7 @@ package org.fox.ttrss;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -102,7 +103,8 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
 
             final JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
 
-            Log.d(TAG, "got result=" + result);
+            if (BuildConfig.DEBUG)
+                Log.d(TAG, "got result=" + result);
 
             boolean unreadOnly = m_prefs.getBoolean("show_unread_only", true);
 

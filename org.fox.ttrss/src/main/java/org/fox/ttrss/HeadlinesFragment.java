@@ -1135,14 +1135,16 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					if (m_headlinesFragmentModel.getFlavorImageSizes().containsKey(article.flavorImageUri)) {
 						Size size = m_headlinesFragmentModel.getFlavorImageSizes().get(article.flavorImageUri);
 
-						Log.d(TAG, "using cached resource size for " + article.flavorImageUri + " " + size.getWidth() + "x" + size.getHeight());
+						if (BuildConfig.DEBUG)
+							Log.d(TAG, "using cached resource size for " + article.flavorImageUri + " " + size.getWidth() + "x" + size.getHeight());
 
 						if (size.getWidth() > FLAVOR_IMG_MIN_SIZE && size.getHeight() > FLAVOR_IMG_MIN_SIZE) {
 							loadFlavorImage(article, holder, maxImageHeight);
 						}
 
 					} else {
-						Log.d(TAG, "checking resource size for " + article.flavorImageUri);
+						if (BuildConfig.DEBUG)
+							Log.d(TAG, "checking resource size for " + article.flavorImageUri);
 						checkImageAndLoad(article, holder, maxImageHeight);
 					}
 				}
@@ -1449,7 +1451,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			FlavorProgressTarget<Size> flavorProgressTarget = new FlavorProgressTarget<>(new SimpleTarget<Size>() {
 				@Override
 				public void onResourceReady(@NonNull Size resource, @Nullable com.bumptech.glide.request.transition.Transition<? super Size> transition) {
-					Log.d(TAG, "got resource of " + resource.getWidth() + "x" + resource.getHeight());
+
+					if (BuildConfig.DEBUG)
+						Log.d(TAG, "got resource of " + resource.getWidth() + "x" + resource.getHeight());
 
 					m_headlinesFragmentModel.getFlavorImageSizes().put(article.flavorImageUri, resource);
 

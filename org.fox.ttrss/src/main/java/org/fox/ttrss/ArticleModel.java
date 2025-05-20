@@ -228,7 +228,8 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         m_executor.execute(() -> {
             final JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
 
-            Log.d(TAG, "got result=" + result);
+            if (BuildConfig.DEBUG)
+                Log.d(TAG, "got result=" + result);
 
             if (result != null) {
                 try {

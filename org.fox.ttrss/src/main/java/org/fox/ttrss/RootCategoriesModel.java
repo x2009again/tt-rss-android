@@ -50,7 +50,8 @@ public class RootCategoriesModel extends FeedsModel {
 
                 final JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
 
-                Log.d(TAG, "got result=" + result);
+                if (BuildConfig.DEBUG)
+                    Log.d(TAG, "got result=" + result);
 
                 try {
                     JsonArray content = result.getAsJsonArray();
@@ -83,7 +84,8 @@ public class RootCategoriesModel extends FeedsModel {
 
             final JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
 
-            Log.d(TAG, "got result=" + result);
+            if (BuildConfig.DEBUG)
+                Log.d(TAG, "got result=" + result);
 
             boolean unreadOnly = m_prefs.getBoolean("show_unread_only", true);
 
