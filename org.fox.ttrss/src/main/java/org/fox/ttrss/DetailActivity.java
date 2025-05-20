@@ -90,11 +90,9 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						return true;
 					} else if (itemId == R.id.toggle_unread) {
 						Article articleClone = new Article(activeArticle);
-
 						articleClone.unread = !articleClone.unread;
-						saveArticleUnread(articleClone);
 
-						Application.getArticlesModel().update(articleClone);
+						saveArticleUnread(articleClone);
 					}
 				}
 

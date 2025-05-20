@@ -192,11 +192,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
             if (a.unread) {
 				Article articleClone = new Article(a);
-
                 articleClone.unread = false;
-                tmp.add(articleClone);
 
-				Application.getArticlesModel().update(articleClone);
+				tmp.add(articleClone);
             }
         }
 
@@ -404,14 +402,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						Log.d(TAG, "marking articles as read, count=" + m_readArticles.size());
 
 						m_activity.setArticlesUnread(m_readArticles, Article.UPDATE_SET_FALSE);
-
-						for (Article a : m_readArticles) {
-							Article articleClone = new Article(a);
-
-							articleClone.unread = false;
-
-							Application.getArticlesModel().update(articleClone);
-						}
 
 						m_readArticles.clear();
 
@@ -1512,48 +1502,49 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		private void openGalleryForType(final Article article, final ArticleViewHolder holder, final View transitionView) {
 			//Log.d(TAG, "openGalleryForType: " + article + " " + holder + " " + transitionView);
 
-			if ("iframe".equalsIgnoreCase(article.flavorImage.tagName())) {
-				m_activity.openUri(Uri.parse(article.flavorStreamUri));
-			} else {
+			if (article.flavorImage != null) {
+				if ("iframe".equalsIgnoreCase(article.flavorImage.tagName())) {
+					m_activity.openUri(Uri.parse(article.flavorStreamUri));
+				} else {
 
-				Intent intent = new Intent(m_activity, GalleryActivity.class);
+					Intent intent = new Intent(m_activity, GalleryActivity.class);
 
-				intent.putExtra("firstSrc", article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri);
-				intent.putExtra("title", article.title);
+					intent.putExtra("firstSrc", article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri);
+					intent.putExtra("title", article.title);
 
-				// FIXME maybe: gallery view works with document as html, it's easier to add this hack rather than
-				// rework it to additionally operate on separate attachment array (?)
-				// also, maybe consider video attachments? kinda hard to do without a poster tho (for flavor view)
+					// FIXME maybe: gallery view works with document as html, it's easier to add this hack rather than
+					// rework it to additionally operate on separate attachment array (?)
+					// also, maybe consider video attachments? kinda hard to do without a poster tho (for flavor view)
 
-				String tempContent = article.content;
+					String tempContent = article.content;
 
-				if (article.attachments != null) {
-					Document doc = new Document("");
+					if (article.attachments != null) {
+						Document doc = new Document("");
 
-					for (Attachment a : article.attachments) {
-						if (a.content_type != null) {
-							if (a.content_type.contains("image/")) {
-								Element img = new Element("img").attr("src", a.content_url);
-								doc.appendChild(img);
+						for (Attachment a : article.attachments) {
+							if (a.content_type != null) {
+								if (a.content_type.contains("image/")) {
+									Element img = new Element("img").attr("src", a.content_url);
+									doc.appendChild(img);
+								}
 							}
 						}
+
+						tempContent = doc.outerHtml() + tempContent;
 					}
 
-					tempContent = doc.outerHtml() + tempContent;
+					intent.putExtra("content", tempContent);
+
+					/* ActivityOptionsCompat options =
+							ActivityOptionsCompat.makeSceneTransitionAnimation(m_activity,
+									transitionView != null ? transitionView : holder.flavorImageView,
+									"gallery:" + (article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri));
+
+					ActivityCompat.startActivity(m_activity, intent, options.toBundle()); */
+
+					startActivity(intent);
 				}
-
-				intent.putExtra("content", tempContent);
-
-				/* ActivityOptionsCompat options =
-						ActivityOptionsCompat.makeSceneTransitionAnimation(m_activity,
-								transitionView != null ? transitionView : holder.flavorImageView,
-								"gallery:" + (article.flavorStreamUri != null ? article.flavorStreamUri : article.flavorImageUri));
-
-			 	ActivityCompat.startActivity(m_activity, intent, options.toBundle()); */
-
-				startActivity(intent);
 			}
-
 		}
 
 		private void adjustVideoKindView(final ArticleViewHolder holder, final Article article) {
