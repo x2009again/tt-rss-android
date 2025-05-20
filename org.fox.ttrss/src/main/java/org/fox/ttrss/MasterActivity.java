@@ -426,7 +426,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		}
 
 		if (open) {
-			Application.getArticlesModel().setActive(article);
+			Application.getArticlesModel().setActive(articleClone);
 
             if (m_prefs.getBoolean("always_open_uri", false)) {
 				openUri(Uri.parse(article.link));
