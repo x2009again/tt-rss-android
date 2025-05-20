@@ -58,6 +58,7 @@ public class Article implements Parcelable {
 	public String author;
 	public String note;
     public boolean selected;
+	public boolean active;
     public String flavor_image;
     public String flavor_stream;
     public int flavor_kind;

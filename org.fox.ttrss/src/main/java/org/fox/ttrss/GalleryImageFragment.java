@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
 
 import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;

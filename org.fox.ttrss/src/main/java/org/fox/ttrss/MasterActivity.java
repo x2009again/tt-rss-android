@@ -428,19 +428,16 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 		if (open) {
             HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
+			Application.getArticlesModel().setActive(article);
+
             if (m_prefs.getBoolean("always_open_uri", false)) {
-
-                if (hf != null) {
-					hf.setActiveArticleId(article.id);
-				}
-
 				openUri(Uri.parse(article.link));
 			} else if (hf != null) {
 
                 Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
-				intent.putExtra("feed", hf.getFeed());
+				intent.putExtra("feed", m_activeFeed);
 				intent.putExtra("searchQuery", hf.getSearchQuery());
-				intent.putExtra("openedArticleId", article.id);
+				//intent.putExtra("openedArticleId", article.id);
 
 				startActivityForResult(intent, HEADLINES_REQUEST);
 				overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

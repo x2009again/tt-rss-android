@@ -19,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 
 import java.lang.reflect.Type;

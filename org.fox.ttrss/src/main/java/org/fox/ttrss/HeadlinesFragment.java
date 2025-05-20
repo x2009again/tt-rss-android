@@ -87,7 +87,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
 public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
@@ -104,9 +103,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 	private Feed m_feed;
 
-	/** TODO this should be stored in model, either as an observable or a field - article.active or something */
-	@Deprecated
-	private int m_activeArticleId;
 	private String m_searchQuery = "";
 
 	private SharedPreferences m_prefs;
@@ -131,7 +127,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	public void initialize(Feed feed, int activeArticleId, boolean compactMode) {
 		m_feed = feed;
 		m_compactLayoutMode = compactMode;
-		m_activeArticleId = activeArticleId;
 	}
 
 	public boolean onArticleMenuItemSelected(MenuItem item, Article article, int position) {
@@ -267,7 +262,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (savedInstanceState != null) {
 			m_feed = savedInstanceState.getParcelable("m_feed");
-			m_activeArticleId = savedInstanceState.getInt("m_activeArticleId");
 			m_searchQuery = savedInstanceState.getString("m_searchQuery");
 			m_compactLayoutMode = savedInstanceState.getBoolean("m_compactLayoutMode");
 		}
@@ -282,7 +276,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		super.onSaveInstanceState(out);
 
 		out.putParcelable("m_feed", m_feed);
-		out.putInt("m_activeArticleId", m_activeArticleId);
 		out.putString("m_searchQuery", m_searchQuery);
 		out.putBoolean("m_compactLayoutMode", m_compactLayoutMode);
 	}
@@ -487,6 +480,15 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			m_listener.onHeadlinesLoadingProgress(progress);
 		});
 
+		// this gets notified if active article changes
+		model.getActive().observe(getActivity(), (activeArticleId) -> {
+			Log.d(TAG, "observed active article=" + activeArticleId);
+
+			if (activeArticleId > 0) {
+				scrollToArticleId(activeArticleId);
+			}
+		});
+
 		// this gets notified on network update
 		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
 			if (lastUpdate > 0) {
@@ -555,14 +557,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		syncToSharedArticles();
 
-		// we only set this in detail activity
-		if (m_activeArticleId > 0) {
-			Article activeArticle = Application.getArticles().getById(m_activeArticleId);
-
-			if (activeArticle != null)
-				scrollToArticle(activeArticle);
-		}
-
 		m_activity.invalidateOptionsMenu();
 	}
 
@@ -582,7 +576,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			return;
 
 		if (!append) {
-			setActiveArticleId(-1);
+			model.setActive(null);
 			model.setSelection(ArticleModel.ArticlesSelection.NONE);
 		}
 
@@ -792,9 +786,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					// only set active article when it makes sense (in DetailActivity)
 					if (getActivity() instanceof DetailActivity) {
-						m_activeArticleId = article.id;
-
-						m_adapter.notifyItemChanged(position);
+						Application.getArticlesModel().setActive(article);
 					}
 				}
 			});
@@ -1035,6 +1027,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					switch (payload) {
 						case UNREAD:
+						case ACTIVE:
 							updateUnreadView(article, holder);
 							break;
 						case MARKED:
@@ -1075,22 +1068,23 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		}
 
 		private void updateActiveView(final Article article, final ArticleViewHolder holder) {
-			if (article.id == m_activeArticleId) {
-				holder.view.setBackgroundColor(m_colorTertiaryContainer);
+			if (m_activity instanceof DetailActivity) {
+				if (article.active) {
+					holder.view.setBackgroundColor(m_colorTertiaryContainer);
 
-				if (holder.titleView != null) {
-					holder.titleView.setTextColor(m_colorOnTertiaryContainer);
+					if (holder.titleView != null) {
+						holder.titleView.setTextColor(m_colorOnTertiaryContainer);
+					}
+				}
+
+				if (holder.excerptView != null) {
+					holder.excerptView.setTextColor(article.active ? m_colorOnTertiaryContainer : m_colorOnSurface);
+				}
+
+				if (holder.feedTitleView != null) {
+					holder.feedTitleView.setTextColor(article.active ? m_colorOnTertiaryContainer : m_colorSecondary);
 				}
 			}
-
-			if (holder.excerptView != null) {
-				holder.excerptView.setTextColor(article.id == m_activeArticleId ? m_colorOnTertiaryContainer : m_colorOnSurface);
-			}
-
-			if (holder.feedTitleView != null) {
-				holder.feedTitleView.setTextColor(article.id == m_activeArticleId ? m_colorOnTertiaryContainer : m_colorSecondary);
-			}
-
 		}
 
 		@Override
@@ -1613,30 +1607,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		if (position != -1)
 			m_list.scrollToPosition(position);
-	}
-
-	public void setActiveArticleId(int articleId) {
-		if (m_list != null && articleId != m_activeArticleId) {
-
-			ArticleList articles = Application.getArticles();
-
-			int oldPosition = articles.getPositionById(m_activeArticleId);
-			int newPosition = articles.getPositionById(articleId);
-
-			m_activeArticleId = articleId;
-
-			if (oldPosition != -1)
-				m_adapter.notifyItemChanged(oldPosition);
-
-			if (newPosition != -1) {
-				m_adapter.notifyItemChanged(newPosition);
-
-				scrollToArticleId(articleId);
-
-				if (newPosition >= articles.size() - 5)
-					new Handler().postDelayed(() -> refresh(true), 0);
-			}
-		}
 	}
 
 	/** move to model? */

@@ -1,17 +1,16 @@
 package org.fox.ttrss.glide;
 
-import java.io.File;
-import java.io.IOException;
+import android.graphics.BitmapFactory;
+
+import androidx.annotation.NonNull;
 
 import com.bumptech.glide.load.Options;
 import com.bumptech.glide.load.ResourceDecoder;
 import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.load.resource.SimpleResource;
 
-import android.graphics.BitmapFactory;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
+import java.io.File;
+import java.io.IOException;
 
 class BitmapSizeDecoder implements ResourceDecoder<File, BitmapFactory.Options> {
     @Override

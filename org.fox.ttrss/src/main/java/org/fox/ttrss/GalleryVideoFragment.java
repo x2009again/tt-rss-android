@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.MediaController;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
 
 import java.io.IOException;

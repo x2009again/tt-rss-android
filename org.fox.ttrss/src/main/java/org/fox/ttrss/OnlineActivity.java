@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Point;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -197,7 +196,13 @@ public class OnlineActivity extends CommonActivity {
 		setSupportActionBar(toolbar);
 
 		m_headlinesActionModeCallback = new HeadlinesActionModeCallback();
-	}
+
+        ArticleModel model = Application.getArticlesModel();
+
+        model.getActive().observe(this, (articles) -> {
+            invalidateOptionsMenu();
+            });
+    }
 
 	public void login() {
 		login(false, null);
@@ -260,8 +265,6 @@ public class OnlineActivity extends CommonActivity {
 
 	@Override
 	public boolean onContextItemSelected(android.view.MenuItem item) {
-		final ArticlePager ap = (ArticlePager)getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-
         int itemId = item.getItemId();
         if (itemId == R.id.article_img_open) {
             if (getLastContentImageHitTestUrl() != null) {
@@ -290,27 +293,23 @@ public class OnlineActivity extends CommonActivity {
             return true;
         } else if (itemId == R.id.article_img_view_caption) {
             if (getLastContentImageHitTestUrl() != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+                Article selectedArticle = Application.getArticlesModel().getActiveArticle();
 
                 if (selectedArticle != null)
                     displayImageCaption(getLastContentImageHitTestUrl(), selectedArticle.content);
             }
             return true;
         } else if (itemId == R.id.article_link_share) {
-            if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+            Article selectedArticle = Application.getArticlesModel().getActiveArticle();
 
-                if (selectedArticle != null)
-                    shareArticle(selectedArticle);
-            }
+            if (selectedArticle != null)
+                shareArticle(selectedArticle);
             return true;
         } else if (itemId == R.id.article_link_copy) {
-            if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+            Article selectedArticle = Application.getArticlesModel().getActiveArticle();
 
-                if (selectedArticle != null)
-                    copyToClipboard(selectedArticle.link);
-            }
+            if (selectedArticle != null)
+                copyToClipboard(selectedArticle.link);
             return true;
         }
         Log.d(TAG, "onContextItemSelected, unhandled id=" + item.getItemId());
@@ -354,7 +353,10 @@ public class OnlineActivity extends CommonActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-		final ArticlePager ap = (ArticlePager)getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+
+        Article activeArticle = Application.getArticlesModel().getActiveArticle();
+
+        Log.d(TAG, "onOptionsItemSelected, active article=" + activeArticle);
 
         int itemId = item.getItemId();
         if (itemId == R.id.subscribe_to_feed) {
@@ -362,23 +364,15 @@ public class OnlineActivity extends CommonActivity {
 			startActivityForResult(subscribe, 0);
 			return true;
 		} else if (itemId ==  R.id.toggle_attachments) {
-            if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
-
-                if (selectedArticle != null)
-                    displayAttachments(selectedArticle);
-            }
+            if (activeArticle != null)
+                displayAttachments(activeArticle);
 			return true;
         } else if (itemId == R.id.login) {
             login();
             return true;
         } else if (itemId == R.id.article_edit_note) {
-            if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
-
-                if (selectedArticle != null)
-                    editArticleNote(selectedArticle);
-            }
+            if (activeArticle != null)
+                editArticleNote(activeArticle);
             return true;
         } else if (itemId == R.id.preferences) {
             Intent intent = new Intent(OnlineActivity.this,
@@ -413,7 +407,6 @@ public class OnlineActivity extends CommonActivity {
             return true;
         } else if (itemId == R.id.headlines_mark_as_read) {
             if (hf != null) {
-
                 Feed feed = hf.getFeed();
 
                 if (feed != null) {
@@ -549,50 +542,35 @@ public class OnlineActivity extends CommonActivity {
             dialog.show();
             return true;
 		} else if (itemId == R.id.share_article) {
-			if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+            if (activeArticle != null)
+                shareArticle(activeArticle);
 
-                if (selectedArticle != null)
-				    shareArticle(selectedArticle);
-			}
 			return true;
 		} else if (itemId == R.id.article_set_score) {
-			if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
-
-                if (selectedArticle != null) {
-                    setArticleScore(selectedArticle);
-                }
-			}
+            if (activeArticle != null) {
+                setArticleScore(activeArticle);
+            }
 			return true;
         } else if (itemId == R.id.toggle_marked) {
-            if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+            if (activeArticle != null) {
+                Article articleClone = new Article(activeArticle);
 
-                if (selectedArticle != null) {
-                    Article articleClone = new Article(selectedArticle);
+                articleClone.marked = !articleClone.marked;
 
-                    articleClone.marked = !articleClone.marked;
+                saveArticleMarked(activeArticle);
 
-                    saveArticleMarked(selectedArticle);
-
-                    Application.getArticlesModel().updateById(articleClone);
-                }
+                Application.getArticlesModel().updateById(articleClone);
             }
             return true;
         } else if (itemId == R.id.toggle_unread) {
-            if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+            if (activeArticle != null) {
+                Article articleClone = new Article(activeArticle);
 
-                if (selectedArticle != null) {
-                    Article articleClone = new Article(selectedArticle);
+                articleClone.unread = !articleClone.unread;
 
-                    articleClone.unread = !articleClone.unread;
+                saveArticleUnread(activeArticle);
 
-                    saveArticleUnread(selectedArticle);
-
-                    Application.getArticlesModel().updateById(articleClone);
-                }
+                Application.getArticlesModel().updateById(articleClone);
             }
             return true;
         } else if (itemId == R.id.selection_toggle_unread) {
@@ -644,80 +622,67 @@ public class OnlineActivity extends CommonActivity {
             }
             return true;
         } else if (itemId == R.id.toggle_published) {
-            if (ap != null && hf != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+            if (activeArticle != null) {
+                Article articleClone = new Article(activeArticle);
 
-                if (selectedArticle != null) {
-                    Article articleClone = new Article(selectedArticle);
+                articleClone.published = !articleClone.published;
+                saveArticlePublished(articleClone);
 
-                    articleClone.published = !articleClone.published;
-                    saveArticlePublished(articleClone);
-
-                    Application.getArticlesModel().updateById(articleClone);
-                }
+                Application.getArticlesModel().updateById(articleClone);
             }
             return true;
         } else if (itemId == R.id.catchup_above) {
-            if (hf != null) {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setMessage(R.string.confirm_catchup_above)
+                    .setPositiveButton(R.string.dialog_ok,
+                            (dialog, which) -> catchupAbove())
+                    .setNegativeButton(R.string.dialog_cancel,
+                            (dialog, which) -> {
 
-				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                        .setMessage(R.string.confirm_catchup_above)
-                        .setPositiveButton(R.string.dialog_ok,
-                                (dialog, which) -> catchupAbove(hf, ap))
-                        .setNegativeButton(R.string.dialog_cancel,
-                                (dialog, which) -> {
+                            });
 
-                                });
+            Dialog dialog = builder.create();
+            dialog.show();
 
-                Dialog dialog = builder.create();
-                dialog.show();
-
-            }
             return true;
         } else if (itemId == R.id.article_set_labels) {
-            if (ap != null) {
-                if (getApiLevel() != 7) {
-                    Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
-
-                    if (selectedArticle != null)
-                        editArticleLabels(selectedArticle);
-                } else {
-                    toast(R.string.server_function_not_available);
-                }
-
+            if (getApiLevel() != 7) {
+                if (activeArticle != null)
+                    editArticleLabels(activeArticle);
+            } else {
+                toast(R.string.server_function_not_available);
             }
+
             return true;
         }
         Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
         return super.onOptionsItemSelected(item);
     }
 
-	private void catchupAbove(HeadlinesFragment hf, ArticlePager ap) {
-		if (ap != null) {
-            int selectedArticleId = ap.getSelectedArticleId();
+	private void catchupAbove() {
+        Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
-            if (Application.getArticles().containsId(selectedArticleId)) {
-                ArticleList tmp = new ArticleList();
+        if (activeArticle != null) {
+            ArticleList tmp = new ArticleList();
 
-                for (Article a : Application.getArticles()) {
-                    if (a.id == selectedArticleId)
-                        break;
+            for (Article a : Application.getArticles()) {
+                if (a.id == activeArticle.id)
+                    break;
 
-                    Article articleClone = new Article(a);
+                Article articleClone = new Article(a);
 
-                    if (articleClone.unread) {
-                        articleClone.unread = false;
+                if (articleClone.unread) {
+                    articleClone.unread = false;
 
-                        tmp.add(articleClone);
+                    tmp.add(articleClone);
 
-                        Application.getArticlesModel().updateById(articleClone);
-                    }
+                    Application.getArticlesModel().updateById(articleClone);
                 }
+            }
 
-                if (!tmp.isEmpty()) {
-                    setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
-                    invalidateOptionsMenu();
-                }
+            if (!tmp.isEmpty()) {
+                setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
+                invalidateOptionsMenu();
             }
         }
 	}
@@ -1022,7 +987,7 @@ public class OnlineActivity extends CommonActivity {
 			return true;
 		case KeyEvent.KEYCODE_O:
             if (ap != null) {
-                Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+                Article selectedArticle = Application.getArticlesModel().getActiveArticle();
 
                 if (selectedArticle != null)
 				    openUri(Uri.parse(selectedArticle.link));
@@ -1033,7 +998,7 @@ public class OnlineActivity extends CommonActivity {
 			return true;
 		case KeyEvent.KEYCODE_U:
 			if (ap != null) {
-				Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
+				Article selectedArticle = Application.getArticlesModel().getActiveArticle();
 
                 if (selectedArticle != null) {
                     selectedArticle.unread = !selectedArticle.unread;
@@ -1182,38 +1147,35 @@ public class OnlineActivity extends CommonActivity {
 			MenuItem search = m_menu.findItem(R.id.search);
 			search.setEnabled(getApiLevel() >= 2);
 
-			ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+            Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
-			if (ap != null) {
-				Article article = Application.getArticles().getById(ap.getSelectedArticleId());
+            Log.d(TAG, "active article=" + activeArticle);
 
-				if (article != null) {
+            if (activeArticle != null) {
 
-					m_menu.findItem(R.id.toggle_marked).setIcon(article.marked ? R.drawable.baseline_star_24 :
-							R.drawable.baseline_star_outline_24);
+                m_menu.findItem(R.id.toggle_marked).setIcon(activeArticle.marked ? R.drawable.baseline_star_24 :
+                        R.drawable.baseline_star_outline_24);
 
-                    // TODO we probably shouldn't do this all the time
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && m_prefs.getBoolean("enable_icon_tinting", true)) {
-                        TypedValue tvTertiary = new TypedValue();
-                        getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
+                // TODO we probably shouldn't do this all the time
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && m_prefs.getBoolean("enable_icon_tinting", true)) {
+                    TypedValue tvTertiary = new TypedValue();
+                    getTheme().resolveAttribute(R.attr.colorTertiary, tvTertiary, true);
 
-                        ColorStateList colorStateTertiary = ColorStateList.valueOf(ContextCompat.getColor(this, tvTertiary.resourceId));
+                    ColorStateList colorStateTertiary = ColorStateList.valueOf(ContextCompat.getColor(this, tvTertiary.resourceId));
 
-                        TypedValue tvNormal = new TypedValue();
-                        getTheme().resolveAttribute(R.attr.colorControlNormal, tvNormal, true);
+                    TypedValue tvNormal = new TypedValue();
+                    getTheme().resolveAttribute(R.attr.colorControlNormal, tvNormal, true);
 
-                        ColorStateList colorStateNormal = ColorStateList.valueOf(ContextCompat.getColor(this, tvNormal.resourceId));
+                    ColorStateList colorStateNormal = ColorStateList.valueOf(ContextCompat.getColor(this, tvNormal.resourceId));
 
-                        m_menu.findItem(R.id.toggle_published).setIconTintList(article.published ? colorStateTertiary : colorStateNormal);
-                        m_menu.findItem(R.id.toggle_marked).setIconTintList(article.marked ? colorStateTertiary : colorStateNormal);
+                    m_menu.findItem(R.id.toggle_published).setIconTintList(activeArticle.published ? colorStateTertiary : colorStateNormal);
+                    m_menu.findItem(R.id.toggle_marked).setIconTintList(activeArticle.marked ? colorStateTertiary : colorStateNormal);
 
-                    } else {
-                        m_menu.findItem(R.id.toggle_published).setIcon(article.published ? R.drawable.rss_box :
-                                R.drawable.baseline_rss_feed_24);
-                    }
-
-				}
-			}
+                } else {
+                    m_menu.findItem(R.id.toggle_published).setIcon(activeArticle.published ? R.drawable.rss_box :
+                            R.drawable.baseline_rss_feed_24);
+                }
+            }
 		}
 	}
 	

@@ -26,7 +26,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	protected BottomAppBar m_bottomAppBar;
 
 	protected SharedPreferences m_prefs;
-    //private int m_activeArticleId;
 
     @SuppressLint("NewApi")
 	@Override
@@ -68,33 +67,29 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 
 		if (m_bottomAppBar != null) {
 			m_bottomAppBar.setOnMenuItemClickListener(item -> {
+                Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
-                final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-                final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-
-                Article article = Application.getArticles().getById(ap.getSelectedArticleId());
-
-				if (article != null) {
+				if (activeArticle != null) {
 					int itemId = item.getItemId();
 
 					if (itemId == R.id.article_set_labels) {
-						editArticleLabels(article);
+						editArticleLabels(activeArticle);
 
 						return true;
 					} else if (itemId == R.id.toggle_attachments) {
-						displayAttachments(article);
+						displayAttachments(activeArticle);
 
 						return true;
 					} else if (itemId == R.id.article_edit_note) {
-						editArticleNote(article);
+						editArticleNote(activeArticle);
 
 						return true;
 					} else if (itemId == R.id.article_set_score) {
-						setArticleScore(article);
+						setArticleScore(activeArticle);
 
 						return true;
 					} else if (itemId == R.id.toggle_unread) {
-						Article articleClone = new Article(article);
+						Article articleClone = new Article(activeArticle);
 
 						articleClone.unread = !articleClone.unread;
 						saveArticleUnread(articleClone);
@@ -114,13 +109,10 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 				fab.show();
 
 				fab.setOnClickListener(view -> {
-					ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-					if (ap != null) {
-						Article article = Application.getArticles().getById(ap.getSelectedArticleId());
+					Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
-						if (article != null)
-							openUri(Uri.parse(article.link));
-					}
+					if (activeArticle != null)
+						openUri(Uri.parse(activeArticle.link));
                 });
 			} else {
 				fab.hide();
@@ -188,25 +180,21 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			menu.findItem(R.id.article_set_labels).setEnabled(getApiLevel() >= 1);
 			menu.findItem(R.id.article_edit_note).setEnabled(getApiLevel() >= 1);
 
-			final ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+			Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
-			if (ap != null) {
-				Article selectedArticle = Application.getArticles().getById(ap.getSelectedArticleId());
-
-				if (selectedArticle != null) {
-					if (selectedArticle.score > 0) {
-						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_up_24);
-					} else if (selectedArticle.score < 0) {
-						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_down_24);
-					} else {
-						menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_flat_24);
-					}
-
-					menu.findItem(R.id.toggle_unread).setIcon(selectedArticle.unread ? R.drawable.baseline_email_24 :
-							R.drawable.baseline_drafts_24);
-
-					menu.findItem(R.id.toggle_attachments).setVisible(selectedArticle.attachments != null && !selectedArticle.attachments.isEmpty());
+			if (activeArticle != null) {
+				if (activeArticle.score > 0) {
+					menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_up_24);
+				} else if (activeArticle.score < 0) {
+					menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_down_24);
+				} else {
+					menu.findItem(R.id.article_set_score).setIcon(R.drawable.baseline_trending_flat_24);
 				}
+
+				menu.findItem(R.id.toggle_unread).setIcon(activeArticle.unread ? R.drawable.baseline_email_24 :
+						R.drawable.baseline_drafts_24);
+
+				menu.findItem(R.id.toggle_attachments).setVisible(activeArticle.attachments != null && !activeArticle.attachments.isEmpty());
 			}
 		}
 	}
@@ -278,9 +266,11 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			Application.getArticlesModel().updateById(articleClone);
 		}
 
+		Application.getArticlesModel().setActive(articleClone);
+
 		if (!getSupportActionBar().isShowing()) getSupportActionBar().show();
 
-		ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+		/* ArticlePager ap = (ArticlePager) DetailActivity.this.getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
 		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
 		if (open) {
@@ -291,7 +281,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 			if (hf != null) {
 				hf.setActiveArticleId(article.id);
 			}
-		}
+		} */
 
 		invalidateOptionsMenu();
 	}
@@ -316,11 +306,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 	@Override
 	public void onBackPressed() {
         Intent resultIntent = new Intent();
-
-		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-
-		if (ap != null)
-			resultIntent.putExtra("activeArticleId", ap.getSelectedArticleId());
 
         setResult(Activity.RESULT_OK, resultIntent);
 

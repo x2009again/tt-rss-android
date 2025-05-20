@@ -8,7 +8,7 @@ import org.fox.ttrss.types.Article;
 public class ArticleDiffItemCallback extends DiffUtil.ItemCallback<Article> {
     private final String TAG = this.getClass().getSimpleName();
 
-    public enum ChangePayload { UNREAD, MARKED, SELECTED, PUBLISHED, NOTE, SCORE };
+    public enum ChangePayload { UNREAD, MARKED, SELECTED, PUBLISHED, NOTE, ACTIVE, SCORE };
 
     @Override
     public boolean areItemsTheSame(@NonNull Article oldItem, @NonNull Article newItem) {
@@ -30,6 +30,8 @@ public class ArticleDiffItemCallback extends DiffUtil.ItemCallback<Article> {
             return ChangePayload.NOTE;
         else if (oldItem.score != newItem.score)
             return ChangePayload.SCORE;
+        else if (oldItem.active != newItem.active)
+            return ChangePayload.ACTIVE;
 
         return null;
     }
@@ -38,6 +40,6 @@ public class ArticleDiffItemCallback extends DiffUtil.ItemCallback<Article> {
     public boolean areContentsTheSame(@NonNull Article oldItem, @NonNull Article newItem) {
         return oldItem.id == newItem.id && oldItem.unread == newItem.unread && oldItem.marked == newItem.marked
                 && oldItem.selected == newItem.selected && oldItem.published == newItem.published
-                && oldItem.score == newItem.score && oldItem.note.equals(newItem.note);
+                && oldItem.score == newItem.score && oldItem.note.equals(newItem.note) && oldItem.active == newItem.active;
     }
 }

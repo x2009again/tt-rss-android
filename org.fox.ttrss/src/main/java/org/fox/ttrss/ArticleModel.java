@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private final String TAG = this.getClass().getSimpleName();
@@ -53,6 +52,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
     private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(Long.valueOf(0));
     private MutableLiveData<Integer> m_loadingProgress = new MutableLiveData<>(Integer.valueOf(0));
+    private MutableLiveData<Integer> m_activeArticleId = new MutableLiveData<>(Integer.valueOf(0));
 
     public ArticleModel(@NonNull Application application) {
         super(application);
@@ -86,6 +86,42 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     public void update(@NonNull ArticleList articles) {
         m_articles.postValue(articles);
     }
+
+    public LiveData<Integer> getActive() {
+        return m_activeArticleId;
+    }
+
+    public Article getActiveArticle() {
+        int activeId = m_activeArticleId.getValue();
+
+        return m_articles.getValue().getById(activeId);
+    }
+
+    // we store .active flag in articleview for UI update and a separate observable for easy access
+    public void setActive(Article article) {
+        Article currentlyActive = getActiveArticle();
+
+        Log.d(TAG, "setActive set=" + article + " previous=" + currentlyActive);
+
+        if (currentlyActive != null && (article == null || currentlyActive.id != article.id)) {
+            Article currentlyActiveClone = new Article(currentlyActive);
+            currentlyActiveClone.active = false;
+
+            updateById(currentlyActiveClone);
+        }
+
+        if (article != null) {
+            Article articleClone = new Article(article);
+
+            articleClone.active = true;
+            updateById(articleClone);
+
+            m_activeArticleId.postValue(articleClone.id);
+        } else {
+            m_activeArticleId.postValue(0);
+        }
+    }
+
 
     public void startLoading(boolean append, @NonNull Feed feed, int resizeWidth) {
         Log.d(TAG, "startLoading append=" + append + " feed id=" + feed.id + " cat=" + feed.is_cat + " lazyLoadEnabled=" + m_lazyLoadEnabled + " isLoading=" + m_isLoading.getValue());

@@ -1,8 +1,6 @@
 package org.fox.ttrss;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuInflater;
@@ -14,7 +12,6 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -23,20 +20,11 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.viewpager2.widget.ViewPager2;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.fox.ttrss.types.GalleryEntry;
 import org.fox.ttrss.util.DiffFragmentStateAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import me.relex.circleindicator.CircleIndicator2;
 import me.relex.circleindicator.CircleIndicator3;
 
 public class GalleryActivity extends CommonActivity {
