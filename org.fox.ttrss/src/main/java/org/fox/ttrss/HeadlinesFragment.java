@@ -768,11 +768,6 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					Article article = m_adapter.getItem(position);
 
 					m_listener.onArticleSelected(article);
-
-					// only set active article when it makes sense (in DetailActivity)
-					if (getActivity() instanceof DetailActivity) {
-						Application.getArticlesModel().setActive(article);
-					}
 				}
 			});
 

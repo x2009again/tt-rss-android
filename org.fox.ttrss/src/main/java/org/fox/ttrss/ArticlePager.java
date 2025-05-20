@@ -110,7 +110,8 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				// wtf
 				if (position != -1) {
 					Article article = Application.getArticles().get(position);
-					Application.getArticlesModel().setActive(article);
+
+					m_listener.onArticleSelected(article);
 				}
 			}
 		});
