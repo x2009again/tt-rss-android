@@ -69,7 +69,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             signingConfig signingConfigs.signed
             applicationIdSuffix ".branch"
-            resValue "string", "app_name", "Tiny Tiny RSS (branch)"
+            resValue "string", "app_name", "Tiny Tiny RSS (dev)"
             manifestPlaceholders = [
                 appIcon: "@mipmap/ic_launcher_variant"
             ]
