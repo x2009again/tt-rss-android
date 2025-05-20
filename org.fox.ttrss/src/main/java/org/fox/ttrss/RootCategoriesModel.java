@@ -66,8 +66,6 @@ public class RootCategoriesModel extends FeedsModel {
                         sortFeeds(feedsJson, m_feed, new SpecialOrderComparator());
 
                         feedsCombined.addAll(feedsJson);
-
-                        feedsCombined.add(new Feed(Feed.TYPE_DIVIDER));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -126,6 +124,9 @@ public class RootCategoriesModel extends FeedsModel {
                         feedsJson = feedsJson.stream()
                                 .filter(f -> f.id != Feed.CAT_SPECIAL)
                                 .collect(Collectors.toList());
+
+                        if (feedsJson.size() > 0)
+                            feedsCombined.add(new Feed(Feed.TYPE_DIVIDER));
 		            }
 
                     feedsCombined.addAll(feedsJson);
