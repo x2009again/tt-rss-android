@@ -472,7 +472,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 				return VIEW_DIVIDER;
 			} else if (feed.id == Feed.TYPE_TOGGLE_UNREAD) {
 				return VIEW_TOGGLE_UNREAD;
-			} else if (m_selectedFeed != null && feed.id == m_selectedFeed.id && feed.is_cat == m_selectedFeed.is_cat) {
+			} else if (feed.equals(m_selectedFeed)) {
 				return VIEW_SELECTED;
 			} else {
 				return VIEW_NORMAL;
