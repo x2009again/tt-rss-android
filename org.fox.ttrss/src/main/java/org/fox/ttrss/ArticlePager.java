@@ -86,11 +86,11 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 				m_adapter.submitList(articles);
 			});
 
-		model.getActive().observe(getActivity(), (activeArticleId) -> {
-			Log.d(TAG, "observed active article=" + activeArticleId);
+		model.getActive().observe(getActivity(), (activeArticle) -> {
+			Log.d(TAG, "observed active article=" + activeArticle);
 
-			if (activeArticleId != null) {
-				int position = model.getArticles().getValue().getPositionById(activeArticleId);
+			if (activeArticle != null) {
+				int position = model.getArticles().getValue().indexOf(activeArticle);
 
 				if (position != -1 && position != m_pager.getCurrentItem())
 					m_pager.setCurrentItem(position, false);

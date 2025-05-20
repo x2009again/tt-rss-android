@@ -94,7 +94,7 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
 						articleClone.unread = !articleClone.unread;
 						saveArticleUnread(articleClone);
 
-						Application.getArticlesModel().updateById(articleClone);
+						Application.getArticlesModel().update(articleClone);
 					}
 				}
 

@@ -478,12 +478,11 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
 			if (hf != null) {
-				// data might be null if detailactivity crashed
-				if (data != null) {
-					int activeArticleId = data.getIntExtra("activeArticleId", 0);
+				Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
-					Log.d(TAG, "got back from detail activity, scrolling to id=" + activeArticleId);
-					hf.scrollToArticleId(activeArticleId);
+				if (activeArticle != null) {
+					Log.d(TAG, "got back from detail activity, scrolling to active article=" + activeArticle);
+					hf.scrollToArticle(activeArticle);
 				}
 			}
 		}

@@ -50,23 +50,6 @@ public class ArticleList extends CopyOnWriteArrayList<Article> {
 		return getSelected().size();
 	}
 
-	public int getPositionById(int id) {
-		for (int i = 0; i < size(); i++) {
-			if (get(i).id == id) {
-				return i;
-			}
-		}
-
-		return -1;
-	}
-
-	public Article getById(int id) {
-		for (Article a : this) {
-			if (a.id == id)
-				return a;
-		}
-		return null;
-	}
 	public String getAsCommaSeparatedIds() {
 		return this.stream().map(a -> String.valueOf(a.id))
 				.collect(Collectors.joining(","));

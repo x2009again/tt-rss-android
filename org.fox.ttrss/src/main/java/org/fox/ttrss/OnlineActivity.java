@@ -637,7 +637,7 @@ public class OnlineActivity extends CommonActivity {
 
                     tmp.add(articleClone);
 
-                    Application.getArticlesModel().updateById(articleClone);
+                    Application.getArticlesModel().update(articleClone);
                 }
             }
 
@@ -1023,7 +1023,7 @@ public class OnlineActivity extends CommonActivity {
                         if (BuildConfig.DEBUG)
                             Log.d(TAG, "updating article: " + articleClone);
 
-                        model.updateById(articleClone);
+                        model.update(articleClone);
                     }
 
                     invalidateOptionsMenu();

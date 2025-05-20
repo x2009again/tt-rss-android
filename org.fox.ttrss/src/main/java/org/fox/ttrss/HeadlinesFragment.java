@@ -196,7 +196,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 articleClone.unread = false;
                 tmp.add(articleClone);
 
-				Application.getArticlesModel().updateById(articleClone);
+				Application.getArticlesModel().update(articleClone);
             }
         }
 
@@ -410,7 +410,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 							articleClone.unread = false;
 
-							Application.getArticlesModel().updateById(articleClone);
+							Application.getArticlesModel().update(articleClone);
 						}
 
 						m_readArticles.clear();
@@ -477,11 +477,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		});
 
 		// this gets notified if active article changes
-		model.getActive().observe(getActivity(), (activeArticleId) -> {
-			Log.d(TAG, "observed active article=" + activeArticleId);
+		model.getActive().observe(getActivity(), (activeArticle) -> {
+			Log.d(TAG, "observed active article=" + activeArticle);
 
-			if (activeArticleId > 0) {
-				scrollToArticleId(activeArticleId);
+			if (activeArticle != null) {
+				scrollToArticle(activeArticle);
 			}
 		});
 
@@ -912,7 +912,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 						article.selected = cb.isChecked();
 
-						Application.getArticlesModel().updateById(article);
+						Application.getArticlesModel().update(article);
 					}
 				});
 			}
@@ -938,7 +938,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 						Article article = new Article(getItem(position));
 						article.selected = !article.selected;
 
-						Application.getArticlesModel().updateById(article);
+						Application.getArticlesModel().update(article);
 					}
 				});
 
@@ -1592,15 +1592,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	public void scrollToArticle(Article article) {
-		scrollToArticleId(article.id);
-	}
-
-	public void scrollToArticleId(int id) {
-		int position = Application.getArticles().getPositionById(id);
+		int position = Application.getArticles().indexOf(article);
 
 		if (position != -1)
 			m_list.scrollToPosition(position);
 	}
+
 
 	public Feed getFeed() {
 		return m_feed;

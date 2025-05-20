@@ -52,7 +52,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     private Handler m_mainHandler = new Handler(Looper.getMainLooper());
     private MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(Long.valueOf(0));
     private MutableLiveData<Integer> m_loadingProgress = new MutableLiveData<>(Integer.valueOf(0));
-    private MutableLiveData<Integer> m_activeArticleId = new MutableLiveData<>(Integer.valueOf(0));
+    private MutableLiveData<Article> m_activeArticle = new MutableLiveData<>(null);
 
     public ArticleModel(@NonNull Application application) {
         super(application);
@@ -71,8 +71,8 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         return m_articles;
     }
 
-    public void updateById(@NonNull Article article) {
-        int position = m_articles.getValue().getPositionById(article.id);
+    public void update(@NonNull Article article) {
+        int position = m_articles.getValue().indexOf(article);
 
         if (position != -1)
             update(position, article);
@@ -87,14 +87,12 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         m_articles.postValue(articles);
     }
 
-    public LiveData<Integer> getActive() {
-        return m_activeArticleId;
+    public LiveData<Article> getActive() {
+        return m_activeArticle;
     }
 
     public Article getActiveArticle() {
-        int activeId = m_activeArticleId.getValue();
-
-        return m_articles.getValue().getById(activeId);
+        return m_activeArticle.getValue();
     }
 
     // we store .active flag in articleview for UI update and a separate observable for easy access
@@ -107,18 +105,18 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             Article currentlyActiveClone = new Article(currentlyActive);
             currentlyActiveClone.active = false;
 
-            updateById(currentlyActiveClone);
+            update(currentlyActiveClone);
         }
 
         if (article != null) {
             Article articleClone = new Article(article);
 
             articleClone.active = true;
-            updateById(articleClone);
+            update(articleClone);
 
-            m_activeArticleId.postValue(articleClone.id);
+            m_activeArticle.postValue(articleClone);
         } else {
-            m_activeArticleId.postValue(0);
+            m_activeArticle.postValue(null);
         }
     }
 
