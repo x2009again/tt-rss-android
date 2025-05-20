@@ -125,7 +125,7 @@ public class RootCategoriesModel extends FeedsModel {
                                 .filter(f -> f.id != Feed.CAT_SPECIAL)
                                 .collect(Collectors.toList());
 
-                        if (feedsJson.size() > 0)
+                        if (!feedsJson.isEmpty())
                             feedsCombined.add(new Feed(Feed.TYPE_DIVIDER));
 		            }
 
