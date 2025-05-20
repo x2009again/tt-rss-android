@@ -128,6 +128,9 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
                     m_feeds.postValue(feedsJson);
                 }
             } catch (Exception e) {
+                setLastError(ApiCommon.ApiError.OTHER_ERROR);
+                setLastErrorMessage(e.getMessage());
+
                 e.printStackTrace();
             }
 

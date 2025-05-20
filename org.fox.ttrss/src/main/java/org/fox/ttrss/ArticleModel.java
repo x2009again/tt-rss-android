@@ -173,7 +173,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     private void loadInBackground() {
         Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset + " lazyLoadEnabled=" + m_lazyLoadEnabled);
 
-        ArticleList articlesWork = new ArticleList(m_articles.getValue());
+        final ArticleList articlesWork = new ArticleList(m_articles.getValue());
 
         m_isLoading.postValue(true);
 
@@ -226,13 +226,14 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         Log.d(TAG, "firstId=" + m_firstId + " append=" + m_append + " skip=" + skip + " localSize=" + articlesWork.size());
 
         m_executor.execute(() -> {
-            JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
+            final JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
 
             Log.d(TAG, "got result=" + result);
 
             if (result != null) {
                 try {
-                    JsonArray content = result.getAsJsonArray();
+                    final JsonArray content = result.getAsJsonArray();
+
                     if (content != null) {
                         final List<Article> articlesJson;
                         final JsonObject header;
@@ -285,6 +286,9 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
                         Log.d(TAG, this + " loaded headlines=" + m_amountLoaded + " resultingLocalSize=" + articlesWork.size());
                     }
                 } catch (Exception e) {
+                    setLastError(ApiCommon.ApiError.OTHER_ERROR);
+                    setLastErrorMessage(e.getMessage());
+
                     e.printStackTrace();
                 }
 
@@ -293,7 +297,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             m_mainHandler.post(() -> {
                 m_articles.setValue(articlesWork);
                 m_lastUpdate.setValue(System.currentTimeMillis());
-                m_isLoading.postValue(false);
+                m_isLoading.setValue(false);
             });
         });
     }
