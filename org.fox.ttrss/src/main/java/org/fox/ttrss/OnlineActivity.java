@@ -1048,6 +1048,13 @@ public class OnlineActivity extends CommonActivity {
         map.put("op", "updateArticle");
         map.put("article_ids", articles.getAsCommaSeparatedIds());
         map.put("mode", String.valueOf(mode));
+
+        if (field == Article.UPDATE_FIELD_NOTE)
+            map.put("data", articles.get(0).note);
+
+        if (field == Article.UPDATE_FIELD_SCORE)
+            map.put("data", String.valueOf(articles.get(0).score));
+
         map.put("field", String.valueOf(field));
 
         req.execute(map);
