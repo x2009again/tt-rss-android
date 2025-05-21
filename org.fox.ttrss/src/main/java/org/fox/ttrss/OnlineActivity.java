@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuppressLint("StaticFieldLeak")
 public class OnlineActivity extends CommonActivity {
@@ -1046,7 +1047,9 @@ public class OnlineActivity extends CommonActivity {
         HashMap<String, String> map = new HashMap<>();
         map.put("sid", getSessionId());
         map.put("op", "updateArticle");
-        map.put("article_ids", articles.getAsCommaSeparatedIds());
+        map.put("article_ids", articles.stream()
+                .map(a -> String.valueOf(a.id))
+                .collect(Collectors.joining(",")));
         map.put("mode", String.valueOf(mode));
 
         if (field == Article.UPDATE_FIELD_NOTE)

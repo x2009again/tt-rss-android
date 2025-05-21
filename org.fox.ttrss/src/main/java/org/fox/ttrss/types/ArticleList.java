@@ -50,8 +50,4 @@ public class ArticleList extends CopyOnWriteArrayList<Article> {
 		return getSelected().size();
 	}
 
-	public String getAsCommaSeparatedIds() {
-		return this.stream().map(a -> String.valueOf(a.id))
-				.collect(Collectors.joining(","));
-	}
 }
