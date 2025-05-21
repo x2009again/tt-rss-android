@@ -104,7 +104,7 @@ public class Application extends android.app.Application {
 		if (!BuildConfig.DEBUG)
 			ACRA.init(this, new CoreConfigurationBuilder()
 					.withBuildConfigClass(BuildConfig.class)
-					.withReportFormat(StringFormat.JSON)
+					.withReportFormat(StringFormat.KEY_VALUE_LIST)
 					.withPluginConfigurations(
 							new DialogConfigurationBuilder()
 									.withText(getString(R.string.crash_dialog_text_email))
