@@ -80,8 +80,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
 		m_drawerLayout = findViewById(R.id.headlines_drawer);
 
-		Log.d(TAG, "LPP="+ m_loadingProgress + " DR=" + m_drawerLayout);
-
 		if (m_drawerLayout != null) {
 
 			m_drawerToggle = new ActionBarDrawerToggle(this, m_drawerLayout, R.string.blank, R.string.blank) {
