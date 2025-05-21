@@ -58,12 +58,14 @@ android {
 
         release {
             minifyEnabled  false
-            versionNameSuffix "-release-unsigned"
+            debuggable false
+            versionNameSuffix "-unsigned"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
 
         signed {
             minifyEnabled  false
+            debuggable false
             versionNameSuffix "-signed"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             signingConfig signingConfigs.signed
@@ -71,6 +73,7 @@ android {
 
         branch {
             minifyEnabled  false
+            debuggable false
             versionNameSuffix "-signed-branch"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             signingConfig signingConfigs.signed
