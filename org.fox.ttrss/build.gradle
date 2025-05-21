@@ -32,10 +32,6 @@ android {
         }
     }
 
-    applicationVariants.all {
-        def lintTask = tasks["lint"]
-        assembleProvider.get().dependsOn.add(lintTask)
-    }
 
     lintOptions {
         abortOnError true
