@@ -87,7 +87,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         }
     }
 
-	@SuppressLint("NewApi")
+	@SuppressLint({"NewApi", "SimpleDateFormat"})
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
 

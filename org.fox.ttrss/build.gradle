@@ -32,10 +32,16 @@ android {
         }
     }
 
+    applicationVariants.all {
+        def lintTask = tasks["lint"]
+        assembleProvider.get().dependsOn.add(lintTask)
+    }
+
     lintOptions {
-        abortOnError false
+        abortOnError true
         checkReleaseBuilds false
-        disable 'MissingTranslation'
+        disable 'MissingTranslation', 'ExtraTranslation', 'MissingQuantity', 'ImpliedQuantity'
+        enable 'SuspiciousIndentation'
     }
 
     buildTypes {

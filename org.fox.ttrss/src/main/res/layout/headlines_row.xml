@@ -215,7 +215,6 @@
                     android:gravity="center_vertical"
                     android:singleLine="true"
                     tools:text="by Author"
-                    android:textAlignment="viewStart"
                     android:textColor="?colorSecondary"
                     android:textSize="12sp"
                     android:textStyle="italic" />
