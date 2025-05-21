@@ -299,10 +299,6 @@ public class Article implements Parcelable {
 		site_url = in.readString();
 	}
 
-	public boolean equalsById(Article article) {
-        return article != null && id == article.id;
-	}
-
 	@SuppressWarnings("rawtypes")
 	public static final Parcelable.Creator CREATOR =
     	new Parcelable.Creator() {
