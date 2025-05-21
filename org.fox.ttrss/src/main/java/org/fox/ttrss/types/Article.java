@@ -226,6 +226,7 @@ public class Article implements Parcelable {
 		flavor_stream = clone.flavor_stream;
 		flavor_kind = clone.flavor_kind;
 		site_url = clone.site_url;
+		active = clone.active;
 
 		articleDoc = clone.articleDoc;
 		flavorImage = clone.flavorImage;
