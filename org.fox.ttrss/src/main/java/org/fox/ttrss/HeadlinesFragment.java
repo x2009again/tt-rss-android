@@ -816,7 +816,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 				});
 
 				holder.flavorImageView.setOnLongClickListener(view -> {
-					m_list.showContextMenuForChild(view);
+					m_list.showContextMenuForChild(holder.view);
 					return true;
 				});
 			}
