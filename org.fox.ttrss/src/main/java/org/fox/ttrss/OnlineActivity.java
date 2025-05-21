@@ -58,6 +58,8 @@ public class OnlineActivity extends CommonActivity {
     protected SharedPreferences m_prefs;
     protected Menu m_menu;
 
+    private Feed m_activeFeed;
+
     private ActionMode m_headlinesActionMode;
     private HeadlinesActionModeCallback m_headlinesActionModeCallback;
 
@@ -199,10 +201,13 @@ public class OnlineActivity extends CommonActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (savedInstanceState != null) {
+            m_activeFeed = savedInstanceState.getParcelable("m_activeFeed");
+        }
+
         m_headlinesActionModeCallback = new HeadlinesActionModeCallback();
 
         ArticleModel model = Application.getArticlesModel();
-
         model.getActive().observe(this, (articles) -> {
             invalidateOptionsMenu();
         });
@@ -759,6 +764,10 @@ public class OnlineActivity extends CommonActivity {
         } else {
             loginSuccess(false);
         }
+
+        if (m_activeFeed != null)
+            setTitle(m_activeFeed.title);
+
     }
 
     public Menu getMenu() {
@@ -1339,5 +1348,31 @@ public class OnlineActivity extends CommonActivity {
                 m_headlinesActionMode.finish();
             }
         }));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putParcelable("m_activeFeed", m_activeFeed);
+
+        Application.getInstance().save(out);
+    }
+
+
+    public Feed getActiveFeed() {
+        return m_activeFeed;
+    }
+
+    public void setActiveFeed(Feed feed) {
+        m_activeFeed = feed;
+
+        setTitle(feed.title);
+
+        FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
+
+        if (ff != null) {
+            ff.setSelectedFeed(feed);
+        }
     }
 }

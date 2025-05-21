@@ -137,26 +137,24 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
                     tmpFeed = i.getParcelableExtra("feed");
                 }
 
-                final Feed feed = tmpFeed;
+                final Feed activeFeed = tmpFeed;
                 final int openedArticleId = i.getIntExtra("openedArticleId", 0);
                 final String searchQuery = i.getStringExtra("searchQuery");
+
+                setActiveFeed(activeFeed);
 
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
                 HeadlinesFragment hf = new HeadlinesFragment();
-                hf.initialize(feed, true);
+                hf.initialize(activeFeed, true);
 
                 ft.replace(R.id.headlines_fragment, hf, FRAG_HEADLINES);
 
                 ArticlePager ap = new ArticlePager();
-                ap.initialize(openedArticleId, feed);
+                ap.initialize(openedArticleId, activeFeed);
 
                 ft.replace(R.id.article_fragment, ap, FRAG_ARTICLE);
-
                 ft.commit();
-
-                if (feed != null)
-                    setTitle(feed.title);
 
                 initBottomBarMenu();
             }
@@ -220,11 +218,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
         }
         Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override

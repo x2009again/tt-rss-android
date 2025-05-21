@@ -42,8 +42,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
     protected long m_lastRefresh = 0;
     protected long m_lastWidgetRefresh = 0;
 
-    protected Feed m_activeFeed;
-
     private ActionBarDrawerToggle m_drawerToggle;
     private DrawerLayout m_drawerLayout;
 
@@ -199,9 +197,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
         } else { // savedInstanceState != null
 
-            m_activeFeed = savedInstanceState.getParcelable("m_activeFeed");
-
-            if (m_drawerLayout != null && m_activeFeed == null) {
+            if (m_drawerLayout != null && getActiveFeed() == null) {
                 m_drawerLayout.openDrawer(GravityCompat.START);
             }
         }
@@ -374,7 +370,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
     @Override
     public void onBackPressed() {
         if (m_drawerLayout != null && !m_drawerLayout.isDrawerOpen(GravityCompat.START) &&
-                (getSupportFragmentManager().getBackStackEntryCount() > 0 || m_activeFeed != null)) {
+                (getSupportFragmentManager().getBackStackEntryCount() > 0 || getActiveFeed() != null)) {
 
             m_drawerLayout.openDrawer(GravityCompat.START);
         } else {
@@ -395,19 +391,10 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
     }
 
     @Override
-    public void onSaveInstanceState(Bundle out) {
-        super.onSaveInstanceState(out);
-
-        out.putParcelable("m_activeFeed", m_activeFeed);
-
-        Application.getInstance().save(out);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
-        invalidateOptionsMenu();
 
+        invalidateOptionsMenu();
     }
 
     public void onArticleSelected(Article article) {
@@ -424,7 +411,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
             openUri(Uri.parse(article.link));
         } else {
             Intent intent = new Intent(MasterActivity.this, DetailActivity.class);
-            intent.putExtra("feed", m_activeFeed);
+            intent.putExtra("feed", getActiveFeed());
 
             startActivityForResult(intent, HEADLINES_REQUEST);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -491,22 +478,4 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         req.execute(map);
 
     }
-
-    public Feed getActiveFeed() {
-        return m_activeFeed;
-    }
-
-    public void setActiveFeed(Feed feed) {
-        m_activeFeed = feed;
-
-        setTitle(feed.title);
-
-        FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
-
-        if (ff != null) {
-            ff.setSelectedFeed(feed);
-        }
-
-    }
-
 }
