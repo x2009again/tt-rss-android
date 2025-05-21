@@ -15,120 +15,120 @@ import org.fox.ttrss.R;
 import java.util.HashMap;
 
 public class ShareActivity extends CommonShareActivity {
-	private final String TAG = this.getClass().getSimpleName();
-	
-	private Button m_button;
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private final String TAG = this.getClass().getSimpleName();
 
-		requestWindowFeature(Window.FEATURE_LEFT_ICON);
-		
-		Intent intent = getIntent();
+    private Button m_button;
 
-		String urlValue = intent.getStringExtra(Intent.EXTRA_TEXT);
-		String titleValue = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-		String contentValue = "";
-		
-		if (savedInstanceState != null) {
-			urlValue = savedInstanceState.getString("url");
-			titleValue = savedInstanceState.getString("title");
-			contentValue = savedInstanceState.getString("content");
-		}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_share);
+        requestWindowFeature(Window.FEATURE_LEFT_ICON);
 
-		setSmallScreen(false); 
-		
-		EditText url = (EditText) findViewById(R.id.url);
-		url.setText(urlValue);
-		
-		EditText title = (EditText) findViewById(R.id.title);
-		title.setText(titleValue);
+        Intent intent = getIntent();
 
-		EditText content = (EditText) findViewById(R.id.content);
-		content.setText(contentValue);
+        String urlValue = intent.getStringExtra(Intent.EXTRA_TEXT);
+        String titleValue = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+        String contentValue = "";
 
-		m_button = (Button) findViewById(R.id.share_button);
-		
-		m_button.setOnClickListener(v -> login(0));
-	}
+        if (savedInstanceState != null) {
+            urlValue = savedInstanceState.getString("url");
+            titleValue = savedInstanceState.getString("title");
+            contentValue = savedInstanceState.getString("content");
+        }
 
-	@Override
-	public void onSaveInstanceState(Bundle out) {
-		super.onSaveInstanceState(out);
+        setContentView(R.layout.activity_share);
 
-		EditText url = (EditText) findViewById(R.id.url);
+        setSmallScreen(false);
 
-		if (url != null) {
-			out.putString("url", url.getText().toString());
-		}
-		
-		EditText title = (EditText) findViewById(R.id.title);
+        EditText url = (EditText) findViewById(R.id.url);
+        url.setText(urlValue);
 
-		if (title != null) {
-			out.putString("title", title.getText().toString());
-		}
+        EditText title = (EditText) findViewById(R.id.title);
+        title.setText(titleValue);
 
-		EditText content = (EditText) findViewById(R.id.content);
-		
-		if (content != null) {
-			out.putString("content", content.getText().toString());
-		}
+        EditText content = (EditText) findViewById(R.id.content);
+        content.setText(contentValue);
 
-	}
-	
-	private void postData() {
-		m_button.setEnabled(false);
-		
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			protected void onPostExecute(JsonElement result) {
-				setProgressBarIndeterminateVisibility(false);
+        m_button = (Button) findViewById(R.id.share_button);
 
-				if (m_lastError != ApiCommon.ApiError.UNKNOWN_ERROR) {
-					toast(getErrorMessage());
-				} else {
-					toast(R.string.share_article_posted);
-					finish();
-				}
-				
-				m_button.setEnabled(true);
-			}
-		};
-		
-		final EditText url = (EditText) findViewById(R.id.url);
-		final EditText title = (EditText) findViewById(R.id.title);
-		final EditText content = (EditText) findViewById(R.id.content);			
+        m_button.setOnClickListener(v -> login(0));
+    }
 
-		if (url != null && title != null && content != null) {
-			HashMap<String, String> map = new HashMap<>();
-			map.put("sid", m_sessionId);
-			map.put("op", "shareToPublished");
-			map.put("title", title.getText().toString());
-			map.put("url", url.getText().toString());
-			map.put("content", content.getText().toString());
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
 
-			setProgressBarIndeterminateVisibility(true);
+        EditText url = (EditText) findViewById(R.id.url);
 
-			req.execute(map);
-		}
-	}
-	
-	
-	@Override
-	public void onLoggingIn(int requestId) {
-		m_button.setEnabled(false);
-	}
+        if (url != null) {
+            out.putString("url", url.getText().toString());
+        }
 
-	@Override
-	protected void onLoggedIn(int requestId) {
-		m_button.setEnabled(true);
-		
-		if (m_apiLevel < 4) {
-			toast(R.string.api_too_low);									
-		} else {
-			postData();									
-		}
-	}
+        EditText title = (EditText) findViewById(R.id.title);
+
+        if (title != null) {
+            out.putString("title", title.getText().toString());
+        }
+
+        EditText content = (EditText) findViewById(R.id.content);
+
+        if (content != null) {
+            out.putString("content", content.getText().toString());
+        }
+
+    }
+
+    private void postData() {
+        m_button.setEnabled(false);
+
+        ApiRequest req = new ApiRequest(getApplicationContext()) {
+            protected void onPostExecute(JsonElement result) {
+                setProgressBarIndeterminateVisibility(false);
+
+                if (m_lastError != ApiCommon.ApiError.UNKNOWN_ERROR) {
+                    toast(getErrorMessage());
+                } else {
+                    toast(R.string.share_article_posted);
+                    finish();
+                }
+
+                m_button.setEnabled(true);
+            }
+        };
+
+        final EditText url = (EditText) findViewById(R.id.url);
+        final EditText title = (EditText) findViewById(R.id.title);
+        final EditText content = (EditText) findViewById(R.id.content);
+
+        if (url != null && title != null && content != null) {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("sid", m_sessionId);
+            map.put("op", "shareToPublished");
+            map.put("title", title.getText().toString());
+            map.put("url", url.getText().toString());
+            map.put("content", content.getText().toString());
+
+            setProgressBarIndeterminateVisibility(true);
+
+            req.execute(map);
+        }
+    }
+
+
+    @Override
+    public void onLoggingIn(int requestId) {
+        m_button.setEnabled(false);
+    }
+
+    @Override
+    protected void onLoggedIn(int requestId) {
+        m_button.setEnabled(true);
+
+        if (m_apiLevel < 4) {
+            toast(R.string.api_too_low);
+        } else {
+            postData();
+        }
+    }
 }

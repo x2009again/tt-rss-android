@@ -53,74 +53,74 @@ import java.util.stream.Collectors;
 
 @SuppressLint("StaticFieldLeak")
 public class OnlineActivity extends CommonActivity {
-	private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
-	protected SharedPreferences m_prefs;
-	protected Menu m_menu;
+    protected SharedPreferences m_prefs;
+    protected Menu m_menu;
 
-	private ActionMode m_headlinesActionMode;
-	private HeadlinesActionModeCallback m_headlinesActionModeCallback;
+    private ActionMode m_headlinesActionMode;
+    private HeadlinesActionModeCallback m_headlinesActionModeCallback;
 
-	private String m_lastImageHitTestUrl;
+    private String m_lastImageHitTestUrl;
     protected LinearProgressIndicator m_loadingProgress;
 
-	public void catchupDialog(final Feed feed) {
+    public void catchupDialog(final Feed feed) {
 
-		if (getApiLevel() >= 15) {
+        if (getApiLevel() >= 15) {
 
-			int selectedIndex = 0;
+            int selectedIndex = 0;
 
-			final String searchQuery = Application.getArticlesModel().getSearchQuery();
+            final String searchQuery = Application.getArticlesModel().getSearchQuery();
 
-			int titleStringId = !searchQuery.isEmpty() ? R.string.catchup_dialog_title_search : R.string.catchup_dialog_title;
+            int titleStringId = !searchQuery.isEmpty() ? R.string.catchup_dialog_title_search : R.string.catchup_dialog_title;
 
-			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-					.setTitle(getString(titleStringId, feed.title))
-					.setSingleChoiceItems(
-							new String[] {
-									getString(R.string.catchup_dialog_all_articles),
-									getString(R.string.catchup_dialog_1day),
-									getString(R.string.catchup_dialog_1week),
-									getString(R.string.catchup_dialog_2week)
-							},
-							selectedIndex, (dialog, which) -> {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setTitle(getString(titleStringId, feed.title))
+                    .setSingleChoiceItems(
+                            new String[]{
+                                    getString(R.string.catchup_dialog_all_articles),
+                                    getString(R.string.catchup_dialog_1day),
+                                    getString(R.string.catchup_dialog_1week),
+                                    getString(R.string.catchup_dialog_2week)
+                            },
+                            selectedIndex, (dialog, which) -> {
                             })
-					.setPositiveButton(R.string.catchup,
+                    .setPositiveButton(R.string.catchup,
                             (dialog, which) -> {
 
-                                ListView list = ((AlertDialog)dialog).getListView();
+                                ListView list = ((AlertDialog) dialog).getListView();
 
                                 if (list.getCheckedItemCount() > 0) {
                                     int position = list.getCheckedItemPosition();
 
-                                    String[] catchupModes = { "all", "1day", "1week", "2week" };
+                                    String[] catchupModes = {"all", "1day", "1week", "2week"};
                                     String mode = catchupModes[position];
 
                                     catchupFeed(feed, mode, true, searchQuery);
                                 }
                             })
-					.setNegativeButton(R.string.dialog_cancel,
+                    .setNegativeButton(R.string.dialog_cancel,
                             (dialog, which) -> {
 
                             });
 
-			Dialog dialog = builder.create();
-			dialog.show();
+            Dialog dialog = builder.create();
+            dialog.show();
 
-		} else {
-			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-					.setMessage(getString(R.string.catchup_dialog_title, feed.title))
-					.setPositiveButton(R.string.catchup,
+        } else {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setMessage(getString(R.string.catchup_dialog_title, feed.title))
+                    .setPositiveButton(R.string.catchup,
                             (dialog, which) -> catchupFeed(feed, "all", true, ""))
-					.setNegativeButton(R.string.dialog_cancel,
+                    .setNegativeButton(R.string.dialog_cancel,
                             (dialog, which) -> {
 
                             });
 
-			Dialog dialog = builder.create();
-			dialog.show();
-		}
-	}
+            Dialog dialog = builder.create();
+            dialog.show();
+        }
+    }
 
     public void confirmCatchupAbove(final Article article) {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
@@ -128,7 +128,8 @@ public class OnlineActivity extends CommonActivity {
                 .setPositiveButton(R.string.dialog_ok,
                         (dialog, which) -> catchupAbove(article))
                 .setNegativeButton(R.string.dialog_cancel,
-                        (dialog, which) -> { });
+                        (dialog, which) -> {
+                        });
 
         Dialog dialog = builder.create();
         dialog.show();
@@ -136,137 +137,138 @@ public class OnlineActivity extends CommonActivity {
 
     //protected PullToRefreshAttacher m_pullToRefreshAttacher;
 
-	protected static abstract class OnLoginFinishedListener {
-		public abstract void OnLoginSuccess();
-		public abstract void OnLoginFailed();
-	}
+    protected static abstract class OnLoginFinishedListener {
+        public abstract void OnLoginSuccess();
 
-	private class HeadlinesActionModeCallback implements ActionMode.Callback {
-		
-		@Override
-		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-			return false;
-		}
-		
-		@Override
-		public void onDestroyActionMode(ActionMode mode) {
-			m_headlinesActionMode = null;
+        public abstract void OnLoginFailed();
+    }
+
+    private class HeadlinesActionModeCallback implements ActionMode.Callback {
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            m_headlinesActionMode = null;
 
             Application.getArticlesModel().setSelection(ArticleModel.ArticlesSelection.NONE);
 
             invalidateOptionsMenu();
-		}
-		
-		@Override
-		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        }
 
-			MenuInflater inflater = getMenuInflater();
-			inflater.inflate(R.menu.action_mode_headlines, menu);
-			
-			return true;
-		}
-		
-		@Override
-		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			onOptionsItemSelected(item);
-			return false;
-		}
-	}
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.action_mode_headlines, menu);
+
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            onOptionsItemSelected(item);
+            return false;
+        }
+    }
 
     protected String getSessionId() {
-		return Application.getInstance().getSessionId();
-	}
+        return Application.getInstance().getSessionId();
+    }
 
-	protected void setSessionId(String sessionId) {
-		Application.getInstance().setSessionId(sessionId);
-	}
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+    protected void setSessionId(String sessionId) {
+        Application.getInstance().setSessionId(sessionId);
+    }
 
-		// we use that before parent onCreate so let's init locally
-		m_prefs = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
 
-		setAppTheme(m_prefs);
+        // we use that before parent onCreate so let's init locally
+        m_prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
 
-		super.onCreate(savedInstanceState);
+        setAppTheme(m_prefs);
 
-		setContentView(R.layout.activity_login);
+        super.onCreate(savedInstanceState);
 
-		Toolbar toolbar = findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
+        setContentView(R.layout.activity_login);
 
-		m_headlinesActionModeCallback = new HeadlinesActionModeCallback();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        m_headlinesActionModeCallback = new HeadlinesActionModeCallback();
 
         ArticleModel model = Application.getArticlesModel();
 
         model.getActive().observe(this, (articles) -> {
             invalidateOptionsMenu();
-            });
+        });
     }
 
-	public void login() {
-		login(false, null);
-	}
+    public void login() {
+        login(false, null);
+    }
 
-	public void login(boolean refresh) {
-		login(refresh, null);
-	}
+    public void login(boolean refresh) {
+        login(refresh, null);
+    }
 
-	public void login(boolean refresh, OnLoginFinishedListener listener) {
+    public void login(boolean refresh, OnLoginFinishedListener listener) {
 
-		if (m_prefs.getString("ttrss_url", "").trim().isEmpty()) {
+        if (m_prefs.getString("ttrss_url", "").trim().isEmpty()) {
 
-			setLoadingStatus(R.string.login_need_configure);
+            setLoadingStatus(R.string.login_need_configure);
 
-			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-					.setMessage(R.string.dialog_need_configure_prompt)
-			       .setCancelable(false)
-			       .setPositiveButton(R.string.dialog_open_preferences, (dialog, id) -> {
-                       // launch preferences
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setMessage(R.string.dialog_need_configure_prompt)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.dialog_open_preferences, (dialog, id) -> {
+                        // launch preferences
 
-                       Intent intent = new Intent(OnlineActivity.this,
-                               PreferencesActivity.class);
-                       startActivityForResult(intent, 0);
-                   })
-			       .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
+                        Intent intent = new Intent(OnlineActivity.this,
+                                PreferencesActivity.class);
+                        startActivityForResult(intent, 0);
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
 
-			Dialog alert = builder.create();
-			alert.show();
-			
-		} else {
-			setLoadingStatus(R.string.login_in_progress);
-			
-			LoginRequest ar = new LoginRequest(getApplicationContext(), refresh, listener);
+            Dialog alert = builder.create();
+            alert.show();
 
-			HashMap<String, String> map = new HashMap<>();
-			map.put("op", "login");
-			map.put("user", m_prefs.getString("login", "").trim());
-			map.put("password", m_prefs.getString("password", "").trim());
+        } else {
+            setLoadingStatus(R.string.login_in_progress);
 
-			ar.execute(map);
+            LoginRequest ar = new LoginRequest(getApplicationContext(), refresh, listener);
 
-			setLoadingStatus(R.string.login_in_progress);
-		}
-	}
-	
-	protected void loginSuccess(boolean refresh) {
-		setLoadingStatus(R.string.blank);
-		
-		initMenu();
-	
-		Intent intent = new Intent(OnlineActivity.this, MasterActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
- 	   
-		startActivityForResult(intent, 0);
-		overridePendingTransition(0, 0);
+            HashMap<String, String> map = new HashMap<>();
+            map.put("op", "login");
+            map.put("user", m_prefs.getString("login", "").trim());
+            map.put("password", m_prefs.getString("password", "").trim());
 
-		finish();
-	}
+            ar.execute(map);
 
-	@Override
-	public boolean onContextItemSelected(android.view.MenuItem item) {
+            setLoadingStatus(R.string.login_in_progress);
+        }
+    }
+
+    protected void loginSuccess(boolean refresh) {
+        setLoadingStatus(R.string.blank);
+
+        initMenu();
+
+        Intent intent = new Intent(OnlineActivity.this, MasterActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        startActivityForResult(intent, 0);
+        overridePendingTransition(0, 0);
+
+        finish();
+    }
+
+    @Override
+    public boolean onContextItemSelected(android.view.MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.article_img_open) {
             if (getLastContentImageHitTestUrl() != null) {
@@ -318,43 +320,43 @@ public class OnlineActivity extends CommonActivity {
         return super.onContextItemSelected(item);
     }
 
-	public void displayAttachments(Article article) {
-		if (article != null && article.attachments != null && !article.attachments.isEmpty()) {
-			CharSequence[] items = new CharSequence[article.attachments.size()];
-			final CharSequence[] itemUrls = new CharSequence[article.attachments.size()];
+    public void displayAttachments(Article article) {
+        if (article != null && article.attachments != null && !article.attachments.isEmpty()) {
+            CharSequence[] items = new CharSequence[article.attachments.size()];
+            final CharSequence[] itemUrls = new CharSequence[article.attachments.size()];
 
-			for (int i = 0; i < article.attachments.size(); i++) {
-				items[i] = article.attachments.get(i).title != null && !article.attachments.get(i).title.isEmpty() ?
-						article.attachments.get(i).title : article.attachments.get(i).content_url;
+            for (int i = 0; i < article.attachments.size(); i++) {
+                items[i] = article.attachments.get(i).title != null && !article.attachments.get(i).title.isEmpty() ?
+                        article.attachments.get(i).title : article.attachments.get(i).content_url;
 
-				itemUrls[i] = article.attachments.get(i).content_url;
-			}
+                itemUrls[i] = article.attachments.get(i).content_url;
+            }
 
-			MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-					.setTitle(R.string.attachments_prompt)
-					.setCancelable(true)
-					.setSingleChoiceItems(items, 0, (dialog, which) -> {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.attachments_prompt)
+                    .setCancelable(true)
+                    .setSingleChoiceItems(items, 0, (dialog, which) -> {
                         //
                     }).setNeutralButton(R.string.attachment_copy, (dialog, which) -> {
-                        int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
+                        int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
 
-                        copyToClipboard((String)itemUrls[selectedPosition]);
+                        copyToClipboard((String) itemUrls[selectedPosition]);
                     }).setPositiveButton(R.string.attachment_view, (dialog, id) -> {
-                        int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
+                        int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
 
-                        openUri(Uri.parse((String)itemUrls[selectedPosition]));
+                        openUri(Uri.parse((String) itemUrls[selectedPosition]));
 
                         dialog.cancel();
                     }).setNegativeButton(R.string.dialog_cancel, (dialog, id) -> dialog.cancel());
 
-			Dialog dialog = builder.create();
-			dialog.show();
-		}
-	}
+            Dialog dialog = builder.create();
+            dialog.show();
+        }
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        final HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
         Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
@@ -362,13 +364,13 @@ public class OnlineActivity extends CommonActivity {
 
         int itemId = item.getItemId();
         if (itemId == R.id.subscribe_to_feed) {
-			Intent subscribe = new Intent(OnlineActivity.this, SubscribeActivity.class);
-			startActivityForResult(subscribe, 0);
-			return true;
-		} else if (itemId ==  R.id.toggle_attachments) {
+            Intent subscribe = new Intent(OnlineActivity.this, SubscribeActivity.class);
+            startActivityForResult(subscribe, 0);
+            return true;
+        } else if (itemId == R.id.toggle_attachments) {
             if (activeArticle != null)
                 displayAttachments(activeArticle);
-			return true;
+            return true;
         } else if (itemId == R.id.login) {
             login();
             return true;
@@ -422,7 +424,7 @@ public class OnlineActivity extends CommonActivity {
 
                 int selectedIndex = Arrays.asList(headlineModeValues).indexOf(headlineMode);
 
-				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.headlines_set_display_mode)
                         .setSingleChoiceItems(headlineModeNames,
                                 selectedIndex, (dialog2, which) -> {
@@ -469,7 +471,7 @@ public class OnlineActivity extends CommonActivity {
                         break;
                 }
 
-				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.headlines_set_view_mode)
                         .setSingleChoiceItems(
                                 new String[]{
@@ -536,16 +538,16 @@ public class OnlineActivity extends CommonActivity {
             Dialog dialog = builder.create();
             dialog.show();
             return true;
-		} else if (itemId == R.id.share_article) {
+        } else if (itemId == R.id.share_article) {
             if (activeArticle != null)
                 shareArticle(activeArticle);
 
-			return true;
-		} else if (itemId == R.id.article_set_score) {
+            return true;
+        } else if (itemId == R.id.article_set_score) {
             if (activeArticle != null) {
                 setArticleScore(activeArticle);
             }
-			return true;
+            return true;
         } else if (itemId == R.id.toggle_marked) {
             if (activeArticle != null) {
                 Article articleClone = new Article(activeArticle);
@@ -625,7 +627,7 @@ public class OnlineActivity extends CommonActivity {
         return super.onOptionsItemSelected(item);
     }
 
-	protected void catchupAbove(final Article startingArticle) {
+    protected void catchupAbove(final Article startingArticle) {
         if (startingArticle != null) {
             List<Article> tmp = new ArrayList<>();
 
@@ -646,53 +648,54 @@ public class OnlineActivity extends CommonActivity {
                 setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
             }
         }
-	}
+    }
 
-	public void editArticleNote(final Article article) {
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-			.setTitle(article.title);
+    public void editArticleNote(final Article article) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(article.title);
 
-		final EditText topicEdit = new EditText(this);
-		topicEdit.setText(article.note);
-		builder.setView(topicEdit);
-		
-		builder.setPositiveButton(R.string.article_edit_note, (dialog, which) -> {
+        final EditText topicEdit = new EditText(this);
+        topicEdit.setText(article.note);
+        builder.setView(topicEdit);
+
+        builder.setPositiveButton(R.string.article_edit_note, (dialog, which) -> {
             String note = topicEdit.getText().toString().trim();
 
             saveArticleNote(article, note);
         });
-		
-		builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
+
+        builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
             //
         });
-		
-		Dialog dialog = builder.create();
-		dialog.show();
-	}
-	
-	public void editArticleLabels(Article article) {
-		final int articleId = article.id;									
 
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			@Override
-			protected void onPostExecute(JsonElement result) {
-				if (result != null) {
-					Type listType = new TypeToken<List<Label>>() {}.getType();
-					final List<Label> labels = new Gson().fromJson(result, listType);
+        Dialog dialog = builder.create();
+        dialog.show();
+    }
 
-					CharSequence[] items = new CharSequence[labels.size()];
-					final int[] itemIds = new int[labels.size()];
-					boolean[] checkedItems = new boolean[labels.size()];
-					
-					for (int i = 0; i < labels.size(); i++) {
-						items[i] = labels.get(i).caption;
-						itemIds[i] = labels.get(i).id;
-						checkedItems[i] = labels.get(i).checked;
-					}
+    public void editArticleLabels(Article article) {
+        final int articleId = article.id;
 
-					MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(OnlineActivity.this)
-							.setTitle(R.string.article_set_labels)
-							.setMultiChoiceItems(items, checkedItems, (dialog, which, isChecked) -> {
+        ApiRequest req = new ApiRequest(getApplicationContext()) {
+            @Override
+            protected void onPostExecute(JsonElement result) {
+                if (result != null) {
+                    Type listType = new TypeToken<List<Label>>() {
+                    }.getType();
+                    final List<Label> labels = new Gson().fromJson(result, listType);
+
+                    CharSequence[] items = new CharSequence[labels.size()];
+                    final int[] itemIds = new int[labels.size()];
+                    boolean[] checkedItems = new boolean[labels.size()];
+
+                    for (int i = 0; i < labels.size(); i++) {
+                        items[i] = labels.get(i).caption;
+                        itemIds[i] = labels.get(i).id;
+                        checkedItems[i] = labels.get(i).checked;
+                    }
+
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(OnlineActivity.this)
+                            .setTitle(R.string.article_set_labels)
+                            .setMultiChoiceItems(items, checkedItems, (dialog, which, isChecked) -> {
                                 final int labelId = itemIds[which];
 
                                 HashMap<String, String> map = new HashMap<>();
@@ -707,94 +710,94 @@ public class OnlineActivity extends CommonActivity {
 
                             }).setPositiveButton(R.string.dialog_close, (dialog, which) -> dialog.cancel());
 
-					Dialog dialog = builder.create();
-					dialog.show();
+                    Dialog dialog = builder.create();
+                    dialog.show();
 
-				}
-			}
-		};
-		
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "getLabels");
-		map.put("article_id", String.valueOf(articleId));
-		
-		req.execute(map);
-	}
+                }
+            }
+        };
 
-    private void setLoadingStatus(int status) {
-		setLoadingStatus(getString(status));
+        HashMap<String, String> map = new HashMap<>();
+        map.put("sid", getSessionId());
+        map.put("op", "getLabels");
+        map.put("article_id", String.valueOf(articleId));
+
+        req.execute(map);
     }
 
-	private void setLoadingStatus(String status) {
-		TextView tv = findViewById(R.id.loading_message);
+    private void setLoadingStatus(int status) {
+        setLoadingStatus(getString(status));
+    }
 
-		if (tv != null) {
-			tv.setText(status);
-		}
-	}
+    private void setLoadingStatus(String status) {
+        TextView tv = findViewById(R.id.loading_message);
+
+        if (tv != null) {
+            tv.setText(status);
+        }
+    }
 
     protected void logout() {
-		setSessionId(null);
+        setSessionId(null);
 
-		setLoadingStatus(R.string.login_ready);
+        setLoadingStatus(R.string.login_ready);
 
-		initMenu();
-	}
+        initMenu();
+    }
 
-	protected void loginFailure() {
-		setSessionId(null);
-		initMenu();
-	}
+    protected void loginFailure() {
+        setSessionId(null);
+        initMenu();
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
+    @Override
+    public void onResume() {
+        super.onResume();
 
-		if (getSessionId() == null) {
-			login();
-		} else {
-			loginSuccess(false);
-		}
-	}
-	
-	public Menu getMenu() {
-		return m_menu;
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.activity_main, menu);
+        if (getSessionId() == null) {
+            login();
+        } else {
+            loginSuccess(false);
+        }
+    }
 
-		m_menu = menu;
+    public Menu getMenu() {
+        return m_menu;
+    }
 
-		initMenu();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_main, menu);
 
-		return true;
-	}
+        m_menu = menu;
 
-	public int getApiLevel() {
-		return Application.getInstance().getApiLevel();
-	}
+        initMenu();
 
-	protected void setApiLevel(int apiLevel) {
-		Application.getInstance().setApiLevel(apiLevel);
-	}
+        return true;
+    }
 
-	public void shareArticle(Article article) {
-		if (article != null) {
-			shareText(article.link, article.title);
-		}
-	}
+    public int getApiLevel() {
+        return Application.getInstance().getApiLevel();
+    }
 
-	public void setArticleScore(Article article) {
-		final EditText edit = new EditText(this);
-		edit.setText(String.valueOf(article.score));
+    protected void setApiLevel(int apiLevel) {
+        Application.getInstance().setApiLevel(apiLevel);
+    }
 
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-				.setTitle(R.string.score_for_this_article)
-				.setPositiveButton(R.string.set_score,
+    public void shareArticle(Article article) {
+        if (article != null) {
+            shareText(article.link, article.title);
+        }
+    }
+
+    public void setArticleScore(Article article) {
+        final EditText edit = new EditText(this);
+        edit.setText(String.valueOf(article.score));
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.score_for_this_article)
+                .setPositiveButton(R.string.set_score,
                         (dialog, which) -> {
 
                             try {
@@ -808,115 +811,115 @@ public class OnlineActivity extends CommonActivity {
                                 e.printStackTrace();
                             }
                         })
-				.setNegativeButton(getString(R.string.cancel),
+                .setNegativeButton(getString(R.string.cancel),
                         (dialog, which) -> {
 
                             //
 
                         }).setView(edit);
 
-		Dialog dialog = builder.create();
-		dialog.show();
-	}
+        Dialog dialog = builder.create();
+        dialog.show();
+    }
 
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {		
-		ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
-		HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        ArticlePager ap = (ArticlePager) getSupportFragmentManager().findFragmentByTag(FRAG_ARTICLE);
+        HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_DPAD_LEFT:
-			if (ap != null && ap.isAdded()) {
-				ap.switchToArticle(false);
-				return true;
-			}
-			break;
-		case KeyEvent.KEYCODE_DPAD_RIGHT:
-			if (ap != null && ap.isAdded()) {
-				ap.switchToArticle(true);
-				return true;
-			}
-			break;
-		case KeyEvent.KEYCODE_ESCAPE:
-			moveTaskToBack(true);
-			return true;
-		case KeyEvent.KEYCODE_O:
-            if (ap != null) {
-                Article selectedArticle = Application.getArticlesModel().getActiveArticle();
-
-                if (selectedArticle != null)
-				    openUri(Uri.parse(selectedArticle.link));
-			}
-            return true;
-		case KeyEvent.KEYCODE_R:
-			refresh();
-			return true;
-		case KeyEvent.KEYCODE_U:
-			if (ap != null) {
-				Article selectedArticle = Application.getArticlesModel().getActiveArticle();
-
-                if (selectedArticle != null) {
-                    selectedArticle.unread = !selectedArticle.unread;
-                    saveArticleUnread(selectedArticle);
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                if (ap != null && ap.isAdded()) {
+                    ap.switchToArticle(false);
+                    return true;
                 }
-			}
-			return true;
-		}
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                if (ap != null && ap.isAdded()) {
+                    ap.switchToArticle(true);
+                    return true;
+                }
+                break;
+            case KeyEvent.KEYCODE_ESCAPE:
+                moveTaskToBack(true);
+                return true;
+            case KeyEvent.KEYCODE_O:
+                if (ap != null) {
+                    Article selectedArticle = Application.getArticlesModel().getActiveArticle();
 
-		if (m_prefs.getBoolean("use_volume_keys", false)) {
-			
-			if (ap != null && ap.isAdded()) {			
-				switch (keyCode) {
-				case KeyEvent.KEYCODE_VOLUME_UP:
-					ap.switchToArticle(false);
-					return true;
-				case KeyEvent.KEYCODE_VOLUME_DOWN:
-					ap.switchToArticle(true);
-					return true;
-				}
-			}
-		}
-		
-		return super.onKeyDown(keyCode, event);			
-	}
-	
-	// Handle onKeyUp too to suppress beep
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (m_prefs.getBoolean("use_volume_keys", false)) {
-					
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_VOLUME_UP:
-			case KeyEvent.KEYCODE_VOLUME_DOWN:
-				return true;
-			}
-		}
-		
-		return super.onKeyUp(keyCode, event);		
-	}
+                    if (selectedArticle != null)
+                        openUri(Uri.parse(selectedArticle.link));
+                }
+                return true;
+            case KeyEvent.KEYCODE_R:
+                refresh();
+                return true;
+            case KeyEvent.KEYCODE_U:
+                if (ap != null) {
+                    Article selectedArticle = Application.getArticlesModel().getActiveArticle();
 
-	public void catchupFeed(final Feed feed, final String mode, final boolean refreshAfter, final String searchQuery) {
-		Log.d(TAG, "catchupFeed=" + feed + "; mode=" + mode + "; search=" + searchQuery);
+                    if (selectedArticle != null) {
+                        selectedArticle.unread = !selectedArticle.unread;
+                        saveArticleUnread(selectedArticle);
+                    }
+                }
+                return true;
+        }
 
-		ApiRequest req = new ApiRequest(getApplicationContext()) {
-			protected void onPostExecute(JsonElement result) {
-				if (refreshAfter)
-					refresh();
-			}
-		};
+        if (m_prefs.getBoolean("use_volume_keys", false)) {
 
-		HashMap<String, String> map = new HashMap<>();
-		map.put("sid", getSessionId());
-		map.put("op", "catchupFeed");
-		map.put("feed_id", String.valueOf(feed.id));
-		map.put("search_query", searchQuery);
-		map.put("search_lang", ""); // for the time being always user per-user default
-		map.put("mode", mode);
-		if (feed.is_cat)
-			map.put("is_cat", "1");
+            if (ap != null && ap.isAdded()) {
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_VOLUME_UP:
+                        ap.switchToArticle(false);
+                        return true;
+                    case KeyEvent.KEYCODE_VOLUME_DOWN:
+                        ap.switchToArticle(true);
+                        return true;
+                }
+            }
+        }
 
-		req.execute(map);
-	}
+        return super.onKeyDown(keyCode, event);
+    }
+
+    // Handle onKeyUp too to suppress beep
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (m_prefs.getBoolean("use_volume_keys", false)) {
+
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    return true;
+            }
+        }
+
+        return super.onKeyUp(keyCode, event);
+    }
+
+    public void catchupFeed(final Feed feed, final String mode, final boolean refreshAfter, final String searchQuery) {
+        Log.d(TAG, "catchupFeed=" + feed + "; mode=" + mode + "; search=" + searchQuery);
+
+        ApiRequest req = new ApiRequest(getApplicationContext()) {
+            protected void onPostExecute(JsonElement result) {
+                if (refreshAfter)
+                    refresh();
+            }
+        };
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("sid", getSessionId());
+        map.put("op", "catchupFeed");
+        map.put("feed_id", String.valueOf(feed.id));
+        map.put("search_query", searchQuery);
+        map.put("search_lang", ""); // for the time being always user per-user default
+        map.put("mode", mode);
+        if (feed.is_cat)
+            map.put("is_cat", "1");
+
+        req.execute(map);
+    }
 
     public void saveArticleUnread(final Article article) {
         setArticlesField(Collections.singletonList(article), Article.UPDATE_FIELD_UNREAD,
@@ -945,25 +948,25 @@ public class OnlineActivity extends CommonActivity {
         setArticlesMarked(articles, Article.UPDATE_TOGGLE);
     }
 
-	public void setArticlesMarked(final List<Article> articles, int mode) {
+    public void setArticlesMarked(final List<Article> articles, int mode) {
         setArticlesField(articles, Article.UPDATE_FIELD_MARKED, mode);
-	}
+    }
 
     public void toggleArticlesUnread(final List<Article> articles) {
         setArticlesUnread(articles, Article.UPDATE_FIELD_UNREAD);
     }
 
-	public void setArticlesUnread(final List<Article> articles, int mode) {
+    public void setArticlesUnread(final List<Article> articles, int mode) {
         setArticlesField(articles, Article.UPDATE_FIELD_UNREAD, mode);
-	}
+    }
 
     public void toggleArticlesPublished(final List<Article> articles) {
         setArticlesPublished(articles, Article.UPDATE_TOGGLE);
     }
 
-	public void setArticlesPublished(final List<Article> articles, int mode) {
+    public void setArticlesPublished(final List<Article> articles, int mode) {
         setArticlesField(articles, Article.UPDATE_FIELD_PUBLISHED, mode);
-	}
+    }
 
     public void setArticlesField(final List<Article> articles, int field, int mode) {
         ApiRequest req = new ApiRequest(getApplicationContext()) {
@@ -1063,30 +1066,30 @@ public class OnlineActivity extends CommonActivity {
         req.execute(map);
 
     }
-	
-	// this may be called after activity has been destroyed (i.e. long asynctask)
-	protected void initMenu() {
-		if (m_menu != null) {
-			if (getSessionId() != null) {
-				m_menu.setGroupVisible(R.id.menu_group_feeds, true);
+
+    // this may be called after activity has been destroyed (i.e. long asynctask)
+    protected void initMenu() {
+        if (m_menu != null) {
+            if (getSessionId() != null) {
+                m_menu.setGroupVisible(R.id.menu_group_feeds, true);
                 m_menu.setGroupVisible(R.id.menu_group_headlines, true);
                 m_menu.setGroupVisible(R.id.menu_group_article, true);
-				m_menu.setGroupVisible(R.id.menu_group_logged_out, false);
-			} else {
+                m_menu.setGroupVisible(R.id.menu_group_logged_out, false);
+            } else {
                 m_menu.setGroupVisible(R.id.menu_group_feeds, false);
                 m_menu.setGroupVisible(R.id.menu_group_headlines, false);
                 m_menu.setGroupVisible(R.id.menu_group_article, false);
-				m_menu.setGroupVisible(R.id.menu_group_logged_out, true);
-			}
+                m_menu.setGroupVisible(R.id.menu_group_logged_out, true);
+            }
 
-			m_menu.setGroupVisible(R.id.menu_group_headlines, false);
-			m_menu.setGroupVisible(R.id.menu_group_article, false);
-			m_menu.setGroupVisible(R.id.menu_group_feeds, false);
+            m_menu.setGroupVisible(R.id.menu_group_headlines, false);
+            m_menu.setGroupVisible(R.id.menu_group_article, false);
+            m_menu.setGroupVisible(R.id.menu_group_feeds, false);
 
-			m_menu.findItem(R.id.subscribe_to_feed).setEnabled(getApiLevel() >= 5);
+            m_menu.findItem(R.id.subscribe_to_feed).setEnabled(getApiLevel() >= 5);
 
-			MenuItem search = m_menu.findItem(R.id.search);
-			search.setEnabled(getApiLevel() >= 2);
+            MenuItem search = m_menu.findItem(R.id.search);
+            search.setEnabled(getApiLevel() >= 2);
 
             Article activeArticle = Application.getArticlesModel().getActiveArticle();
 
@@ -1117,195 +1120,196 @@ public class OnlineActivity extends CommonActivity {
                             R.drawable.baseline_rss_feed_24);
                 }
             }
-		}
-	}
-	
-	protected void refresh(boolean includeHeadlines) {
-		FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
-		
-		if (ff != null) {
-			ff.refresh();
-		}
+        }
+    }
 
-		if (includeHeadlines) {
-			HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
-		
-			if (hf != null) {
-				hf.refresh(false);
-			}
-		}
-	}
-	
-	protected void refresh() {
-		refresh(true);
-	}
-	
-	protected class LoginRequest extends ApiRequest {
-		boolean m_refreshAfterLogin;
-		OnLoginFinishedListener m_listener;
-		
-		public LoginRequest(Context context, boolean refresh, OnLoginFinishedListener listener) {
-			super(context);
-			m_refreshAfterLogin = refresh;
-			m_listener = listener;
-		}
+    protected void refresh(boolean includeHeadlines) {
+        FeedsFragment ff = (FeedsFragment) getSupportFragmentManager().findFragmentByTag(FRAG_FEEDS);
 
-		@SuppressLint("StaticFieldLeak")
-		protected void onPostExecute(JsonElement result) {
-			if (result != null) {
-				try {
-					JsonObject content = result.getAsJsonObject();
-					
-					if (content != null) {
-						setSessionId(content.get("session_id").getAsString());
-						
-						JsonElement apiLevel = content.get("api_level");
+        if (ff != null) {
+            ff.refresh();
+        }
 
-						Log.d(TAG, "Authenticated!");
-						
-						if (apiLevel != null) {
-							setApiLevel(apiLevel.getAsInt());
-							Log.d(TAG, "Received API level: " + getApiLevel());
+        if (includeHeadlines) {
+            HeadlinesFragment hf = (HeadlinesFragment) getSupportFragmentManager().findFragmentByTag(FRAG_HEADLINES);
 
-							// get custom sort from configuration object
-							if (getApiLevel() >= 17) {
+            if (hf != null) {
+                hf.refresh(false);
+            }
+        }
+    }
 
-								// daemon_is_running, icons_dir, etc...
-								JsonObject config = content.get("config").getAsJsonObject();
+    protected void refresh() {
+        refresh(true);
+    }
 
-								Type hashType = new TypeToken<Map<String, String>>(){}.getType();
-								Map<String, String> customSortTypes = new Gson().fromJson(config.get("custom_sort_types"), hashType);
+    protected class LoginRequest extends ApiRequest {
+        boolean m_refreshAfterLogin;
+        OnLoginFinishedListener m_listener;
 
-								setCustomSortModes(customSortTypes);
-							}
-							
-							if (m_listener != null) {
-								m_listener.OnLoginSuccess();
-							} else {
-								loginSuccess(m_refreshAfterLogin);
-							}
-							
-						} else {
+        public LoginRequest(Context context, boolean refresh, OnLoginFinishedListener listener) {
+            super(context);
+            m_refreshAfterLogin = refresh;
+            m_listener = listener;
+        }
 
-							ApiRequest req = new ApiRequest(OnlineActivity.this) {
-								protected void onPostExecute(JsonElement result) {
-									setApiLevel(0);
-	
-									if (result != null) {
-										try {
-											setApiLevel(result.getAsJsonObject().get("level").getAsInt());
-										} catch (Exception e) {
-											e.printStackTrace();
-										}
-									} else if (m_lastError != ApiCommon.ApiError.API_UNKNOWN_METHOD) {
-										// Unknown method means old tt-rss, in that case we assume API 0 and continue
-										
-										setLoadingStatus(getErrorMessage());
+        @SuppressLint("StaticFieldLeak")
+        protected void onPostExecute(JsonElement result) {
+            if (result != null) {
+                try {
+                    JsonObject content = result.getAsJsonObject();
 
-										if (m_lastErrorMessage != null) {
-											setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_lastErrorMessage);
-										} else {
-											setLoadingStatus(getErrorMessage());
-										}
-										
-										if (m_listener != null) {
-											m_listener.OnLoginFailed();
-										} else {
-											loginFailure();
-										}
-										
-										return;
-									}
-	
-									Log.d(TAG, "Received API level: " + getApiLevel());
-	
-									loginSuccess(m_refreshAfterLogin);
-								}
-							};
-	
-							HashMap<String, String> map = new HashMap<>();
-							map.put("sid", getSessionId());
-							map.put("op", "getApiLevel");
-	
-							req.execute(map);
-	
-							setLoadingStatus(R.string.loading_message);
-						}
+                    if (content != null) {
+                        setSessionId(content.get("session_id").getAsString());
 
-						return;
-					}
+                        JsonElement apiLevel = content.get("api_level");
 
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+                        Log.d(TAG, "Authenticated!");
 
-			setSessionId(null);
+                        if (apiLevel != null) {
+                            setApiLevel(apiLevel.getAsInt());
+                            Log.d(TAG, "Received API level: " + getApiLevel());
 
-			if (m_lastErrorMessage != null) {
-				setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_lastErrorMessage);
-			} else {
-				setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_apiStatusCode);
-			}
-			
-			loginFailure();
-		}
+                            // get custom sort from configuration object
+                            if (getApiLevel() >= 17) {
 
-	}
+                                // daemon_is_running, icons_dir, etc...
+                                JsonObject config = content.get("config").getAsJsonObject();
 
-	public LinkedHashMap<String, String> getSortModes() {
-		LinkedHashMap<String, String> tmp = new LinkedHashMap<>();
+                                Type hashType = new TypeToken<Map<String, String>>() {
+                                }.getType();
+                                Map<String, String> customSortTypes = new Gson().fromJson(config.get("custom_sort_types"), hashType);
 
-		tmp.put("default", getString(R.string.headlines_sort_default));
-		tmp.put("feed_dates", getString(R.string.headlines_sort_newest_first));
-		tmp.put("date_reverse", getString(R.string.headlines_sort_oldest_first));
-		tmp.put("title", getString(R.string.headlines_sort_title));
+                                setCustomSortModes(customSortTypes);
+                            }
 
-		tmp.putAll(Application.getInstance().m_customSortModes);
+                            if (m_listener != null) {
+                                m_listener.OnLoginSuccess();
+                            } else {
+                                loginSuccess(m_refreshAfterLogin);
+                            }
 
-		return tmp;
-	}
+                        } else {
 
-	public String getSortMode() {
+                            ApiRequest req = new ApiRequest(OnlineActivity.this) {
+                                protected void onPostExecute(JsonElement result) {
+                                    setApiLevel(0);
+
+                                    if (result != null) {
+                                        try {
+                                            setApiLevel(result.getAsJsonObject().get("level").getAsInt());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else if (m_lastError != ApiCommon.ApiError.API_UNKNOWN_METHOD) {
+                                        // Unknown method means old tt-rss, in that case we assume API 0 and continue
+
+                                        setLoadingStatus(getErrorMessage());
+
+                                        if (m_lastErrorMessage != null) {
+                                            setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_lastErrorMessage);
+                                        } else {
+                                            setLoadingStatus(getErrorMessage());
+                                        }
+
+                                        if (m_listener != null) {
+                                            m_listener.OnLoginFailed();
+                                        } else {
+                                            loginFailure();
+                                        }
+
+                                        return;
+                                    }
+
+                                    Log.d(TAG, "Received API level: " + getApiLevel());
+
+                                    loginSuccess(m_refreshAfterLogin);
+                                }
+                            };
+
+                            HashMap<String, String> map = new HashMap<>();
+                            map.put("sid", getSessionId());
+                            map.put("op", "getApiLevel");
+
+                            req.execute(map);
+
+                            setLoadingStatus(R.string.loading_message);
+                        }
+
+                        return;
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            setSessionId(null);
+
+            if (m_lastErrorMessage != null) {
+                setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_lastErrorMessage);
+            } else {
+                setLoadingStatus(getString(getErrorMessage()) + "\n\n" + m_apiStatusCode);
+            }
+
+            loginFailure();
+        }
+
+    }
+
+    public LinkedHashMap<String, String> getSortModes() {
+        LinkedHashMap<String, String> tmp = new LinkedHashMap<>();
+
+        tmp.put("default", getString(R.string.headlines_sort_default));
+        tmp.put("feed_dates", getString(R.string.headlines_sort_newest_first));
+        tmp.put("date_reverse", getString(R.string.headlines_sort_oldest_first));
+        tmp.put("title", getString(R.string.headlines_sort_title));
+
+        tmp.putAll(Application.getInstance().m_customSortModes);
+
+        return tmp;
+    }
+
+    public String getSortMode() {
         return m_prefs.getString("headlines_sort_mode", "default");
     }
 
     public void setSortMode(String sortMode) {
         SharedPreferences.Editor editor = m_prefs.edit();
         editor.putString("headlines_sort_mode", sortMode);
-		editor.apply();
+        editor.apply();
     }
 
-	private synchronized void setCustomSortModes(Map<String, String> modes) {
-		Application.getInstance().m_customSortModes.clear();
-		Application.getInstance().m_customSortModes.putAll(modes);
-	}
+    private synchronized void setCustomSortModes(Map<String, String> modes) {
+        Application.getInstance().m_customSortModes.clear();
+        Application.getInstance().m_customSortModes.putAll(modes);
+    }
 
     public void setViewMode(String viewMode) {
-		SharedPreferences.Editor editor = m_prefs.edit();
-		editor.putString("view_mode", viewMode);
-		editor.apply();
-	}
+        SharedPreferences.Editor editor = m_prefs.edit();
+        editor.putString("view_mode", viewMode);
+        editor.apply();
+    }
 
-	public String getViewMode() {
-		return m_prefs.getString("view_mode", "adaptive");
-	}
-	
-	public void setLastContentImageHitTestUrl(String url) {
-		m_lastImageHitTestUrl = url;		
-	}
-	
-	public String getLastContentImageHitTestUrl() {
-		return m_lastImageHitTestUrl;
-	}
+    public String getViewMode() {
+        return m_prefs.getString("view_mode", "adaptive");
+    }
 
-	public int getResizeWidth() {
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
+    public void setLastContentImageHitTestUrl(String url) {
+        m_lastImageHitTestUrl = url;
+    }
 
-		return size.x > size.y ? (int)(size.y * 0.75) : (int)(size.x * 0.75);
-	}
+    public String getLastContentImageHitTestUrl() {
+        return m_lastImageHitTestUrl;
+    }
+
+    public int getResizeWidth() {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        return size.x > size.y ? (int) (size.y * 0.75) : (int) (size.x * 0.75);
+    }
 
 
     public void setLoadingProgress(int progress) {

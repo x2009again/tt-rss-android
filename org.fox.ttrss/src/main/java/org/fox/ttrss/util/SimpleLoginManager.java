@@ -11,88 +11,88 @@ import org.fox.ttrss.ApiRequest;
 import java.util.HashMap;
 
 public abstract class SimpleLoginManager {
-	private final String TAG = this.getClass().getSimpleName();
-	
-	protected class LoginRequest extends ApiRequest {
-		private final int m_requestId;
-		protected String m_sessionId;
-		protected int m_apiLevel;
-		protected Context m_context;
-		
-		public LoginRequest(Context context, int requestId) {
-			super(context);
-			m_context = context;
-			m_requestId = requestId;
-		}
-		
-		protected void onPostExecute(JsonElement result) {
-			Log.d(TAG, "onPostExecute");
-			
-			if (result != null) {
-				try {
-					JsonObject content = result.getAsJsonObject();
-					if (content != null) {
-						m_sessionId = content.get("session_id").getAsString();
+    private final String TAG = this.getClass().getSimpleName();
 
-						Log.d(TAG, "[SLM] Authenticated!");
-						
-						ApiRequest req = new ApiRequest(m_context) {
-							protected void onPostExecute(JsonElement result) {
-								m_apiLevel = 0;
+    protected class LoginRequest extends ApiRequest {
+        private final int m_requestId;
+        protected String m_sessionId;
+        protected int m_apiLevel;
+        protected Context m_context;
 
-								if (result != null) {
-									try {
-										m_apiLevel = result.getAsJsonObject()
-													.get("level").getAsInt();
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
+        public LoginRequest(Context context, int requestId) {
+            super(context);
+            m_context = context;
+            m_requestId = requestId;
+        }
 
-								Log.d(TAG, "[SLM] Received API level: " + m_apiLevel);
+        protected void onPostExecute(JsonElement result) {
+            Log.d(TAG, "onPostExecute");
 
-								onLoginSuccess(m_requestId, m_sessionId, m_apiLevel);
-							}
-						};
+            if (result != null) {
+                try {
+                    JsonObject content = result.getAsJsonObject();
+                    if (content != null) {
+                        m_sessionId = content.get("session_id").getAsString();
 
-						HashMap<String, String> map = new HashMap<>();
-						map.put("sid", m_sessionId);
-						map.put("op", "getApiLevel");
+                        Log.d(TAG, "[SLM] Authenticated!");
 
-						req.execute(map);
+                        ApiRequest req = new ApiRequest(m_context) {
+                            protected void onPostExecute(JsonElement result) {
+                                m_apiLevel = 0;
 
-						return;
-					}
+                                if (result != null) {
+                                    try {
+                                        m_apiLevel = result.getAsJsonObject()
+                                                .get("level").getAsInt();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
 
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+                                Log.d(TAG, "[SLM] Received API level: " + m_apiLevel);
 
-			m_sessionId = null;
+                                onLoginSuccess(m_requestId, m_sessionId, m_apiLevel);
+                            }
+                        };
 
-			onLoginFailed(m_requestId, this);
-		}
+                        HashMap<String, String> map = new HashMap<>();
+                        map.put("sid", m_sessionId);
+                        map.put("op", "getApiLevel");
 
-	}
+                        req.execute(map);
 
-	public void logIn(Context context, int requestId, final String login, final String password) {
-		LoginRequest ar = new LoginRequest(context, requestId); 
+                        return;
+                    }
 
-		HashMap<String, String> map = new HashMap<>();
-		map.put("op", "login");
-		map.put("user", login.trim());
-		map.put("password", password.trim());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-		onLoggingIn(requestId);
-		
-		ar.execute(map);
-	}
-	
-	protected abstract void onLoggingIn(int requestId);
+            m_sessionId = null;
 
-	protected abstract void onLoginSuccess(int requestId, String sessionId, int apiLevel);
-	
-	protected abstract void onLoginFailed(int requestId, ApiRequest ar);
-	
+            onLoginFailed(m_requestId, this);
+        }
+
+    }
+
+    public void logIn(Context context, int requestId, final String login, final String password) {
+        LoginRequest ar = new LoginRequest(context, requestId);
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("op", "login");
+        map.put("user", login.trim());
+        map.put("password", password.trim());
+
+        onLoggingIn(requestId);
+
+        ar.execute(map);
+    }
+
+    protected abstract void onLoggingIn(int requestId);
+
+    protected abstract void onLoginSuccess(int requestId, String sessionId, int apiLevel);
+
+    protected abstract void onLoginFailed(int requestId, ApiRequest ar);
+
 }

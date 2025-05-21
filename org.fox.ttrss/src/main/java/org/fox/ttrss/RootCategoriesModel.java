@@ -46,7 +46,7 @@ public class RootCategoriesModel extends FeedsModel {
                 params.put("op", "getFeeds");
                 params.put("cat_id", String.valueOf(Feed.CAT_SPECIAL));
                 params.put("include_nested", "true");
-                params.put("sid", ((org.fox.ttrss.Application)getApplication()).getSessionId());
+                params.put("sid", ((org.fox.ttrss.Application) getApplication()).getSessionId());
 
                 final JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
 
@@ -57,7 +57,8 @@ public class RootCategoriesModel extends FeedsModel {
                     JsonArray content = result.getAsJsonArray();
                     if (content != null) {
 
-                        Type listType = new TypeToken<List<Feed>>() { }.getType();
+                        Type listType = new TypeToken<List<Feed>>() {
+                        }.getType();
 
                         List<Feed> feedsJson = new Gson().fromJson(content, listType);
 
@@ -77,10 +78,10 @@ public class RootCategoriesModel extends FeedsModel {
             }
 
             // get all root categories
-            final HashMap<String,String> params = new HashMap<>();
+            final HashMap<String, String> params = new HashMap<>();
 
             params.put("op", "getCategories");
-            params.put("sid", ((org.fox.ttrss.Application)getApplication()).getSessionId());
+            params.put("sid", ((org.fox.ttrss.Application) getApplication()).getSessionId());
 
             // this confusingly named option means "return top level categories only"
             params.put("enable_nested", "true");
@@ -96,14 +97,15 @@ public class RootCategoriesModel extends FeedsModel {
                 JsonArray content = result.getAsJsonArray();
                 if (content != null) {
 
-                    Type listType = new TypeToken<List<Feed>>() {}.getType();
+                    Type listType = new TypeToken<List<Feed>>() {
+                    }.getType();
 
                     List<Feed> feedsJson = new Gson().fromJson(content, listType);
 
                     // seems to be necessary evil because of deserialization
                     feedsJson = feedsJson.stream().peek(Feed::fixNullFields).collect(Collectors.toList());
 
-		            sortFeeds(feedsJson, m_feed, new CatOrderComparator());
+                    sortFeeds(feedsJson, m_feed, new CatOrderComparator());
 
                     // virtual cats implemented in getCategories since api level 1
                     if (org.fox.ttrss.Application.getInstance().getApiLevel() == 0) {
@@ -125,14 +127,14 @@ public class RootCategoriesModel extends FeedsModel {
                             .peek(f -> f.is_cat = true)
                             .collect(Collectors.toList());
 
-		            if (expandSpecial) {
+                    if (expandSpecial) {
                         feedsJson = feedsJson.stream()
                                 .filter(f -> f.id != Feed.CAT_SPECIAL)
                                 .collect(Collectors.toList());
 
                         if (!feedsJson.isEmpty())
                             feedsCombined.add(new Feed(Feed.TYPE_DIVIDER));
-		            }
+                    }
 
                     feedsCombined.addAll(feedsJson);
 

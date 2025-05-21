@@ -37,8 +37,8 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         findPreference("network_settings").setOnPreferenceClickListener(preference -> {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.preferences_container, new NetworkPreferencesFragment() )
-                    .addToBackStack( NetworkPreferencesFragment.class.getSimpleName() )
+                    .replace(R.id.preferences_container, new NetworkPreferencesFragment())
+                    .addToBackStack(NetworkPreferencesFragment.class.getSimpleName())
                     .commit();
 
             return false;
@@ -73,6 +73,6 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
-        setPreferencesFromResource(R.xml.preferences,rootKey);
+        setPreferencesFromResource(R.xml.preferences, rootKey);
     }
 }

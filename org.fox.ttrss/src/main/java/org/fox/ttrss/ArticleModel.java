@@ -31,7 +31,8 @@ import java.util.stream.Collectors;
 
 public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private final String TAG = this.getClass().getSimpleName();
-    @NonNull private final MutableLiveData<List<Article>> m_articles = new MutableLiveData<>(new ArrayList<Article>());
+    @NonNull
+    private final MutableLiveData<List<Article>> m_articles = new MutableLiveData<>(new ArrayList<Article>());
     private SharedPreferences m_prefs;
     private final int m_responseCode = 0;
     protected String m_responseMessage;
@@ -92,7 +93,9 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         return m_activeArticle;
     }
 
-    /** returns null if there's none or it is invalid (missing in list) */
+    /**
+     * returns null if there's none or it is invalid (missing in list)
+     */
     public Article getActiveArticle() {
         List<Article> articles = m_articles.getValue();
 
@@ -159,7 +162,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         }
     }
 
-    public enum ArticlesSelection { ALL, NONE, UNREAD }
+    public enum ArticlesSelection {ALL, NONE, UNREAD}
 
     public void setSelection(@NonNull ArticlesSelection select) {
         List<Article> articles = m_articles.getValue();
@@ -188,7 +191,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         final boolean allowForceUpdate = org.fox.ttrss.Application.getInstance().getApiLevel() >= 9 &&
                 !m_feed.is_cat && m_feed.id > 0 && !m_append && skip == 0;
 
-        HashMap<String,String> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
 
         params.put("op", "getHeadlines");
         params.put("sid", org.fox.ttrss.Application.getInstance().getSessionId());
@@ -259,10 +262,12 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
 
                             Log.d(TAG, this + " firstID=" + m_firstId + " firstIdChanged=" + m_firstIdChanged);
 
-                            Type listType = new TypeToken<List<Article>>() {}.getType();
+                            Type listType = new TypeToken<List<Article>>() {
+                            }.getType();
                             articlesJson = new Gson().fromJson(content.get(1), listType);
                         } else {
-                            Type listType = new TypeToken<List<Article>>() {}.getType();
+                            Type listType = new TypeToken<List<Article>>() {
+                            }.getType();
                             articlesJson = new Gson().fromJson(content, listType);
                         }
 
@@ -287,7 +292,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
                         }
 
                         if (m_amountLoaded < Integer.parseInt(m_prefs.getString("headlines_request_size", "15"))) {
-                            Log.d(TAG, this + " amount loaded "+m_amountLoaded+" < request size, disabling lazy load");
+                            Log.d(TAG, this + " amount loaded " + m_amountLoaded + " < request size, disabling lazy load");
                             m_lazyLoadEnabled = false;
                         }
 
@@ -415,11 +420,15 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
 
 
     public List<Article> getUnread(List<Article> articles) {
-        return articles.stream().filter(a -> { return a.unread; }).collect(Collectors.toList());
+        return articles.stream().filter(a -> {
+            return a.unread;
+        }).collect(Collectors.toList());
     }
 
     public List<Article> getSelected() {
-        return m_articles.getValue().stream().filter(a -> { return a.selected; }).collect(Collectors.toList());
+        return m_articles.getValue().stream().filter(a -> {
+            return a.selected;
+        }).collect(Collectors.toList());
     }
 
 }

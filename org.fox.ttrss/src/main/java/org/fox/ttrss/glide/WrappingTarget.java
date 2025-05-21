@@ -12,13 +12,17 @@ import com.bumptech.glide.request.transition.Transition;
 
 public class WrappingTarget<Z> implements Target<Z> {
     protected final @NonNull Target<? super Z> target;
+
     public WrappingTarget(@NonNull Target<? super Z> target) {
         this.target = target;
     }
+
     public @NonNull Target<? super Z> getWrappedTarget() {
         return target;
     }
-    @Override public void getSize(SizeReadyCallback cb) {
+
+    @Override
+    public void getSize(SizeReadyCallback cb) {
         target.getSize(cb);
     }
 
@@ -27,37 +31,51 @@ public class WrappingTarget<Z> implements Target<Z> {
 
     }
 
-    @Override public void onLoadStarted(Drawable placeholder) {
+    @Override
+    public void onLoadStarted(Drawable placeholder) {
         target.onLoadStarted(placeholder);
     }
-    @Override public void onLoadFailed(Drawable errorDrawable) {
+
+    @Override
+    public void onLoadFailed(Drawable errorDrawable) {
         target.onLoadFailed(errorDrawable);
     }
 
-    /** @noinspection unchecked*/
+    /**
+     * @noinspection unchecked
+     */
     @Override
     public void onResourceReady(@NonNull Z resource, @Nullable Transition<? super Z> transition) {
-        target.onResourceReady(resource, (Transition)transition);
+        target.onResourceReady(resource, (Transition) transition);
     }
 
-    @Override public void onLoadCleared(Drawable placeholder) {
+    @Override
+    public void onLoadCleared(Drawable placeholder) {
         target.onLoadCleared(placeholder);
     }
 
-    @Override public Request getRequest() {
+    @Override
+    public Request getRequest() {
         return target.getRequest();
     }
-    @Override public void setRequest(Request request) {
+
+    @Override
+    public void setRequest(Request request) {
         target.setRequest(request);
     }
 
-    @Override public void onStart() {
+    @Override
+    public void onStart() {
         target.onStart();
     }
-    @Override public void onStop() {
+
+    @Override
+    public void onStop() {
         target.onStop();
     }
-    @Override public void onDestroy() {
+
+    @Override
+    public void onDestroy() {
         target.onDestroy();
     }
 }

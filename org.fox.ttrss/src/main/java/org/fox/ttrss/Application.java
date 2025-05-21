@@ -20,102 +20,104 @@ import java.util.List;
 
 public class Application extends android.app.Application {
 
-	private static Application m_singleton;
+    private static Application m_singleton;
 
-	private String m_sessionId;
-	private int m_apiLevel;
-	public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
-	ConnectivityManager m_cmgr;
-	ArticleModel m_articleModel;
+    private String m_sessionId;
+    private int m_apiLevel;
+    public LinkedHashMap<String, String> m_customSortModes = new LinkedHashMap<>();
+    ConnectivityManager m_cmgr;
+    ArticleModel m_articleModel;
 
-	public static Application getInstance(){
-		return m_singleton;
-	}
+    public static Application getInstance() {
+        return m_singleton;
+    }
 
-	public static List<Article> getArticles() {
-		return getInstance().m_articleModel.getArticles().getValue();
-	}
+    public static List<Article> getArticles() {
+        return getInstance().m_articleModel.getArticles().getValue();
+    }
 
-	public static ArticleModel getArticlesModel() {
-		return getInstance().m_articleModel;
-	}
+    public static ArticleModel getArticlesModel() {
+        return getInstance().m_articleModel;
+    }
 
-	@Override
-	public final void onCreate() {
-		super.onCreate();
+    @Override
+    public final void onCreate() {
+        super.onCreate();
 
-		DynamicColors.applyToActivitiesIfAvailable(this);
+        DynamicColors.applyToActivitiesIfAvailable(this);
 
-		m_singleton = this;
-		m_cmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		m_articleModel = new ArticleModel(this);
-	}
+        m_singleton = this;
+        m_cmgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        m_articleModel = new ArticleModel(this);
+    }
 
-	public String getSessionId() {
-		return m_sessionId;
-	}
+    public String getSessionId() {
+        return m_sessionId;
+    }
 
-	public void setSessionId(String sessionId) {
-		m_sessionId = sessionId;
-	}
+    public void setSessionId(String sessionId) {
+        m_sessionId = sessionId;
+    }
 
-	public int getApiLevel() {
-		return m_apiLevel;
-	}
+    public int getApiLevel() {
+        return m_apiLevel;
+    }
 
-	public void setApiLevel(int apiLevel) {
-		m_apiLevel = apiLevel;
-	}
+    public void setApiLevel(int apiLevel) {
+        m_apiLevel = apiLevel;
+    }
 
-	public void save(Bundle out) {
-		
-		out.setClassLoader(getClass().getClassLoader());
-		out.putString("gs:sessionId", m_sessionId);
-		out.putInt("gs:apiLevel", m_apiLevel);
-		out.putSerializable("gs:customSortTypes", m_customSortModes);
-	}
-	
-	/** @noinspection unchecked*/
+    public void save(Bundle out) {
+
+        out.setClassLoader(getClass().getClassLoader());
+        out.putString("gs:sessionId", m_sessionId);
+        out.putInt("gs:apiLevel", m_apiLevel);
+        out.putSerializable("gs:customSortTypes", m_customSortModes);
+    }
+
+    /**
+     * @noinspection unchecked
+     */
     public void load(Bundle in) {
-		if (in != null) {
-			m_sessionId = in.getString("gs:sessionId");
-			m_apiLevel = in.getInt("gs:apiLevel");
+        if (in != null) {
+            m_sessionId = in.getString("gs:sessionId");
+            m_apiLevel = in.getInt("gs:apiLevel");
 
-			HashMap<String, String> tmp = (HashMap<String, String>) in.getSerializable("gs:customSortTypes");
+            HashMap<String, String> tmp = (HashMap<String, String>) in.getSerializable("gs:customSortTypes");
 
-			m_customSortModes.clear();
-			m_customSortModes.putAll(tmp);
-		}
-	}
+            m_customSortModes.clear();
+            m_customSortModes.putAll(tmp);
+        }
+    }
 
-	public boolean isWifiConnected() {
-		NetworkInfo wifi = m_cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    public boolean isWifiConnected() {
+        NetworkInfo wifi = m_cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-		if (wifi != null)
-			return wifi.isConnected();
+        if (wifi != null)
+            return wifi.isConnected();
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	protected void attachBaseContext(Context base) {
-		super.attachBaseContext(base);
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
 
-		if (!BuildConfig.DEBUG)
-			ACRA.init(this, new CoreConfigurationBuilder()
-					.withBuildConfigClass(BuildConfig.class)
-					.withReportFormat(StringFormat.KEY_VALUE_LIST)
-					.withPluginConfigurations(
-							new DialogConfigurationBuilder()
-									.withText(getString(R.string.crash_dialog_text_email))
-									.withResTheme(R.style.Theme_AppCompat_Dialog)
-									.build(),
-							new MailSenderConfigurationBuilder()
-									.withMailTo("cthulhoo+ttrss-acra@gmail.com")
-									.withReportAsFile(true)
-									.withReportFileName("crash.txt")
-									.build()
-					)
-					.build());
-	}
+        if (!BuildConfig.DEBUG)
+            ACRA.init(this, new CoreConfigurationBuilder()
+                    .withBuildConfigClass(BuildConfig.class)
+                    .withReportFormat(StringFormat.KEY_VALUE_LIST)
+                    .withPluginConfigurations(
+                            new DialogConfigurationBuilder()
+                                    .withText(getString(R.string.crash_dialog_text_email))
+                                    .withResTheme(R.style.Theme_AppCompat_Dialog)
+                                    .build(),
+                            new MailSenderConfigurationBuilder()
+                                    .withMailTo("cthulhoo+ttrss-acra@gmail.com")
+                                    .withReportAsFile(true)
+                                    .withReportFileName("crash.txt")
+                                    .build()
+                    )
+                    .build());
+    }
 }

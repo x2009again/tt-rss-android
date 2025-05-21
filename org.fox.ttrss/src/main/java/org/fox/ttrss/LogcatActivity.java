@@ -66,7 +66,7 @@ public class LogcatActivity extends CommonActivity {
         m_items.clear();
 
         try {
-            Process process = Runtime.getRuntime().exec("logcat -d -t " +  MAX_LOG_ENTRIES);
+            Process process = Runtime.getRuntime().exec("logcat -d -t " + MAX_LOG_ENTRIES);
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()));
 

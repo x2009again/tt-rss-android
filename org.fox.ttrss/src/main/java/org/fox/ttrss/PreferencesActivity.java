@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 public class PreferencesActivity extends CommonActivity {
-	@Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         // we use that before parent onCreate so let's init locally
         m_prefs = PreferenceManager

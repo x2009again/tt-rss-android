@@ -34,49 +34,49 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 // TODO: add ability to update already rendered contents from article somehow (to refresh note, etc)
-public class ArticleFragment extends androidx.fragment.app.Fragment  {
-	private final String TAG = this.getClass().getSimpleName();
+public class ArticleFragment extends androidx.fragment.app.Fragment {
+    private final String TAG = this.getClass().getSimpleName();
 
-	private SharedPreferences m_prefs;
+    private SharedPreferences m_prefs;
     protected Article m_article;
-	private DetailActivity m_activity;
+    private DetailActivity m_activity;
     private WebView m_web;
     //protected View m_fab;
     protected int m_articleFontSize;
     protected int m_articleSmallFontSize;
 
     public void initialize(Article article) {
-		m_article = article;
-	}
+        m_article = article;
+    }
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-	    ContextMenuInfo menuInfo) {
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenuInfo menuInfo) {
 
-		if (v.getId() == R.id.article_content) {
-			HitTestResult result = ((WebView)v).getHitTestResult();
+        if (v.getId() == R.id.article_content) {
+            HitTestResult result = ((WebView) v).getHitTestResult();
 
-			if (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+            if (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
 
-				menu.setHeaderTitle(result.getExtra());
-				getActivity().getMenuInflater().inflate(R.menu.content_gallery_entry, menu);
+                menu.setHeaderTitle(result.getExtra());
+                getActivity().getMenuInflater().inflate(R.menu.content_gallery_entry, menu);
 
-				/* FIXME I have no idea how to do this correctly ;( */
+                /* FIXME I have no idea how to do this correctly ;( */
 
-				m_activity.setLastContentImageHitTestUrl(result.getExtra());
+                m_activity.setLastContentImageHitTestUrl(result.getExtra());
 
-			} else {
-				menu.setHeaderTitle(m_article.title);
-				getActivity().getMenuInflater().inflate(R.menu.context_article_link, menu);
-			}
-		} else {
-			menu.setHeaderTitle(m_article.title);
-			getActivity().getMenuInflater().inflate(R.menu.context_article_link, menu);
-		}
+            } else {
+                menu.setHeaderTitle(m_article.title);
+                getActivity().getMenuInflater().inflate(R.menu.context_article_link, menu);
+            }
+        } else {
+            menu.setHeaderTitle(m_article.title);
+            getActivity().getMenuInflater().inflate(R.menu.context_article_link, menu);
+        }
 
-		super.onCreateContextMenu(menu, v, menuInfo);
+        super.onCreateContextMenu(menu, v, menuInfo);
 
-	}
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,15 +87,15 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         }
     }
 
-	@SuppressLint({"NewApi", "SimpleDateFormat"})
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
+    @SuppressLint({"NewApi", "SimpleDateFormat"})
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
 
-		final View view = inflater.inflate(R.layout.fragment_article, container, false);
+        final View view = inflater.inflate(R.layout.fragment_article, container, false);
 
-		// couldn't reinitialize state properly, might as well bail out
-		if (m_article == null) {
-		    m_activity.finish();
+        // couldn't reinitialize state properly, might as well bail out
+        if (m_article == null) {
+            m_activity.finish();
         }
 
         m_articleFontSize = m_prefs.getInt("article_font_size_sp_int", 16);
@@ -186,7 +186,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
             dv.setTextSize(TypedValue.COMPLEX_UNIT_SP, m_articleSmallFontSize);
 
             Date d = new Date(m_article.updated * 1000L);
-            long half_a_year_ago = System.currentTimeMillis()/1000L - 182*24*60*60;
+            long half_a_year_ago = System.currentTimeMillis() / 1000L - 182 * 24 * 60 * 60;
             DateFormat df;
             if (m_article.updated < half_a_year_ago)
                 df = new SimpleDateFormat("MMM dd, yyyy");
@@ -218,22 +218,23 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         m_web = view.findViewById(R.id.article_content);
 
         m_web.setWebViewClient(new WebViewClient() {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            try {
-                m_activity.openUri(Uri.parse(url));
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                try {
+                    m_activity.openUri(Uri.parse(url));
 
-                return true;
+                    return true;
 
-            } catch (Exception e){
-                e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return false;
             }
-
-            return false;
-        } });
+        });
 
         m_web.setOnLongClickListener(v -> {
-            HitTestResult result = ((WebView)v).getHitTestResult();
+            HitTestResult result = ((WebView) v).getHitTestResult();
 
             if (result.getType() == HitTestResult.IMAGE_TYPE || result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
                 registerForContextMenu(m_web);
@@ -248,7 +249,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         renderContent(savedInstanceState);
 
         return view;
-	}
+    }
 
     protected void renderContent(Bundle savedInstanceState) {
         if (!isAdded() || m_web == null) return;
@@ -263,13 +264,13 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
 
         String textColor = String.format("#%06X", (0xFFFFFF & tvTextColor.data));
 
-        String cssOverride = "body { color : "+textColor+"; }";
+        String cssOverride = "body { color : " + textColor + "; }";
 
         TypedValue tvColorPrimary = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, tvColorPrimary, true);
 
         String linkHexColor = String.format("#%06X", (0xFFFFFF & tvColorPrimary.data));
-        cssOverride += " a:link {color: "+linkHexColor+";} a:visited { color: "+linkHexColor+";}";
+        cssOverride += " a:link {color: " + linkHexColor + ";} a:visited { color: " + linkHexColor + ";}";
 
         String articleContent = m_article.content;
 
@@ -295,7 +296,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
                 "<meta content=\"text/html; charset=utf-8\" http-equiv=\"content-type\">" +
                 "<meta name=\"viewport\" content=\"width=device-width, user-scalable=no\" />" +
                 "<style type=\"text/css\">" +
-                "body { padding : 0px; margin : "+margin8dp+"px; line-height : 1.3; word-wrap: break-word; }" +
+                "body { padding : 0px; margin : " + margin8dp + "px; line-height : 1.3; word-wrap: break-word; }" +
                 "h1, h2, h3, h4, h5, h6 { line-height: 1; text-align: initial; }" +
                 "img, video, iframe { max-width : 100%; width : auto; height : auto; }" +
                 " table { width : 100%; }" +
@@ -374,14 +375,14 @@ public class ArticleFragment extends androidx.fragment.app.Fragment  {
         if (m_web != null) m_web.onResume();
     }
 
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 
-		m_prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-		m_activity = (DetailActivity)activity;
+        m_prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        m_activity = (DetailActivity) activity;
 
-	}
+    }
 
     @Override
     public void onSaveInstanceState(Bundle out) {

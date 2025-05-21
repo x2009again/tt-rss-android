@@ -18,12 +18,12 @@ import org.fox.ttrss.OnlineActivity;
 import org.fox.ttrss.R;
 
 public class SmallWidgetProvider extends AppWidgetProvider {
-	private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
-	public static final String ACTION_REQUEST_UPDATE = "org.fox.ttrss.WIDGET_FORCE_UPDATE";
+    public static final String ACTION_REQUEST_UPDATE = "org.fox.ttrss.WIDGET_FORCE_UPDATE";
 
     @Override
-	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         Log.d(TAG, "onUpdate");
 
         Intent intent = new Intent(context, OnlineActivity.class);
@@ -32,7 +32,7 @@ public class SmallWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_small);
         views.setOnClickPendingIntent(R.id.widget_main, pendingIntent);
 
-        SharedPreferences prefs  = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String widgetBackground = prefs.getString("widget_background", "WB_LIGHT");
 
         Log.d(TAG, "widget bg: " + widgetBackground);
@@ -51,7 +51,7 @@ public class SmallWidgetProvider extends AppWidgetProvider {
         appWidgetManager.updateAppWidget(appWidgetIds, views);
     }
 
-	@Override
+    @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive: " + intent);
 
@@ -59,15 +59,15 @@ public class SmallWidgetProvider extends AppWidgetProvider {
         ComponentName thisAppWidget = new ComponentName(context.getPackageName(), SmallWidgetProvider.class.getName());
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
 
-	    onUpdate(context, appWidgetManager, appWidgetIds);
+        onUpdate(context, appWidgetManager, appWidgetIds);
 
-	    if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) ||
+        if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) ||
                 ACTION_REQUEST_UPDATE.equals(intent.getAction())) {
 
-	        Log.d(TAG, "sheduling widget update...");
+            Log.d(TAG, "sheduling widget update...");
 
             CommonActivity.requestWidgetUpdate(context);
         }
-	}
+    }
 
 }

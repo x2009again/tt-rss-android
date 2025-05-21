@@ -220,7 +220,7 @@ public class GalleryVideoFragment extends GalleryBaseFragment {
         android.view.ViewGroup.LayoutParams lp = surfaceView.getLayoutParams();
         lp.width = (int) containerWidth;
         lp.height = (int) ((videoHeight / videoWidth) * containerWidth);
-        if(lp.height > containerHeight) {
+        if (lp.height > containerHeight) {
             lp.width = (int) ((videoWidth / videoHeight) * containerHeight);
             lp.height = (int) containerHeight;
         }

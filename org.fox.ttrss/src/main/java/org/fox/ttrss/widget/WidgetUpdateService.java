@@ -176,7 +176,7 @@ public class WidgetUpdateService extends JobIntentService {
         return networkInfo != null && networkInfo.isConnected();
     }
 
-	public void updateWidgets(int unread, int resultCode) {
+    public void updateWidgets(int unread, int resultCode) {
         Log.d(TAG, "updateWidgets:" + unread + " " + resultCode);
 
         Context context = getApplicationContext();
@@ -188,7 +188,7 @@ public class WidgetUpdateService extends JobIntentService {
         updateWidgetsText(context, appWidgetManager, appWidgetIds, unread, resultCode);
 
         if (resultCode != UPDATE_IN_PROGRESS) stopSelf();
-	}
+    }
 
     private void updateWidgetsText(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds, int unread, int resultCode) {
 

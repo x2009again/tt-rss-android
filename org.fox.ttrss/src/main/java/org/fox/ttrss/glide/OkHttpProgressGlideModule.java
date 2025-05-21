@@ -34,7 +34,8 @@ import okio.Source;
 
 @GlideModule
 public class OkHttpProgressGlideModule extends AppGlideModule {
-    @Override public void registerComponents(Context context, Glide glide, Registry registry) {
+    @Override
+    public void registerComponents(Context context, Glide glide, Registry registry) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addNetworkInterceptor(createInterceptor(new DispatchingProgressListener()))
                 .build();
@@ -59,8 +60,10 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
 
     public interface UIProgressListener {
         void onProgress(long bytesRead, long expectedLength);
+
         /**
          * Control how often the listener needs an update. 0% and 100% will always be dispatched.
+         *
          * @return in percentage (0.2 = call {@link #onProgress} around every 0.2 percent of progress)
          */
         float getGranualityPercentage();
@@ -69,6 +72,7 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
     public static void forget(String url) {
         DispatchingProgressListener.forget(url);
     }
+
     public static void expect(String url, UIProgressListener listener) {
         DispatchingProgressListener.expect(url, listener);
     }
@@ -82,6 +86,7 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
         private static final Map<String, Long> PROGRESSES = new HashMap<>();
 
         private final Handler handler;
+
         DispatchingProgressListener() {
             this.handler = new Handler(Looper.getMainLooper());
         }
@@ -90,11 +95,13 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
             LISTENERS.remove(url);
             PROGRESSES.remove(url);
         }
+
         static void expect(String url, UIProgressListener listener) {
             LISTENERS.put(url, listener);
         }
 
-        @Override public void update(HttpUrl url, final long bytesRead, final long contentLength) {
+        @Override
+        public void update(HttpUrl url, final long bytesRead, final long contentLength) {
             //System.out.printf("%s: %d/%d = %.2f%%%n", url, bytesRead, contentLength, (100f * bytesRead) / contentLength);
             //Log.d("resource progress", "url=" + url + " bytesRead="+ bytesRead + " of " + contentLength);
 
@@ -117,7 +124,7 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
                 return true;
             }
             float percent = 100f * current / total;
-            long currentProgress = (long)(percent / granularity);
+            long currentProgress = (long) (percent / granularity);
             Long lastProgress = PROGRESSES.get(key);
             if (lastProgress == null || currentProgress != lastProgress) {
                 PROGRESSES.put(key, currentProgress);
@@ -142,15 +149,18 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
             this.progressListener = progressListener;
         }
 
-        @Override public MediaType contentType() {
+        @Override
+        public MediaType contentType() {
             return responseBody.contentType();
         }
 
-        @Override public long contentLength() {
+        @Override
+        public long contentLength() {
             return responseBody.contentLength();
         }
 
-        @Override public BufferedSource source() {
+        @Override
+        public BufferedSource source() {
             if (bufferedSource == null) {
                 bufferedSource = Okio.buffer(source(responseBody.source()));
             }
@@ -160,7 +170,9 @@ public class OkHttpProgressGlideModule extends AppGlideModule {
         private Source source(Source source) {
             return new ForwardingSource(source) {
                 long totalBytesRead = 0L;
-                @Override public long read(Buffer sink, long byteCount) throws IOException {
+
+                @Override
+                public long read(Buffer sink, long byteCount) throws IOException {
                     long bytesRead = super.read(sink, byteCount);
                     long fullLength = responseBody.contentLength();
                     if (bytesRead == -1) { // this source is exhausted

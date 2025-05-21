@@ -23,7 +23,7 @@ public class GalleryEntry implements Serializable, Parcelable {
                 }
             };
 
-    public enum GalleryEntryType { TYPE_IMAGE, TYPE_VIDEO }
+    public enum GalleryEntryType {TYPE_IMAGE, TYPE_VIDEO}
 
     public String url;
     public GalleryEntryType type;

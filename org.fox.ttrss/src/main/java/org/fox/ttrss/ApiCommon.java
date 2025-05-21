@@ -47,15 +47,19 @@ public class ApiCommon {
 
     public interface ApiCaller {
         void setStatusCode(int statusCode);
+
         void setLastError(ApiError lastError);
+
         void setLastErrorMessage(String message);
+
         void notifyProgress(int progress);
     }
 
     public enum ApiError {
         SUCCESS, UNKNOWN_ERROR, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_BAD_REQUEST,
         HTTP_SERVER_ERROR, HTTP_OTHER_ERROR, SSL_REJECTED, SSL_HOSTNAME_REJECTED, PARSE_ERROR, IO_ERROR, OTHER_ERROR, API_DISABLED,
-        API_UNKNOWN, LOGIN_FAILED, INVALID_URL, API_INCORRECT_USAGE, NETWORK_UNAVAILABLE, API_UNKNOWN_METHOD }
+        API_UNKNOWN, LOGIN_FAILED, INVALID_URL, API_INCORRECT_USAGE, NETWORK_UNAVAILABLE, API_UNKNOWN_METHOD
+    }
 
     public static int getErrorMessage(ApiError error) {
         switch (error) {
@@ -298,15 +302,18 @@ public class ApiCommon {
             this.progressListener = progressListener;
         }
 
-        @Override public MediaType contentType() {
+        @Override
+        public MediaType contentType() {
             return responseBody.contentType();
         }
 
-        @Override public long contentLength() {
+        @Override
+        public long contentLength() {
             return responseBody.contentLength();
         }
 
-        @Override public BufferedSource source() {
+        @Override
+        public BufferedSource source() {
             if (bufferedSource == null) {
                 bufferedSource = Okio.buffer(source(responseBody.source()));
             }
@@ -316,7 +323,9 @@ public class ApiCommon {
         private Source source(Source source) {
             return new ForwardingSource(source) {
                 long totalBytesRead = 0L;
-                @Override public long read(Buffer sink, long byteCount) throws IOException {
+
+                @Override
+                public long read(Buffer sink, long byteCount) throws IOException {
                     long bytesRead = super.read(sink, byteCount);
                     long fullLength = responseBody.contentLength();
                     if (bytesRead == -1) { // this source is exhausted
@@ -338,9 +347,9 @@ public class ApiCommon {
 
             return String.format(Locale.ENGLISH,
                     "Tiny Tiny RSS (Android) %1$s (%2$d) %3$s",
-                        packageInfo.versionName,
-                        packageInfo.versionCode,
-                        System.getProperty("http.agent"));
+                    packageInfo.versionName,
+                    packageInfo.versionCode,
+                    System.getProperty("http.agent"));
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

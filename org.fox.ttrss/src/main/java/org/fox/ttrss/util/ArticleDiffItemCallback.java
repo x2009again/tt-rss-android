@@ -8,7 +8,9 @@ import org.fox.ttrss.types.Article;
 public class ArticleDiffItemCallback extends DiffUtil.ItemCallback<Article> {
     private final String TAG = this.getClass().getSimpleName();
 
-    public enum ChangePayload { UNREAD, MARKED, SELECTED, PUBLISHED, NOTE, ACTIVE, SCORE };
+    public enum ChangePayload {UNREAD, MARKED, SELECTED, PUBLISHED, NOTE, ACTIVE, SCORE}
+
+    ;
 
     @Override
     public boolean areItemsTheSame(@NonNull Article oldItem, @NonNull Article newItem) {

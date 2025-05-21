@@ -115,7 +115,7 @@ public class GalleryModel extends AndroidViewModel {
 
                             m_items.postValue(checkList);
                         } else {
-                           if (!isDataUri(src)) {
+                            if (!isDataUri(src)) {
                                 checkList.add(new GalleryEntry(src, GalleryEntry.GalleryEntryType.TYPE_VIDEO, poster));
                                 m_items.postValue(checkList);
                             }

@@ -21,144 +21,144 @@ import java.util.ArrayList;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
-	private final String TAG = this.getClass().getSimpleName();
-	private PagerAdapter m_adapter;
-	private HeadlinesEventListener m_listener;
-	private OnlineActivity m_activity;
-	private Feed m_feed;
-	private ViewPager2 m_pager;
+    private final String TAG = this.getClass().getSimpleName();
+    private PagerAdapter m_adapter;
+    private HeadlinesEventListener m_listener;
+    private OnlineActivity m_activity;
+    private Feed m_feed;
+    private ViewPager2 m_pager;
 
-	private static class PagerAdapter extends DiffFragmentStateAdapter<Article> {
+    private static class PagerAdapter extends DiffFragmentStateAdapter<Article> {
 
-		public PagerAdapter(@NonNull Fragment fragment) {
-			super(fragment, new ArticleDiffItemCallback());
-		}
+        public PagerAdapter(@NonNull Fragment fragment) {
+            super(fragment, new ArticleDiffItemCallback());
+        }
 
-		private void syncToSharedArticles() {
-			submitList(new ArrayList<>(Application.getArticles()));
-		}
+        private void syncToSharedArticles() {
+            submitList(new ArrayList<>(Application.getArticles()));
+        }
 
-		@Override
-		@NonNull
-		public Fragment createFragment(int position) {
-			Article article = getItem(position);
+        @Override
+        @NonNull
+        public Fragment createFragment(int position) {
+            Article article = getItem(position);
 
-			ArticleFragment af = new ArticleFragment();
-			af.initialize(article);
+            ArticleFragment af = new ArticleFragment();
+            af.initialize(article);
 
-			return af;
-		}
-	}
-		
-	public void initialize(int articleId, Feed feed) {
-		m_feed = feed;
-	}
+            return af;
+        }
+    }
 
-	@Override
-	public void onSaveInstanceState(Bundle out) {
-		super.onSaveInstanceState(out);
+    public void initialize(int articleId, Feed feed) {
+        m_feed = feed;
+    }
 
-		out.putParcelable("m_feed", m_feed);
-	}
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+        out.putParcelable("m_feed", m_feed);
+    }
 
-		if (savedInstanceState != null) {
-			m_feed = savedInstanceState.getParcelable("m_feed");
-		}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		setRetainInstance(true);
-	}
+        if (savedInstanceState != null) {
+            m_feed = savedInstanceState.getParcelable("m_feed");
+        }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {    	
-		View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
+        setRetainInstance(true);
+    }
 
-		m_adapter = new PagerAdapter(this);
-		m_adapter.submitList(Application.getArticles());
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_article_pager, container, false);
 
-		ArticleModel model = Application.getArticlesModel();
+        m_adapter = new PagerAdapter(this);
+        m_adapter.submitList(Application.getArticles());
 
-		// deal with further updates
-		model.getArticles().observe(getActivity(), articles -> {
-				Log.d(TAG, "observed article list size=" + articles.size());
-				m_adapter.submitList(articles);
-			});
+        ArticleModel model = Application.getArticlesModel();
 
-		model.getActive().observe(getActivity(), (activeArticle) -> {
-			Log.d(TAG, "observed active article=" + activeArticle);
+        // deal with further updates
+        model.getArticles().observe(getActivity(), articles -> {
+            Log.d(TAG, "observed article list size=" + articles.size());
+            m_adapter.submitList(articles);
+        });
 
-			if (activeArticle != null) {
-				int position = model.getArticles().getValue().indexOf(activeArticle);
+        model.getActive().observe(getActivity(), (activeArticle) -> {
+            Log.d(TAG, "observed active article=" + activeArticle);
 
-				if (position != -1 && position != m_pager.getCurrentItem())
-					m_pager.setCurrentItem(position, false);
-			}
-		});
+            if (activeArticle != null) {
+                int position = model.getArticles().getValue().indexOf(activeArticle);
 
-		m_pager = view.findViewById(R.id.article_pager);
+                if (position != -1 && position != m_pager.getCurrentItem())
+                    m_pager.setCurrentItem(position, false);
+            }
+        });
 
-		m_pager.setAdapter(m_adapter);
-		m_pager.setOffscreenPageLimit(3);
+        m_pager = view.findViewById(R.id.article_pager);
 
-		m_pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-			@Override
-			public void onPageSelected(int position) {
-				Log.d(TAG, "onPageSelected: " + position);
+        m_pager.setAdapter(m_adapter);
+        m_pager.setOffscreenPageLimit(3);
 
-				// wtf
-				if (position != -1) {
-					Article article = Application.getArticles().get(position);
+        m_pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                Log.d(TAG, "onPageSelected: " + position);
 
-					m_listener.onArticleSelected(article);
-				}
-			}
-		});
+                // wtf
+                if (position != -1) {
+                    Article article = Application.getArticles().get(position);
 
-		return view;
-	}
+                    m_listener.onArticleSelected(article);
+                }
+            }
+        });
 
-	@Override
-	public void onAttach(@NonNull Activity activity) {
-		super.onAttach(activity);		
-		
-		m_listener = (HeadlinesEventListener)activity;
-		m_activity = (OnlineActivity)activity;
-	}
+        return view;
+    }
 
-	@SuppressLint("NewApi")
-	@Override
-	public void onResume() {
-		super.onResume();
+    @Override
+    public void onAttach(@NonNull Activity activity) {
+        super.onAttach(activity);
 
-		m_activity.invalidateOptionsMenu();
-	}
+        m_listener = (HeadlinesEventListener) activity;
+        m_activity = (OnlineActivity) activity;
+    }
 
-	public void switchToArticle(boolean next) {
-		int position = m_pager.getCurrentItem();
+    @SuppressLint("NewApi")
+    @Override
+    public void onResume() {
+        super.onResume();
 
-		if (position != -1) {
+        m_activity.invalidateOptionsMenu();
+    }
 
-			if (next)
-				position++;
-			else
-				position--;
+    public void switchToArticle(boolean next) {
+        int position = m_pager.getCurrentItem();
 
-			try {
-				Article targetArticle = Application.getArticles().get(position);
+        if (position != -1) {
 
-				Application.getArticlesModel().setActive(targetArticle);
+            if (next)
+                position++;
+            else
+                position--;
 
-			} catch (IndexOutOfBoundsException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+            try {
+                Article targetArticle = Application.getArticles().get(position);
 
-	public void syncToSharedArticles() {
-		if (m_adapter != null)
-			m_adapter.syncToSharedArticles();
-	}
+                Application.getArticlesModel().setActive(targetArticle);
+
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void syncToSharedArticles() {
+        if (m_adapter != null)
+            m_adapter.syncToSharedArticles();
+    }
 }

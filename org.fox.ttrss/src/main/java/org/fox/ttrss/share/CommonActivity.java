@@ -6,37 +6,37 @@ import android.view.Display;
 import android.widget.Toast;
 
 public class CommonActivity extends Activity {
-	private final String TAG = this.getClass().getSimpleName();
-	
-	private boolean m_smallScreenMode = true;
+    private final String TAG = this.getClass().getSimpleName();
 
-	protected void setSmallScreen(boolean smallScreen) {
-		Log.d(TAG, "m_smallScreenMode=" + smallScreen);
-		m_smallScreenMode = smallScreen;
-	}
-	
-	public void toast(int msgId) {
-		Toast toast = Toast.makeText(CommonActivity.this, msgId, Toast.LENGTH_SHORT);
-		toast.show();
-	}
+    private boolean m_smallScreenMode = true;
 
-	public void toast(String msg) {
-		Toast toast = Toast.makeText(CommonActivity.this, msg, Toast.LENGTH_SHORT);
-		toast.show();
-	}
+    protected void setSmallScreen(boolean smallScreen) {
+        Log.d(TAG, "m_smallScreenMode=" + smallScreen);
+        m_smallScreenMode = smallScreen;
+    }
 
-	public boolean isSmallScreen() {
-		return m_smallScreenMode;
-	}
+    public void toast(int msgId) {
+        Toast toast = Toast.makeText(CommonActivity.this, msgId, Toast.LENGTH_SHORT);
+        toast.show();
+    }
 
-	public boolean isPortrait() {
-		Display display = getWindowManager().getDefaultDisplay(); 
-		
-	    int width = display.getWidth();
-	    int height = display.getHeight();
-		
-	    return width < height;
-	}
-	
+    public void toast(String msg) {
+        Toast toast = Toast.makeText(CommonActivity.this, msg, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    public boolean isSmallScreen() {
+        return m_smallScreenMode;
+    }
+
+    public boolean isPortrait() {
+        Display display = getWindowManager().getDefaultDisplay();
+
+        int width = display.getWidth();
+        int height = display.getHeight();
+
+        return width < height;
+    }
+
 
 }

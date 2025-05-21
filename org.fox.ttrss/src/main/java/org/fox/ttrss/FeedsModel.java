@@ -94,12 +94,12 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
         m_isLoading.postValue(true);
 
         m_executor.execute(() -> {
-            final HashMap<String,String> params = new HashMap<>();
+            final HashMap<String, String> params = new HashMap<>();
 
             params.put("op", "getFeeds");
             params.put("cat_id", String.valueOf(m_feed.id));
             params.put("include_nested", "true");
-            params.put("sid", ((org.fox.ttrss.Application)getApplication()).getSessionId());
+            params.put("sid", ((org.fox.ttrss.Application) getApplication()).getSessionId());
 
             final JsonElement result = ApiCommon.performRequest(getApplication(), params, this);
 
@@ -112,18 +112,18 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
                 JsonArray content = result.getAsJsonArray();
                 if (content != null) {
 
-                    Type listType = new TypeToken<List<Feed>>() {}.getType();
+                    Type listType = new TypeToken<List<Feed>>() {
+                    }.getType();
 
                     List<Feed> feedsJson = new Gson().fromJson(content, listType);
 
                     // seems to be necessary evil because of deserialization
                     feedsJson = feedsJson.stream().peek(Feed::fixNullFields).collect(Collectors.toList());
 
-
-		            if (unreadOnly && m_feed.id != Feed.CAT_SPECIAL)
-			            feedsJson = feedsJson.stream()
-                            .filter(f -> f.unread > 0)
-                            .collect(Collectors.toList());
+                    if (unreadOnly && m_feed.id != Feed.CAT_SPECIAL)
+                        feedsJson = feedsJson.stream()
+                                .filter(f -> f.unread > 0)
+                                .collect(Collectors.toList());
 
                     sortFeeds(feedsJson, m_feed, null);
 
@@ -148,7 +148,9 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
         return m_lastUpdate;
     }
 
-    public LiveData<Boolean> getIsLoading() { return m_isLoading; }
+    public LiveData<Boolean> getIsLoading() {
+        return m_isLoading;
+    }
 
     public LiveData<List<Feed>> getFeeds() {
         return m_feeds;
@@ -185,8 +187,7 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
                     return a.order_id - b.order_id;
                 else
                     return a.title.toUpperCase().compareTo(b.title.toUpperCase());
-            else
-            if (a.id < CommonActivity.LABEL_BASE_INDEX && b.id < CommonActivity.LABEL_BASE_INDEX)
+            else if (a.id < CommonActivity.LABEL_BASE_INDEX && b.id < CommonActivity.LABEL_BASE_INDEX)
                 return a.title.toUpperCase().compareTo(b.title.toUpperCase());
             else
                 return a.id - b.id;
@@ -260,6 +261,6 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
         } catch (IllegalArgumentException e) {
             //
         }
-   }
+    }
 
 }
