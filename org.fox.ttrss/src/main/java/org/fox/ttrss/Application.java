@@ -12,10 +12,11 @@ import org.acra.config.CoreConfigurationBuilder;
 import org.acra.config.DialogConfigurationBuilder;
 import org.acra.config.MailSenderConfigurationBuilder;
 import org.acra.data.StringFormat;
-import org.fox.ttrss.types.ArticleList;
+import org.fox.ttrss.types.Article;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class Application extends android.app.Application {
 
@@ -31,7 +32,7 @@ public class Application extends android.app.Application {
 		return m_singleton;
 	}
 
-	public static ArticleList getArticles() {
+	public static List<Article> getArticles() {
 		return getInstance().m_articleModel.getArticles().getValue();
 	}
 

@@ -13,10 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.util.ArticleDiffItemCallback;
 import org.fox.ttrss.util.DiffFragmentStateAdapter;
+
+import java.util.ArrayList;
 
 public class ArticlePager extends androidx.fragment.app.Fragment {
 
@@ -34,7 +35,7 @@ public class ArticlePager extends androidx.fragment.app.Fragment {
 		}
 
 		private void syncToSharedArticles() {
-			submitList(new ArticleList(Application.getArticles()));
+			submitList(new ArrayList<>(Application.getArticles()));
 		}
 
 		@Override

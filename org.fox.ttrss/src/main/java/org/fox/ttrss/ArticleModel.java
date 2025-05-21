@@ -19,18 +19,19 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private final String TAG = this.getClass().getSimpleName();
-    @NonNull private final MutableLiveData<ArticleList> m_articles = new MutableLiveData<>(new ArticleList());
+    @NonNull private final MutableLiveData<List<Article>> m_articles = new MutableLiveData<>(new ArrayList<Article>());
     private SharedPreferences m_prefs;
     private final int m_responseCode = 0;
     protected String m_responseMessage;
@@ -67,7 +68,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         return m_lastUpdate;
     }
 
-    public LiveData<ArticleList> getArticles() {
+    public LiveData<List<Article>> getArticles() {
         return m_articles;
     }
 
@@ -83,7 +84,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         m_articles.postValue(m_articles.getValue());
     }
 
-    public void update(@NonNull ArticleList articles) {
+    public void update(@NonNull List<Article> articles) {
         m_articles.postValue(articles);
     }
 
@@ -91,13 +92,14 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         return m_activeArticle;
     }
 
+    /** returns null if there's none or it is invalid (missing in list) */
     public Article getActiveArticle() {
-        ArticleList articles = m_articles.getValue();
+        List<Article> articles = m_articles.getValue();
 
         try {
-            // always get uptodate item from model list
+            // always get uptodate item from model list if possible
             return articles.get(articles.indexOf(m_activeArticle.getValue()));
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             return null;
         }
     }
@@ -160,7 +162,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     public enum ArticlesSelection { ALL, NONE, UNREAD }
 
     public void setSelection(@NonNull ArticlesSelection select) {
-        ArticleList articles = m_articles.getValue();
+        List<Article> articles = m_articles.getValue();
 
         for (int i = 0; i < articles.size(); i++) {
             Article articleClone = new Article(articles.get(i));
@@ -178,7 +180,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
     private void loadInBackground() {
         Log.d(TAG, this + " loadInBackground append=" + m_append + " offset=" + m_offset + " lazyLoadEnabled=" + m_lazyLoadEnabled);
 
-        final ArticleList articlesWork = new ArticleList(m_articles.getValue());
+        final List<Article> articlesWork = new ArrayList<>(m_articles.getValue());
 
         m_isLoading.postValue(true);
 
@@ -270,11 +272,13 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
                         m_amountLoaded = articlesJson.size();
 
                         for (Article article : articlesJson)
-                            if (!articlesWork.containsId(article.id)) {
+                            if (!articlesWork.contains(article)) {
                                 article.collectMediaInfo();
                                 article.cleanupExcerpt();
                                 article.fixNullFields();
                                 articlesWork.add(article);
+                            } else {
+                                Log.d(TAG, "duplicate:" + article);
                             }
 
                         if (m_firstIdChanged) {
@@ -308,14 +312,14 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         });
     }
 
-    private int getSkip(boolean append, @NonNull ArticleList articles) {
+    private int getSkip(boolean append, @NonNull List<Article> articles) {
         int skip = 0;
 
         if (append) {
             // adaptive, all_articles, marked, published, unread
             String viewMode = m_prefs.getString("view_mode", "adaptive");
 
-            int numUnread = Math.toIntExact(articles.getUnreadCount());
+            int numUnread = Math.toIntExact(getUnread(articles).size());
             int numAll = Math.toIntExact(articles.size());
 
             if ("marked".equals(viewMode)) {
@@ -408,4 +412,14 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             startLoading(false, m_feed, m_resizeWidth);
         }
     }
+
+
+    public List<Article> getUnread(List<Article> articles) {
+        return articles.stream().filter(a -> { return a.unread; }).collect(Collectors.toList());
+    }
+
+    public List<Article> getSelected() {
+        return m_articles.getValue().stream().filter(a -> { return a.selected; }).collect(Collectors.toList());
+    }
+
 }

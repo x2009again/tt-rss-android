@@ -75,7 +75,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.fox.ttrss.glide.ProgressTarget;
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Attachment;
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.util.ArticleDiffItemCallback;
@@ -84,6 +83,7 @@ import org.jsoup.nodes.Element;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -108,7 +108,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	private SharedPreferences m_prefs;
 
 	private ArticleListAdapter m_adapter;
-	private final ArticleList m_readArticles = new ArticleList();
+	private final List<Article> m_readArticles = new ArrayList<>();
 	private HeadlinesEventListener m_listener;
 	private OnlineActivity m_activity;
 	private SwipeRefreshLayout m_swipeLayout;
@@ -164,44 +164,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             m_activity.shareArticle(article);
             return true;
         } else if (itemId == R.id.catchup_above) {
-            final Article fa = article;
-
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-				.setMessage(R.string.confirm_catchup_above)
-				.setPositiveButton(R.string.dialog_ok,
-					(dialog, which) -> catchupAbove(fa))
-				.setNegativeButton(R.string.dialog_cancel,
-					(dialog, which) -> { });
-
-            Dialog dialog = builder.create();
-            dialog.show();
+			m_activity.confirmCatchupAbove(article);
             return true;
         }
         Log.d(TAG, "onArticleMenuItemSelected, unhandled id=" + item.getItemId());
         return false;
     }
-
-	private void catchupAbove(Article article) {
-
-		ArticleList tmp = new ArticleList();
-		ArticleList articles = Application.getArticles();
-
-		for (Article a : articles) {
-            if (article.equalsById(a))
-                break;
-
-            if (a.unread) {
-				Article articleClone = new Article(a);
-                articleClone.unread = false;
-
-				tmp.add(articleClone);
-            }
-        }
-
-		if (!tmp.isEmpty()) {
-			m_activity.setArticlesUnread(tmp, Article.UPDATE_SET_FALSE);
-        }
-	}
 
 	// all onContextItemSelected are invoked in sequence so we might get a context menu for headlines, etc
 	public boolean onContextItemSelected(MenuItem item) {
@@ -359,7 +327,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 								wasUnread = false;
 							}
 
-							ArticleList tmpRemove = new ArticleList(Application.getArticles());
+							List<Article> tmpRemove = new ArrayList<>(Application.getArticles());
 							tmpRemove.remove(adapterPosition);
 
 							Application.getArticlesModel().update(tmpRemove);
@@ -372,7 +340,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                                             m_activity.saveArticleUnread(article);
                                         }
 
-										ArticleList tmpInsert = new ArticleList(Application.getArticles());
+										List<Article> tmpInsert = new ArrayList<>(Application.getArticles());
 										tmpInsert.add(adapterPosition, article);
 
 										Application.getArticlesModel().update(tmpInsert);
@@ -392,7 +360,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 		m_list.setOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
-			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
 
 				ArticleModel model = Application.getArticlesModel();
@@ -401,7 +369,9 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 					if (!m_readArticles.isEmpty() && !m_isLazyLoading && !model.isLoading() && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
 						Log.d(TAG, "marking articles as read, count=" + m_readArticles.size());
 
-						m_activity.setArticlesUnread(m_readArticles, Article.UPDATE_SET_FALSE);
+						// since we clear the list after we send the batch to mark as read, we need to pass a cloned arraylist here,
+						// otherwise nothing would get marked as read when async operation completes
+						m_activity.setArticlesUnread(new ArrayList<>(m_readArticles), Article.UPDATE_SET_FALSE);
 
 						m_readArticles.clear();
 
@@ -411,7 +381,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 			}
 
 			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
 				super.onScrolled(recyclerView, dx, dy);
 
 				int firstVisibleItem = m_layoutManager.findFirstVisibleItemPosition();
@@ -425,7 +395,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 							Article article = Application.getArticles().get(i);
 
 							if (article.unread && !m_readArticles.contains(article))
-								m_readArticles.add(article);
+								m_readArticles.add(new Article(article));
 
 						} catch (IndexOutOfBoundsException e) {
 							e.printStackTrace();
@@ -478,7 +448,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		// this gets notified on network update
 		model.getUpdatesData().observe(getActivity(), lastUpdate -> {
 			if (lastUpdate > 0) {
-				ArticleList tmp = new ArticleList(model.getArticles().getValue());
+				List<Article> tmp = new ArrayList<>(model.getArticles().getValue());
 
 				Log.d(TAG, "observed headlines last update=" + lastUpdate + " article count=" + tmp.size());
 
@@ -524,7 +494,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 		model.getArticles().observe(getActivity(), articles -> {
 			Log.d(TAG, "observed headlines article list size=" + articles.size());
 
-			ArticleList tmp = new ArticleList(articles);
+			List<Article> tmp = new ArrayList<>(articles);
 
 			if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
 				tmp.add(new Article(Article.TYPE_AMR_FOOTER));
@@ -1597,9 +1567,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 	}
 
 	private void syncToSharedArticles() {
-		ArticleList tmp = new ArticleList();
-
-		tmp.addAll(Application.getArticles());
+		List<Article> tmp = new ArrayList<>(Application.getArticles());
 
 		if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
 			tmp.add(new Article(Article.TYPE_AMR_FOOTER));

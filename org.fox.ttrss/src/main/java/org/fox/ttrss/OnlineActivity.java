@@ -38,12 +38,13 @@ import com.google.gson.reflect.TypeToken;
 
 import org.fox.ttrss.share.SubscribeActivity;
 import org.fox.ttrss.types.Article;
-import org.fox.ttrss.types.ArticleList;
 import org.fox.ttrss.types.Feed;
 import org.fox.ttrss.types.Label;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -121,7 +122,19 @@ public class OnlineActivity extends CommonActivity {
 		}
 	}
 
-	//protected PullToRefreshAttacher m_pullToRefreshAttacher;
+    public void confirmCatchupAbove(final Article article) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setMessage(getString(R.string.confirm_catchup_above_title, article.title))
+                .setPositiveButton(R.string.dialog_ok,
+                        (dialog, which) -> catchupAbove(article))
+                .setNegativeButton(R.string.dialog_cancel,
+                        (dialog, which) -> { });
+
+        Dialog dialog = builder.create();
+        dialog.show();
+    }
+
+    //protected PullToRefreshAttacher m_pullToRefreshAttacher;
 
 	protected static abstract class OnLoginFinishedListener {
 		public abstract void OnLoginSuccess();
@@ -550,7 +563,7 @@ public class OnlineActivity extends CommonActivity {
             }
             return true;
         } else if (itemId == R.id.selection_toggle_unread) {
-            ArticleList selected = Application.getArticles().getSelected();
+            List<Article> selected = Application.getArticlesModel().getSelected();
 
             if (!selected.isEmpty()) {
                 for (Article a : selected) {
@@ -562,7 +575,7 @@ public class OnlineActivity extends CommonActivity {
             }
             return true;
         } else if (itemId == R.id.selection_toggle_marked) {
-            ArticleList selected = Application.getArticles().getSelected();
+            List<Article> selected = Application.getArticlesModel().getSelected();
 
             if (!selected.isEmpty()) {
                 for (Article a : selected) {
@@ -574,7 +587,7 @@ public class OnlineActivity extends CommonActivity {
             }
             return true;
         } else if (itemId == R.id.selection_toggle_published) {
-            ArticleList selected = Application.getArticles().getSelected();
+            List<Article> selected = Application.getArticlesModel().getSelected();
 
             if (!selected.isEmpty()) {
                 for (Article a : selected) {
@@ -594,18 +607,9 @@ public class OnlineActivity extends CommonActivity {
             }
             return true;
         } else if (itemId == R.id.catchup_above) {
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                    .setMessage(R.string.confirm_catchup_above)
-                    .setPositiveButton(R.string.dialog_ok,
-                            (dialog, which) -> catchupAbove())
-                    .setNegativeButton(R.string.dialog_cancel,
-                            (dialog, which) -> {
-
-                            });
-
-            Dialog dialog = builder.create();
-            dialog.show();
-
+            if (activeArticle != null) {
+                confirmCatchupAbove(activeArticle);
+            }
             return true;
         } else if (itemId == R.id.article_set_labels) {
             if (getApiLevel() != 7) {
@@ -621,14 +625,12 @@ public class OnlineActivity extends CommonActivity {
         return super.onOptionsItemSelected(item);
     }
 
-	private void catchupAbove() {
-        Article activeArticle = Application.getArticlesModel().getActiveArticle();
-
-        if (activeArticle != null) {
-            ArticleList tmp = new ArticleList();
+	protected void catchupAbove(final Article startingArticle) {
+        if (startingArticle != null) {
+            List<Article> tmp = new ArrayList<>();
 
             for (Article a : Application.getArticles()) {
-                if (a.id == activeArticle.id)
+                if (a.id == startingArticle.id)
                     break;
 
                 Article articleClone = new Article(a);
@@ -637,8 +639,6 @@ public class OnlineActivity extends CommonActivity {
                     articleClone.unread = false;
 
                     tmp.add(articleClone);
-
-                    Application.getArticlesModel().update(articleClone);
                 }
             }
 
@@ -919,53 +919,53 @@ public class OnlineActivity extends CommonActivity {
 	}
 
     public void saveArticleUnread(final Article article) {
-        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_UNREAD,
+        setArticlesField(Collections.singletonList(article), Article.UPDATE_FIELD_UNREAD,
                 article.unread ? Article.UPDATE_SET_TRUE : Article.UPDATE_SET_FALSE);
     }
 
     public void saveArticleScore(final Article article) {
-        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_SCORE, Article.UPDATE_SET_TRUE);
+        setArticlesField(Collections.singletonList(article), Article.UPDATE_FIELD_SCORE, Article.UPDATE_SET_TRUE);
     }
 
     public void saveArticleMarked(final Article article) {
-        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_MARKED,
+        setArticlesField(Collections.singletonList(article), Article.UPDATE_FIELD_MARKED,
                 article.marked ? Article.UPDATE_SET_TRUE : Article.UPDATE_SET_FALSE);
     }
 
     public void saveArticlePublished(final Article article) {
-        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_PUBLISHED,
+        setArticlesField(Collections.singletonList(article), Article.UPDATE_FIELD_PUBLISHED,
                 article.published ? Article.UPDATE_SET_TRUE : Article.UPDATE_SET_FALSE);
     }
 
     public void saveArticleNote(final Article article, final String note) {
-        setArticlesField(new ArticleList(article), Article.UPDATE_FIELD_NOTE, Article.UPDATE_SET_TRUE);
+        setArticlesField(Collections.singletonList(article), Article.UPDATE_FIELD_NOTE, Article.UPDATE_SET_TRUE);
     }
 
-    public void toggleArticlesMarked(final ArticleList articles) {
+    public void toggleArticlesMarked(final List<Article> articles) {
         setArticlesMarked(articles, Article.UPDATE_TOGGLE);
     }
 
-	public void setArticlesMarked(final ArticleList articles, int mode) {
+	public void setArticlesMarked(final List<Article> articles, int mode) {
         setArticlesField(articles, Article.UPDATE_FIELD_MARKED, mode);
 	}
 
-    public void toggleArticlesUnread(final ArticleList articles) {
+    public void toggleArticlesUnread(final List<Article> articles) {
         setArticlesUnread(articles, Article.UPDATE_FIELD_UNREAD);
     }
 
-	public void setArticlesUnread(final ArticleList articles, int mode) {
+	public void setArticlesUnread(final List<Article> articles, int mode) {
         setArticlesField(articles, Article.UPDATE_FIELD_UNREAD, mode);
 	}
 
-    public void toggleArticlesPublished(final ArticleList articles) {
+    public void toggleArticlesPublished(final List<Article> articles) {
         setArticlesPublished(articles, Article.UPDATE_TOGGLE);
     }
 
-	public void setArticlesPublished(final ArticleList articles, int mode) {
+	public void setArticlesPublished(final List<Article> articles, int mode) {
         setArticlesField(articles, Article.UPDATE_FIELD_PUBLISHED, mode);
 	}
 
-    public void setArticlesField(final ArticleList articles, int field, int mode) {
+    public void setArticlesField(final List<Article> articles, int field, int mode) {
         ApiRequest req = new ApiRequest(getApplicationContext()) {
             protected void onPostExecute(JsonElement result) {
                 if (m_lastError == ApiCommon.ApiError.SUCCESS) {
@@ -1319,8 +1319,10 @@ public class OnlineActivity extends CommonActivity {
     }
 
     public void enableActionModeObserver() {
-        Application.getArticlesModel().getArticles().observe(this, (articles -> {
-            int selectedCount = articles.getSelectedCount();
+        ArticleModel model = Application.getArticlesModel();
+
+        model.getArticles().observe(this, (articles -> {
+            int selectedCount = model.getSelected().size();
 
             Log.d(TAG, "observed selected articles=" + selectedCount);
 
