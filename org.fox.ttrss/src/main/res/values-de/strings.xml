@@ -7,7 +7,7 @@
     <string name="login_login">Anmelden</string>
     <string name="logout">Abmelden</string>
     <string name="login">Benutzername</string>
-    <string name="debugging">Debugging</string>
+    <string name="debugging">Fehlersuche</string>
     <string name="password">Passwort</string>
     <string name="default_url">http://example.domain/tt-rss/</string>
     <string name="look_and_feel">Oberfläche</string>
@@ -152,8 +152,8 @@
     <string name="error_url_is_an_html_page_no_feeds_found">Fehler: URL ist eine HTML-Seite, keine Feeds gefunden.</string>
     <string name="error_url_contains_multiple_feeds">Fehler: URL enthält mehrere Feeds</string>
     <string name="error_could_not_download_url">Fehler: Konnte URL nicht downloaden</string>
-    <string name="headlines_view_mode">Setze Anzeigemodus</string>
-    <string name="headlines_set_view_mode">Setze Anzeigemodus</string>
+    <string name="headlines_view_mode">Ansichtsmodus einstellen</string>
+    <string name="headlines_set_view_mode">Ansichtsmodus einstellen</string>
     <string name="headlines_adaptive">Adaptiv</string>
     <string name="headlines_all_articles">Alle Artikel</string>
     <string name="headlines_starred">Markierte</string>
@@ -284,4 +284,18 @@
     <string name="img_share_url">URL teilen</string>
     <string name="img_share_image">Bild teilen</string>
     <string name="img_share_failed_to_load">Zu teilendes Bild konnte nicht geladen werden</string>
+    <string name="blank">" "</string>
+    <string name="score_for_this_article">Bewertung für diesen Artikel</string>
+    <string name="update_categories">Kategorien anpassen</string>
+    <string name="open_on_startup">Beim Starten öffnen</string>
+    <string name="set_score">Bewertung setzen</string>
+    <string name="score_invalid">Ungültige Bewertung</string>
+    <string name="dont_open_anything">Nichts</string>
+    <string name="check_for_updates_summary">Beim Start nach neuer App-Version suchen</string>
+    <string name="check_for_updates">Nach Updates suchen</string>
+    <string name="headlines_display_mode">Anzeigemodus einstellen</string>
+    <string name="catchup_dialog_title_search">Suchergebnisse in %1$s als gelesen markieren?</string>
+    <string name="article_edit_note">Notiz bearbeiten</string>
+    <string name="error_success">Vorgang erfolgreich abgeschlossen</string>
+    <string name="error_bad_request">Fehler: 400 bad request</string>
 </resources>
