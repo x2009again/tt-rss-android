@@ -222,7 +222,7 @@
     <string name="offline_media_cache_enabled_summary">メディアをSDカードにダウンロードします。有効にするとオフライン準備時間が長くなる可能性があります</string>
     <string name="notify_downloading_media">メディアをダウンロード中…</string>
     <string name="article_media_share">シェア</string>
-    <string name="cat_special">スペシャル</string>
+    <string name="cat_special">特別</string>
     <string name="headline_display_mode_compact_noimages">コンパクト(画像無し)</string>
     <string name="title_activity_video_player">ビデオプレーヤー</string>
     <string name="action_settings">設定</string>
@@ -231,7 +231,7 @@
     <string name="prefs_use_custom_tabs">クイックプレビューを使用</string>
     <string name="prefs_always_open_uri">常にブラウザで開く</string>
     <string name="prefs_always_open_uri_summary">記事の詳細を開かず直接ブラウザで開く</string>
-    <string name="confirm_catchup_above">既読にしますか?</string>
+    <string name="confirm_catchup_above">既読にしますか？</string>
     <string name="headline_undo_row_button">元に戻す</string>
     <string name="pref_headlines_swipe_to_dismiss_long">ヘッドラインのコンテキストメニューを無効にする</string>
     <string name="pref_widget_update_interval">更新間隔 (分単位)</string>
@@ -257,7 +257,7 @@
     <string name="force_phone_layout">スマートホンレイアウトに強制</string>
     <string name="prefs_inline_video_player_title">インラインビデオプレーヤー</string>
     <string name="force_phone_layout_summary">タブレット端末で</string>
-    <string name="catchup_dialog_title">%1$sを既読にしますか?</string>
+    <string name="catchup_dialog_title">%1$sを既読にしますか？</string>
     <string name="catchup_dialog_2week">2週間以上前</string>
     <string name="catchup_dialog_all_articles">全ての記事</string>
     <string name="catchup_dialog_1day">1日以上前</string>
@@ -278,7 +278,7 @@
     <string name="dialog_ok">OK</string>
     <string name="prefs_headline_request_size">ヘッドラインリクエスト数</string>
     <string name="prefs_inline_video_player">Experimental. 長押しで別プレーヤを開く</string>
-    <string name="catchup_dialog_title_search">%1$sの検索結果を既読にしますか?</string>
+    <string name="catchup_dialog_title_search">%1$sの検索結果を既読にしますか？</string>
     <string name="pref_headlines_swipe_to_dismiss">スワイプで非表示</string>
     <string name="quick_preview">クイックプレビュー</string>
     <string name="prefs_enable_image_downsampling_long">Wi-Fiでなければ画質を落とす。プラグインが必要 (ttrss-api-resize)</string>
@@ -287,4 +287,15 @@
     <string name="headline_undo_row_prompt">既読にする</string>
     <string name="widget_background_light">ライト</string>
     <string name="article_edit_note">注釈を編集</string>
+    <string name="error_success">オペレーションは正常に完了しました</string>
+    <string name="error_bad_request">エラー: 400 bad request</string>
+    <string name="crash_dialog_text_email">残念ながら、Tiny Tiny RSSは停止しました。電子メールでクラッシュレポートを送信しますか？</string>
+    <string name="enable_icon_tinting_summary">アイコンの色で識別が難しい場合は無効にしてください</string>
+    <string name="window_secure_mode_summary">スクリーンショットを無効にし、セキュアでないディスプレイ上のウィンドウの内容を隠す</string>
+    <string name="enable_dynamic_colors">ダイナミックカラー</string>
+    <string name="enable_icon_tinting">アイコンの着色を有効にする</string>
+    <string name="expand_special_cat">特別カテゴリーを展開</string>
+    <string name="headlines_set_display_mode">表示モード設定</string>
+    <string name="window_secure_mode">セキュアウィンドウモード</string>
+    <string name="enable_dynamic_colors_summary">デバイスのカラー設定に応じてUIを着色</string>
 </resources>
