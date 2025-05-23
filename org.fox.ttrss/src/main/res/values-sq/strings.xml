@@ -265,4 +265,14 @@
     <string name="article_edit_note">Përpunoni shënim</string>
     <string name="error_bad_request">Gabim: 400 kërkesë e gabuar</string>
     <string name="error_success">Veprimi u plotësua me sukses</string>
+    <string name="crash_dialog_text_email">Mjerisht, Tiny Tiny RSS është ndalur. Të parashtrohet njoftim vithisjeje me email?</string>
+    <string name="headlines_set_display_mode">Caktoni mënyrë shfaqjeje</string>
+    <string name="window_secure_mode_summary">Çaktivizon foto ekrani dhe fsheh lëndë dritareje në ekrane jo të siguruar</string>
+    <string name="window_secure_mode">Mënyrë dritare e siguruar</string>
+    <string name="enable_dynamic_colors_summary">Ngjyros UI-n sipas rregullimeve për ngjyrat në pajisjen tuaj</string>
+    <string name="enable_dynamic_colors">Ngjyra dinamike</string>
+    <string name="enable_icon_tinting">Aktivizo ngjyrosje ikonash</string>
+    <string name="enable_icon_tinting_summary">Çaktivizojeni, nëse keni probleme me dallimin e ikonave për shkak të ngjyrës së tyre</string>
+    <string name="expand_special_cat">Zgjero kategorinë Speciale</string>
+    <string name="confirm_catchup_above_title">T’u vihet shenjë krejt artikujve sipër “%1s” si të lexuar?</string>
 </resources>
