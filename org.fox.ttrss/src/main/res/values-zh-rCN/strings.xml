@@ -270,4 +270,16 @@
     <string name="headlines_display_mode">设置显示模式</string>
     <string name="catchup_dialog_title_search">将%1$s中的搜索结果标记为已读？</string>
     <string name="blank">" "</string>
+    <string name="article_edit_note">编辑注释</string>
+    <string name="error_success">操作已完成</string>
+    <string name="error_bad_request">错误：400错误请求</string>
+    <string name="headlines_set_display_mode">设置显示模式</string>
+    <string name="window_secure_mode">安全窗口模式</string>
+    <string name="enable_dynamic_colors_summary">根据设备的颜色设置UI色彩</string>
+    <string name="enable_dynamic_colors">动态色彩</string>
+    <string name="enable_icon_tinting">启用图标着色</string>
+    <string name="enable_icon_tinting_summary">如果由于图标的颜色而无法区分图标，请禁用</string>
+    <string name="expand_special_cat">展开特殊类别</string>
+    <string name="crash_dialog_text_email">抱歉，Tiny Tiny RSS已经崩溃。通过电子邮件提交崩溃报告？</string>
+    <string name="window_secure_mode_summary">禁用屏幕截图并隐藏非安全显示器上的窗口内容</string>
 </resources>
