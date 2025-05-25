@@ -413,7 +413,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
             }
 
             holder.view.setOnLongClickListener(view -> {
-                if (feed.id != Feed.TYPE_TOGGLE_UNREAD && feed.id != Feed.TYPE_DIVIDER && feed.id != Feed.TYPE_GOBACK && feed.id != Feed.ALL_ARTICLES) {
+                if (feed.id > Feed.TYPE_SENTINEL && feed.id != Feed.ALL_ARTICLES) {
                     m_list.showContextMenuForChild(view);
                 }
                 return true;
@@ -423,6 +423,9 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
             holder.view.setOnClickListener(view -> {
                 if (feed.id == Feed.TYPE_GOBACK) {
                     m_activity.getSupportFragmentManager().popBackStack();
+                } else if (feed.id == Feed.TYPE_SETTINGS) {
+                    Intent intent = new Intent(getActivity(), PreferencesActivity.class);
+                    startActivityForResult(intent, 0);
                 } else if (feed.id == Feed.TYPE_TOGGLE_UNREAD || feed.id == Feed.TYPE_DIVIDER) {
                     //
                 } else {
