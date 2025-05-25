@@ -10,53 +10,12 @@
     <com.google.android.material.appbar.AppBarLayout
         android:background="@null"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="8dp">
 
         <FrameLayout
             app:layout_scrollFlags="scroll|enterAlways"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <com.google.android.material.button.MaterialButton
-                style="?attr/materialIconButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleX="1.5"
-                android:scaleY="1.5"
-                app:icon="@drawable/baseline_settings_24"
-                android:id="@+id/drawer_settings_btn"
-                android:layout_gravity="center_vertical|end" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:id="@+id/linearLayout"
-                android:layout_gravity="center_horizontal|bottom">
-
-                <TextView
-                    android:id="@+id/drawer_header_login"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    tools:text="user"
-                    android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                    android:textColor="?attr/colorOnSurface"/>
-
-                <TextView
-                    android:id="@+id/drawer_header_server"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    tools:text="example.org"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"/>
-            </LinearLayout>
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/loading_progress"

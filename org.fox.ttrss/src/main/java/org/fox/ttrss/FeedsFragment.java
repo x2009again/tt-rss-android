@@ -184,33 +184,6 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
         m_adapter = new FeedsAdapter();
         m_list.setAdapter(m_adapter);
 
-        TextView login = view.findViewById(R.id.drawer_header_login);
-
-        if (login != null) {
-            login.setText(m_prefs.getString("login", ""));
-        }
-
-        TextView server = view.findViewById(R.id.drawer_header_server);
-
-        if (server != null) {
-            try {
-                server.setText(new URL(m_prefs.getString("ttrss_url", "")).getHost());
-            } catch (MalformedURLException e) {
-                server.setText("");
-            }
-        }
-
-        View settingsBtn = view.findViewById(R.id.drawer_settings_btn);
-
-        if (settingsBtn != null) {
-            settingsBtn.setOnClickListener(v -> {
-                Intent intent = new Intent(getActivity(),
-                        PreferencesActivity.class);
-
-                startActivityForResult(intent, 0);
-            });
-        }
-
         FeedsModel model = getModel();
 
         model.getUpdatesData().observe(m_activity, lastUpdate -> {
@@ -291,6 +264,7 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
 
         feedsWork.add(new Feed(Feed.TYPE_DIVIDER));
         feedsWork.add(new Feed(Feed.TYPE_TOGGLE_UNREAD, getString(R.string.unread_only), true));
+        feedsWork.add(new Feed(Feed.TYPE_SETTINGS, getString(R.string.preferences), true));
 
         m_adapter.submitList(feedsWork);
     }
@@ -508,6 +482,8 @@ public class FeedsFragment extends Fragment implements OnSharedPreferenceChangeL
     protected int getIconForFeed(Feed feed) {
         if (feed.id == Feed.TYPE_GOBACK) {
             return R.drawable.baseline_arrow_back_24;
+        } else if (feed.id == Feed.TYPE_SETTINGS) {
+            return R.drawable.baseline_settings_24;
         } else if (feed.id == Feed.CAT_LABELS && feed.is_cat) {
             return R.drawable.baseline_label_24;
         } else if (feed.id == Feed.CAT_SPECIAL && feed.is_cat) {

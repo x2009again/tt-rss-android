@@ -11,6 +11,7 @@ public class Feed implements Comparable<Feed>, Parcelable {
     public static final int TYPE_GOBACK = -10001;
     public static final int TYPE_DIVIDER = -10002;
     public static final int TYPE_TOGGLE_UNREAD = -10003;
+    public static final int TYPE_SETTINGS = -10004;
 
     public String feed_url;
     public String title;
