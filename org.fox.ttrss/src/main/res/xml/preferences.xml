@@ -190,6 +190,11 @@
             android:key="enable_article_fab"
             android:summary="@string/prefs_enable_fab_long"
             android:title="@string/prefs_enable_fab" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="article_javascript_enabled"
+            android:summary="@string/article_enable_javascript_summary"
+            android:title="@string/article_enable_javascript" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_opening_links" >
         <SwitchPreferenceCompat

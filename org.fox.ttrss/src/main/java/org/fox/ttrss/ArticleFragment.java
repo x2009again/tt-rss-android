@@ -274,7 +274,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
 
         String articleContent = m_article.content;
 
-        ws.setJavaScriptEnabled(false);
+        ws.setJavaScriptEnabled(m_prefs.getBoolean("article_javascript_enabled", false));
 
         m_web.setBackgroundColor(Color.TRANSPARENT);
 

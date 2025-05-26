@@ -315,4 +315,6 @@
     <string name="enable_icon_tinting">Enable icon tinting</string>
     <string name="enable_icon_tinting_summary">Disable if you have trouble distinguishing icons because of their color</string>
     <string name="expand_special_cat">Expand Special category</string>
+    <string name="article_enable_javascript">Enable JavaScript</string>
+    <string name="article_enable_javascript_summary">Some iframe-based video players require JavaScript, enable with caution</string>
 </resources>
