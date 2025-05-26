@@ -284,7 +284,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         // https://stackoverflow.com/questions/69368198/delete-item-in-android-viewpager2
         if (m_prefs.getBoolean("headlines_swipe_to_dismiss", true) && !(m_activity instanceof DetailActivity)) {
 
-            ItemTouchHelper swipeHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            ItemTouchHelper swipeHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
                 @Override
                 public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
