@@ -275,4 +275,6 @@
     <string name="enable_icon_tinting_summary">Çaktivizojeni, nëse keni probleme me dallimin e ikonave për shkak të ngjyrës së tyre</string>
     <string name="expand_special_cat">Zgjero kategorinë Speciale</string>
     <string name="confirm_catchup_above_title">T’u vihet shenjë krejt artikujve sipër “%1s” si të lexuar?</string>
+    <string name="article_enable_javascript">Aktivizo JavaScript-in</string>
+    <string name="article_enable_javascript_summary">Disa lojtës video të bazuar në iframe duan JavaScript, aktivizojeni me kujdes</string>
 </resources>
