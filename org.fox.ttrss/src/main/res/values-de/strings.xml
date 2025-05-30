@@ -308,4 +308,6 @@
     <string name="enable_icon_tinting_summary">Deaktivieren bei Problemen, die Symbole aufgrund ihrer Farbe zu unterscheiden</string>
     <string name="expand_special_cat">Sonderfeeds expandieren</string>
     <string name="headlines_set_display_mode">Anzeigemodus einstellen</string>
+    <string name="article_enable_javascript_summary">Manche IFrame-basierten Video-Player brauchen JavaScript, mit Vorsicht aktivieren</string>
+    <string name="article_enable_javascript">JavaScript aktivieren</string>
 </resources>
