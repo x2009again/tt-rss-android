@@ -3,7 +3,7 @@
     <string name="login_in_progress">ログイン中…</string>
     <string name="app_name">Tiny Tiny RSS</string>
     <string name="login_need_configure">まずはじめにアプリケーションの設定をしてください。</string>
-    <string name="login_ready">ログイン準備完了。</string>
+    <string name="login_ready">ログイン準備完了</string>
     <string name="login_login">ログイン</string>
     <string name="logout">ログアウト</string>
     <string name="login">ログイン</string>
@@ -298,4 +298,7 @@
     <string name="headlines_set_display_mode">表示モード設定</string>
     <string name="window_secure_mode">セキュアウィンドウモード</string>
     <string name="enable_dynamic_colors_summary">デバイスのカラー設定に応じてUIを着色</string>
+    <string name="article_enable_javascript">JavaScriptの有効化</string>
+    <string name="article_enable_javascript_summary">iframeベースのビデオプレーヤーにはJavaScriptを必要とするものがあります、注意して有効化</string>
+    <string name="confirm_catchup_above_title">\"%1s\"より上の記事をすべて既読にしますか？</string>
 </resources>
