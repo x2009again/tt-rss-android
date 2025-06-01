@@ -269,4 +269,12 @@
     <string name="blank">" "</string>
     <string name="headlines_display_mode">設定顯示模式</string>
     <string name="catchup_dialog_title_search">將 %1$s 的搜尋結果標示為已讀取嗎？</string>
+    <string name="article_enable_javascript">啟用 JavaScript</string>
+    <string name="article_edit_note">編輯註記</string>
+    <string name="error_success">操作完成</string>
+    <string name="error_bad_request">錯誤：400 錯誤的要求</string>
+    <string name="crash_dialog_text_email">很不幸，Tiny Tiny RSS 已停止運行。您願意透過電子郵件提交當機報告嗎？</string>
+    <string name="headlines_set_display_mode">設定顯示模式</string>
+    <string name="enable_dynamic_colors">動態顏色</string>
+    <string name="expand_special_cat">展開特殊類別</string>
 </resources>
