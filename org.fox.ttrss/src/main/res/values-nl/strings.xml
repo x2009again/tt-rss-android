@@ -141,8 +141,8 @@
     <string name="error_invalid_url">Fout: ongeldige URL.</string>
     <string name="error_url_is_an_html_page_no_feeds_found">Fout: URL is een HTML-pagina, geen feeds gevonden.</string>
     <string name="error_could_not_download_url">Fout: kon URL niet downloaden</string>
-    <string name="headlines_view_mode">Zet weergavemodus</string>
-    <string name="headlines_set_view_mode">Zet weergavemodus</string>
+    <string name="headlines_view_mode">Zet weergavemodus aan</string>
+    <string name="headlines_set_view_mode">Zet weergavemodus aan</string>
     <string name="headlines_adaptive">Aangepast</string>
     <string name="headlines_all_articles">Alle artikelen</string>
     <string name="headlines_starred">Met ster</string>
@@ -273,4 +273,19 @@
     <string name="open_on_startup">Open bij opstarten</string>
     <string name="headlines_display_mode">Stel weergave modus in</string>
     <string name="catchup_dialog_title_search">Markeer zoek resultaten in %1$s als gelezen?</string>
+    <string name="article_enable_javascript_summary">Sommige iframe-gebaseerde videospelers vereisen JavaScript, gebruik voorzichtig</string>
+    <string name="article_enable_javascript">Zet JavaScript aan</string>
+    <string name="article_edit_note">Pas notitie aan</string>
+    <string name="enable_dynamic_colors">Dynamische kleuren</string>
+    <string name="error_success">Bewerking volledig afgehandeld</string>
+    <string name="crash_dialog_text_email">Helaas is Tiny Tiny RSS gestopt. Een crash-rapport versturen via e-mail?</string>
+    <string name="confirm_catchup_above_title">Markeer alle artikelen boven \"%1s\" als gelezen?</string>
+    <string name="error_bad_request">Fout: 400 bad request</string>
+    <string name="headlines_set_display_mode">Zet weergavemodus</string>
+    <string name="window_secure_mode_summary">Zet screenshots uit en verberg venstercontent op niet-veilige schermen</string>
+    <string name="window_secure_mode">Veilige schermmodus</string>
+    <string name="enable_dynamic_colors_summary">Kleurt de UI op basis van de kleurinstelling van je apparaat</string>
+    <string name="enable_icon_tinting">Zet icoonkleuren aan</string>
+    <string name="enable_icon_tinting_summary">Zet uit als je problemen hebt om icoontjes te onderscheiden door hun kleur</string>
+    <string name="expand_special_cat">Klap categorie Special uit</string>
 </resources>
