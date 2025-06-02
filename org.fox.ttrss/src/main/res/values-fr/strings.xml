@@ -120,10 +120,12 @@
     <string name="error_ssl_hostname_rejected">Erreur : nom d\'hôte SSL refusé</string>
     <plurals name="article_comments">
         <item quantity="one">%1$d commentaire</item>
+        <item quantity="many">Un grand nombre de commentaires</item>
         <item quantity="other">%1$d commentaires</item>
     </plurals>
     <plurals name="trial_mode_prompt">
         <item quantity="one">Mode évaluation, un seul jour restant.</item>
+        <item quantity="many">Mode évaluation, un grand nombre de jours restant.</item>
         <item quantity="other">Mode évaluation, %1$d jours restants.</item>
     </plurals>
     <string name="trial_purchase">Débloquer la version complète</string>
@@ -166,14 +168,15 @@
     <string name="pref_headlines_mark_read_scroll">Automatiquement marquer les articles comme lus</string>
     <string name="pref_headlines_mark_read_scroll_long">Cette option permet de marquer automatiquement les articles comme lus lorsque vous naviguez dans la liste d\'articles</string>
     <plurals name="mark_num_headlines_as_read">
-        <item quantity="one">Marquer %1$d article comme lu ?</item>
-        <item quantity="other">Marquer %1$d articles comme lus ?</item>
+        <item quantity="one">Marquer %1$d article comme lu?</item>
+        <item quantity="many">Marquer un grand nombre d\'articles comme lu?</item>
+        <item quantity="other">Marquer %1$d articles comme lus?</item>
     </plurals>
     <string name="prefs_confirm_headlines_catchup">Confirmer marquer comme lu</string>
     <string name="author_formatted">%1$s</string>
     <plurals name="n_unread_articles">
-        <item quantity="zero">Aucun article non lu</item>
         <item quantity="one">Un article non lu</item>
+        <item quantity="many">Beaucoup d\'articles non lus</item>
         <item quantity="other">%1$d articles non lus</item>
     </plurals>
     <string name="pref_headline_font_size">Taille du texte des titres</string>
@@ -297,4 +300,6 @@
     <string name="force_phone_layout">Forcer l’affichage mobile</string>
     <string name="catchup_dialog_title">Marquer %1$s comme lu ?</string>
     <string name="headlines_display_mode">Changer l’affichage</string>
+    <string name="article_edit_note">Modifier la note</string>
+    <string name="crash_dialog_text_email">Malheureusement, Tiny Tiny RSS s\'est arrêté. Soumettre un rapport d\'incident par e-mail ?</string>
 </resources>
