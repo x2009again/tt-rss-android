@@ -7,12 +7,12 @@
     <string name="login_login">Accedi</string>
     <string name="logout">Esci</string>
     <string name="login">Accedi</string>
-    <string name="debugging">Debugging</string>
+    <string name="debugging">Debug</string>
     <string name="password">Password</string>
     <string name="default_url">http://esempio.dominio/tt-rss/</string>
     <string name="look_and_feel">Interfaccia</string>
     <string name="pref_theme">Tema</string>
-    <string name="ttrss_url">Tiny Tiny RSS URL</string>
+    <string name="ttrss_url">URL di Tiny Tiny RSS</string>
     <string name="theme_light">Chiaro</string>
     <string name="theme_dark">Scuro</string>
     <string name="preferences">Preferenze</string>
@@ -300,4 +300,19 @@
     <string name="blank">" "</string>
     <string name="headlines_display_mode">Imposta modalità di visualizzazione</string>
     <string name="catchup_dialog_title_search">Segna i risultati della ricerca %1$s come letti?</string>
+    <string name="article_enable_javascript_summary">Alcuni player video basati su iframe richiedono JavaScript, attivalo con cautela</string>
+    <string name="article_edit_note">Modifica la nota</string>
+    <string name="article_enable_javascript">Attiva JavaScript</string>
+    <string name="error_bad_request">Errore: 400 bad request</string>
+    <string name="window_secure_mode_summary">Disattiva gli screenshot e nascondi la finestra dei contenuti su schermi non sicuri</string>
+    <string name="crash_dialog_text_email">Sfortunatamente, Tiny Tiny RSS ha smesso di funzionare. Vuoi inviare un report via email?</string>
+    <string name="error_success">Operazione completata con successo</string>
+    <string name="headlines_set_display_mode">Imposta la modalità video</string>
+    <string name="confirm_catchup_above_title">Vuoi segnare come letti tutti gli articoli prima di \"%1s\"?</string>
+    <string name="window_secure_mode">Modalità schermo sicuro</string>
+    <string name="enable_dynamic_colors_summary">Colora la IU a seconda delle impostazioni del colore del tuo dispositivo</string>
+    <string name="enable_dynamic_colors">Colori dinamici</string>
+    <string name="enable_icon_tinting">Attiva la colorazione delle icone</string>
+    <string name="enable_icon_tinting_summary">Disattiva se hai problemi a distinguere le icone a causa del loro colore</string>
+    <string name="expand_special_cat">Espandi le categorie speciali</string>
 </resources>
