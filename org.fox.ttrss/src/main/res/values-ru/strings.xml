@@ -110,9 +110,10 @@
         <item quantity="many">%1$d комментариев</item>
     </plurals>
     <plurals name="trial_mode_prompt">
-        <item quantity="one">Пробный режим, остался один день.</item>
+        <item quantity="one">Пробный режим, остался %1$d день.</item>
         <item quantity="few">Пробный режим, осталось %1$d дня.</item>
         <item quantity="many">Пробный режим, осталось %1$d дней.</item>
+        <item quantity="other">Пробный режим, осталось %1$d дней.</item>
     </plurals>
     <string name="trial_purchase">Купить полную версию</string>
     <string name="trial_expired">Пробный режим завершен</string>
@@ -229,9 +230,10 @@
     <string name="api_too_low">Для этого действия требуется более новая версия Tiny Tiny RSS</string>
     <string name="author_formatted">%1$s</string>
     <plurals name="n_unread_articles">
-        <item quantity="one">Одна непрочитанная статья</item>
-        <item quantity="few">Нет непрочитанных статей</item>
+        <item quantity="one">%1$d непрочитанная статья</item>
+        <item quantity="few">%1$d непрочитанные статьи</item>
         <item quantity="many">%1$d непрочитанных статей</item>
+        <item quantity="other">%1$d непрочитанных статей</item>
     </plurals>
     <string name="context_confirm_catchup">Отметить все статьи в %1$s как прочитанные\?</string>
     <string name="accel_webview_summary">Отключите, если вы видите мерцание или визуальные глюки</string>
@@ -243,7 +245,7 @@
     <string name="prefs_build_timestamp_title">Построить временную метку</string>
     <string name="crash_dialog_text">К сожалению, Tiny Tiny RSS был остановлен. Отправить отчет о сбое на tt-rss.org\?</string>
     <string name="offline_no_articles">Нет загруженных статей</string>
-    <string name="prefs_enable_image_downsampling_long">Просит серверную часть уменьшить изображения, если не по Wi-Fi. Требуется плагин (ttrss-api-resize).</string>
+    <string name="prefs_enable_image_downsampling_long">Просить серверную часть уменьшить изображения, если не по Wi-Fi. Требуется дополнение (ttrss-api-resize)</string>
     <string name="prefs_enable_image_downsampling">Автоматическое изменение размеров изображений</string>
     <string name="prefs_inline_video_player">Экспериментальный. Долгое нажатие, чтобы открыть отдельный плеер</string>
     <string name="prefs_headline_images_wifi_only_long">Переопределяет предыдущую настройку</string>
