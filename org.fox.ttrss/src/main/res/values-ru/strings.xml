@@ -110,9 +110,10 @@
         <item quantity="many">%1$d комментариев</item>
     </plurals>
     <plurals name="trial_mode_prompt">
-        <item quantity="one">Пробный режим, остался один день.</item>
+        <item quantity="one">Пробный режим, остался %1$d день.</item>
         <item quantity="few">Пробный режим, осталось %1$d дня.</item>
         <item quantity="many">Пробный режим, осталось %1$d дней.</item>
+        <item quantity="other">Пробный режим, осталось %1$d дней.</item>
     </plurals>
     <string name="trial_purchase">Купить полную версию</string>
     <string name="trial_expired">Пробный режим завершен</string>
@@ -229,9 +230,10 @@
     <string name="api_too_low">Для этого действия требуется более новая версия Tiny Tiny RSS</string>
     <string name="author_formatted">%1$s</string>
     <plurals name="n_unread_articles">
-        <item quantity="one">Одна непрочитанная статья</item>
-        <item quantity="few">Нет непрочитанных статей</item>
+        <item quantity="one">%1$d непрочитанная статья</item>
+        <item quantity="few">%1$d непрочитанные статьи</item>
         <item quantity="many">%1$d непрочитанных статей</item>
+        <item quantity="other">%1$d непрочитанных статей</item>
     </plurals>
     <string name="context_confirm_catchup">Отметить все статьи в %1$s как прочитанные\?</string>
     <string name="accel_webview_summary">Отключите, если вы видите мерцание или визуальные глюки</string>
@@ -243,7 +245,7 @@
     <string name="prefs_build_timestamp_title">Построить временную метку</string>
     <string name="crash_dialog_text">К сожалению, Tiny Tiny RSS был остановлен. Отправить отчет о сбое на tt-rss.org\?</string>
     <string name="offline_no_articles">Нет загруженных статей</string>
-    <string name="prefs_enable_image_downsampling_long">Просит серверную часть уменьшить изображения, если не по Wi-Fi. Требуется плагин (ttrss-api-resize).</string>
+    <string name="prefs_enable_image_downsampling_long">Просить серверную часть уменьшить изображения, если не по Wi-Fi. Требуется дополнение (ttrss-api-resize)</string>
     <string name="prefs_enable_image_downsampling">Автоматическое изменение размеров изображений</string>
     <string name="prefs_inline_video_player">Экспериментальный. Долгое нажатие, чтобы открыть отдельный плеер</string>
     <string name="prefs_headline_images_wifi_only_long">Переопределяет предыдущую настройку</string>
@@ -253,4 +255,43 @@
     <string name="prefs_headline_request_size">Сколько заголовков запрашивать</string>
     <string name="prefs_always_open_uri_summary">Открывать статьи сразу в веб-браузере, вместо того чтобы переходить в подробный вид</string>
     <string name="prefs_always_open_uri">Всегда открывать в браузере</string>
+    <string name="blank">" "</string>
+    <string name="prefs_always_downsample_images">Всегда подгонять размер изображений</string>
+    <string name="prefs_always_downsample_images_long">Даже на Wi-Fi</string>
+    <string name="catchup_dialog_all_articles">Все статьи</string>
+    <string name="catchup_dialog_1day">Старше одного дня</string>
+    <string name="img_share_failed_to_load">Не удалось загрузить изображение для обмена</string>
+    <string name="img_share_image">Поделиться изображением</string>
+    <string name="update_categories">Обновить категории</string>
+    <string name="score_for_this_article">Оценка для этой статьи</string>
+    <string name="set_score">Оценить</string>
+    <string name="score_invalid">Неверная оценка</string>
+    <string name="article_enable_javascript_summary">Некоторые видеоплееры на основе iframe требуют JavaScript, включайте с осторожностью</string>
+    <string name="headlines_display_mode">Установить режим отображения</string>
+    <string name="prefs_inline_video_player_title">Встроить видеоплеер</string>
+    <string name="force_phone_layout_summary">На планшетных устройствах</string>
+    <string name="catchup_dialog_title">Отметить %1$s как прочитанную?</string>
+    <string name="catchup_dialog_title_search">Отметить результаты поиска в %1$s как прочитанные?</string>
+    <string name="article_edit_note">Править заметку</string>
+    <string name="error_success">Операция успешно завершена</string>
+    <string name="crash_dialog_text_email">К сожалению, Tiny Tiny RSS был закрыт. Отправить отчёт о сбое на tt-rss.org?</string>
+    <string name="force_phone_layout">Принудительно использовать вид для телефонов</string>
+    <string name="catchup_dialog_1week">Старше недели</string>
+    <string name="catchup_dialog_2week">Старше двух недель</string>
+    <string name="error_bad_request">Ошибка: 400 плохой запрос</string>
+    <string name="enable_dynamic_colors_summary">Показывает интерфейс в соответствии с цветовыми настройками вашего устройства</string>
+    <string name="enable_dynamic_colors">Динамические цвета</string>
+    <string name="enable_icon_tinting">Включить тонировку значка</string>
+    <string name="enable_icon_tinting_summary">Отключить, если у вас есть проблемы с различением значков из-за их цвета</string>
+    <string name="expand_special_cat">Расширить специальную категорию</string>
+    <string name="headlines_set_display_mode">Установить режим отображения</string>
+    <string name="article_enable_javascript">Включить JavaScript</string>
+    <string name="check_for_updates_summary">Проверять новые выпуски приложения при запуске</string>
+    <string name="dont_open_anything">Ничего</string>
+    <string name="window_secure_mode_summary">Отключает снимки экрана и скрывает содержимое окна на незащищённых экранах</string>
+    <string name="img_share_url">Поделитесь этой ссылкой</string>
+    <string name="check_for_updates">Проверить обновления</string>
+    <string name="open_on_startup">Открыть при запуске</string>
+    <string name="confirm_catchup_above_title">Отметить все статьи в «%1s» как прочитанные?</string>
+    <string name="window_secure_mode">Режим безопасного окна</string>
 </resources>
