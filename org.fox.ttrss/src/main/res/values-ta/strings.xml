@@ -273,4 +273,19 @@
     <string name="catchup_dialog_2week">இரண்டு வாரங்களுக்கு மேல்</string>
     <string name="dont_open_anything">எதுவும்</string>
     <string name="open_on_startup">தொடக்கத்தில் திறந்திருக்கும்</string>
+    <string name="article_edit_note">குறிப்பைத் திருத்து</string>
+    <string name="crash_dialog_text_email">எதிர்பாராதவிதமாக, சிறிய சிறிய ஆர்.எச்.எச் நிறுத்தப்பட்டுள்ளது. செயலிழப்பு அறிக்கையை மின்னஞ்சல் வழியாக சமர்ப்பிக்கவா?</string>
+    <string name="confirm_catchup_above_title">\"%1s\" க்கு மேலே உள்ள அனைத்து கட்டுரைகளையும் வாசித்தபடி குறிக்கவும்?</string>
+    <string name="error_success">செயல்பாடு வெற்றிகரமாக முடிந்தது</string>
+    <string name="error_bad_request">பிழை: 400 மோசமான கோரிக்கை</string>
+    <string name="headlines_set_display_mode">காட்சி பயன்முறையை அமைக்கவும்</string>
+    <string name="window_secure_mode_summary">பாதுகாப்பற்ற காட்சிகளில் திரை சாட்களை முடக்குகிறது மற்றும் சாளர உள்ளடக்கங்களை மறைக்கிறது</string>
+    <string name="window_secure_mode">பாதுகாப்பான சாளர முறை</string>
+    <string name="enable_dynamic_colors_summary">உங்கள் சாதனத்தின் வண்ண அமைப்புகளின்படி இடைமுகம் ஐ சாயமிடுகிறது</string>
+    <string name="enable_dynamic_colors">மாறும் வண்ணங்கள்</string>
+    <string name="enable_icon_tinting">படவுரு சாயலை இயக்கவும்</string>
+    <string name="enable_icon_tinting_summary">ஐகான்களை அவற்றின் வண்ணத்தின் காரணமாக வேறுபடுத்துவதில் சிக்கல் இருந்தால் முடக்கு</string>
+    <string name="expand_special_cat">சிறப்பு வகையை விரிவாக்குங்கள்</string>
+    <string name="article_enable_javascript">சாவாச்கிரிப்டை இயக்கவும்</string>
+    <string name="article_enable_javascript_summary">சில iframe- அடிப்படையிலான வீடியோ வீரர்களுக்கு சாவாச்கிரிப்ட் தேவைப்படுகிறது, எச்சரிக்கையுடன் இயக்கவும்</string>
 </resources>
