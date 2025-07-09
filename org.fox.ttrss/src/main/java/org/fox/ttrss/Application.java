@@ -8,6 +8,7 @@ import android.os.Bundle;
 import com.google.android.material.color.DynamicColors;
 
 import org.acra.ACRA;
+import org.acra.ReportField;
 import org.acra.config.CoreConfigurationBuilder;
 import org.acra.config.DialogConfigurationBuilder;
 import org.acra.config.MailSenderConfigurationBuilder;
@@ -106,6 +107,7 @@ public class Application extends android.app.Application {
         if (!BuildConfig.DEBUG)
             ACRA.init(this, new CoreConfigurationBuilder()
                     .withBuildConfigClass(BuildConfig.class)
+                    .withReportContent(ReportField.APP_VERSION_NAME, ReportField.APP_VERSION_CODE, ReportField.STACK_TRACE)
                     .withReportFormat(StringFormat.KEY_VALUE_LIST)
                     .withPluginConfigurations(
                             new DialogConfigurationBuilder()
