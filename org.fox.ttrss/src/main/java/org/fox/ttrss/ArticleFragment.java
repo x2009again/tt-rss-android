@@ -299,6 +299,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
                 "body { padding : 0px; margin : " + margin8dp + "px; line-height : 1.3; word-wrap: break-word; }" +
                 "h1, h2, h3, h4, h5, h6 { line-height: 1; text-align: initial; }" +
                 "img, video, iframe { max-width : 100%; width : auto; height : auto; }" +
+                "img, video { object-fit : contain }" +
                 " table { width : 100%; }" +
                 cssOverride +
                 "</style>" +
