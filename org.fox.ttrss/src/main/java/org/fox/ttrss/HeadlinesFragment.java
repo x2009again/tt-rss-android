@@ -410,7 +410,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 if (dy > 0 && !m_isLazyLoading && !model.isLoading() && model.isLazyLoadEnabled() &&
                         lastVisibleItem >= Application.getArticles().size() - 5) {
 
-                    Log.d(TAG, "attempting to lazy load more articles...");
+                    Log.d(TAG, "attempting to lazy load more articles (onScrolled)...");
 
                     m_isLazyLoading = true;
 
@@ -441,6 +441,24 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             Log.d(TAG, "observed active article=" + activeArticle);
 
             if (activeArticle != null) {
+
+                // we can't be sure scrollToArticle() below actually does anything in DetailView because our fragment might be invisible in some layouts
+                // so we also trigger lazy load on active article change
+                if (m_activity instanceof DetailActivity) {
+                    int position = Application.getArticles().indexOf(activeArticle);
+
+                    if (!m_isLazyLoading && !model.isLoading() && model.isLazyLoadEnabled() &&
+                            position >= Application.getArticles().size() - 5) {
+
+                        Log.d(TAG, "attempting to lazy load more articles (observed active article change)...");
+
+                        m_isLazyLoading = true;
+
+                        // this has to be dispatched delayed, consequent adapter updates are forbidden in scroll handler
+                        new Handler().postDelayed(() -> refresh(true), 250);
+                    }
+                }
+
                 scrollToArticle(activeArticle);
             }
         });
