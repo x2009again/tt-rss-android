@@ -1,8 +1,5 @@
 package org.fox.ttrss.types;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO: serialize Labels
-public class Article implements Parcelable {
+public class Article {
     public static final int TYPE_AMR_FOOTER = -2;
 
     public static final int FLAVOR_KIND_ALBUM = 1;
@@ -72,10 +69,6 @@ public class Article implements Parcelable {
     transient public String flavorStreamUri;
     transient public String youtubeVid;
     transient public List<Element> mediaList = new ArrayList<>();
-
-    public Article(Parcel in) {
-        readFromParcel(in);
-    }
 
     public Article() {
 
@@ -236,81 +229,6 @@ public class Article implements Parcelable {
         youtubeVid = clone.youtubeVid;
         mediaList = new ArrayList<>(clone.mediaList);
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(id);
-        out.writeInt(unread ? 1 : 0);
-        out.writeInt(marked ? 1 : 0);
-        out.writeInt(published ? 1 : 0);
-        out.writeInt(score);
-        out.writeInt(updated);
-        out.writeInt(is_updated ? 1 : 0);
-        out.writeString(title);
-        out.writeString(link);
-        out.writeInt(feed_id);
-        out.writeStringList(tags);
-        out.writeString(content);
-        out.writeString(excerpt);
-        out.writeList(attachments);
-        out.writeString(feed_title);
-        out.writeInt(comments_count);
-        out.writeString(comments_link);
-        out.writeInt(always_display_attachments ? 1 : 0);
-        out.writeString(author);
-        out.writeString(note);
-        out.writeInt(selected ? 1 : 0);
-        out.writeString(site_url);
-    }
-
-    public void readFromParcel(Parcel in) {
-        id = in.readInt();
-        unread = in.readInt() == 1;
-        marked = in.readInt() == 1;
-        published = in.readInt() == 1;
-        score = in.readInt();
-        updated = in.readInt();
-        is_updated = in.readInt() == 1;
-        title = in.readString();
-        link = in.readString();
-        feed_id = in.readInt();
-
-        if (tags == null) tags = new ArrayList<>();
-        in.readStringList(tags);
-
-        content = in.readString();
-        excerpt = in.readString();
-
-        attachments = new ArrayList<>();
-        in.readList(attachments, Attachment.class.getClassLoader());
-
-        feed_title = in.readString();
-
-        comments_count = in.readInt();
-        comments_link = in.readString();
-        always_display_attachments = in.readInt() == 1;
-        author = in.readString();
-        note = in.readString();
-        selected = in.readInt() == 1;
-        site_url = in.readString();
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static final Parcelable.Creator CREATOR =
-            new Parcelable.Creator() {
-                public Article createFromParcel(Parcel in) {
-                    return new Article(in);
-                }
-
-                public Article[] newArray(int size) {
-                    return new Article[size];
-                }
-            };
 
     /**
      * set fields which might be missing during JSON deserialization to sane values

@@ -83,7 +83,9 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            m_article = savedInstanceState.getParcelable("m_article");
+            int articleId = savedInstanceState.getInt("m_articleId");
+
+            m_article = Application.getArticlesModel().getById(articleId);
         }
     }
 
@@ -389,6 +391,6 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
 
-        out.putParcelable("m_article", m_article);
+        out.putInt("m_articleId", m_article.id);
     }
 }
