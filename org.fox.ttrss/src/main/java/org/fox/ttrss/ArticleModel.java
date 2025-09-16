@@ -431,4 +431,11 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
         }).collect(Collectors.toList());
     }
 
+    // returns null if not found
+    public Article getById(final int id) {
+        return m_articles.getValue().stream().filter(a -> a.id == id)
+                .findFirst()
+                .orElse(null);
+    }
+
 }
