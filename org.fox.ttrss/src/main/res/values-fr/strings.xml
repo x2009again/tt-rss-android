@@ -168,9 +168,9 @@
     <string name="pref_headlines_mark_read_scroll">Automatiquement marquer les articles comme lus</string>
     <string name="pref_headlines_mark_read_scroll_long">Cette option permet de marquer automatiquement les articles comme lus lorsque vous naviguez dans la liste d\'articles</string>
     <plurals name="mark_num_headlines_as_read">
-        <item quantity="one">Marquer %1$d article comme lu?</item>
-        <item quantity="many">Marquer un grand nombre d\'articles comme lu?</item>
-        <item quantity="other">Marquer %1$d articles comme lus?</item>
+        <item quantity="one">Marquer %1$d article comme lu ?</item>
+        <item quantity="many">Marquer un grand nombre d\'articles comme lus ?</item>
+        <item quantity="other">Marquer %1$d articles comme lus ?</item>
     </plurals>
     <string name="prefs_confirm_headlines_catchup">Confirmer marquer comme lu</string>
     <string name="author_formatted">%1$s</string>
@@ -302,4 +302,17 @@
     <string name="headlines_display_mode">Changer l’affichage</string>
     <string name="article_edit_note">Modifier la note</string>
     <string name="crash_dialog_text_email">Malheureusement, Tiny Tiny RSS s\'est arrêté. Soumettre un rapport d\'incident par e-mail ?</string>
+    <string name="error_success">Opération terminée avec succès</string>
+    <string name="error_bad_request">Erreur : 400 mauvaise requête</string>
+    <string name="headlines_set_display_mode">Définir le mode d\'affichage</string>
+    <string name="window_secure_mode_summary">Désactive les captures d\'écran et cache le contenu des fenêtres sur les écrans non sécurisés</string>
+    <string name="window_secure_mode">Mode de fenêtre sécurisé</string>
+    <string name="enable_dynamic_colors_summary">Teinte l\'interface utilisateur en fonction des paramètres de couleur de votre appareil</string>
+    <string name="enable_dynamic_colors">Couleurs dynamiques</string>
+    <string name="enable_icon_tinting">Activer la teinture d\'icônes</string>
+    <string name="enable_icon_tinting_summary">Désactiver si vous avez du mal à distinguer les icônes à cause de leur couleur</string>
+    <string name="expand_special_cat">Développer la catégorie spéciale</string>
+    <string name="article_enable_javascript">Activer JavaScript</string>
+    <string name="article_enable_javascript_summary">Certains lecteurs vidéo basés sur Iframe ont besoin de JavaScript, activez avec prudence</string>
+    <string name="confirm_catchup_above_title">Marquer tous les articles au dessus de \"%1s\" comme lus ?</string>
 </resources>
